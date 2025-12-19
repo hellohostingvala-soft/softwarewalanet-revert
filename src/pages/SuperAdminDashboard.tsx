@@ -11,6 +11,7 @@ import GlobalMetrics from "@/components/admin/GlobalMetrics";
 import SecurityCenter from "@/components/admin/SecurityCenter";
 import AdminNotifications from "@/components/admin/AdminNotifications";
 import GlobalLiveControlCenter from "@/components/admin/GlobalLiveControlCenter";
+import GlobalBranchMap from "@/components/admin/GlobalBranchMap";
 import WalletFinanceConsole from "@/components/admin/WalletFinanceConsole";
 import LeadDistributionHub from "@/components/admin/LeadDistributionHub";
 import DeveloperTaskOrchestration from "@/components/admin/DeveloperTaskOrchestration";
@@ -55,7 +56,16 @@ const SuperAdminDashboard = () => {
   const renderContent = () => {
     switch (activeView) {
       case "live-control":
-        return <GlobalLiveControlCenter />;
+        return (
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 h-[calc(100vh-140px)]">
+            <div className="overflow-auto">
+              <GlobalLiveControlCenter />
+            </div>
+            <div className="h-full min-h-[600px]">
+              <GlobalBranchMap />
+            </div>
+          </div>
+        );
       case "overview":
         return <ModuleOverview />;
       case "lead-distribution":
