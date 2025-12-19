@@ -164,6 +164,92 @@ export type Database = {
           },
         ]
       }
+      demo_analytics: {
+        Row: {
+          avg_duration_seconds: number | null
+          bounce_rate: number | null
+          conversion_count: number | null
+          conversion_rate: number | null
+          created_at: string
+          date: string
+          demo_id: string
+          device_breakdown: Json | null
+          id: string
+          region_breakdown: Json | null
+          top_pages: Json | null
+          total_views: number | null
+          unique_views: number | null
+        }
+        Insert: {
+          avg_duration_seconds?: number | null
+          bounce_rate?: number | null
+          conversion_count?: number | null
+          conversion_rate?: number | null
+          created_at?: string
+          date?: string
+          demo_id: string
+          device_breakdown?: Json | null
+          id?: string
+          region_breakdown?: Json | null
+          top_pages?: Json | null
+          total_views?: number | null
+          unique_views?: number | null
+        }
+        Update: {
+          avg_duration_seconds?: number | null
+          bounce_rate?: number | null
+          conversion_count?: number | null
+          conversion_rate?: number | null
+          created_at?: string
+          date?: string
+          demo_id?: string
+          device_breakdown?: Json | null
+          id?: string
+          region_breakdown?: Json | null
+          top_pages?: Json | null
+          total_views?: number | null
+          unique_views?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_analytics_demo_id_fkey"
+            columns: ["demo_id"]
+            isOneToOne: false
+            referencedRelation: "demos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      demo_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+        }
+        Relationships: []
+      }
       demo_clicks: {
         Row: {
           browser: string | null
@@ -229,6 +315,107 @@ export type Database = {
           },
         ]
       }
+      demo_documents: {
+        Row: {
+          created_at: string
+          demo_id: string
+          document_type: string
+          id: string
+          is_public: boolean | null
+          title: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          demo_id: string
+          document_type: string
+          id?: string
+          is_public?: boolean | null
+          title: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          demo_id?: string
+          document_type?: string
+          id?: string
+          is_public?: boolean | null
+          title?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_documents_demo_id_fkey"
+            columns: ["demo_id"]
+            isOneToOne: false
+            referencedRelation: "demos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      demo_escalations: {
+        Row: {
+          acknowledged_at: string | null
+          alert_id: string | null
+          auto_escalated: boolean | null
+          created_at: string
+          demo_id: string
+          escalated_to_role: Database["public"]["Enums"]["app_role"] | null
+          escalated_to_user: string | null
+          escalation_level: number | null
+          id: string
+          reason: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          status: string | null
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          alert_id?: string | null
+          auto_escalated?: boolean | null
+          created_at?: string
+          demo_id: string
+          escalated_to_role?: Database["public"]["Enums"]["app_role"] | null
+          escalated_to_user?: string | null
+          escalation_level?: number | null
+          id?: string
+          reason: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          acknowledged_at?: string | null
+          alert_id?: string | null
+          auto_escalated?: boolean | null
+          created_at?: string
+          demo_id?: string
+          escalated_to_role?: Database["public"]["Enums"]["app_role"] | null
+          escalated_to_user?: string | null
+          escalation_level?: number | null
+          id?: string
+          reason?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_escalations_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "demo_alerts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demo_escalations_demo_id_fkey"
+            columns: ["demo_id"]
+            isOneToOne: false
+            referencedRelation: "demos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       demo_health: {
         Row: {
           checked_at: string
@@ -264,65 +451,302 @@ export type Database = {
           },
         ]
       }
+      demo_login_credentials: {
+        Row: {
+          created_at: string
+          demo_id: string
+          id: string
+          is_active: boolean | null
+          login_url: string | null
+          notes: string | null
+          password: string
+          role_type: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          demo_id: string
+          id?: string
+          is_active?: boolean | null
+          login_url?: string | null
+          notes?: string | null
+          password: string
+          role_type: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          demo_id?: string
+          id?: string
+          is_active?: boolean | null
+          login_url?: string | null
+          notes?: string | null
+          password?: string
+          role_type?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_login_credentials_demo_id_fkey"
+            columns: ["demo_id"]
+            isOneToOne: false
+            referencedRelation: "demos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      demo_renewal_logs: {
+        Row: {
+          auto_renewed: boolean | null
+          created_at: string
+          demo_id: string
+          id: string
+          new_expiry: string
+          notes: string | null
+          previous_expiry: string | null
+          renewed_by: string | null
+        }
+        Insert: {
+          auto_renewed?: boolean | null
+          created_at?: string
+          demo_id: string
+          id?: string
+          new_expiry: string
+          notes?: string | null
+          previous_expiry?: string | null
+          renewed_by?: string | null
+        }
+        Update: {
+          auto_renewed?: boolean | null
+          created_at?: string
+          demo_id?: string
+          id?: string
+          new_expiry?: string
+          notes?: string | null
+          previous_expiry?: string | null
+          renewed_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_renewal_logs_demo_id_fkey"
+            columns: ["demo_id"]
+            isOneToOne: false
+            referencedRelation: "demos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      demo_rental_links: {
+        Row: {
+          access_type: string | null
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          current_views: number | null
+          demo_id: string
+          expires_at: string
+          franchise_id: string | null
+          id: string
+          masked_url: string
+          max_views: number | null
+          notes: string | null
+          real_url: string
+          rejection_reason: string | null
+          requester_id: string
+          requester_role: Database["public"]["Enums"]["app_role"]
+          reseller_id: string | null
+          status: string | null
+        }
+        Insert: {
+          access_type?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          current_views?: number | null
+          demo_id: string
+          expires_at: string
+          franchise_id?: string | null
+          id?: string
+          masked_url: string
+          max_views?: number | null
+          notes?: string | null
+          real_url: string
+          rejection_reason?: string | null
+          requester_id: string
+          requester_role: Database["public"]["Enums"]["app_role"]
+          reseller_id?: string | null
+          status?: string | null
+        }
+        Update: {
+          access_type?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          current_views?: number | null
+          demo_id?: string
+          expires_at?: string
+          franchise_id?: string | null
+          id?: string
+          masked_url?: string
+          max_views?: number | null
+          notes?: string | null
+          real_url?: string
+          rejection_reason?: string | null
+          requester_id?: string
+          requester_role?: Database["public"]["Enums"]["app_role"]
+          reseller_id?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_rental_links_demo_id_fkey"
+            columns: ["demo_id"]
+            isOneToOne: false
+            referencedRelation: "demos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      demo_technologies: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+        }
+        Relationships: []
+      }
       demos: {
         Row: {
+          ai_category_suggestion: string | null
+          ai_tech_suggestion: string | null
           backup_url: string | null
           category: string
+          category_id: string | null
           created_at: string
           created_by: string | null
+          demo_banner_text: string | null
           description: string | null
+          disable_destructive: boolean | null
+          disable_exports: boolean | null
+          expiry_date: string | null
           health_check_interval: number | null
+          health_score: number | null
           id: string
+          is_trending: boolean | null
           last_health_check: string | null
           masked_url: string | null
           max_concurrent_logins: number | null
           multi_login_enabled: boolean | null
+          renewal_date: string | null
           status: Database["public"]["Enums"]["demo_status"]
           tech_stack: Database["public"]["Enums"]["demo_tech_stack"]
+          technology_id: string | null
           title: string
           updated_at: string
           uptime_percentage: number | null
           url: string
+          video_fallback_url: string | null
         }
         Insert: {
+          ai_category_suggestion?: string | null
+          ai_tech_suggestion?: string | null
           backup_url?: string | null
           category: string
+          category_id?: string | null
           created_at?: string
           created_by?: string | null
+          demo_banner_text?: string | null
           description?: string | null
+          disable_destructive?: boolean | null
+          disable_exports?: boolean | null
+          expiry_date?: string | null
           health_check_interval?: number | null
+          health_score?: number | null
           id?: string
+          is_trending?: boolean | null
           last_health_check?: string | null
           masked_url?: string | null
           max_concurrent_logins?: number | null
           multi_login_enabled?: boolean | null
+          renewal_date?: string | null
           status?: Database["public"]["Enums"]["demo_status"]
           tech_stack?: Database["public"]["Enums"]["demo_tech_stack"]
+          technology_id?: string | null
           title: string
           updated_at?: string
           uptime_percentage?: number | null
           url: string
+          video_fallback_url?: string | null
         }
         Update: {
+          ai_category_suggestion?: string | null
+          ai_tech_suggestion?: string | null
           backup_url?: string | null
           category?: string
+          category_id?: string | null
           created_at?: string
           created_by?: string | null
+          demo_banner_text?: string | null
           description?: string | null
+          disable_destructive?: boolean | null
+          disable_exports?: boolean | null
+          expiry_date?: string | null
           health_check_interval?: number | null
+          health_score?: number | null
           id?: string
+          is_trending?: boolean | null
           last_health_check?: string | null
           masked_url?: string | null
           max_concurrent_logins?: number | null
           multi_login_enabled?: boolean | null
+          renewal_date?: string | null
           status?: Database["public"]["Enums"]["demo_status"]
           tech_stack?: Database["public"]["Enums"]["demo_tech_stack"]
+          technology_id?: string | null
           title?: string
           updated_at?: string
           uptime_percentage?: number | null
           url?: string
+          video_fallback_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "demos_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "demo_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demos_technology_id_fkey"
+            columns: ["technology_id"]
+            isOneToOne: false
+            referencedRelation: "demo_technologies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       developer_activity_logs: {
         Row: {
@@ -3392,6 +3816,78 @@ export type Database = {
             columns: ["prime_user_id"]
             isOneToOne: false
             referencedRelation: "prime_user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rental_activity: {
+        Row: {
+          bounce: boolean | null
+          click_heatmap: Json | null
+          conversion_action: string | null
+          created_at: string
+          demo_id: string
+          duration_seconds: number | null
+          id: string
+          pages_visited: Json | null
+          rental_link_id: string
+          session_end: string | null
+          session_start: string | null
+          visitor_browser: string | null
+          visitor_city: string | null
+          visitor_country: string | null
+          visitor_device: string | null
+          visitor_ip: string | null
+        }
+        Insert: {
+          bounce?: boolean | null
+          click_heatmap?: Json | null
+          conversion_action?: string | null
+          created_at?: string
+          demo_id: string
+          duration_seconds?: number | null
+          id?: string
+          pages_visited?: Json | null
+          rental_link_id: string
+          session_end?: string | null
+          session_start?: string | null
+          visitor_browser?: string | null
+          visitor_city?: string | null
+          visitor_country?: string | null
+          visitor_device?: string | null
+          visitor_ip?: string | null
+        }
+        Update: {
+          bounce?: boolean | null
+          click_heatmap?: Json | null
+          conversion_action?: string | null
+          created_at?: string
+          demo_id?: string
+          duration_seconds?: number | null
+          id?: string
+          pages_visited?: Json | null
+          rental_link_id?: string
+          session_end?: string | null
+          session_start?: string | null
+          visitor_browser?: string | null
+          visitor_city?: string | null
+          visitor_country?: string | null
+          visitor_device?: string | null
+          visitor_ip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_activity_demo_id_fkey"
+            columns: ["demo_id"]
+            isOneToOne: false
+            referencedRelation: "demos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rental_activity_rental_link_id_fkey"
+            columns: ["rental_link_id"]
+            isOneToOne: false
+            referencedRelation: "demo_rental_links"
             referencedColumns: ["id"]
           },
         ]
