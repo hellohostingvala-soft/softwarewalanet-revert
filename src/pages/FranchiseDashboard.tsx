@@ -1,191 +1,33 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Bot, 
-  Zap, 
-  Menu, 
-  X, 
-  Users, 
-  Wallet, 
-  TrendingUp, 
-  Clock, 
-  CheckCircle,
-  Activity,
-  Target,
-  LayoutDashboard
-} from 'lucide-react';
-import { FranchiseSidebar } from '@/components/franchise/FranchiseSidebar';
+import { Bot, Zap } from 'lucide-react';
+import FranchiseNewSidebar from '@/components/franchise/FranchiseNewSidebar';
 import { FranchiseTopBar } from '@/components/franchise/FranchiseTopBar';
-import { TerritoryControlCenter } from '@/components/franchise/TerritoryControlCenter';
-import { LeadIntakeBoard } from '@/components/franchise/LeadIntakeBoard';
-import { DemoDistributionPanel } from '@/components/franchise/DemoDistributionPanel';
-import { ResellerManagementHub } from '@/components/franchise/ResellerManagementHub';
-import { CommissionWallet } from '@/components/franchise/CommissionWallet';
-import { LocalMarketingSuite } from '@/components/franchise/LocalMarketingSuite';
-import { EscalationSupport } from '@/components/franchise/EscalationSupport';
-import { TerritoryInsights } from '@/components/franchise/TerritoryInsights';
-import { ComplianceGuard } from '@/components/franchise/ComplianceGuard';
+import FranchiseDash from '@/components/franchise/FranchiseDash';
+import FranchiseLeadConsole from '@/components/franchise/FranchiseLeadConsole';
+import FranchiseDemoPanel from '@/components/franchise/FranchiseDemoPanel';
+import FranchiseWalletCommission from '@/components/franchise/FranchiseWalletCommission';
+import FranchiseContractTerritory from '@/components/franchise/FranchiseContractTerritory';
+import FranchiseAITraining from '@/components/franchise/FranchiseAITraining';
+import FranchisePerformanceBoard from '@/components/franchise/FranchisePerformanceBoard';
+import FranchiseEscalationScreen from '@/components/franchise/FranchiseEscalationScreen';
 import { FranchiseAuditLogs } from '@/components/franchise/FranchiseAuditLogs';
-import { Badge } from '@/components/ui/badge';
-
-// Command Overview Dashboard Component
-const CommandOverview = () => {
-  const metrics = [
-    { 
-      label: 'Active Leads', 
-      value: '347', 
-      change: '+18 this week', 
-      icon: Users,
-      iconColor: 'from-[hsl(200,80%,45%)] to-[hsl(200,80%,55%)]',
-      borderColor: 'border-[hsl(200,80%,50%)]'
-    },
-    { 
-      label: 'Pending Tasks', 
-      value: '23', 
-      change: '5 urgent', 
-      icon: Clock,
-      iconColor: 'from-[hsl(35,90%,50%)] to-[hsl(35,90%,60%)]',
-      borderColor: 'border-[hsl(35,90%,55%)]'
-    },
-    { 
-      label: 'Completed Sales', 
-      value: '89', 
-      change: '+12 this month', 
-      icon: CheckCircle,
-      iconColor: 'from-[hsl(160,70%,40%)] to-[hsl(160,70%,50%)]',
-      borderColor: 'border-[hsl(160,70%,45%)]'
-    },
-    { 
-      label: 'Avg Response Time', 
-      value: '2.4h', 
-      change: '-0.8h vs last month', 
-      icon: Activity,
-      iconColor: 'from-[hsl(280,70%,50%)] to-[hsl(280,70%,60%)]',
-      borderColor: 'border-[hsl(280,70%,55%)]'
-    },
-    { 
-      label: 'Commission Earned', 
-      value: '₹4.2L', 
-      change: '+23% growth', 
-      icon: Wallet,
-      iconColor: 'from-[hsl(45,90%,50%)] to-[hsl(45,90%,60%)]',
-      borderColor: 'border-[hsl(45,90%,55%)]'
-    },
-    { 
-      label: 'Conversion Rate', 
-      value: '26%', 
-      change: '+4% this quarter', 
-      icon: Target,
-      iconColor: 'from-[hsl(340,70%,50%)] to-[hsl(340,70%,60%)]',
-      borderColor: 'border-[hsl(340,70%,55%)]'
-    },
-  ];
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">
-            Command Overview
-          </h1>
-          <p className="text-sm text-[hsl(220,20%,60%)] mt-1">Real-time system metrics</p>
-        </div>
-        <Badge className="bg-[hsl(160,70%,45%)]/20 text-[hsl(160,70%,55%)] border border-[hsl(160,70%,45%)]/30 px-3 py-1">
-          <Activity className="w-3 h-3 mr-1.5" />
-          All systems operational
-        </Badge>
-      </div>
-
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {metrics.map((metric, index) => {
-          const IconComponent = metric.icon;
-          return (
-            <motion.div
-              key={metric.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.08 }}
-              className={`relative p-5 rounded-2xl bg-[hsl(220,50%,12%)]/80 border ${metric.borderColor}/30 hover:border-opacity-60 transition-all group overflow-hidden`}
-            >
-              {/* Subtle gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              
-              {/* Icon */}
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${metric.iconColor} flex items-center justify-center mb-4 shadow-lg`}>
-                <IconComponent className="w-6 h-6 text-white" />
-              </div>
-
-              {/* Label */}
-              <p className="text-sm text-[hsl(220,20%,60%)] mb-1">{metric.label}</p>
-              
-              {/* Value */}
-              <p className="text-3xl font-bold text-white mb-2">{metric.value}</p>
-              
-              {/* Change */}
-              <div className="flex items-center gap-1.5">
-                <TrendingUp className="w-3.5 h-3.5 text-[hsl(160,70%,55%)]" />
-                <span className="text-xs text-[hsl(160,70%,55%)]">{metric.change}</span>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: 'View All Leads', icon: Users, color: 'hsl(200,80%,50%)' },
-          { label: 'Check Wallet', icon: Wallet, color: 'hsl(45,90%,55%)' },
-          { label: 'Territory Map', icon: LayoutDashboard, color: 'hsl(160,70%,50%)' },
-          { label: 'AI Assistant', icon: Bot, color: 'hsl(280,70%,55%)' },
-        ].map((action, index) => {
-          const IconComponent = action.icon;
-          return (
-            <motion.button
-              key={action.label}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 + index * 0.05 }}
-              className="p-4 rounded-xl bg-[hsl(220,50%,12%)]/60 border border-[hsl(200,80%,40%)]/20 hover:border-[hsl(200,80%,50%)]/40 transition-all group"
-              whileHover={{ y: -2 }}
-            >
-              <IconComponent 
-                className="w-5 h-5 mb-2 transition-colors" 
-                style={{ color: action.color }}
-              />
-              <p className="text-sm text-[hsl(220,20%,70%)] group-hover:text-white transition-colors">
-                {action.label}
-              </p>
-            </motion.button>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
 
 const FranchiseDashboard = () => {
-  const navigate = useNavigate();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeItem, setActiveItem] = useState('dashboard');
+  const [activeSection, setActiveSection] = useState('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const renderContent = () => {
-    switch (activeItem) {
-      case 'territory': return <TerritoryControlCenter />;
-      case 'leads': return <LeadIntakeBoard />;
-      case 'demos': return <DemoDistributionPanel />;
-      case 'resellers': return <ResellerManagementHub />;
-      case 'wallet': return <CommissionWallet />;
-      case 'marketing': return <LocalMarketingSuite />;
-      case 'escalation': return <EscalationSupport />;
-      case 'insights': return <TerritoryInsights />;
-      case 'compliance': return <ComplianceGuard />;
+    switch (activeSection) {
+      case 'leads': return <FranchiseLeadConsole />;
+      case 'demos': return <FranchiseDemoPanel />;
+      case 'wallet': return <FranchiseWalletCommission />;
+      case 'territory': return <FranchiseContractTerritory />;
+      case 'training': return <FranchiseAITraining />;
+      case 'performance': return <FranchisePerformanceBoard />;
+      case 'escalations': return <FranchiseEscalationScreen />;
       case 'audit': return <FranchiseAuditLogs />;
-      default: return <CommandOverview />;
+      default: return <FranchiseDash />;
     }
   };
 
@@ -202,14 +44,12 @@ const FranchiseDashboard = () => {
         }} />
       </div>
 
-      <FranchiseSidebar
-        activeItem={activeItem}
-        onItemChange={setActiveItem}
-        collapsed={sidebarCollapsed}
-        onCollapsedChange={setSidebarCollapsed}
+      <FranchiseNewSidebar
+        activeSection={activeSection}
+        onSectionChange={setActiveSection}
       />
 
-      <main className={`relative transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
+      <main className="relative transition-all duration-300 lg:ml-64">
         <FranchiseTopBar
           onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
           mobileMenuOpen={mobileMenuOpen}
@@ -218,7 +58,7 @@ const FranchiseDashboard = () => {
         <div className="p-4 lg:p-6">
           <AnimatePresence mode="wait">
             <motion.div
-              key={activeItem}
+              key={activeSection}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
