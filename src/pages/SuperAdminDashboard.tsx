@@ -20,6 +20,8 @@ import PerformanceScoringAI from "@/components/admin/PerformanceScoringAI";
 import ComplianceLegalShield from "@/components/admin/ComplianceLegalShield";
 import EmergencyBuzzerControls from "@/components/admin/EmergencyBuzzerControls";
 import HeaderAlertStack from "@/components/shared/HeaderAlertStack";
+import LiveAlertGrid from "@/components/admin/LiveAlertGrid";
+import FloatingChatButton from "@/components/admin/FloatingChatButton";
 import type { NotificationAlert } from "@/components/shared/GlobalNotificationHeader";
 
 type AdminView =
@@ -125,6 +127,9 @@ const SuperAdminDashboard = () => {
       case "live-control":
         return (
           <div className="space-y-6">
+            {/* Live Alert Grid - 2x2 */}
+            <LiveAlertGrid />
+            
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               <div className="overflow-auto max-h-[600px]">
                 <GlobalLiveControlCenter />
@@ -209,6 +214,12 @@ const SuperAdminDashboard = () => {
           onAction={handleNotificationAction}
         />
       )}
+
+      {/* Floating Chat Button */}
+      <FloatingChatButton 
+        unreadCount={5} 
+        onClick={() => setShowNotifications(true)} 
+      />
 
       <AdminNotifications 
         open={showNotifications} 
