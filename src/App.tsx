@@ -30,6 +30,7 @@ import SalesSupportDashboard from "./pages/SalesSupportDashboard";
 import HRDashboard from "./pages/HRDashboard";
 import SystemSettings from "./pages/SystemSettings";
 import NotificationBuzzerConsole from "./pages/NotificationBuzzerConsole";
+import APIIntegrationDashboard from "./pages/APIIntegrationDashboard";
 import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
@@ -67,6 +68,7 @@ const App = () => (
           <Route path="/hr-dashboard" element={<HRDashboard />} />
           <Route path="/system-settings" element={<SystemSettings />} />
           <Route path="/buzzer-console" element={<NotificationBuzzerConsole />} />
+          <Route path="/api-integrations" element={<APIIntegrationDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
