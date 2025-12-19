@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, Zap } from 'lucide-react';
-import FranchiseNewSidebar from '@/components/franchise/FranchiseNewSidebar';
-import { FranchiseTopBar } from '@/components/franchise/FranchiseTopBar';
+import { 
+  LayoutDashboard, Users, Monitor, Wallet, MapPin,
+  GraduationCap, TrendingUp, AlertTriangle, Settings,
+  ChevronLeft, ChevronRight, Target, Zap, FileText
+} from 'lucide-react';
 import FranchiseDash from '@/components/franchise/FranchiseDash';
 import FranchiseLeadConsole from '@/components/franchise/FranchiseLeadConsole';
 import FranchiseDemoPanel from '@/components/franchise/FranchiseDemoPanel';
@@ -13,9 +15,21 @@ import FranchisePerformanceBoard from '@/components/franchise/FranchisePerforman
 import FranchiseEscalationScreen from '@/components/franchise/FranchiseEscalationScreen';
 import { FranchiseAuditLogs } from '@/components/franchise/FranchiseAuditLogs';
 
+const menuItems = [
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'leads', label: 'Lead Console', icon: Users, badge: 8 },
+  { id: 'demos', label: 'Demo Access', icon: Monitor },
+  { id: 'wallet', label: 'Wallet & Commission', icon: Wallet },
+  { id: 'territory', label: 'Territory & Contract', icon: MapPin },
+  { id: 'training', label: 'AI Training', icon: GraduationCap, badge: 'AI' },
+  { id: 'performance', label: 'Performance', icon: TrendingUp },
+  { id: 'escalations', label: 'Escalations', icon: AlertTriangle },
+  { id: 'audit', label: 'Audit Logs', icon: FileText },
+];
+
 const FranchiseDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   const renderContent = () => {
     switch (activeSection) {
@@ -32,87 +46,184 @@ const FranchiseDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(220,55%,6%)]">
-      {/* Background Pattern */}
-      <div className="fixed inset-0 opacity-30">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `
-            radial-gradient(circle at 20% 50%, hsl(200,80%,50%)/0.08 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, hsl(280,70%,50%)/0.05 0%, transparent 40%),
-            radial-gradient(circle at 40% 80%, hsl(160,70%,50%)/0.05 0%, transparent 40%)
-          `
-        }} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white overflow-hidden">
+      {/* Animated Background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(99,102,241,0.15),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(139,92,246,0.1),transparent_50%)]" />
+        <svg className="absolute inset-0 w-full h-full opacity-5">
+          <defs>
+            <pattern id="franchise-grid" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
+              <circle cx="40" cy="40" r="1" fill="currentColor" className="text-indigo-400" />
+              <line x1="40" y1="0" x2="40" y2="80" stroke="currentColor" strokeWidth="0.2" className="text-purple-500" />
+              <line x1="0" y1="40" x2="80" y2="40" stroke="currentColor" strokeWidth="0.2" className="text-purple-500" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#franchise-grid)" />
+        </svg>
+        {[...Array(15)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-indigo-400 rounded-full"
+            style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%` }}
+            animate={{ y: [0, -40, 0], opacity: [0.2, 0.8, 0.2], scale: [1, 1.5, 1] }}
+            transition={{ duration: 4 + Math.random() * 3, repeat: Infinity, delay: Math.random() * 2 }}
+          />
+        ))}
       </div>
 
-      <FranchiseNewSidebar
-        activeSection={activeSection}
-        onSectionChange={setActiveSection}
-      />
+      {/* Top Bar */}
+      <header className="fixed top-0 left-0 right-0 h-16 bg-slate-900/80 backdrop-blur-xl border-b border-indigo-500/20 z-50 flex items-center justify-between px-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+            <Zap className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="font-bold text-white">SOFTWARE VALA</h1>
+            <p className="text-xs text-indigo-400">Franchise Portal</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <motion.div
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30"
+            animate={{ opacity: [0.7, 1, 0.7] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <div className="w-2 h-2 rounded-full bg-indigo-400" />
+            <span className="text-xs text-indigo-400">Online</span>
+          </motion.div>
+        </div>
+      </header>
 
-      <main className="relative transition-all duration-300 lg:ml-64">
-        <FranchiseTopBar
-          onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
-          mobileMenuOpen={mobileMenuOpen}
-        />
+      <div className="flex pt-16">
+        {/* Sidebar */}
+        <motion.aside
+          initial={{ x: -100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          className={`fixed left-0 top-16 bottom-0 ${collapsed ? 'w-20' : 'w-64'} bg-slate-900/60 backdrop-blur-xl border-r border-indigo-500/20 z-40 transition-all duration-300`}
+        >
+          {/* Collapse Toggle */}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="absolute -right-3 top-6 w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-indigo-500/50 hover:bg-indigo-400 transition-colors"
+          >
+            {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          </button>
 
-        <div className="p-4 lg:p-6">
+          {/* Navigation */}
+          <nav className="p-4 space-y-2 mt-4">
+            {menuItems.map((item, index) => (
+              <motion.button
+                key={item.id}
+                initial={{ x: -50, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: index * 0.03 }}
+                onClick={() => setActiveSection(item.id)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
+                  activeSection === item.id
+                    ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/10 border border-indigo-500/50 text-indigo-400 shadow-lg shadow-indigo-500/10'
+                    : 'hover:bg-slate-800/50 text-slate-400 hover:text-indigo-400'
+                }`}
+              >
+                <div className={`relative ${activeSection === item.id ? 'text-indigo-400' : ''}`}>
+                  <item.icon className="w-5 h-5" />
+                  {activeSection === item.id && (
+                    <motion.div
+                      layoutId="franchise-sidebar-glow"
+                      className="absolute inset-0 bg-indigo-400/30 blur-md rounded-full"
+                    />
+                  )}
+                </div>
+                {!collapsed && (
+                  <>
+                    <span className="font-medium flex-1 text-left text-sm">{item.label}</span>
+                    {item.badge && (
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                        item.badge === 'AI' 
+                          ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white'
+                          : 'bg-indigo-500/20 text-indigo-400'
+                      }`}>
+                        {item.badge}
+                      </span>
+                    )}
+                    {activeSection === item.id && (
+                      <motion.div
+                        layoutId="franchise-active-dot"
+                        className="w-2 h-2 bg-indigo-400 rounded-full shadow-lg shadow-indigo-400/50"
+                      />
+                    )}
+                  </>
+                )}
+              </motion.button>
+            ))}
+          </nav>
+
+          {/* Performance Widget */}
+          {!collapsed && (
+            <div className="absolute bottom-20 left-4 right-4">
+              <div className="p-4 rounded-xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20">
+                <div className="flex items-center gap-2 mb-3">
+                  <Target className="w-4 h-4 text-indigo-400" />
+                  <span className="text-sm text-indigo-400 font-semibold">Monthly Target</span>
+                </div>
+                <div className="space-y-2">
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-slate-400">Sales</span>
+                      <span className="text-emerald-400">₹8.5L / ₹10L</span>
+                    </div>
+                    <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full bg-gradient-to-r from-indigo-500 to-purple-500"
+                        initial={{ width: 0 }}
+                        animate={{ width: '85%' }}
+                        transition={{ duration: 1 }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-slate-400">Leads Closed</span>
+                      <span className="text-indigo-400">42 / 50</span>
+                    </div>
+                    <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full bg-gradient-to-r from-emerald-500 to-teal-500"
+                        initial={{ width: 0 }}
+                        animate={{ width: '84%' }}
+                        transition={{ duration: 1, delay: 0.1 }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Settings Button */}
+          <div className="absolute bottom-4 left-4 right-4">
+            <button className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-indigo-400 hover:bg-slate-800/50 transition-all ${collapsed ? 'justify-center' : ''}`}>
+              <Settings className="w-5 h-5" />
+              {!collapsed && <span className="font-medium">Settings</span>}
+            </button>
+          </div>
+        </motion.aside>
+
+        {/* Main Content */}
+        <main className={`flex-1 ${collapsed ? 'ml-20' : 'ml-64'} p-6 min-h-screen transition-all duration-300`}>
           <AnimatePresence mode="wait">
             <motion.div
               key={activeSection}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
             >
               {renderContent()}
             </motion.div>
           </AnimatePresence>
-        </div>
-
-        {/* AI Assistant Indicator */}
-        <motion.div
-          className="fixed bottom-6 right-6 bg-[hsl(220,50%,12%)]/90 backdrop-blur-xl px-4 py-3 rounded-full flex items-center gap-3 cursor-pointer border border-[hsl(200,80%,40%)]/30 hover:border-[hsl(200,80%,50%)]/50 transition-all shadow-lg"
-          whileHover={{ scale: 1.05 }}
-        >
-          <motion.div
-            className="w-2.5 h-2.5 rounded-full bg-[hsl(160,70%,50%)]"
-            animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          />
-          <span className="text-sm text-[hsl(220,20%,70%)]">AI Assistant Active</span>
-          <Bot className="w-4 h-4 text-[hsl(200,80%,60%)]" />
-        </motion.div>
-      </main>
-
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 lg:hidden"
-          >
-            <div className="absolute inset-0 bg-[hsl(220,55%,4%)]/90 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
-            <motion.div
-              initial={{ x: -300 }}
-              animate={{ x: 0 }}
-              exit={{ x: -300 }}
-              className="absolute left-0 top-0 bottom-0 w-64 bg-[hsl(220,60%,8%)] border-r border-[hsl(200,80%,40%)]/20 p-4"
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[hsl(200,80%,50%)] to-[hsl(180,70%,45%)] flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <p className="font-bold text-sm text-white">SOFTWARE VALA</p>
-                  <p className="text-[10px] text-[hsl(200,80%,60%)]">Franchise Portal</p>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </main>
+      </div>
     </div>
   );
 };

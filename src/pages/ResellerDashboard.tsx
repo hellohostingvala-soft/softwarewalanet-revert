@@ -1,23 +1,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { 
-  Bot, 
-  Zap, 
-  Menu, 
-  X,
-  Users,
-  Wallet,
-  TrendingUp,
-  Clock,
-  CheckCircle,
-  Activity,
-  Target,
-  Link2,
-  MessageSquare
+  LayoutDashboard, Users, Link2, Wallet, MessageSquare, 
+  GraduationCap, HeadphonesIcon, Bot, BarChart3, Target,
+  Megaphone, Star, Settings, ChevronLeft, ChevronRight, Zap
 } from 'lucide-react';
-import { ResellerSidebar } from '@/components/reseller/ResellerSidebar';
-import { ResellerTopBar } from '@/components/reseller/ResellerTopBar';
 import { LeadInboxReseller } from '@/components/reseller/LeadInboxReseller';
 import { DemoSharingHub } from '@/components/reseller/DemoSharingHub';
 import { SalesScriptAI } from '@/components/reseller/SalesScriptAI';
@@ -28,154 +15,28 @@ import { ResellerPerformanceBoard } from '@/components/reseller/ResellerPerforma
 import { MicroTrainingLessons } from '@/components/reseller/MicroTrainingLessons';
 import ResellerEscalations from '@/components/reseller/ResellerEscalations';
 import ResellerTargets from '@/components/reseller/ResellerTargets';
-import { Badge } from '@/components/ui/badge';
+import ResellerDash from '@/components/reseller/ResellerDash';
 
-// Command Overview Dashboard
-const CommandOverview = () => {
-  const metrics = [
-    { 
-      label: 'Total Leads', 
-      value: '234', 
-      change: '+18 this week', 
-      icon: Users,
-      iconColor: 'from-[hsl(200,80%,45%)] to-[hsl(200,80%,55%)]',
-      borderColor: 'border-[hsl(200,80%,50%)]'
-    },
-    { 
-      label: 'Pending Follow-ups', 
-      value: '15', 
-      change: '3 urgent', 
-      icon: Clock,
-      iconColor: 'from-[hsl(35,90%,50%)] to-[hsl(35,90%,60%)]',
-      borderColor: 'border-[hsl(35,90%,55%)]'
-    },
-    { 
-      label: 'Conversions', 
-      value: '42', 
-      change: '+8 this month', 
-      icon: CheckCircle,
-      iconColor: 'from-[hsl(160,70%,40%)] to-[hsl(160,70%,50%)]',
-      borderColor: 'border-[hsl(160,70%,45%)]'
-    },
-    { 
-      label: 'Conversion Rate', 
-      value: '18%', 
-      change: '+2.5% vs last month', 
-      icon: Activity,
-      iconColor: 'from-[hsl(280,70%,50%)] to-[hsl(280,70%,60%)]',
-      borderColor: 'border-[hsl(280,70%,55%)]'
-    },
-    { 
-      label: 'Commission', 
-      value: '₹1.26L', 
-      change: '₹15K pending', 
-      icon: Wallet,
-      iconColor: 'from-[hsl(45,90%,50%)] to-[hsl(45,90%,60%)]',
-      borderColor: 'border-[hsl(45,90%,55%)]'
-    },
-    { 
-      label: 'Monthly Target', 
-      value: '78%', 
-      change: '₹22K to goal', 
-      icon: Target,
-      iconColor: 'from-[hsl(340,70%,50%)] to-[hsl(340,70%,60%)]',
-      borderColor: 'border-[hsl(340,70%,55%)]'
-    },
-  ];
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">
-            Command Overview
-          </h1>
-          <p className="text-sm text-[hsl(220,20%,60%)] mt-1">Real-time sales metrics</p>
-        </div>
-        <Badge className="bg-[hsl(160,70%,45%)]/20 text-[hsl(160,70%,55%)] border border-[hsl(160,70%,45%)]/30 px-3 py-1">
-          <Activity className="w-3 h-3 mr-1.5" />
-          All systems operational
-        </Badge>
-      </div>
-
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {metrics.map((metric, index) => {
-          const IconComponent = metric.icon;
-          return (
-            <motion.div
-              key={metric.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.08 }}
-              className={`relative p-5 rounded-2xl bg-[hsl(220,50%,12%)]/80 border ${metric.borderColor}/30 hover:border-opacity-60 transition-all group overflow-hidden`}
-            >
-              {/* Subtle gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              
-              {/* Icon */}
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${metric.iconColor} flex items-center justify-center mb-4 shadow-lg`}>
-                <IconComponent className="w-6 h-6 text-white" />
-              </div>
-
-              {/* Label */}
-              <p className="text-sm text-[hsl(220,20%,60%)] mb-1">{metric.label}</p>
-              
-              {/* Value */}
-              <p className="text-3xl font-bold text-white mb-2">{metric.value}</p>
-              
-              {/* Change */}
-              <div className="flex items-center gap-1.5">
-                <TrendingUp className="w-3.5 h-3.5 text-[hsl(160,70%,55%)]" />
-                <span className="text-xs text-[hsl(160,70%,55%)]">{metric.change}</span>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: 'View Leads', icon: Users, color: 'hsl(200,80%,50%)' },
-          { label: 'Share Demo', icon: Link2, color: 'hsl(45,90%,55%)' },
-          { label: 'Customer Chat', icon: MessageSquare, color: 'hsl(160,70%,50%)' },
-          { label: 'AI Scripts', icon: Bot, color: 'hsl(280,70%,55%)' },
-        ].map((action, index) => {
-          const IconComponent = action.icon;
-          return (
-            <motion.button
-              key={action.label}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 + index * 0.05 }}
-              className="p-4 rounded-xl bg-[hsl(220,50%,12%)]/60 border border-[hsl(200,80%,40%)]/20 hover:border-[hsl(200,80%,50%)]/40 transition-all group"
-              whileHover={{ y: -2 }}
-            >
-              <IconComponent 
-                className="w-5 h-5 mb-2 transition-colors" 
-                style={{ color: action.color }}
-              />
-              <p className="text-sm text-[hsl(220,20%,70%)] group-hover:text-white transition-colors">
-                {action.label}
-              </p>
-            </motion.button>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
+const menuItems = [
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'leads', label: 'Lead Inbox', icon: Users, badge: 12 },
+  { id: 'demos', label: 'Demo Sharing', icon: Link2 },
+  { id: 'scripts', label: 'AI Sales Script', icon: Bot, badge: 'AI' },
+  { id: 'wallet', label: 'Wallet & Commission', icon: Wallet },
+  { id: 'chat', label: 'Customer Chat', icon: MessageSquare, badge: 5 },
+  { id: 'marketing', label: 'Marketing Toolkit', icon: Megaphone },
+  { id: 'targets', label: 'Targets & Goals', icon: Target },
+  { id: 'performance', label: 'Performance', icon: BarChart3 },
+  { id: 'escalations', label: 'Escalations', icon: HeadphonesIcon },
+  { id: 'training', label: 'Micro Training', icon: GraduationCap },
+];
 
 const ResellerDashboard = () => {
-  const navigate = useNavigate();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeItem, setActiveItem] = useState('dashboard');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('dashboard');
+  const [collapsed, setCollapsed] = useState(false);
 
   const renderContent = () => {
-    switch (activeItem) {
+    switch (activeSection) {
       case 'leads': return <LeadInboxReseller />;
       case 'demos': return <DemoSharingHub />;
       case 'scripts': return <SalesScriptAI />;
@@ -186,94 +47,189 @@ const ResellerDashboard = () => {
       case 'training': return <MicroTrainingLessons />;
       case 'escalations': return <ResellerEscalations />;
       case 'targets': return <ResellerTargets />;
-      default: return <CommandOverview />;
+      default: return <ResellerDash />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(220,55%,6%)]">
-      {/* Background Pattern */}
-      <div className="fixed inset-0 opacity-30">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `
-            radial-gradient(circle at 20% 50%, hsl(200,80%,50%)/0.08 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, hsl(260,70%,55%)/0.05 0%, transparent 40%),
-            radial-gradient(circle at 40% 80%, hsl(160,70%,50%)/0.05 0%, transparent 40%)
-          `
-        }} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-900 text-white overflow-hidden">
+      {/* Animated Background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.15),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(6,182,212,0.1),transparent_50%)]" />
+        <svg className="absolute inset-0 w-full h-full opacity-5">
+          <defs>
+            <pattern id="reseller-grid" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
+              <circle cx="40" cy="40" r="1" fill="currentColor" className="text-emerald-400" />
+              <line x1="40" y1="0" x2="40" y2="80" stroke="currentColor" strokeWidth="0.2" className="text-teal-500" />
+              <line x1="0" y1="40" x2="80" y2="40" stroke="currentColor" strokeWidth="0.2" className="text-teal-500" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#reseller-grid)" />
+        </svg>
+        {[...Array(15)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-emerald-400 rounded-full"
+            style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%` }}
+            animate={{ y: [0, -40, 0], opacity: [0.2, 0.8, 0.2], scale: [1, 1.5, 1] }}
+            transition={{ duration: 4 + Math.random() * 3, repeat: Infinity, delay: Math.random() * 2 }}
+          />
+        ))}
       </div>
 
-      <ResellerSidebar
-        activeItem={activeItem}
-        onItemChange={setActiveItem}
-        collapsed={sidebarCollapsed}
-        onCollapsedChange={setSidebarCollapsed}
-      />
+      {/* Top Bar */}
+      <header className="fixed top-0 left-0 right-0 h-16 bg-slate-900/80 backdrop-blur-xl border-b border-emerald-500/20 z-50 flex items-center justify-between px-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+            <Zap className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="font-bold text-white">SOFTWARE VALA</h1>
+            <p className="text-xs text-emerald-400">Reseller Portal</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <motion.div
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30"
+            animate={{ opacity: [0.7, 1, 0.7] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <div className="w-2 h-2 rounded-full bg-emerald-400" />
+            <span className="text-xs text-emerald-400">Online</span>
+          </motion.div>
+        </div>
+      </header>
 
-      <main className={`relative transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
-        <ResellerTopBar
-          onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
-          mobileMenuOpen={mobileMenuOpen}
-        />
+      <div className="flex pt-16">
+        {/* Sidebar */}
+        <motion.aside
+          initial={{ x: -100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          className={`fixed left-0 top-16 bottom-0 ${collapsed ? 'w-20' : 'w-64'} bg-slate-900/60 backdrop-blur-xl border-r border-emerald-500/20 z-40 transition-all duration-300`}
+        >
+          {/* Collapse Toggle */}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="absolute -right-3 top-6 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-emerald-500/50 hover:bg-emerald-400 transition-colors"
+          >
+            {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          </button>
 
-        <div className="p-4 lg:p-6">
+          {/* Navigation */}
+          <nav className="p-4 space-y-2 mt-4">
+            {menuItems.map((item, index) => (
+              <motion.button
+                key={item.id}
+                initial={{ x: -50, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: index * 0.03 }}
+                onClick={() => setActiveSection(item.id)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
+                  activeSection === item.id
+                    ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/10 border border-emerald-500/50 text-emerald-400 shadow-lg shadow-emerald-500/10'
+                    : 'hover:bg-slate-800/50 text-slate-400 hover:text-emerald-400'
+                }`}
+              >
+                <div className={`relative ${activeSection === item.id ? 'text-emerald-400' : ''}`}>
+                  <item.icon className="w-5 h-5" />
+                  {activeSection === item.id && (
+                    <motion.div
+                      layoutId="reseller-sidebar-glow"
+                      className="absolute inset-0 bg-emerald-400/30 blur-md rounded-full"
+                    />
+                  )}
+                </div>
+                {!collapsed && (
+                  <>
+                    <span className="font-medium flex-1 text-left text-sm">{item.label}</span>
+                    {item.badge && (
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                        item.badge === 'AI' 
+                          ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white'
+                          : 'bg-emerald-500/20 text-emerald-400'
+                      }`}>
+                        {item.badge}
+                      </span>
+                    )}
+                    {activeSection === item.id && (
+                      <motion.div
+                        layoutId="reseller-active-dot"
+                        className="w-2 h-2 bg-emerald-400 rounded-full shadow-lg shadow-emerald-400/50"
+                      />
+                    )}
+                  </>
+                )}
+              </motion.button>
+            ))}
+          </nav>
+
+          {/* Performance Widget */}
+          {!collapsed && (
+            <div className="absolute bottom-20 left-4 right-4">
+              <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20">
+                <div className="flex items-center gap-2 mb-3">
+                  <Star className="w-4 h-4 text-amber-400" />
+                  <span className="text-sm text-emerald-400 font-semibold">Performance</span>
+                </div>
+                <div className="space-y-2">
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-slate-400">Conversion</span>
+                      <span className="text-emerald-400">78%</span>
+                    </div>
+                    <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full bg-gradient-to-r from-emerald-500 to-teal-500"
+                        initial={{ width: 0 }}
+                        animate={{ width: '78%' }}
+                        transition={{ duration: 1 }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-slate-400">Rating</span>
+                      <span className="text-amber-400">4.2/5</span>
+                    </div>
+                    <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full bg-gradient-to-r from-amber-500 to-orange-500"
+                        initial={{ width: 0 }}
+                        animate={{ width: '84%' }}
+                        transition={{ duration: 1, delay: 0.1 }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Settings Button */}
+          <div className="absolute bottom-4 left-4 right-4">
+            <button className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-emerald-400 hover:bg-slate-800/50 transition-all ${collapsed ? 'justify-center' : ''}`}>
+              <Settings className="w-5 h-5" />
+              {!collapsed && <span className="font-medium">Settings</span>}
+            </button>
+          </div>
+        </motion.aside>
+
+        {/* Main Content */}
+        <main className={`flex-1 ${collapsed ? 'ml-20' : 'ml-64'} p-6 min-h-screen transition-all duration-300`}>
           <AnimatePresence mode="wait">
             <motion.div
-              key={activeItem}
-              initial={{ opacity: 0, y: 10 }}
+              key={activeSection}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
             >
               {renderContent()}
             </motion.div>
           </AnimatePresence>
-        </div>
-
-        {/* AI Assistant */}
-        <motion.div
-          className="fixed bottom-6 right-6 bg-[hsl(220,50%,12%)]/90 backdrop-blur-xl px-4 py-3 rounded-full flex items-center gap-3 cursor-pointer border border-[hsl(200,80%,40%)]/30 hover:border-[hsl(200,80%,50%)]/50 transition-all shadow-lg"
-          whileHover={{ scale: 1.05 }}
-        >
-          <motion.div
-            className="w-2.5 h-2.5 rounded-full bg-[hsl(160,70%,50%)]"
-            animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          />
-          <span className="text-sm text-[hsl(220,20%,70%)]">AI Replying to 3 leads</span>
-          <Bot className="w-4 h-4 text-[hsl(200,80%,60%)]" />
-        </motion.div>
-      </main>
-
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 lg:hidden"
-          >
-            <div className="absolute inset-0 bg-[hsl(220,55%,4%)]/90 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
-            <motion.div
-              initial={{ x: -300 }}
-              animate={{ x: 0 }}
-              exit={{ x: -300 }}
-              className="absolute left-0 top-0 bottom-0 w-64 bg-[hsl(220,60%,8%)] border-r border-[hsl(200,80%,40%)]/20 p-4"
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[hsl(200,80%,50%)] to-[hsl(260,70%,55%)] flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <p className="font-bold text-sm text-white">SOFTWARE VALA</p>
-                  <p className="text-[10px] text-[hsl(200,80%,60%)]">Reseller Portal</p>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </main>
+      </div>
     </div>
   );
 };
