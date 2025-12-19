@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
-import { Bell, Search, Menu, X, Bot, AlertTriangle, Award } from 'lucide-react';
+import { Bell, Search, Menu, X, Bot, AlertTriangle, Award, User, Wallet } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 
 interface ResellerTopBarProps {
   onMobileMenuToggle: () => void;
@@ -9,75 +10,89 @@ interface ResellerTopBarProps {
 
 export const ResellerTopBar = ({ onMobileMenuToggle, mobileMenuOpen }: ResellerTopBarProps) => {
   return (
-    <header className="sticky top-0 z-30 glass-panel border-b border-border/30">
-      <div className="flex items-center justify-between px-4 h-16">
+    <header className="sticky top-0 z-30 bg-[hsl(220,55%,6%)]/80 backdrop-blur-xl border-b border-[hsl(200,80%,40%)]/20">
+      <div className="flex items-center justify-between px-4 lg:px-6 h-16">
+        {/* Mobile Menu Toggle */}
         <button
-          className="lg:hidden p-2 text-foreground"
+          className="lg:hidden p-2 text-white"
           onClick={onMobileMenuToggle}
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
 
-        <div className="hidden md:flex items-center flex-1 max-w-md">
+        {/* Title */}
+        <div className="hidden lg:flex items-center gap-4">
+          <h1 className="text-lg font-bold">
+            <span className="text-[hsl(200,80%,60%)]">Reseller</span>
+            <span className="text-white ml-1">Command Center</span>
+          </h1>
+          <Badge className="bg-[hsl(160,70%,45%)]/20 text-[hsl(160,70%,55%)] border-[hsl(160,70%,45%)]/30 animate-pulse">
+            LIVE
+          </Badge>
+        </div>
+
+        {/* Search */}
+        <div className="hidden md:flex items-center flex-1 max-w-md mx-4">
           <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(220,20%,50%)]" />
             <Input
               placeholder="Search products, leads..."
-              className="pl-10 bg-secondary/30 border-border/30"
+              className="pl-10 bg-[hsl(220,50%,12%)]/60 border-[hsl(200,80%,40%)]/20 text-white placeholder:text-[hsl(220,20%,45%)] focus:border-[hsl(200,80%,50%)]/40"
             />
           </div>
         </div>
 
+        {/* Right Side */}
         <div className="flex items-center gap-3">
           {/* Buzzer Alert */}
           <motion.div
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-neon-green/10 border border-neon-green/30"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[hsl(160,70%,45%)]/10 border border-[hsl(160,70%,45%)]/30"
             animate={{
               boxShadow: [
-                '0 0 5px hsla(142, 71%, 45%, 0.2)',
-                '0 0 15px hsla(142, 71%, 45%, 0.4)',
-                '0 0 5px hsla(142, 71%, 45%, 0.2)'
+                '0 0 5px hsla(160, 70%, 45%, 0.2)',
+                '0 0 15px hsla(160, 70%, 45%, 0.4)',
+                '0 0 5px hsla(160, 70%, 45%, 0.2)'
               ]
             }}
             transition={{ duration: 1, repeat: Infinity }}
           >
-            <AlertTriangle className="w-4 h-4 text-neon-green" />
-            <span className="text-xs text-neon-green font-medium">2 New Leads</span>
+            <AlertTriangle className="w-4 h-4 text-[hsl(160,70%,55%)]" />
+            <span className="text-xs text-[hsl(160,70%,55%)] font-medium">2 New Leads</span>
           </motion.div>
 
           {/* Tier Badge */}
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-neon-blue/10 border border-neon-blue/30">
-            <Award className="w-4 h-4 text-neon-blue" />
-            <span className="text-xs text-neon-blue font-medium">Silver</span>
+          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[hsl(200,80%,50%)]/10 border border-[hsl(200,80%,50%)]/30">
+            <Award className="w-4 h-4 text-[hsl(200,80%,60%)]" />
+            <span className="text-xs text-[hsl(200,80%,60%)] font-medium">Silver</span>
           </div>
 
           {/* AI Help */}
           <motion.button
-            className="relative p-2 rounded-lg bg-neon-blue/10 border border-neon-blue/30 text-neon-blue"
-            animate={{
-              boxShadow: [
-                '0 0 10px hsla(217, 91%, 60%, 0.2)',
-                '0 0 20px hsla(217, 91%, 60%, 0.4)',
-                '0 0 10px hsla(217, 91%, 60%, 0.2)'
-              ]
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
+            className="relative p-2 rounded-lg bg-[hsl(200,80%,50%)]/10 border border-[hsl(200,80%,50%)]/30 text-[hsl(200,80%,60%)]"
+            whileHover={{ scale: 1.05 }}
           >
             <Bot className="w-5 h-5" />
           </motion.button>
 
-          <button className="relative p-2 rounded-lg bg-secondary/50 text-muted-foreground hover:text-foreground">
+          {/* Wallet Quick View */}
+          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[hsl(220,50%,12%)]/60 border border-[hsl(200,80%,40%)]/20">
+            <Wallet className="w-4 h-4 text-[hsl(45,90%,55%)]" />
+            <span className="text-sm text-white font-medium">₹85K</span>
+          </div>
+
+          {/* Notifications */}
+          <button className="relative p-2 rounded-lg bg-[hsl(220,50%,12%)]/60 text-[hsl(220,20%,65%)] hover:text-white transition-colors">
             <Bell className="w-5 h-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-neon-red" />
+            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[hsl(0,80%,55%)]" />
           </button>
 
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-neon-blue to-primary flex items-center justify-center text-background font-bold text-sm">
-              RS
+          {/* Avatar */}
+          <div className="flex items-center gap-3 pl-3 border-l border-[hsl(200,80%,40%)]/20">
+            <div className="hidden md:block text-right">
+              <p className="text-sm font-medium text-white">vala(reseller)***</p>
             </div>
-            <div className="hidden md:block">
-              <p className="text-sm font-medium text-foreground">Reseller Partner</p>
-              <p className="text-xs text-muted-foreground">Delhi NCR Territory</p>
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[hsl(200,80%,50%)] to-[hsl(260,70%,55%)] flex items-center justify-center">
+              <User className="w-4 h-4 text-white" />
             </div>
           </div>
         </div>

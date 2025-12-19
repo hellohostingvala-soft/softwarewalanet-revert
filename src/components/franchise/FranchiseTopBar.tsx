@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, Search, Menu, X, Bot, AlertTriangle } from 'lucide-react';
+import { Bell, Search, Menu, X, Bot, AlertTriangle, Wallet, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 interface FranchiseTopBarProps {
@@ -14,23 +13,34 @@ export const FranchiseTopBar = ({ onMobileMenuToggle, mobileMenuOpen }: Franchis
   const [buzzerActive, setBuzzerActive] = useState(true);
 
   return (
-    <header className="sticky top-0 z-30 glass-panel border-b border-border/30">
-      <div className="flex items-center justify-between px-4 h-16">
+    <header className="sticky top-0 z-30 bg-[hsl(220,55%,6%)]/80 backdrop-blur-xl border-b border-[hsl(200,80%,40%)]/20">
+      <div className="flex items-center justify-between px-4 lg:px-6 h-16">
         {/* Mobile Menu Toggle */}
         <button
-          className="lg:hidden p-2 text-foreground"
+          className="lg:hidden p-2 text-white"
           onClick={onMobileMenuToggle}
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
 
+        {/* Title */}
+        <div className="hidden lg:flex items-center gap-4">
+          <h1 className="text-lg font-bold">
+            <span className="text-[hsl(200,80%,60%)]">Franchise</span>
+            <span className="text-white ml-1">Command Center</span>
+          </h1>
+          <Badge className="bg-[hsl(160,70%,45%)]/20 text-[hsl(160,70%,55%)] border-[hsl(160,70%,45%)]/30 animate-pulse">
+            LIVE
+          </Badge>
+        </div>
+
         {/* Search */}
-        <div className="hidden md:flex items-center flex-1 max-w-md">
+        <div className="hidden md:flex items-center flex-1 max-w-md mx-4">
           <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(220,20%,50%)]" />
             <Input
               placeholder="Search leads, resellers, demos..."
-              className="pl-10 bg-secondary/30 border-border/30"
+              className="pl-10 bg-[hsl(220,50%,12%)]/60 border-[hsl(200,80%,40%)]/20 text-white placeholder:text-[hsl(220,20%,45%)] focus:border-[hsl(200,80%,50%)]/40"
             />
           </div>
         </div>
@@ -40,51 +50,48 @@ export const FranchiseTopBar = ({ onMobileMenuToggle, mobileMenuOpen }: Franchis
           {/* Buzzer Alert Indicator */}
           {buzzerActive && (
             <motion.div
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-neon-red/10 border border-neon-red/30"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[hsl(0,80%,50%)]/10 border border-[hsl(0,80%,50%)]/30"
               animate={{
                 boxShadow: [
-                  '0 0 5px hsla(0, 100%, 50%, 0.2)',
-                  '0 0 15px hsla(0, 100%, 50%, 0.4)',
-                  '0 0 5px hsla(0, 100%, 50%, 0.2)'
+                  '0 0 5px hsla(0, 80%, 50%, 0.2)',
+                  '0 0 15px hsla(0, 80%, 50%, 0.4)',
+                  '0 0 5px hsla(0, 80%, 50%, 0.2)'
                 ]
               }}
               transition={{ duration: 1, repeat: Infinity }}
             >
-              <AlertTriangle className="w-4 h-4 text-neon-red" />
-              <span className="text-xs text-neon-red font-medium">3 New Leads</span>
+              <AlertTriangle className="w-4 h-4 text-[hsl(0,80%,60%)]" />
+              <span className="text-xs text-[hsl(0,80%,60%)] font-medium">3 New Leads</span>
             </motion.div>
           )}
 
           {/* AI Help Button */}
           <motion.button
-            className="relative p-2 rounded-lg bg-primary/10 border border-primary/30 text-primary"
-            animate={{
-              boxShadow: [
-                '0 0 10px hsla(187, 100%, 50%, 0.2)',
-                '0 0 20px hsla(187, 100%, 50%, 0.4)',
-                '0 0 10px hsla(187, 100%, 50%, 0.2)'
-              ]
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
+            className="relative p-2 rounded-lg bg-[hsl(200,80%,50%)]/10 border border-[hsl(200,80%,50%)]/30 text-[hsl(200,80%,60%)]"
             whileHover={{ scale: 1.05 }}
           >
             <Bot className="w-5 h-5" />
           </motion.button>
 
+          {/* Wallet Quick View */}
+          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[hsl(220,50%,12%)]/60 border border-[hsl(200,80%,40%)]/20">
+            <Wallet className="w-4 h-4 text-[hsl(45,90%,55%)]" />
+            <span className="text-sm text-white font-medium">₹1.8L</span>
+          </div>
+
           {/* Notifications */}
-          <button className="relative p-2 rounded-lg bg-secondary/50 text-muted-foreground hover:text-foreground transition-colors">
+          <button className="relative p-2 rounded-lg bg-[hsl(220,50%,12%)]/60 text-[hsl(220,20%,65%)] hover:text-white transition-colors">
             <Bell className="w-5 h-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-neon-red" />
+            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[hsl(0,80%,55%)]" />
           </button>
 
           {/* Avatar */}
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-neon-teal flex items-center justify-center text-background font-bold text-sm">
-              FP
+          <div className="flex items-center gap-3 pl-3 border-l border-[hsl(200,80%,40%)]/20">
+            <div className="hidden md:block text-right">
+              <p className="text-sm font-medium text-white">vala(franchise)***</p>
             </div>
-            <div className="hidden md:block">
-              <p className="text-sm font-medium text-foreground">Franchise Partner</p>
-              <p className="text-xs text-muted-foreground">Maharashtra Territory</p>
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[hsl(200,80%,50%)] to-[hsl(180,70%,45%)] flex items-center justify-center">
+              <User className="w-4 h-4 text-white" />
             </div>
           </div>
         </div>
