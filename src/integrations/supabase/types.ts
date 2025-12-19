@@ -509,6 +509,642 @@ export type Database = {
           },
         ]
       }
+      franchise_accounts: {
+        Row: {
+          address: string | null
+          business_name: string
+          city: string | null
+          commission_rate: number | null
+          country: string | null
+          created_at: string
+          email: string
+          exclusive_rights: boolean | null
+          franchise_code: string
+          gst_number: string | null
+          id: string
+          joined_at: string | null
+          kyc_documents: Json | null
+          kyc_status: string | null
+          masked_email: string | null
+          masked_phone: string | null
+          owner_name: string
+          pan_number: string | null
+          phone: string
+          pincode: string | null
+          sales_target_monthly: number | null
+          state: string | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          business_name: string
+          city?: string | null
+          commission_rate?: number | null
+          country?: string | null
+          created_at?: string
+          email: string
+          exclusive_rights?: boolean | null
+          franchise_code: string
+          gst_number?: string | null
+          id?: string
+          joined_at?: string | null
+          kyc_documents?: Json | null
+          kyc_status?: string | null
+          masked_email?: string | null
+          masked_phone?: string | null
+          owner_name: string
+          pan_number?: string | null
+          phone: string
+          pincode?: string | null
+          sales_target_monthly?: number | null
+          state?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          business_name?: string
+          city?: string | null
+          commission_rate?: number | null
+          country?: string | null
+          created_at?: string
+          email?: string
+          exclusive_rights?: boolean | null
+          franchise_code?: string
+          gst_number?: string | null
+          id?: string
+          joined_at?: string | null
+          kyc_documents?: Json | null
+          kyc_status?: string | null
+          masked_email?: string | null
+          masked_phone?: string | null
+          owner_name?: string
+          pan_number?: string | null
+          phone?: string
+          pincode?: string | null
+          sales_target_monthly?: number | null
+          state?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      franchise_commissions: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          bonus_amount: number | null
+          commission_amount: number
+          commission_rate: number
+          created_at: string
+          credited_at: string | null
+          description: string | null
+          franchise_id: string
+          id: string
+          lead_id: string | null
+          metadata: Json | null
+          sale_amount: number
+          status: string | null
+          type: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          bonus_amount?: number | null
+          commission_amount: number
+          commission_rate: number
+          created_at?: string
+          credited_at?: string | null
+          description?: string | null
+          franchise_id: string
+          id?: string
+          lead_id?: string | null
+          metadata?: Json | null
+          sale_amount: number
+          status?: string | null
+          type: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          bonus_amount?: number | null
+          commission_amount?: number
+          commission_rate?: number
+          created_at?: string
+          credited_at?: string | null
+          description?: string | null
+          franchise_id?: string
+          id?: string
+          lead_id?: string | null
+          metadata?: Json | null
+          sale_amount?: number
+          status?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "franchise_commissions_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      franchise_contracts: {
+        Row: {
+          auto_renew: boolean | null
+          commission_terms: Json | null
+          contract_number: string
+          contract_type: string | null
+          created_at: string
+          document_url: string | null
+          end_date: string
+          franchise_id: string
+          id: string
+          renewal_date: string | null
+          signed_at: string | null
+          signed_by: string | null
+          start_date: string
+          status: string | null
+          terms: Json | null
+          territory_terms: Json | null
+          updated_at: string
+        }
+        Insert: {
+          auto_renew?: boolean | null
+          commission_terms?: Json | null
+          contract_number: string
+          contract_type?: string | null
+          created_at?: string
+          document_url?: string | null
+          end_date: string
+          franchise_id: string
+          id?: string
+          renewal_date?: string | null
+          signed_at?: string | null
+          signed_by?: string | null
+          start_date: string
+          status?: string | null
+          terms?: Json | null
+          territory_terms?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          auto_renew?: boolean | null
+          commission_terms?: Json | null
+          contract_number?: string
+          contract_type?: string | null
+          created_at?: string
+          document_url?: string | null
+          end_date?: string
+          franchise_id?: string
+          id?: string
+          renewal_date?: string | null
+          signed_at?: string | null
+          signed_by?: string | null
+          start_date?: string
+          status?: string | null
+          terms?: Json | null
+          territory_terms?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "franchise_contracts_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      franchise_escalations: {
+        Row: {
+          attachments: Json | null
+          created_at: string
+          description: string
+          escalated_to: string | null
+          escalation_type: string
+          franchise_id: string
+          id: string
+          priority: string | null
+          resolution_notes: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string | null
+          subject: string
+        }
+        Insert: {
+          attachments?: Json | null
+          created_at?: string
+          description: string
+          escalated_to?: string | null
+          escalation_type: string
+          franchise_id: string
+          id?: string
+          priority?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string | null
+          subject: string
+        }
+        Update: {
+          attachments?: Json | null
+          created_at?: string
+          description?: string
+          escalated_to?: string | null
+          escalation_type?: string
+          franchise_id?: string
+          id?: string
+          priority?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string | null
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "franchise_escalations_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      franchise_leads: {
+        Row: {
+          assigned_at: string | null
+          assigned_to_reseller: string | null
+          city: string | null
+          closed_at: string | null
+          commission_earned: number | null
+          created_at: string
+          demo_assigned_id: string | null
+          demo_requested: boolean | null
+          franchise_id: string
+          id: string
+          industry: string | null
+          language_preference: string | null
+          last_activity_at: string | null
+          lead_name: string
+          lead_score: number | null
+          masked_contact: string | null
+          original_lead_id: string | null
+          region: string | null
+          sale_value: number | null
+          status: string | null
+        }
+        Insert: {
+          assigned_at?: string | null
+          assigned_to_reseller?: string | null
+          city?: string | null
+          closed_at?: string | null
+          commission_earned?: number | null
+          created_at?: string
+          demo_assigned_id?: string | null
+          demo_requested?: boolean | null
+          franchise_id: string
+          id?: string
+          industry?: string | null
+          language_preference?: string | null
+          last_activity_at?: string | null
+          lead_name: string
+          lead_score?: number | null
+          masked_contact?: string | null
+          original_lead_id?: string | null
+          region?: string | null
+          sale_value?: number | null
+          status?: string | null
+        }
+        Update: {
+          assigned_at?: string | null
+          assigned_to_reseller?: string | null
+          city?: string | null
+          closed_at?: string | null
+          commission_earned?: number | null
+          created_at?: string
+          demo_assigned_id?: string | null
+          demo_requested?: boolean | null
+          franchise_id?: string
+          id?: string
+          industry?: string | null
+          language_preference?: string | null
+          last_activity_at?: string | null
+          lead_name?: string
+          lead_score?: number | null
+          masked_contact?: string | null
+          original_lead_id?: string | null
+          region?: string | null
+          sale_value?: number | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "franchise_leads_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "franchise_leads_original_lead_id_fkey"
+            columns: ["original_lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      franchise_payouts: {
+        Row: {
+          amount: number
+          approved_at: string | null
+          approved_by: string | null
+          bank_details: Json | null
+          created_at: string
+          franchise_id: string
+          id: string
+          notes: string | null
+          payment_method: string | null
+          processed_at: string | null
+          requested_at: string | null
+          status: string | null
+          transaction_ref: string | null
+          type: string
+        }
+        Insert: {
+          amount: number
+          approved_at?: string | null
+          approved_by?: string | null
+          bank_details?: Json | null
+          created_at?: string
+          franchise_id: string
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          processed_at?: string | null
+          requested_at?: string | null
+          status?: string | null
+          transaction_ref?: string | null
+          type: string
+        }
+        Update: {
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          bank_details?: Json | null
+          created_at?: string
+          franchise_id?: string
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          processed_at?: string | null
+          requested_at?: string | null
+          status?: string | null
+          transaction_ref?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "franchise_payouts_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      franchise_renewals: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          contract_id: string
+          created_at: string
+          franchise_id: string
+          id: string
+          new_end_date: string
+          notes: string | null
+          previous_end_date: string
+          renewal_fee: number | null
+          requested_at: string | null
+          status: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          contract_id: string
+          created_at?: string
+          franchise_id: string
+          id?: string
+          new_end_date: string
+          notes?: string | null
+          previous_end_date: string
+          renewal_fee?: number | null
+          requested_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          contract_id?: string
+          created_at?: string
+          franchise_id?: string
+          id?: string
+          new_end_date?: string
+          notes?: string | null
+          previous_end_date?: string
+          renewal_fee?: number | null
+          requested_at?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "franchise_renewals_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "franchise_renewals_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      franchise_territories: {
+        Row: {
+          assigned_at: string | null
+          assigned_by: string | null
+          created_at: string
+          franchise_id: string
+          id: string
+          is_active: boolean | null
+          is_exclusive: boolean | null
+          override_approved_by: string | null
+          override_reason: string | null
+          parent_territory_id: string | null
+          territory_code: string | null
+          territory_name: string
+          territory_type: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          assigned_by?: string | null
+          created_at?: string
+          franchise_id: string
+          id?: string
+          is_active?: boolean | null
+          is_exclusive?: boolean | null
+          override_approved_by?: string | null
+          override_reason?: string | null
+          parent_territory_id?: string | null
+          territory_code?: string | null
+          territory_name: string
+          territory_type: string
+        }
+        Update: {
+          assigned_at?: string | null
+          assigned_by?: string | null
+          created_at?: string
+          franchise_id?: string
+          id?: string
+          is_active?: boolean | null
+          is_exclusive?: boolean | null
+          override_approved_by?: string | null
+          override_reason?: string | null
+          parent_territory_id?: string | null
+          territory_code?: string | null
+          territory_name?: string
+          territory_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "franchise_territories_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "franchise_territories_parent_territory_id_fkey"
+            columns: ["parent_territory_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_territories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      franchise_training_scores: {
+        Row: {
+          ai_feedback: string | null
+          certificate_issued: boolean | null
+          certificate_url: string | null
+          completed_at: string | null
+          created_at: string
+          franchise_id: string
+          id: string
+          max_score: number | null
+          module_name: string
+          module_type: string | null
+          score: number
+        }
+        Insert: {
+          ai_feedback?: string | null
+          certificate_issued?: boolean | null
+          certificate_url?: string | null
+          completed_at?: string | null
+          created_at?: string
+          franchise_id: string
+          id?: string
+          max_score?: number | null
+          module_name: string
+          module_type?: string | null
+          score: number
+        }
+        Update: {
+          ai_feedback?: string | null
+          certificate_issued?: boolean | null
+          certificate_url?: string | null
+          completed_at?: string | null
+          created_at?: string
+          franchise_id?: string
+          id?: string
+          max_score?: number | null
+          module_name?: string
+          module_type?: string | null
+          score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "franchise_training_scores_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      franchise_wallet_ledger: {
+        Row: {
+          amount: number
+          balance_after: number
+          category: string
+          created_at: string
+          description: string | null
+          franchise_id: string
+          id: string
+          metadata: Json | null
+          reference_id: string | null
+          reference_type: string | null
+          transaction_type: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          category: string
+          created_at?: string
+          description?: string | null
+          franchise_id: string
+          id?: string
+          metadata?: Json | null
+          reference_id?: string | null
+          reference_type?: string | null
+          transaction_type: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          category?: string
+          created_at?: string
+          description?: string | null
+          franchise_id?: string
+          id?: string
+          metadata?: Json | null
+          reference_id?: string | null
+          reference_type?: string | null
+          transaction_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "franchise_wallet_ledger_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_alerts: {
         Row: {
           acknowledged_at: string | null
@@ -1294,9 +1930,11 @@ export type Database = {
       can_access_finance: { Args: { _user_id: string }; Returns: boolean }
       can_manage_demos: { Args: { _user_id: string }; Returns: boolean }
       can_manage_developers: { Args: { _user_id: string }; Returns: boolean }
+      can_manage_franchises: { Args: { _user_id: string }; Returns: boolean }
       can_manage_leads: { Args: { _user_id: string }; Returns: boolean }
       can_view_leads: { Args: { _user_id: string }; Returns: boolean }
       get_developer_id: { Args: { _user_id: string }; Returns: string }
+      get_franchise_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1304,6 +1942,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_franchise: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role:
