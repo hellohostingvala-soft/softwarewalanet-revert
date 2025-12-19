@@ -77,6 +77,7 @@ import PersonalChat from "./pages/PersonalChat";
 import DomainProtection from "./components/security/DomainProtection";
 import PendingItemsSuggestion from "./components/shared/PendingItemsSuggestion";
 import FloatingAIChatbotWrapper from "./components/shared/FloatingAIChatbotWrapper";
+import AIOptimizationConsole from "./pages/ai-console/AIOptimizationConsole";
 
 const queryClient = new QueryClient();
 
@@ -181,6 +182,7 @@ const App = () => (
               <Route path="/api-integrations" element={<APIIntegrationDashboard />} />
               <Route path="/internal-chat" element={<InternalChat />} />
               <Route path="/personal-chat" element={<PersonalChat />} />
+              <Route path="/ai-console" element={<AIOptimizationConsole />} />
 
               {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
