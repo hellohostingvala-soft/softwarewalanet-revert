@@ -15,6 +15,7 @@ import InfluencerDashboard from "./pages/InfluencerDashboard";
 import SupportDashboard from "./pages/SupportDashboard";
 import SEODashboard from "./pages/SEODashboard";
 import LeadManager from "./pages/LeadManager";
+import TaskManager from "./pages/TaskManager";
 import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/support-dashboard" element={<SupportDashboard />} />
           <Route path="/seo-dashboard" element={<SEODashboard />} />
           <Route path="/lead-manager" element={<LeadManager />} />
+          <Route path="/task-manager" element={<TaskManager />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
