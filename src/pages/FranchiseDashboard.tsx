@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, Users, Monitor, Wallet, MapPin,
   GraduationCap, TrendingUp, AlertTriangle, Settings,
-  ChevronLeft, ChevronRight, Target, FileText
+  ChevronLeft, ChevronRight, Target, FileText, ShieldCheck
 } from 'lucide-react';
 import softwareValaLogo from '@/assets/software-vala-logo.png';
 import FranchiseDash from '@/components/franchise/FranchiseDash';
@@ -15,6 +15,7 @@ import FranchiseAITraining from '@/components/franchise/FranchiseAITraining';
 import FranchisePerformanceBoard from '@/components/franchise/FranchisePerformanceBoard';
 import FranchiseEscalationScreen from '@/components/franchise/FranchiseEscalationScreen';
 import { FranchiseAuditLogs } from '@/components/franchise/FranchiseAuditLogs';
+import FranchiseSecurityModule from '@/components/franchise/security/FranchiseSecurityModule';
 
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -25,6 +26,7 @@ const menuItems = [
   { id: 'training', label: 'AI Training', icon: GraduationCap, badge: 'AI' },
   { id: 'performance', label: 'Performance', icon: TrendingUp },
   { id: 'escalations', label: 'Escalations', icon: AlertTriangle },
+  { id: 'security', label: 'Security Control', icon: ShieldCheck, badge: 'NEW' },
   { id: 'audit', label: 'Audit Logs', icon: FileText },
 ];
 
@@ -41,6 +43,7 @@ const FranchiseDashboard = () => {
       case 'training': return <FranchiseAITraining />;
       case 'performance': return <FranchisePerformanceBoard />;
       case 'escalations': return <FranchiseEscalationScreen />;
+      case 'security': return <FranchiseSecurityModule />;
       case 'audit': return <FranchiseAuditLogs />;
       default: return <FranchiseDash />;
     }
