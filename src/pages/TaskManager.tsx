@@ -2,7 +2,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   LayoutDashboard, Users, Wallet, ClipboardList, Bell, 
-  User, BarChart3, Monitor, Zap, CheckSquare
+  User, BarChart3, Monitor, Zap, CheckSquare, Timer, 
+  GitBranch, FileCheck, Calendar, MessageSquare, History, AlertTriangle, Plus
 } from "lucide-react";
 import TaskManagerTopBar from "@/components/tasks/TaskManagerTopBar";
 import TaskPipeline from "@/components/tasks/TaskPipeline";
@@ -11,6 +12,14 @@ import TaskAIPanel from "@/components/tasks/TaskAIPanel";
 import TaskNotifications from "@/components/tasks/TaskNotifications";
 import TaskPerformance from "@/components/tasks/TaskPerformance";
 import TaskWalletPanel from "@/components/tasks/TaskWalletPanel";
+import TaskCreationPanel from "@/components/tasks/TaskCreationPanel";
+import TaskTimerSLA from "@/components/tasks/TaskTimerSLA";
+import TaskBuzzerAlert from "@/components/tasks/TaskBuzzerAlert";
+import TaskDependencyManager from "@/components/tasks/TaskDependencyManager";
+import TaskApprovalWorkflow from "@/components/tasks/TaskApprovalWorkflow";
+import TaskGanttView from "@/components/tasks/TaskGanttView";
+import TaskChatIntegration from "@/components/tasks/TaskChatIntegration";
+import TaskHistoryLogs from "@/components/tasks/TaskHistoryLogs";
 
 export interface Task {
   id: string;
@@ -41,46 +50,59 @@ const TaskManager = () => {
   const [activeSection, setActiveSection] = useState("pipeline");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showAIPanel, setShowAIPanel] = useState(false);
+  const [showCreateTask, setShowCreateTask] = useState(false);
   const [notifications, setNotifications] = useState([
     { id: "1", message: "Task accepted. Timer started. Please deliver before the promised window.", type: "success", time: "Just now" },
     { id: "2", message: "New task assigned: POS Module Enhancement", type: "info", time: "5 min ago" },
   ]);
 
   const sidebarItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "leads", label: "Lead Manager", icon: Users },
-    { id: "pipeline", label: "Task Manager", icon: CheckSquare },
-    { id: "wallet", label: "Wallet", icon: Wallet },
-    { id: "demo", label: "Demo Manager", icon: Monitor },
-    { id: "notifications", label: "Notifications", icon: Bell },
+    { id: "pipeline", label: "Task Pipeline", icon: CheckSquare },
+    { id: "timer", label: "Timer & SLA", icon: Timer },
+    { id: "buzzer", label: "Buzzer Alerts", icon: AlertTriangle, badge: "3" },
+    { id: "dependencies", label: "Dependencies", icon: GitBranch },
+    { id: "approval", label: "Approval Workflow", icon: FileCheck },
+    { id: "gantt", label: "Gantt View", icon: Calendar },
+    { id: "chat", label: "Task Chat", icon: MessageSquare },
+    { id: "history", label: "History & Logs", icon: History },
     { id: "performance", label: "Performance", icon: BarChart3 },
-    { id: "profile", label: "Profile", icon: User },
+    { id: "wallet", label: "Wallet", icon: Wallet },
   ];
 
   const dismissNotification = (id: string) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
+  const mockTimerTasks = [
+    { id: "1", title: "POS Module Enhancement", priority: "high", estimatedHours: 6, timerStarted: true, timerStartTime: "2024-01-16T10:00:00" },
+    { id: "2", title: "Hospital Dashboard Bug Fix", priority: "critical", estimatedHours: 4, timerStarted: true, timerStartTime: "2024-01-16T09:00:00" },
+    { id: "3", title: "School ERP API Integration", priority: "medium", estimatedHours: 12, timerStarted: false, timerStartTime: null },
+  ];
+
   const renderContent = () => {
     switch (activeSection) {
       case "pipeline":
-        return (
-          <TaskPipeline 
-            onSelectTask={setSelectedTask} 
-            selectedTask={selectedTask}
-          />
-        );
+        return <TaskPipeline onSelectTask={setSelectedTask} selectedTask={selectedTask} />;
+      case "timer":
+        return <TaskTimerSLA tasks={mockTimerTasks} onTimerAction={(id, action) => console.log(id, action)} />;
+      case "buzzer":
+        return <TaskBuzzerAlert />;
+      case "dependencies":
+        return <TaskDependencyManager />;
+      case "approval":
+        return <TaskApprovalWorkflow />;
+      case "gantt":
+        return <TaskGanttView />;
+      case "chat":
+        return <TaskChatIntegration />;
+      case "history":
+        return <TaskHistoryLogs />;
       case "performance":
         return <TaskPerformance />;
       case "wallet":
         return <TaskWalletPanel />;
       default:
-        return (
-          <TaskPipeline 
-            onSelectTask={setSelectedTask} 
-            selectedTask={selectedTask}
-          />
-        );
+        return <TaskPipeline onSelectTask={setSelectedTask} selectedTask={selectedTask} />;
     }
   };
 
@@ -167,9 +189,10 @@ const TaskManager = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              onClick={() => setShowCreateTask(true)}
               className="w-full py-3 px-4 bg-gradient-to-r from-violet-500 to-purple-600 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-violet-500/25"
             >
-              <Zap className="w-4 h-4" />
+              <Plus className="w-4 h-4" />
               Create Task
             </motion.button>
           </div>
@@ -209,6 +232,13 @@ const TaskManager = () => {
         <TaskNotifications 
           notifications={notifications}
           onDismiss={dismissNotification}
+        />
+
+        {/* Task Creation Panel */}
+        <TaskCreationPanel 
+          isOpen={showCreateTask}
+          onClose={() => setShowCreateTask(false)}
+          onCreateTask={(task) => console.log('Created task:', task)}
         />
       </div>
     </div>
