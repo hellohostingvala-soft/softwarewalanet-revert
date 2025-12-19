@@ -16,10 +16,22 @@ const PrimeUserTopBar = () => {
           <p className="text-sm text-amber-500/80">Welcome back,</p>
           <h2 className="text-xl font-semibold text-amber-100">Valued Prime Member</h2>
         </div>
-        <Badge className="bg-gradient-to-r from-amber-500/20 to-amber-600/20 text-amber-300 border-amber-500/40">
-          <Crown className="w-3 h-3 mr-1" />
-          VIP
-        </Badge>
+        <motion.div
+          animate={{ 
+            boxShadow: [
+              "0 0 20px rgba(6, 182, 212, 0.3)",
+              "0 0 35px rgba(6, 182, 212, 0.5)",
+              "0 0 20px rgba(6, 182, 212, 0.3)"
+            ]
+          }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="px-4 py-1.5 rounded-full bg-gradient-to-r from-cyan-500 via-teal-400 to-cyan-500 border border-cyan-400/50"
+        >
+          <div className="flex items-center gap-1.5">
+            <Crown className="w-4 h-4 text-white drop-shadow-lg" />
+            <span className="text-sm font-bold text-white tracking-wide">VIP</span>
+          </div>
+        </motion.div>
       </div>
 
       {/* Status Indicators */}
