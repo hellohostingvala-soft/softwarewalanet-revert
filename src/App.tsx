@@ -27,6 +27,9 @@ import PrimeUserDashboard from "./pages/PrimeUserDashboard";
 import LegalComplianceManager from "./pages/LegalComplianceManager";
 import MarketingManager from "./pages/MarketingManager";
 import SalesSupportDashboard from "./pages/SalesSupportDashboard";
+import HRDashboard from "./pages/HRDashboard";
+import SystemSettings from "./pages/SystemSettings";
+import NotificationBuzzerConsole from "./pages/NotificationBuzzerConsole";
 import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
@@ -61,6 +64,9 @@ const App = () => (
           <Route path="/legal" element={<LegalComplianceManager />} />
           <Route path="/marketing" element={<MarketingManager />} />
           <Route path="/sales-support" element={<SalesSupportDashboard />} />
+          <Route path="/hr-dashboard" element={<HRDashboard />} />
+          <Route path="/system-settings" element={<SystemSettings />} />
+          <Route path="/buzzer-console" element={<NotificationBuzzerConsole />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
