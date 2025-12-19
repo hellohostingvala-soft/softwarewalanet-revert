@@ -116,7 +116,14 @@ serve(async (req) => {
   }
 
   try {
-    const { action, orderId, amount, currency = 'USD', description = 'Payment' } = await req.json();
+    const body = await req.text();
+    if (!body) {
+      return new Response(JSON.stringify({ status: 'ok', message: 'PayPal endpoint ready' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    
+    const { action, orderId, amount, currency = 'USD', description = 'Payment' } = JSON.parse(body);
     
     console.log(`PayPal action requested: ${action}`);
 
