@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import PrimeUserSidebar from "@/components/prime-user/PrimeUserSidebar";
 import PrimeUserTopBar from "@/components/prime-user/PrimeUserTopBar";
 import LiveTaskTimer from "@/components/prime-user/LiveTaskTimer";
@@ -11,9 +11,11 @@ import WalletHistory from "@/components/prime-user/WalletHistory";
 import BugChangeTracker from "@/components/prime-user/BugChangeTracker";
 import DownloadArea from "@/components/prime-user/DownloadArea";
 import PrimeNotifications from "@/components/prime-user/PrimeNotifications";
+import WelcomeAnimation from "@/components/prime-user/WelcomeAnimation";
 
 const PrimeUserDashboard = () => {
   const [activeSection, setActiveSection] = useState("overview");
+  const [showWelcome, setShowWelcome] = useState(true);
 
   const renderContent = () => {
     switch (activeSection) {
@@ -54,26 +56,39 @@ const PrimeUserDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-amber-950/20 flex">
-      <PrimeUserSidebar activeSection={activeSection} setActiveSection={setActiveSection} />
+    <>
+      <AnimatePresence>
+        {showWelcome && (
+          <WelcomeAnimation onComplete={() => setShowWelcome(false)} />
+        )}
+      </AnimatePresence>
       
-      <div className="flex-1 flex flex-col">
-        <PrimeUserTopBar />
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: showWelcome ? 0 : 1 }}
+        transition={{ duration: 0.5 }}
+        className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-amber-950/20 flex"
+      >
+        <PrimeUserSidebar activeSection={activeSection} setActiveSection={setActiveSection} />
         
-        <main className="flex-1 p-6 overflow-auto">
-          <motion.div
-            key={activeSection}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-          >
-            {renderContent()}
-          </motion.div>
-        </main>
-      </div>
-      
-      <PrimeNotifications />
-    </div>
+        <div className="flex-1 flex flex-col">
+          <PrimeUserTopBar />
+          
+          <main className="flex-1 p-6 overflow-auto">
+            <motion.div
+              key={activeSection}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            >
+              {renderContent()}
+            </motion.div>
+          </main>
+        </div>
+        
+        <PrimeNotifications />
+      </motion.div>
+    </>
   );
 };
 
