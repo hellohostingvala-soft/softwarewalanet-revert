@@ -103,9 +103,7 @@ const ResellerDashboard = () => {
 
       <div className="flex pt-16">
         {/* Sidebar */}
-        <motion.aside
-          initial={{ x: -100, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
+        <aside
           className={`fixed left-0 top-16 bottom-0 ${collapsed ? 'w-20' : 'w-64'} bg-slate-900/60 backdrop-blur-xl border-r border-emerald-500/20 z-40 transition-all duration-300`}
         >
           {/* Collapse Toggle */}
@@ -118,28 +116,17 @@ const ResellerDashboard = () => {
 
           {/* Navigation */}
           <nav className="p-4 space-y-2 mt-4">
-            {menuItems.map((item, index) => (
-              <motion.button
+            {menuItems.map((item) => (
+              <button
                 key={item.id}
-                initial={{ x: -50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: index * 0.03 }}
                 onClick={() => setActiveSection(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
                   activeSection === item.id
                     ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/10 border border-emerald-500/50 text-emerald-400 shadow-lg shadow-emerald-500/10'
                     : 'hover:bg-slate-800/50 text-slate-400 hover:text-emerald-400'
                 }`}
               >
-                <div className={`relative ${activeSection === item.id ? 'text-emerald-400' : ''}`}>
-                  <item.icon className="w-5 h-5" />
-                  {activeSection === item.id && (
-                    <motion.div
-                      layoutId="reseller-sidebar-glow"
-                      className="absolute inset-0 bg-emerald-400/30 blur-md rounded-full"
-                    />
-                  )}
-                </div>
+                <item.icon className={`w-5 h-5 ${activeSection === item.id ? 'text-emerald-400' : ''}`} />
                 {!collapsed && (
                   <>
                     <span className="font-medium flex-1 text-left text-sm">{item.label}</span>
@@ -153,14 +140,11 @@ const ResellerDashboard = () => {
                       </span>
                     )}
                     {activeSection === item.id && (
-                      <motion.div
-                        layoutId="reseller-active-dot"
-                        className="w-2 h-2 bg-emerald-400 rounded-full shadow-lg shadow-emerald-400/50"
-                      />
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full" />
                     )}
                   </>
                 )}
-              </motion.button>
+              </button>
             ))}
           </nav>
 
@@ -179,12 +163,7 @@ const ResellerDashboard = () => {
                       <span className="text-emerald-400">78%</span>
                     </div>
                     <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full bg-gradient-to-r from-emerald-500 to-teal-500"
-                        initial={{ width: 0 }}
-                        animate={{ width: '78%' }}
-                        transition={{ duration: 1 }}
-                      />
+                      <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 w-[78%]" />
                     </div>
                   </div>
                   <div>
@@ -193,12 +172,7 @@ const ResellerDashboard = () => {
                       <span className="text-amber-400">4.2/5</span>
                     </div>
                     <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full bg-gradient-to-r from-amber-500 to-orange-500"
-                        initial={{ width: 0 }}
-                        animate={{ width: '84%' }}
-                        transition={{ duration: 1, delay: 0.1 }}
-                      />
+                      <div className="h-full bg-gradient-to-r from-amber-500 to-orange-500 w-[84%]" />
                     </div>
                   </div>
                 </div>
@@ -213,7 +187,7 @@ const ResellerDashboard = () => {
               {!collapsed && <span className="font-medium">Settings</span>}
             </button>
           </div>
-        </motion.aside>
+        </aside>
 
         {/* Main Content */}
         <main className={`flex-1 ${collapsed ? 'ml-20' : 'ml-64'} p-6 min-h-screen transition-all duration-300`}>
