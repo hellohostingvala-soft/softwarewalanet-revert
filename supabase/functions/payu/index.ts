@@ -99,7 +99,14 @@ serve(async (req) => {
   }
 
   try {
-    const { action, ...params } = await req.json();
+    const body = await req.text();
+    if (!body) {
+      return new Response(JSON.stringify({ status: 'ok', message: 'PayU endpoint ready' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    
+    const { action, ...params } = JSON.parse(body);
     
     console.log(`PayU action requested: ${action}`);
 
