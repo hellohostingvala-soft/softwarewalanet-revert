@@ -224,6 +224,291 @@ export type Database = {
         }
         Relationships: []
       }
+      developer_messages: {
+        Row: {
+          attachments: Json | null
+          created_at: string
+          id: string
+          is_system_message: boolean | null
+          message: string
+          sender_id: string
+          sender_role: Database["public"]["Enums"]["app_role"]
+          task_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          created_at?: string
+          id?: string
+          is_system_message?: boolean | null
+          message: string
+          sender_id: string
+          sender_role: Database["public"]["Enums"]["app_role"]
+          task_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          created_at?: string
+          id?: string
+          is_system_message?: boolean | null
+          message?: string
+          sender_id?: string
+          sender_role?: Database["public"]["Enums"]["app_role"]
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developer_messages_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "developer_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      developer_skills: {
+        Row: {
+          created_at: string
+          developer_id: string
+          id: string
+          proficiency_level: string | null
+          skill_name: string
+          verified: boolean | null
+          years_experience: number | null
+        }
+        Insert: {
+          created_at?: string
+          developer_id: string
+          id?: string
+          proficiency_level?: string | null
+          skill_name: string
+          verified?: boolean | null
+          years_experience?: number | null
+        }
+        Update: {
+          created_at?: string
+          developer_id?: string
+          id?: string
+          proficiency_level?: string | null
+          skill_name?: string
+          verified?: boolean | null
+          years_experience?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developer_skills_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "developers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      developer_tasks: {
+        Row: {
+          accepted_at: string | null
+          assigned_by: string | null
+          buzzer_acknowledged_at: string | null
+          buzzer_active: boolean | null
+          category: string
+          client_id: string | null
+          completed_at: string | null
+          created_at: string
+          deadline: string | null
+          delivery_notes: string | null
+          description: string | null
+          developer_id: string | null
+          estimated_hours: number | null
+          id: string
+          masked_client_info: Json | null
+          max_delivery_hours: number | null
+          pause_reason: string | null
+          paused_at: string | null
+          priority: string | null
+          promised_at: string | null
+          started_at: string | null
+          status: string
+          tech_stack: string[] | null
+          title: string
+          total_paused_minutes: number | null
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          assigned_by?: string | null
+          buzzer_acknowledged_at?: string | null
+          buzzer_active?: boolean | null
+          category: string
+          client_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          deadline?: string | null
+          delivery_notes?: string | null
+          description?: string | null
+          developer_id?: string | null
+          estimated_hours?: number | null
+          id?: string
+          masked_client_info?: Json | null
+          max_delivery_hours?: number | null
+          pause_reason?: string | null
+          paused_at?: string | null
+          priority?: string | null
+          promised_at?: string | null
+          started_at?: string | null
+          status?: string
+          tech_stack?: string[] | null
+          title: string
+          total_paused_minutes?: number | null
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          assigned_by?: string | null
+          buzzer_acknowledged_at?: string | null
+          buzzer_active?: boolean | null
+          category?: string
+          client_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          deadline?: string | null
+          delivery_notes?: string | null
+          description?: string | null
+          developer_id?: string | null
+          estimated_hours?: number | null
+          id?: string
+          masked_client_info?: Json | null
+          max_delivery_hours?: number | null
+          pause_reason?: string | null
+          paused_at?: string | null
+          priority?: string | null
+          promised_at?: string | null
+          started_at?: string | null
+          status?: string
+          tech_stack?: string[] | null
+          title?: string
+          total_paused_minutes?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developer_tasks_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "developers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      developers: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          joined_at: string | null
+          masked_email: string | null
+          masked_phone: string | null
+          onboarding_completed: boolean | null
+          phone: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          joined_at?: string | null
+          masked_email?: string | null
+          masked_phone?: string | null
+          onboarding_completed?: boolean | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          joined_at?: string | null
+          masked_email?: string | null
+          masked_phone?: string | null
+          onboarding_completed?: boolean | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      escalation_records: {
+        Row: {
+          auto_escalated: boolean | null
+          created_at: string
+          developer_id: string | null
+          escalated_to: string | null
+          escalated_to_role: Database["public"]["Enums"]["app_role"] | null
+          escalation_level: number | null
+          id: string
+          idle_minutes: number | null
+          is_resolved: boolean | null
+          reason: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          task_id: string
+        }
+        Insert: {
+          auto_escalated?: boolean | null
+          created_at?: string
+          developer_id?: string | null
+          escalated_to?: string | null
+          escalated_to_role?: Database["public"]["Enums"]["app_role"] | null
+          escalation_level?: number | null
+          id?: string
+          idle_minutes?: number | null
+          is_resolved?: boolean | null
+          reason: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          task_id: string
+        }
+        Update: {
+          auto_escalated?: boolean | null
+          created_at?: string
+          developer_id?: string | null
+          escalated_to?: string | null
+          escalated_to_role?: Database["public"]["Enums"]["app_role"] | null
+          escalation_level?: number | null
+          id?: string
+          idle_minutes?: number | null
+          is_resolved?: boolean | null
+          reason?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escalation_records_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "developers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escalation_records_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "developer_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_alerts: {
         Row: {
           acknowledged_at: string | null
@@ -703,6 +988,134 @@ export type Database = {
           },
         ]
       }
+      payout_records: {
+        Row: {
+          amount: number
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          description: string | null
+          developer_id: string
+          id: string
+          payment_method: string | null
+          processed_at: string | null
+          status: string
+          task_id: string | null
+          transaction_ref: string | null
+          type: string
+        }
+        Insert: {
+          amount: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          description?: string | null
+          developer_id: string
+          id?: string
+          payment_method?: string | null
+          processed_at?: string | null
+          status?: string
+          task_id?: string | null
+          transaction_ref?: string | null
+          type: string
+        }
+        Update: {
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          description?: string | null
+          developer_id?: string
+          id?: string
+          payment_method?: string | null
+          processed_at?: string | null
+          status?: string
+          task_id?: string | null
+          transaction_ref?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_records_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "developers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payout_records_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "developer_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      performance_scores: {
+        Row: {
+          communication_score: number | null
+          created_at: string
+          developer_id: string
+          id: string
+          incentives_earned: number | null
+          on_time_percentage: number | null
+          overall_score: number | null
+          penalties_applied: number | null
+          period_end: string
+          period_start: string
+          quality_score: number | null
+          speed_score: number | null
+          tasks_completed: number | null
+          tasks_on_time: number | null
+          total_hours_worked: number | null
+          updated_at: string
+        }
+        Insert: {
+          communication_score?: number | null
+          created_at?: string
+          developer_id: string
+          id?: string
+          incentives_earned?: number | null
+          on_time_percentage?: number | null
+          overall_score?: number | null
+          penalties_applied?: number | null
+          period_end: string
+          period_start: string
+          quality_score?: number | null
+          speed_score?: number | null
+          tasks_completed?: number | null
+          tasks_on_time?: number | null
+          total_hours_worked?: number | null
+          updated_at?: string
+        }
+        Update: {
+          communication_score?: number | null
+          created_at?: string
+          developer_id?: string
+          id?: string
+          incentives_earned?: number | null
+          on_time_percentage?: number | null
+          overall_score?: number | null
+          penalties_applied?: number | null
+          period_end?: string
+          period_start?: string
+          quality_score?: number | null
+          speed_score?: number | null
+          tasks_completed?: number | null
+          tasks_on_time?: number | null
+          total_hours_worked?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "performance_scores_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "developers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rental_assign: {
         Row: {
           assigned_by: string
@@ -746,6 +1159,60 @@ export type Database = {
             columns: ["demo_id"]
             isOneToOne: false
             referencedRelation: "demos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_logs: {
+        Row: {
+          action: string
+          action_type: string
+          created_at: string
+          details: string | null
+          developer_id: string | null
+          id: string
+          metadata: Json | null
+          new_value: string | null
+          old_value: string | null
+          task_id: string
+        }
+        Insert: {
+          action: string
+          action_type: string
+          created_at?: string
+          details?: string | null
+          developer_id?: string | null
+          id?: string
+          metadata?: Json | null
+          new_value?: string | null
+          old_value?: string | null
+          task_id: string
+        }
+        Update: {
+          action?: string
+          action_type?: string
+          created_at?: string
+          details?: string | null
+          developer_id?: string | null
+          id?: string
+          metadata?: Json | null
+          new_value?: string | null
+          old_value?: string | null
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_logs_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "developers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_logs_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "developer_tasks"
             referencedColumns: ["id"]
           },
         ]
@@ -824,9 +1291,12 @@ export type Database = {
     }
     Functions: {
       can_access_demos: { Args: { _user_id: string }; Returns: boolean }
+      can_access_finance: { Args: { _user_id: string }; Returns: boolean }
       can_manage_demos: { Args: { _user_id: string }; Returns: boolean }
+      can_manage_developers: { Args: { _user_id: string }; Returns: boolean }
       can_manage_leads: { Args: { _user_id: string }; Returns: boolean }
       can_view_leads: { Args: { _user_id: string }; Returns: boolean }
+      get_developer_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
