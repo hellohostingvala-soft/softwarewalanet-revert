@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Sparkles, Rocket, Users, Code, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import aiAndIHero from '@/assets/ai-and-i-hero.jpg';
+import heroAiWoman from '@/assets/hero-ai-woman.png';
 
 const FuturisticHero = () => {
   const ctaButtons = [
@@ -44,24 +44,24 @@ const FuturisticHero = () => {
       </div>
 
       {/* AI and I Hero Image */}
-      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[500px] lg:w-[650px] h-[600px] lg:h-[750px] hidden md:block">
+      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[45%] h-[85%] hidden md:block">
         <motion.div
           initial={{ opacity: 0, x: 100 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, delay: 0.3 }}
-          className="relative w-full h-full"
+          className="relative w-full h-full flex items-center justify-end"
         >
           <img 
-            src={aiAndIHero} 
+            src={heroAiWoman} 
             alt="AI and I - Can Make a Difference" 
-            className="w-full h-full object-contain object-right opacity-90"
+            className="w-full h-full object-cover object-center"
             style={{ 
-              clipPath: 'inset(8% 0 0 0)',
-              filter: 'brightness(1.1) contrast(1.05)'
+              filter: 'brightness(1.05) contrast(1.02)'
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-[hsl(220,20%,4%)]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,20%,4%)] via-transparent to-transparent opacity-60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,20%,4%)] via-transparent to-transparent opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[hsl(220,20%,4%)] via-transparent to-transparent opacity-30" />
         </motion.div>
       </div>
 
