@@ -43,25 +43,24 @@ const FuturisticHero = () => {
         </svg>
       </div>
 
-      {/* AI and I Hero Image */}
-      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[45%] h-[85%] hidden md:block">
+      {/* AI and I Hero Image - Centered */}
+      <div className="absolute inset-0 flex items-center justify-center">
         <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.3 }}
-          className="relative w-full h-full flex items-center justify-end"
+          className="relative w-full h-full max-w-4xl mx-auto flex items-center justify-center"
         >
           <img 
             src={heroAiWoman} 
             alt="AI and I - Can Make a Difference" 
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-contain"
             style={{ 
               filter: 'brightness(1.05) contrast(1.02)'
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-[hsl(220,20%,4%)]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,20%,4%)] via-transparent to-transparent opacity-50" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[hsl(220,20%,4%)] via-transparent to-transparent opacity-30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[hsl(220,20%,4%)] via-transparent to-[hsl(220,20%,4%)] opacity-60" />
+          <div className="absolute inset-0 bg-gradient-to-l from-[hsl(220,20%,4%)] via-transparent to-[hsl(220,20%,4%)] opacity-40" />
         </motion.div>
       </div>
 
@@ -70,40 +69,11 @@ const FuturisticHero = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="max-w-4xl"
+          className="max-w-4xl text-center mx-auto mt-[60vh]"
         >
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full 
-                       border border-[hsl(210,100%,55%)/0.3] bg-[hsl(210,100%,55%)/0.1]"
-          >
-            <Sparkles className="w-4 h-4 text-[hsl(210,100%,55%)]" />
-            <span className="text-sm font-medium text-[hsl(210,100%,55%)]">AI-Powered Business Ecosystem</span>
-          </motion.div>
-
-          {/* Headline */}
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-            <span className="block">Software Vala —</span>
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[hsl(210,100%,55%)] to-[hsl(187,100%,50%)]"
-                  style={{ textShadow: '0 0 40px hsl(210 100% 55% / 0.5)' }}>
-              Fixed Price. No Advance.
-            </span>
-            <span className="block text-[hsl(45,100%,50%)]" 
-                  style={{ textShadow: '0 0 30px hsl(45 100% 50% / 0.4)' }}>
-              Lifetime Updates.
-            </span>
-          </h1>
-
-          {/* Subheadline */}
-          <p className="text-xl md:text-2xl text-slate-300 mb-10 max-w-2xl">
-            AI + You = Infinite Possibilities
-          </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4 justify-center">
             {ctaButtons.map((btn, index) => (
               <motion.div
                 key={btn.label}
