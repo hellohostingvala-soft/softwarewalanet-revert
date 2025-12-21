@@ -65,7 +65,7 @@ const ForgotPassword = () => {
               <Mail className="w-4 h-4 mr-2" />
               Try Another Email
             </Button>
-            <Link to="/login" className="text-sm text-primary hover:underline text-center inline-flex items-center justify-center gap-1">
+            <Link to="/auth" className="text-sm text-primary hover:underline text-center inline-flex items-center justify-center gap-1">
               <ArrowLeft className="w-4 h-4" />
               Back to login
             </Link>
@@ -112,7 +112,7 @@ const ForgotPassword = () => {
               {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Mail className="w-4 h-4 mr-2" />}
               Send Reset Link
             </Button>
-            <Link to="/login" className="text-sm text-muted-foreground hover:text-primary text-center inline-flex items-center justify-center gap-1">
+            <Link to="/auth" className="text-sm text-muted-foreground hover:text-primary text-center inline-flex items-center justify-center gap-1">
               <ArrowLeft className="w-4 h-4" />
               Back to login
             </Link>

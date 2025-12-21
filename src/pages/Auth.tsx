@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { z } from 'zod';
-import { Mail, Lock, User, ArrowRight, Zap, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Zap, Eye, EyeOff, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -277,7 +277,16 @@ const Auth = () => {
             </Button>
           </form>
 
-          <p className="text-center text-sm text-muted-foreground mt-6">
+          {/* Forgot Password Link - only show on login */}
+          {isLogin && (
+            <div className="text-center mt-4">
+              <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+                Forgot your password?
+              </Link>
+            </div>
+          )}
+
+          <p className="text-center text-sm text-muted-foreground mt-4">
             {isLogin ? "Don't have an account? " : "Already have an account? "}
             <button
               onClick={() => setIsLogin(!isLogin)}
@@ -286,6 +295,14 @@ const Auth = () => {
               {isLogin ? 'Sign up' : 'Sign in'}
             </button>
           </p>
+
+          {/* Back to Home */}
+          <div className="text-center mt-4">
+            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
+              <ArrowLeft className="w-3 h-3" />
+              Back to Home
+            </Link>
+          </div>
         </div>
       </motion.div>
     </div>
