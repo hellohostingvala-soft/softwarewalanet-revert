@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.payu]
 verify_jwt = false
+
+[functions.api-risk-engine]
+verify_jwt = false
