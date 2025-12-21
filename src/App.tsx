@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./hooks/useAuth";
 import Homepage from "./pages/Homepage";
 import Auth from "./pages/Auth";
-import Dashboard from "./pages/Index";
+import Dashboard from "./pages/Dashboard";
 import CategoryOnboarding from "./pages/CategoryOnboarding";
 import NotFound from "./pages/NotFound";
 
