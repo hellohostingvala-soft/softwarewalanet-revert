@@ -19,6 +19,7 @@ import OTPVerify from "./pages/auth/OTPVerify";
 import DeviceVerify from "./pages/auth/DeviceVerify";
 import IPVerify from "./pages/auth/IPVerify";
 import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 import AccountSuspension from "./pages/auth/AccountSuspension";
 import AccessDenied from "./pages/auth/AccessDenied";
 
@@ -116,6 +117,7 @@ const App = () => (
               <Route path="/device-verify" element={<DeviceVerify />} />
               <Route path="/ip-verify" element={<IPVerify />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/account-suspension" element={<AccountSuspension />} />
               <Route path="/access-denied" element={<AccessDenied />} />
 
