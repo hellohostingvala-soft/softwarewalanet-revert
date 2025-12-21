@@ -1,50 +1,49 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import {
   Crown, Users, Building2, Store, Code2, Zap, Star, Target,
   ListTodo, Package, Wallet, HeadphonesIcon, TrendingUp, Brain,
   Activity, Globe, Shield, Scale, Search, UserPlus, MessageSquare,
-  AlertTriangle, CheckCircle, Clock, Ban, RefreshCw, ChevronRight
+  Clock, RefreshCw, DollarSign, AlertTriangle, ChevronRight
 } from 'lucide-react';
 import { ROLE_CONFIG, AppRole } from '@/types/roles';
+import { LucideIcon } from 'lucide-react';
 
 // Role status data
 const roleStatuses: Array<{
   role: AppRole;
   active: number;
   pending: number;
-  failed: number;
+  done: number;
 }> = [
-  { role: 'super_admin', active: 2, pending: 0, failed: 0 },
-  { role: 'admin', active: 5, pending: 1, failed: 0 },
-  { role: 'developer', active: 47, pending: 8, failed: 2 },
-  { role: 'franchise', active: 23, pending: 5, failed: 1 },
-  { role: 'reseller', active: 156, pending: 12, failed: 3 },
-  { role: 'influencer', active: 89, pending: 15, failed: 0 },
-  { role: 'prime', active: 342, pending: 28, failed: 5 },
-  { role: 'seo_manager', active: 3, pending: 0, failed: 0 },
-  { role: 'lead_manager', active: 4, pending: 1, failed: 0 },
-  { role: 'task_manager', active: 3, pending: 0, failed: 0 },
-  { role: 'demo_manager', active: 2, pending: 1, failed: 0 },
-  { role: 'rnd_manager', active: 2, pending: 0, failed: 0 },
-  { role: 'client_success', active: 5, pending: 2, failed: 0 },
-  { role: 'performance_manager', active: 2, pending: 0, failed: 0 },
-  { role: 'finance_manager', active: 3, pending: 1, failed: 0 },
-  { role: 'marketing_manager', active: 4, pending: 0, failed: 0 },
-  { role: 'legal_compliance', active: 2, pending: 0, failed: 0 },
-  { role: 'hr_manager', active: 2, pending: 1, failed: 0 },
-  { role: 'support', active: 8, pending: 2, failed: 1 },
-  { role: 'ai_manager', active: 1, pending: 0, failed: 0 },
-  { role: 'client', active: 1247, pending: 89, failed: 12 },
+  { role: 'super_admin', active: 2, pending: 0, done: 15 },
+  { role: 'admin', active: 5, pending: 1, done: 45 },
+  { role: 'developer', active: 47, pending: 8, done: 156 },
+  { role: 'franchise', active: 23, pending: 5, done: 67 },
+  { role: 'reseller', active: 156, pending: 12, done: 234 },
+  { role: 'influencer', active: 89, pending: 15, done: 178 },
+  { role: 'prime', active: 342, pending: 28, done: 892 },
+  { role: 'seo_manager', active: 3, pending: 0, done: 45 },
+  { role: 'lead_manager', active: 4, pending: 1, done: 128 },
+  { role: 'task_manager', active: 3, pending: 0, done: 445 },
+  { role: 'demo_manager', active: 2, pending: 1, done: 67 },
+  { role: 'rnd_manager', active: 2, pending: 0, done: 21 },
+  { role: 'client_success', active: 5, pending: 2, done: 567 },
+  { role: 'performance_manager', active: 2, pending: 0, done: 21 },
+  { role: 'finance_manager', active: 3, pending: 1, done: 89 },
+  { role: 'marketing_manager', active: 4, pending: 0, done: 56 },
+  { role: 'legal_compliance', active: 2, pending: 0, done: 34 },
+  { role: 'hr_manager', active: 2, pending: 1, done: 23 },
+  { role: 'support', active: 8, pending: 2, done: 567 },
+  { role: 'ai_manager', active: 1, pending: 0, done: 12 },
+  { role: 'client', active: 1247, pending: 89, done: 3456 },
 ];
 
-const getIconForRole = (role: AppRole) => {
-  const icons: Record<string, any> = {
+const getIconForRole = (role: AppRole): LucideIcon => {
+  const icons: Record<string, LucideIcon> = {
     super_admin: Crown,
     admin: Shield,
     developer: Code2,
@@ -70,6 +69,177 @@ const getIconForRole = (role: AppRole) => {
   return icons[role] || Users;
 };
 
+// Role Activity Card Component - 2x2 style with teal theme
+const RoleActivityCard = ({ 
+  role, 
+  stats, 
+  index 
+}: { 
+  role: AppRole;
+  stats: { active: number; pending: number; done: number };
+  index: number;
+}) => {
+  const config = ROLE_CONFIG[role];
+  const Icon = getIconForRole(role);
+  const total = stats.active + stats.pending + stats.done;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.05 }}
+      whileHover={{ scale: 1.02, y: -4 }}
+      className="relative p-5 rounded-2xl bg-slate-800/80 border border-teal-500/20 backdrop-blur-xl overflow-hidden cursor-pointer group"
+      style={{
+        boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)',
+      }}
+    >
+      {/* Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      {/* Corner Glow */}
+      <div className="absolute -top-10 -right-10 w-24 h-24 bg-teal-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-4 relative z-10">
+        <motion.div 
+          className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shadow-lg"
+          whileHover={{ rotate: 5 }}
+          style={{
+            boxShadow: '0 8px 24px rgba(20, 184, 166, 0.4)',
+          }}
+        >
+          <Icon className="h-6 w-6 text-white" />
+        </motion.div>
+        
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-bold text-white tracking-wide truncate">{config.label}</h3>
+          <p className="text-xs text-slate-400">Live Activity</p>
+        </div>
+        
+        <Badge className="bg-teal-500/20 text-teal-400 border-teal-500/30 text-xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-teal-400 mr-1.5 animate-pulse" />
+          {total}
+        </Badge>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-3 gap-2 relative z-10">
+        {/* Pending */}
+        <motion.div 
+          className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center"
+          whileHover={{ scale: 1.05 }}
+        >
+          <div className="w-8 h-8 mx-auto mb-1 rounded-lg bg-amber-500/20 flex items-center justify-center">
+            <span className="text-amber-400 font-bold text-sm">{stats.pending}</span>
+          </div>
+          <p className="text-[10px] text-amber-300/80 uppercase tracking-wider font-medium">Pending</p>
+        </motion.div>
+
+        {/* Active */}
+        <motion.div 
+          className="p-3 rounded-xl bg-teal-500/10 border border-teal-500/20 text-center relative"
+          whileHover={{ scale: 1.05 }}
+        >
+          {stats.active > 0 && (
+            <div className="absolute top-1.5 right-1.5">
+              <span className="flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-teal-400"></span>
+              </span>
+            </div>
+          )}
+          <div className="w-8 h-8 mx-auto mb-1 rounded-lg bg-teal-500/20 flex items-center justify-center">
+            <span className="text-teal-400 font-bold text-sm">{stats.active}</span>
+          </div>
+          <p className="text-[10px] text-teal-300/80 uppercase tracking-wider font-medium">Active</p>
+        </motion.div>
+
+        {/* Done */}
+        <motion.div 
+          className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center"
+          whileHover={{ scale: 1.05 }}
+        >
+          <div className="w-8 h-8 mx-auto mb-1 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+            <span className="text-emerald-400 font-bold text-sm">{stats.done > 999 ? `${(stats.done/1000).toFixed(1)}k` : stats.done}</span>
+          </div>
+          <p className="text-[10px] text-emerald-300/80 uppercase tracking-wider font-medium">Done</p>
+        </motion.div>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="mt-3 relative z-10">
+        <div className="h-1.5 rounded-full bg-slate-700/50 overflow-hidden">
+          <motion.div 
+            className="h-full bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: `${(stats.done / Math.max(total, 1)) * 100}%` }}
+            transition={{ duration: 1, delay: 0.3 + index * 0.05 }}
+          />
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+// Stats Card for Command Center Header
+const HeaderStatCard = ({ 
+  title, 
+  value, 
+  subValue, 
+  icon: Icon, 
+  trend, 
+  trendUp = true 
+}: {
+  title: string;
+  value: string;
+  subValue?: string;
+  icon: LucideIcon;
+  trend?: string;
+  trendUp?: boolean;
+}) => (
+  <motion.div 
+    className="relative p-4 rounded-xl bg-slate-800/60 border border-slate-700/50 backdrop-blur-sm overflow-hidden group"
+    whileHover={{ scale: 1.02, y: -2 }}
+    style={{
+      boxShadow: '0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)',
+    }}
+  >
+    <div className="absolute top-0 right-0 w-16 h-16 bg-teal-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+    
+    <div className="flex items-start justify-between mb-2">
+      <div className="p-2 rounded-lg bg-slate-700/50">
+        <Icon className="h-4 w-4 text-teal-400" />
+      </div>
+      {trend && (
+        <Badge 
+          variant="outline" 
+          className={`text-[10px] ${trendUp ? 'text-emerald-400 border-emerald-500/30' : 'text-rose-400 border-rose-500/30'}`}
+        >
+          {trendUp ? '↑' : '↓'} {trend}
+        </Badge>
+      )}
+    </div>
+    
+    <div className="space-y-0.5">
+      <p className="text-[10px] text-slate-400 uppercase tracking-wider">{title}</p>
+      <div className="flex items-baseline gap-1.5">
+        <motion.p 
+          className="text-xl font-bold text-white"
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2, type: 'spring' }}
+        >
+          {value}
+        </motion.p>
+        {subValue && (
+          <span className="text-xs text-slate-400">{subValue}</span>
+        )}
+      </div>
+    </div>
+  </motion.div>
+);
+
 const SuperAdminCommandCenter = () => {
   const [showWelcome, setShowWelcome] = useState(true);
   const [liveStats, setLiveStats] = useState({
@@ -77,12 +247,10 @@ const SuperAdminCommandCenter = () => {
     activeDevelopers: 47,
     demosOnline: 156,
     totalRevenue: 12450000,
-    walletBalance: 8750000,
-    pendingPayouts: 2340000,
   });
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowWelcome(false), 3000);
+    const timer = setTimeout(() => setShowWelcome(false), 2500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -105,7 +273,7 @@ const SuperAdminCommandCenter = () => {
           <motion.div
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-background flex items-center justify-center"
+            className="fixed inset-0 z-50 bg-slate-900 flex items-center justify-center"
           >
             <motion.div
               initial={{ scale: 0.5, opacity: 0 }}
@@ -117,15 +285,16 @@ const SuperAdminCommandCenter = () => {
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 2, ease: "linear", repeat: Infinity }}
-                className="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-primary via-neon-teal to-primary flex items-center justify-center"
+                className="w-28 h-28 mx-auto mb-6 rounded-full bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shadow-2xl"
+                style={{ boxShadow: '0 0 60px rgba(20, 184, 166, 0.5)' }}
               >
-                <Crown className="w-16 h-16 text-primary-foreground" />
+                <Crown className="w-14 h-14 text-white" />
               </motion.div>
               <motion.h1
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className="text-5xl font-mono font-bold neon-text mb-4"
+                className="text-4xl font-bold text-white mb-4"
               >
                 Welcome, Boss
               </motion.h1>
@@ -133,7 +302,7 @@ const SuperAdminCommandCenter = () => {
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.5 }}
-                className="text-xl text-muted-foreground"
+                className="text-lg text-slate-400"
               >
                 Command Center Initializing...
               </motion.p>
@@ -141,344 +310,279 @@ const SuperAdminCommandCenter = () => {
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
                 transition={{ delay: 0.7, duration: 1.5 }}
-                className="h-1 bg-gradient-to-r from-primary to-neon-teal mt-8 mx-auto max-w-md rounded-full"
+                className="h-1 bg-gradient-to-r from-teal-500 to-cyan-500 mt-8 mx-auto max-w-md rounded-full"
               />
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-mono font-bold neon-text">Command Center</h1>
-            <p className="text-muted-foreground">Real-time system overview</p>
-          </div>
-          <Button variant="outline" className="gap-2">
-            <RefreshCw className="w-4 h-4" />
-            Refresh
-          </Button>
-        </div>
-
-        {/* Live Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <StatCard
-            icon={Target}
-            label="Total Leads"
-            value={liveStats.totalLeads.toLocaleString()}
-            trend="+12%"
-            color="primary"
-          />
-          <StatCard
-            icon={Code2}
-            label="Active Devs"
-            value={liveStats.activeDevelopers.toString()}
-            trend="+3"
-            color="neon-teal"
-          />
-          <StatCard
-            icon={Package}
-            label="Demos Online"
-            value={liveStats.demosOnline.toString()}
-            trend="98%"
-            color="neon-green"
-          />
-          <StatCard
-            icon={Wallet}
-            label="Total Revenue"
-            value={`₹${(liveStats.totalRevenue / 100000).toFixed(1)}L`}
-            trend="+18%"
-            color="neon-orange"
-          />
-          <StatCard
-            icon={Wallet}
-            label="Wallet Balance"
-            value={`₹${(liveStats.walletBalance / 100000).toFixed(1)}L`}
-            trend=""
-            color="primary"
-          />
-          <StatCard
-            icon={Clock}
-            label="Pending Payouts"
-            value={`₹${(liveStats.pendingPayouts / 100000).toFixed(1)}L`}
-            trend="12 requests"
-            color="neon-orange"
-          />
-        </div>
-
-        {/* 21 Role Status Boxes */}
-        <Card className="glass-panel">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-primary" />
-              21 Role Status Overview
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
-              {roleStatuses.map((status, index) => {
-                const config = ROLE_CONFIG[status.role];
-                const Icon = getIconForRole(status.role);
-                const total = status.active + status.pending + status.failed;
-                const healthPercent = total > 0 ? (status.active / total) * 100 : 100;
-
-                return (
-                  <motion.div
-                    key={status.role}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.03 }}
-                    className="p-3 rounded-lg bg-secondary/30 border border-border/30 hover:border-primary/30 transition-all group cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <div
-                        className="w-8 h-8 rounded-lg flex items-center justify-center"
-                        style={{ backgroundColor: `${config.color}20`, color: config.color }}
-                      >
-                        <Icon className="w-4 h-4" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium truncate">{config.label}</p>
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="flex items-center gap-1 text-neon-green">
-                          <CheckCircle className="w-3 h-3" />
-                          {status.active}
-                        </span>
-                        <span className="flex items-center gap-1 text-neon-orange">
-                          <Clock className="w-3 h-3" />
-                          {status.pending}
-                        </span>
-                        {status.failed > 0 && (
-                          <span className="flex items-center gap-1 text-destructive">
-                            <Ban className="w-3 h-3" />
-                            {status.failed}
-                          </span>
-                        )}
-                      </div>
-                      <Progress value={healthPercent} className="h-1" />
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Main Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* World Map Panel */}
-          <Card className="glass-panel lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Globe className="w-5 h-5 text-primary" />
-                Global Branch Network
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-80 relative bg-secondary/30 rounded-lg overflow-hidden">
-                {/* Simplified World Map Visualization */}
-                <div className="absolute inset-0 grid-lines opacity-30" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <Globe className="w-24 h-24 text-primary/30 mx-auto animate-float" />
-                    <p className="text-muted-foreground mt-4">23 Active Branches</p>
-                    <div className="flex items-center justify-center gap-4 mt-2">
-                      <Badge variant="secondary">India: 18</Badge>
-                      <Badge variant="secondary">UAE: 3</Badge>
-                      <Badge variant="secondary">USA: 2</Badge>
-                    </div>
-                  </div>
+      <div className="space-y-6 bg-slate-900 min-h-screen -m-6 p-6">
+        {/* Command Center Header */}
+        <motion.div 
+          className="space-y-5"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {/* Top Bar */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <motion.div 
+                className="relative"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.1, type: 'spring' }}
+              >
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shadow-lg" style={{ boxShadow: '0 8px 24px rgba(20, 184, 166, 0.4)' }}>
+                  <Shield className="h-6 w-6 text-white" />
                 </div>
-                {/* Branch Indicators */}
-                {[
-                  { x: '30%', y: '35%', name: 'Mumbai', count: 5 },
-                  { x: '35%', y: '40%', name: 'Delhi', count: 4 },
-                  { x: '32%', y: '50%', name: 'Bangalore', count: 3 },
-                  { x: '65%', y: '25%', name: 'Dubai', count: 3 },
-                  { x: '15%', y: '30%', name: 'New York', count: 2 },
-                ].map((branch, i) => (
-                  <motion.div
-                    key={branch.name}
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: i * 0.1 }}
-                    className="absolute group cursor-pointer"
-                    style={{ left: branch.x, top: branch.y }}
-                  >
-                    <div className="relative">
-                      <motion.div
-                        animate={{
-                          boxShadow: ['0 0 0 0 hsl(var(--primary) / 0.4)', '0 0 0 10px hsl(var(--primary) / 0)', '0 0 0 0 hsl(var(--primary) / 0)'],
-                        }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="w-4 h-4 rounded-full bg-primary"
-                      />
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-card px-2 py-1 rounded text-xs whitespace-nowrap">
-                        {branch.name}: {branch.count} branches
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-slate-900 flex items-center justify-center">
+                  <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                </div>
+              </motion.div>
+              
+              <div>
+                <h1 className="text-2xl font-bold text-white tracking-tight">
+                  SUPER ADMIN COMMAND CENTER
+                </h1>
+                <p className="text-sm text-slate-400 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  All Systems Operational • Live Monitoring
+                </p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <Badge className="bg-teal-500/20 text-teal-400 border-teal-500/30 px-3 py-1">
+                <Activity className="h-3 w-3 mr-1.5 animate-pulse" />
+                LIVE
+              </Badge>
+              <Button variant="outline" size="sm" className="gap-2 border-slate-600 bg-slate-800/50 text-slate-300 hover:bg-slate-700">
+                <RefreshCw className="w-4 h-4" />
+                Refresh
+              </Button>
+            </div>
+          </div>
 
-          {/* Quick Actions & Alerts */}
-          <Card className="glass-panel">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-neon-orange" />
-                Critical Alerts
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <HeaderStatCard
+              title="Booking Trajectory"
+              value="1,950"
+              subValue=".00"
+              icon={Target}
+              trend="15%"
+              trendUp={true}
+            />
+            <HeaderStatCard
+              title="Active Value"
+              value={`₹${(liveStats.totalRevenue / 100000).toFixed(0)}L`}
+              subValue="450K pending"
+              icon={DollarSign}
+              trend="8%"
+              trendUp={true}
+            />
+            <HeaderStatCard
+              title="Sales Funnel"
+              value="7.50%"
+              subValue="4.39% prev"
+              icon={TrendingUp}
+              trend="3.11%"
+              trendUp={true}
+            />
+            <HeaderStatCard
+              title="Growth Rate"
+              value=".65%"
+              subValue=".12% prev"
+              icon={Zap}
+              trend="0.53%"
+              trendUp={true}
+            />
+          </div>
+        </motion.div>
+
+        {/* Developer Timer Preview */}
+        <motion.div 
+          className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/50 backdrop-blur-xl"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-white flex items-center gap-2 text-sm">
+              <Clock className="h-4 w-4 text-teal-400" />
+              Active Developer Timers
+            </h3>
+            <Badge className="bg-teal-500/20 text-teal-400 border-teal-500/30 text-xs">{liveStats.activeDevelopers} Running</Badge>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+            {[
+              { name: 'DEV***042', task: 'API Integration', time: '02:34:12', progress: 65 },
+              { name: 'DEV***018', task: 'UI Fixes', time: '01:15:45', progress: 40 },
+              { name: 'DEV***089', task: 'Bug Fix', time: '00:45:30', progress: 80 },
+              { name: 'DEV***034', task: 'Feature Dev', time: '03:12:00', progress: 25 },
+              { name: 'DEV***056', task: 'Testing', time: '00:30:15', progress: 90 },
+              { name: 'DEV***071', task: 'Docs', time: '01:00:00', progress: 55 },
+            ].map((dev, idx) => (
+              <motion.div 
+                key={idx} 
+                className="p-2.5 rounded-lg bg-slate-900/60 border border-slate-600/50"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3 + idx * 0.05 }}
+              >
+                <p className="text-[10px] text-slate-400 truncate">{dev.name}</p>
+                <p className="text-xs font-mono text-teal-400">{dev.time}</p>
+                <div className="mt-1.5 h-1 rounded-full bg-slate-700 overflow-hidden">
+                  <motion.div 
+                    className="h-full bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${dev.progress}%` }}
+                    transition={{ duration: 1, delay: 0.5 + idx * 0.1 }}
+                  />
+                </div>
+                <p className="text-[9px] text-slate-500 mt-1 truncate">{dev.task}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Section Header */}
+        <motion.div 
+          className="flex items-center justify-between"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div>
+            <h2 className="text-lg font-bold text-white">21 Role Modules • Live Activity</h2>
+            <p className="text-xs text-slate-400">Real-time monitoring across all departments</p>
+          </div>
+          <Badge className="bg-teal-500/20 text-teal-400 border-teal-500/30">
+            <span className="h-1.5 w-1.5 rounded-full bg-teal-400 mr-1.5 animate-pulse" />
+            Live Updates
+          </Badge>
+        </motion.div>
+
+        {/* 2x2 Role Activity Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {roleStatuses.map((status, idx) => (
+            <RoleActivityCard
+              key={status.role}
+              role={status.role}
+              stats={{
+                active: status.active,
+                pending: status.pending,
+                done: status.done,
+              }}
+              index={idx}
+            />
+          ))}
+        </div>
+
+        {/* AI Insights & Alerts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* AI Insights */}
+          <motion.div 
+            className="p-5 rounded-2xl bg-slate-800/60 border border-teal-500/20 backdrop-blur-xl"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-600">
+                <Brain className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white text-sm">AI Insights</h3>
+                <p className="text-[10px] text-slate-400">Powered by Vala Intelligence</p>
+              </div>
+            </div>
+            <div className="space-y-2">
               {[
-                { type: 'critical', title: 'Demo Offline', desc: 'E-commerce v2.1 down for 15m', time: '2m ago' },
-                { type: 'warning', title: 'SLA Breach', desc: 'Task #4521 exceeded deadline', time: '8m ago' },
-                { type: 'warning', title: 'Payout Pending', desc: '₹2.4L awaiting approval', time: '1h ago' },
+                { insight: 'Lead conversion rate up 15% this week', type: 'positive' },
+                { insight: '3 developers approaching SLA deadline', type: 'warning' },
+                { insight: 'Mumbai region showing highest growth', type: 'info' },
+              ].map((item, idx) => (
+                <motion.div 
+                  key={idx} 
+                  className={`p-3 rounded-xl border ${
+                    item.type === 'positive' 
+                      ? 'bg-emerald-500/10 border-emerald-500/30' 
+                      : item.type === 'warning' 
+                      ? 'bg-amber-500/10 border-amber-500/30' 
+                      : 'bg-teal-500/10 border-teal-500/30'
+                  }`}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6 + idx * 0.1 }}
+                >
+                  <div className="flex items-start gap-2">
+                    {item.type === 'positive' && <TrendingUp className="h-4 w-4 text-emerald-400 mt-0.5 shrink-0" />}
+                    {item.type === 'warning' && <Clock className="h-4 w-4 text-amber-400 mt-0.5 shrink-0" />}
+                    {item.type === 'info' && <Globe className="h-4 w-4 text-teal-400 mt-0.5 shrink-0" />}
+                    <p className="text-xs text-slate-200">{item.insight}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Critical Alerts */}
+          <motion.div 
+            className="p-5 rounded-2xl bg-slate-800/60 border border-slate-700/50 backdrop-blur-xl"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-amber-500/20">
+                <AlertTriangle className="h-5 w-5 text-amber-400" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white text-sm">Critical Alerts</h3>
+                <p className="text-[10px] text-slate-400">Requires immediate attention</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              {[
+                { type: 'critical', title: 'Demo Offline', desc: 'E-commerce v2.1 down', time: '2m ago' },
+                { type: 'warning', title: 'SLA Breach', desc: 'Task #4521 exceeded', time: '8m ago' },
                 { type: 'info', title: 'New Franchise', desc: 'Mumbai South approved', time: '3h ago' },
               ].map((alert, i) => (
                 <motion.div
                   key={i}
                   initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: i * 0.1 }}
-                  className={`p-3 rounded-lg border ${
+                  transition={{ delay: 0.7 + i * 0.1 }}
+                  className={`p-3 rounded-xl border ${
                     alert.type === 'critical' 
-                      ? 'bg-destructive/10 border-destructive/30' 
+                      ? 'bg-rose-500/10 border-rose-500/30' 
                       : alert.type === 'warning'
-                      ? 'bg-neon-orange/10 border-neon-orange/30'
-                      : 'bg-primary/10 border-primary/30'
+                      ? 'bg-amber-500/10 border-amber-500/30'
+                      : 'bg-teal-500/10 border-teal-500/30'
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="font-medium text-sm">{alert.title}</p>
-                      <p className="text-xs text-muted-foreground">{alert.desc}</p>
+                      <p className="font-medium text-xs text-white">{alert.title}</p>
+                      <p className="text-[10px] text-slate-400">{alert.desc}</p>
                     </div>
-                    <span className="text-xs text-muted-foreground">{alert.time}</span>
+                    <span className="text-[10px] text-slate-500">{alert.time}</span>
                   </div>
                 </motion.div>
               ))}
-              <Button variant="ghost" className="w-full gap-2">
-                View All Alerts
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Developer Timer & Demo Health */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Developer Timers */}
-          <Card className="glass-panel">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="w-5 h-5 text-neon-green" />
-                Active Developer Timers
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {[
-                { name: 'DEV-A7X2', task: 'CRM API Integration', time: '02:34:18', progress: 65, status: 'coding' },
-                { name: 'DEV-K9M1', task: 'Mobile App Bug Fix', time: '01:12:45', progress: 80, status: 'testing' },
-                { name: 'DEV-P3L8', task: 'Dashboard UI', time: '00:45:22', progress: 30, status: 'coding' },
-              ].map((dev, i) => (
-                <div key={i} className="p-3 rounded-lg bg-secondary/30 border border-border/30">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="font-mono">{dev.name}</Badge>
-                      <span className="text-sm">{dev.task}</span>
-                    </div>
-                    <span className="font-mono text-primary">{dev.time}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Progress value={dev.progress} className="flex-1" />
-                    <Badge variant={dev.status === 'coding' ? 'default' : 'secondary'} className="text-xs">
-                      {dev.status}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Demo Health Monitor */}
-          <Card className="glass-panel">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Package className="w-5 h-5 text-primary" />
-                Demo Health Monitor
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {[
-                { name: 'E-commerce Pro', uptime: 99.9, status: 'online', category: 'E-commerce' },
-                { name: 'CRM Enterprise', uptime: 100, status: 'online', category: 'CRM' },
-                { name: 'Restaurant POS', uptime: 98.5, status: 'degraded', category: 'POS' },
-                { name: 'HR Management', uptime: 0, status: 'offline', category: 'HR' },
-              ].map((demo, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 border border-border/30">
-                  <div className={`w-3 h-3 rounded-full ${
-                    demo.status === 'online' ? 'bg-neon-green status-dot-online' :
-                    demo.status === 'degraded' ? 'bg-neon-orange status-dot-warning' :
-                    'bg-destructive status-dot-critical'
-                  }`} />
-                  <div className="flex-1">
-                    <p className="font-medium text-sm">{demo.name}</p>
-                    <p className="text-xs text-muted-foreground">{demo.category}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className={`font-mono text-sm ${
-                      demo.uptime >= 99 ? 'text-neon-green' :
-                      demo.uptime >= 95 ? 'text-neon-orange' :
-                      'text-destructive'
-                    }`}>
-                      {demo.uptime}%
-                    </p>
-                    <Badge variant={demo.status === 'online' ? 'secondary' : 'destructive'} className="text-xs">
-                      {demo.status}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+            </div>
+            <Button variant="ghost" size="sm" className="w-full gap-2 mt-3 text-xs text-slate-400 hover:text-white">
+              View All Alerts
+              <ChevronRight className="w-3 h-3" />
+            </Button>
+          </motion.div>
         </div>
       </div>
     </DashboardLayout>
   );
 };
-
-// Stat Card Component
-const StatCard = ({ icon: Icon, label, value, trend, color }: {
-  icon: any;
-  label: string;
-  value: string;
-  trend: string;
-  color: string;
-}) => (
-  <motion.div
-    whileHover={{ scale: 1.02 }}
-    className="metric-card"
-  >
-    <div className="flex items-center gap-3">
-      <div className={`w-10 h-10 rounded-xl bg-${color}/20 flex items-center justify-center`}>
-        <Icon className={`w-5 h-5 text-${color}`} />
-      </div>
-      <div>
-        <p className="text-2xl font-mono font-bold">{value}</p>
-        <p className="text-xs text-muted-foreground">{label}</p>
-        {trend && (
-          <span className="text-xs text-neon-green">{trend}</span>
-        )}
-      </div>
-    </div>
-  </motion.div>
-);
 
 export default SuperAdminCommandCenter;
