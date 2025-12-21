@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.api-risk-engine]
 verify_jwt = false
+
+[functions.api-email]
+verify_jwt = false
