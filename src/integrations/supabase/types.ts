@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_keys: {
+        Row: {
+          api_key_hash: string
+          api_key_prefix: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          name: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          api_key_hash: string
+          api_key_prefix: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          name: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          api_key_hash?: string
+          api_key_prefix?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          name?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -41,6 +74,48 @@ export type Database = {
           role?: Database["public"]["Enums"]["app_role"] | null
           timestamp?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      branch_map: {
+        Row: {
+          branch_code: string
+          branch_name: string
+          city: string | null
+          country: string
+          created_at: string
+          franchise_user_id: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          state: string | null
+          status: string | null
+        }
+        Insert: {
+          branch_code: string
+          branch_name: string
+          city?: string | null
+          country: string
+          created_at?: string
+          franchise_user_id?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          state?: string | null
+          status?: string | null
+        }
+        Update: {
+          branch_code?: string
+          branch_name?: string
+          city?: string | null
+          country?: string
+          created_at?: string
+          franchise_user_id?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          state?: string | null
+          status?: string | null
         }
         Relationships: []
       }
@@ -275,6 +350,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      client_success_cases: {
+        Row: {
+          assigned_to: string | null
+          client_user_id: string
+          created_at: string
+          description: string | null
+          id: string
+          issue_type: string
+          resolution_notes: string | null
+          satisfaction_score: number | null
+          severity: string | null
+          status: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          client_user_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          issue_type: string
+          resolution_notes?: string | null
+          satisfaction_score?: number | null
+          severity?: string | null
+          status?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          client_user_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          issue_type?: string
+          resolution_notes?: string | null
+          satisfaction_score?: number | null
+          severity?: string | null
+          status?: string | null
+        }
+        Relationships: []
       }
       dedicated_support_messages: {
         Row: {
@@ -5854,6 +5968,39 @@ export type Database = {
           },
         ]
       }
+      rnd_suggestions: {
+        Row: {
+          approved_by: string | null
+          created_at: string
+          feature_description: string | null
+          feature_title: string
+          id: string
+          priority: string | null
+          status: string | null
+          suggested_by: string
+        }
+        Insert: {
+          approved_by?: string | null
+          created_at?: string
+          feature_description?: string | null
+          feature_title: string
+          id?: string
+          priority?: string | null
+          status?: string | null
+          suggested_by: string
+        }
+        Update: {
+          approved_by?: string | null
+          created_at?: string
+          feature_description?: string | null
+          feature_title?: string
+          id?: string
+          priority?: string | null
+          status?: string | null
+          suggested_by?: string
+        }
+        Relationships: []
+      }
       role_permissions: {
         Row: {
           action: string
@@ -5932,6 +6079,42 @@ export type Database = {
           log_id?: string
           timestamp?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      seo_manager: {
+        Row: {
+          created_at: string
+          id: string
+          keyword: string
+          meta_description: string | null
+          meta_title: string | null
+          module_target: string
+          rank_position: number | null
+          region: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          keyword: string
+          meta_description?: string | null
+          meta_title?: string | null
+          module_target: string
+          rank_position?: number | null
+          region?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          keyword?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          module_target?: string
+          rank_position?: number | null
+          region?: string | null
+          status?: string | null
         }
         Relationships: []
       }
@@ -6235,6 +6418,101 @@ export type Database = {
         }
         Relationships: []
       }
+      unified_wallet_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          currency: string | null
+          description: string | null
+          id: string
+          reference_id: string | null
+          reference_type: string | null
+          status: string | null
+          transaction_type: string
+          user_id: string
+          wallet_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: string | null
+          transaction_type: string
+          user_id: string
+          wallet_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: string | null
+          transaction_type?: string
+          user_id?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unified_wallet_transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "unified_wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      unified_wallets: {
+        Row: {
+          available_balance: number
+          created_at: string
+          currency: string
+          id: string
+          is_frozen: boolean | null
+          pending_balance: number
+          total_earned: number
+          total_withdrawn: number
+          updated_at: string
+          user_id: string
+          user_role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          available_balance?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          is_frozen?: boolean | null
+          pending_balance?: number
+          total_earned?: number
+          total_withdrawn?: number
+          updated_at?: string
+          user_id: string
+          user_role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          available_balance?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          is_frozen?: boolean | null
+          pending_balance?: number
+          total_earned?: number
+          total_withdrawn?: number
+          updated_at?: string
+          user_id?: string
+          user_role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: []
+      }
       uptime_logs: {
         Row: {
           acknowledged_at: string | null
@@ -6393,6 +6671,8 @@ export type Database = {
         | "support"
         | "ai_manager"
         | "admin"
+        | "api_security"
+        | "r_and_d"
       demo_status: "active" | "inactive" | "maintenance" | "down"
       demo_tech_stack:
         | "php"
@@ -6588,6 +6868,8 @@ export const Constants = {
         "support",
         "ai_manager",
         "admin",
+        "api_security",
+        "r_and_d",
       ],
       demo_status: ["active", "inactive", "maintenance", "down"],
       demo_tech_stack: [
