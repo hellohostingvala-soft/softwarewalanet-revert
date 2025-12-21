@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   Activity, 
   Users, 
@@ -23,9 +24,11 @@ interface StatusItem {
   status: 'online' | 'warning' | 'critical';
   icon: React.ReactNode;
   value?: string;
+  path?: string;
 }
 
 const TopControlBar = () => {
+  const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isFrozen, setIsFrozen] = useState(false);
   const [noiseReduction, setNoiseReduction] = useState(false);
@@ -44,12 +47,12 @@ const TopControlBar = () => {
   }, []);
 
   const statusItems: StatusItem[] = [
-    { label: 'System', status: 'online', icon: <Server className="w-3.5 h-3.5" /> },
-    { label: 'Demo', status: 'online', icon: <Activity className="w-3.5 h-3.5" /> },
-    { label: 'API', status: 'warning', icon: <Radio className="w-3.5 h-3.5" /> },
-    { label: 'AI', status: 'online', icon: <Bot className="w-3.5 h-3.5" /> },
-    { label: 'Wallet', status: 'online', icon: <Wallet className="w-3.5 h-3.5" /> },
-    { label: 'Server', status: 'online', icon: <Cpu className="w-3.5 h-3.5" /> },
+    { label: 'System', status: 'online', icon: <Server className="w-3.5 h-3.5" />, path: '/super-admin/system-settings' },
+    { label: 'Demo', status: 'online', icon: <Activity className="w-3.5 h-3.5" />, path: '/super-admin/demo-manager' },
+    { label: 'API', status: 'warning', icon: <Radio className="w-3.5 h-3.5" />, path: '/api-integration' },
+    { label: 'AI', status: 'online', icon: <Bot className="w-3.5 h-3.5" />, path: '/super-admin/ai-billing' },
+    { label: 'Wallet', status: 'online', icon: <Wallet className="w-3.5 h-3.5" />, path: '/super-admin/finance-center' },
+    { label: 'Server', status: 'online', icon: <Cpu className="w-3.5 h-3.5" />, path: '/super-admin/system-settings' },
   ];
 
   const getStatusColor = (status: string) => {
@@ -76,7 +79,10 @@ const TopControlBar = () => {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.05 }}
-              className="flex items-center gap-2 text-xs"
+              className="flex items-center gap-2 text-xs cursor-pointer hover:bg-secondary/50 px-2 py-1 rounded-md transition-colors"
+              onClick={() => item.path && navigate(item.path)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               <div className="text-muted-foreground">{item.icon}</div>
               <span className="text-muted-foreground hidden xl:inline">{item.label}</span>
