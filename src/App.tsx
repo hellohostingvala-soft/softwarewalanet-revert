@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./hooks/useAuth";
+import { AnimationProvider } from "./contexts/AnimationContext";
 import RequireRole from "@/components/auth/RequireRole";
 import RequireAuth from "@/components/auth/RequireAuth";
 import Homepage from "./pages/Homepage";
@@ -98,12 +99,13 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <DomainProtection>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <FloatingAIChatbotWrapper />
+      <AnimationProvider>
+        <TooltipProvider>
+          <DomainProtection>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <FloatingAIChatbotWrapper />
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Homepage />} />
@@ -246,8 +248,9 @@ const App = () => (
           </BrowserRouter>
         </DomainProtection>
       </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+    </AnimationProvider>
+  </AuthProvider>
+</QueryClientProvider>
 );
 
 export default App;

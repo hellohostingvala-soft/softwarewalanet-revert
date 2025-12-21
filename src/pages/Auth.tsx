@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { Database } from '@/integrations/supabase/types';
+import { useAnimationContext } from '@/contexts/AnimationContext';
 
 type AppRole = Database['public']['Enums']['app_role'];
 
@@ -35,6 +36,7 @@ const Auth = () => {
   
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+  const { showWelcome, showWelcomeBack } = useAnimationContext();
 
   // Redirect if already logged in
   useEffect(() => {
@@ -80,8 +82,8 @@ const Auth = () => {
             toast.error(error.message);
           }
         } else {
-          toast.success('Welcome back!');
-          navigate('/dashboard');
+          showWelcomeBack(email.split('@')[0], 'default', 'SV-' + Math.random().toString(36).substring(2, 6).toUpperCase());
+          setTimeout(() => navigate('/dashboard'), 4000);
         }
       } else {
         const { error } = await signUp(email, password, selectedRole, fullName);
@@ -92,8 +94,8 @@ const Auth = () => {
             toast.error(error.message);
           }
         } else {
-          toast.success('Account created successfully!');
-          navigate('/dashboard');
+          showWelcome(fullName || email.split('@')[0], selectedRole);
+          setTimeout(() => navigate('/dashboard'), 4800);
         }
       }
     } catch (err) {
