@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_lists: {
+        Row: {
+          added_by: string | null
+          created_at: string | null
+          entry_type: string
+          entry_value: string
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          list_type: string
+          metadata: Json | null
+          reason: string | null
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string | null
+          entry_type: string
+          entry_value: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          list_type: string
+          metadata?: Json | null
+          reason?: string | null
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string | null
+          entry_type?: string
+          entry_value?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          list_type?: string
+          metadata?: Json | null
+          reason?: string | null
+        }
+        Relationships: []
+      }
       accessibility_compliance: {
         Row: {
           alt_text_pass: boolean | null
@@ -62,6 +101,72 @@ export type Database = {
           screen_reader_pass?: boolean | null
           status?: string | null
           wcag_level?: string | null
+        }
+        Relationships: []
+      }
+      account_suspensions: {
+        Row: {
+          appeal_submitted: boolean | null
+          appeal_submitted_at: string | null
+          appeal_text: string | null
+          auto_triggered: boolean | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          lifted_at: string | null
+          lifted_by: string | null
+          masked_reason: string | null
+          reason: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          severity: string | null
+          suspended_at: string | null
+          suspension_type: string
+          trigger_alert_id: string | null
+          user_id: string
+        }
+        Insert: {
+          appeal_submitted?: boolean | null
+          appeal_submitted_at?: string | null
+          appeal_text?: string | null
+          auto_triggered?: boolean | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          lifted_at?: string | null
+          lifted_by?: string | null
+          masked_reason?: string | null
+          reason: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          severity?: string | null
+          suspended_at?: string | null
+          suspension_type: string
+          trigger_alert_id?: string | null
+          user_id: string
+        }
+        Update: {
+          appeal_submitted?: boolean | null
+          appeal_submitted_at?: string | null
+          appeal_text?: string | null
+          auto_triggered?: boolean | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          lifted_at?: string | null
+          lifted_by?: string | null
+          masked_reason?: string | null
+          reason?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          severity?: string | null
+          suspended_at?: string | null
+          suspension_type?: string
+          trigger_alert_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -125,6 +230,57 @@ export type Database = {
           role?: Database["public"]["Enums"]["app_role"] | null
           timestamp?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      behavior_analytics: {
+        Row: {
+          anomaly_flags: string[] | null
+          bot_probability: number | null
+          click_coordinates: Json | null
+          created_at: string | null
+          event_type: string
+          id: string
+          is_bot_like: boolean | null
+          keystroke_pattern: string | null
+          mouse_velocity: number | null
+          page_url: string | null
+          scroll_pattern: string | null
+          session_id: string | null
+          time_on_page: number | null
+          user_id: string
+        }
+        Insert: {
+          anomaly_flags?: string[] | null
+          bot_probability?: number | null
+          click_coordinates?: Json | null
+          created_at?: string | null
+          event_type: string
+          id?: string
+          is_bot_like?: boolean | null
+          keystroke_pattern?: string | null
+          mouse_velocity?: number | null
+          page_url?: string | null
+          scroll_pattern?: string | null
+          session_id?: string | null
+          time_on_page?: number | null
+          user_id: string
+        }
+        Update: {
+          anomaly_flags?: string[] | null
+          bot_probability?: number | null
+          click_coordinates?: Json | null
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          is_bot_like?: boolean | null
+          keystroke_pattern?: string | null
+          mouse_velocity?: number | null
+          page_url?: string | null
+          scroll_pattern?: string | null
+          session_id?: string | null
+          time_on_page?: number | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -470,6 +626,75 @@ export type Database = {
           },
         ]
       }
+      click_fraud_detection: {
+        Row: {
+          bot_clicks: number | null
+          created_at: string | null
+          duplicate_ip_clicks: number | null
+          flagged_at: string | null
+          franchise_id: string | null
+          fraud_score: number | null
+          id: string
+          influencer_id: string | null
+          invalid_clicks: number | null
+          period_end: string
+          period_start: string
+          reseller_id: string | null
+          review_notes: string | null
+          reviewed_by: string | null
+          status: string | null
+          suspicious_patterns: Json | null
+          total_clicks: number | null
+          tracking_code: string | null
+          valid_clicks: number | null
+          vpn_clicks: number | null
+        }
+        Insert: {
+          bot_clicks?: number | null
+          created_at?: string | null
+          duplicate_ip_clicks?: number | null
+          flagged_at?: string | null
+          franchise_id?: string | null
+          fraud_score?: number | null
+          id?: string
+          influencer_id?: string | null
+          invalid_clicks?: number | null
+          period_end: string
+          period_start: string
+          reseller_id?: string | null
+          review_notes?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          suspicious_patterns?: Json | null
+          total_clicks?: number | null
+          tracking_code?: string | null
+          valid_clicks?: number | null
+          vpn_clicks?: number | null
+        }
+        Update: {
+          bot_clicks?: number | null
+          created_at?: string | null
+          duplicate_ip_clicks?: number | null
+          flagged_at?: string | null
+          franchise_id?: string | null
+          fraud_score?: number | null
+          id?: string
+          influencer_id?: string | null
+          invalid_clicks?: number | null
+          period_end?: string
+          period_start?: string
+          reseller_id?: string | null
+          review_notes?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          suspicious_patterns?: Json | null
+          total_clicks?: number | null
+          tracking_code?: string | null
+          valid_clicks?: number | null
+          vpn_clicks?: number | null
+        }
+        Relationships: []
+      }
       client_feedback: {
         Row: {
           category: string | null
@@ -551,6 +776,114 @@ export type Database = {
           satisfaction_score?: number | null
           severity?: string | null
           status?: string | null
+        }
+        Relationships: []
+      }
+      code_access_logs: {
+        Row: {
+          access_time: string | null
+          action_type: string
+          copy_attempt: boolean | null
+          created_at: string | null
+          developer_id: string
+          device_fingerprint: string | null
+          export_attempt: boolean | null
+          file_path: string | null
+          id: string
+          ip_address: string | null
+          is_outside_hours: boolean | null
+          is_suspicious: boolean | null
+          repository: string | null
+          suspicious_reason: string | null
+          task_id: string | null
+          watermark_applied: boolean | null
+        }
+        Insert: {
+          access_time?: string | null
+          action_type: string
+          copy_attempt?: boolean | null
+          created_at?: string | null
+          developer_id: string
+          device_fingerprint?: string | null
+          export_attempt?: boolean | null
+          file_path?: string | null
+          id?: string
+          ip_address?: string | null
+          is_outside_hours?: boolean | null
+          is_suspicious?: boolean | null
+          repository?: string | null
+          suspicious_reason?: string | null
+          task_id?: string | null
+          watermark_applied?: boolean | null
+        }
+        Update: {
+          access_time?: string | null
+          action_type?: string
+          copy_attempt?: boolean | null
+          created_at?: string | null
+          developer_id?: string
+          device_fingerprint?: string | null
+          export_attempt?: boolean | null
+          file_path?: string | null
+          id?: string
+          ip_address?: string | null
+          is_outside_hours?: boolean | null
+          is_suspicious?: boolean | null
+          repository?: string | null
+          suspicious_reason?: string | null
+          task_id?: string | null
+          watermark_applied?: boolean | null
+        }
+        Relationships: []
+      }
+      commission_fraud_detection: {
+        Row: {
+          action_taken: string | null
+          amount_flagged: number | null
+          auto_hold_applied: boolean | null
+          check_type: string
+          created_at: string | null
+          findings: Json | null
+          fraud_probability: number | null
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          risk_indicators: string[] | null
+          status: string | null
+          user_id: string
+          user_role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          action_taken?: string | null
+          amount_flagged?: number | null
+          auto_hold_applied?: boolean | null
+          check_type: string
+          created_at?: string | null
+          findings?: Json | null
+          fraud_probability?: number | null
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          risk_indicators?: string[] | null
+          status?: string | null
+          user_id: string
+          user_role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          action_taken?: string | null
+          amount_flagged?: number | null
+          auto_hold_applied?: boolean | null
+          check_type?: string
+          created_at?: string | null
+          findings?: Json | null
+          fraud_probability?: number | null
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          risk_indicators?: string[] | null
+          status?: string | null
+          user_id?: string
+          user_role?: Database["public"]["Enums"]["app_role"]
         }
         Relationships: []
       }
@@ -2289,6 +2622,66 @@ export type Database = {
         }
         Relationships: []
       }
+      device_fingerprints: {
+        Row: {
+          blocked_reason: string | null
+          browser: string | null
+          created_at: string | null
+          device_info: Json | null
+          fingerprint_hash: string
+          first_seen_at: string | null
+          id: string
+          is_blocked: boolean | null
+          is_primary: boolean | null
+          is_trusted: boolean | null
+          language: string | null
+          last_seen_at: string | null
+          login_count: number | null
+          os: string | null
+          screen_resolution: string | null
+          timezone: string | null
+          user_id: string
+        }
+        Insert: {
+          blocked_reason?: string | null
+          browser?: string | null
+          created_at?: string | null
+          device_info?: Json | null
+          fingerprint_hash: string
+          first_seen_at?: string | null
+          id?: string
+          is_blocked?: boolean | null
+          is_primary?: boolean | null
+          is_trusted?: boolean | null
+          language?: string | null
+          last_seen_at?: string | null
+          login_count?: number | null
+          os?: string | null
+          screen_resolution?: string | null
+          timezone?: string | null
+          user_id: string
+        }
+        Update: {
+          blocked_reason?: string | null
+          browser?: string | null
+          created_at?: string | null
+          device_info?: Json | null
+          fingerprint_hash?: string
+          first_seen_at?: string | null
+          id?: string
+          is_blocked?: boolean | null
+          is_primary?: boolean | null
+          is_trusted?: boolean | null
+          language?: string | null
+          last_seen_at?: string | null
+          login_count?: number | null
+          os?: string | null
+          screen_resolution?: string | null
+          timezone?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       escalation_records: {
         Row: {
           auto_escalated: boolean | null
@@ -3071,6 +3464,60 @@ export type Database = {
           timestamp?: string
           type?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      fraud_scores: {
+        Row: {
+          behavior_score: number | null
+          click_score: number | null
+          created_at: string | null
+          device_score: number | null
+          id: string
+          identity_score: number | null
+          last_calculated_at: string | null
+          overall_score: number | null
+          requires_review: boolean | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          risk_factors: string[] | null
+          risk_level: string | null
+          transaction_score: number | null
+          user_id: string
+        }
+        Insert: {
+          behavior_score?: number | null
+          click_score?: number | null
+          created_at?: string | null
+          device_score?: number | null
+          id?: string
+          identity_score?: number | null
+          last_calculated_at?: string | null
+          overall_score?: number | null
+          requires_review?: boolean | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          risk_factors?: string[] | null
+          risk_level?: string | null
+          transaction_score?: number | null
+          user_id: string
+        }
+        Update: {
+          behavior_score?: number | null
+          click_score?: number | null
+          created_at?: string | null
+          device_score?: number | null
+          id?: string
+          identity_score?: number | null
+          last_calculated_at?: string | null
+          overall_score?: number | null
+          requires_review?: boolean | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          risk_factors?: string[] | null
+          risk_level?: string | null
+          transaction_score?: number | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -4122,6 +4569,69 @@ export type Database = {
         }
         Relationships: []
       }
+      ip_intelligence: {
+        Row: {
+          blacklist_reason: string | null
+          city: string | null
+          country_code: string | null
+          created_at: string | null
+          first_seen_at: string | null
+          id: string
+          ip_address: string
+          is_blacklisted: boolean | null
+          is_datacenter: boolean | null
+          is_proxy: boolean | null
+          is_tor: boolean | null
+          is_vpn: boolean | null
+          isp: string | null
+          last_seen_at: string | null
+          org: string | null
+          region: string | null
+          request_count: number | null
+          risk_score: number | null
+        }
+        Insert: {
+          blacklist_reason?: string | null
+          city?: string | null
+          country_code?: string | null
+          created_at?: string | null
+          first_seen_at?: string | null
+          id?: string
+          ip_address: string
+          is_blacklisted?: boolean | null
+          is_datacenter?: boolean | null
+          is_proxy?: boolean | null
+          is_tor?: boolean | null
+          is_vpn?: boolean | null
+          isp?: string | null
+          last_seen_at?: string | null
+          org?: string | null
+          region?: string | null
+          request_count?: number | null
+          risk_score?: number | null
+        }
+        Update: {
+          blacklist_reason?: string | null
+          city?: string | null
+          country_code?: string | null
+          created_at?: string | null
+          first_seen_at?: string | null
+          id?: string
+          ip_address?: string
+          is_blacklisted?: boolean | null
+          is_datacenter?: boolean | null
+          is_proxy?: boolean | null
+          is_tor?: boolean | null
+          is_vpn?: boolean | null
+          isp?: string | null
+          last_seen_at?: string | null
+          org?: string | null
+          region?: string | null
+          request_count?: number | null
+          risk_score?: number | null
+        }
+        Relationships: []
+      }
       ip_locks: {
         Row: {
           created_at: string
@@ -4465,6 +4975,78 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      lead_fraud_detection: {
+        Row: {
+          auto_rejected: boolean | null
+          bulk_submission_detected: boolean | null
+          created_at: string | null
+          device_fingerprint: string | null
+          duplicate_of: string | null
+          email_valid: boolean | null
+          fraud_indicators: string[] | null
+          id: string
+          ip_address: string | null
+          is_disposable_email: boolean | null
+          is_duplicate: boolean | null
+          is_throwaway_phone: boolean | null
+          lead_id: string | null
+          phone_valid: boolean | null
+          quarantined: boolean | null
+          rejection_reason: string | null
+          reviewed_by: string | null
+          spam_patterns: Json | null
+          status: string | null
+          submitted_by: string | null
+          validation_score: number | null
+        }
+        Insert: {
+          auto_rejected?: boolean | null
+          bulk_submission_detected?: boolean | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          duplicate_of?: string | null
+          email_valid?: boolean | null
+          fraud_indicators?: string[] | null
+          id?: string
+          ip_address?: string | null
+          is_disposable_email?: boolean | null
+          is_duplicate?: boolean | null
+          is_throwaway_phone?: boolean | null
+          lead_id?: string | null
+          phone_valid?: boolean | null
+          quarantined?: boolean | null
+          rejection_reason?: string | null
+          reviewed_by?: string | null
+          spam_patterns?: Json | null
+          status?: string | null
+          submitted_by?: string | null
+          validation_score?: number | null
+        }
+        Update: {
+          auto_rejected?: boolean | null
+          bulk_submission_detected?: boolean | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          duplicate_of?: string | null
+          email_valid?: boolean | null
+          fraud_indicators?: string[] | null
+          id?: string
+          ip_address?: string | null
+          is_disposable_email?: boolean | null
+          is_duplicate?: boolean | null
+          is_throwaway_phone?: boolean | null
+          lead_id?: string | null
+          phone_valid?: boolean | null
+          quarantined?: boolean | null
+          rejection_reason?: string | null
+          reviewed_by?: string | null
+          spam_patterns?: Json | null
+          status?: string | null
+          submitted_by?: string | null
+          validation_score?: number | null
+        }
+        Relationships: []
       }
       lead_history: {
         Row: {
@@ -4936,6 +5518,54 @@ export type Database = {
           failure_reason?: string | null
           id?: string
           ip_address?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      login_locations: {
+        Row: {
+          city: string | null
+          country_code: string | null
+          created_at: string | null
+          id: string
+          ip_address: string | null
+          is_impossible_travel: boolean | null
+          latitude: number | null
+          login_at: string | null
+          longitude: number | null
+          previous_location_id: string | null
+          session_id: string | null
+          travel_speed_kmh: number | null
+          user_id: string
+        }
+        Insert: {
+          city?: string | null
+          country_code?: string | null
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          is_impossible_travel?: boolean | null
+          latitude?: number | null
+          login_at?: string | null
+          longitude?: number | null
+          previous_location_id?: string | null
+          session_id?: string | null
+          travel_speed_kmh?: number | null
+          user_id: string
+        }
+        Update: {
+          city?: string | null
+          country_code?: string | null
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          is_impossible_travel?: boolean | null
+          latitude?: number | null
+          login_at?: string | null
+          longitude?: number | null
+          previous_location_id?: string | null
+          session_id?: string | null
+          travel_speed_kmh?: number | null
           user_id?: string
         }
         Relationships: []
@@ -7821,6 +8451,75 @@ export type Database = {
         }
         Relationships: []
       }
+      transaction_monitoring: {
+        Row: {
+          amount: number | null
+          created_at: string | null
+          currency: string | null
+          flag_reason: string | null
+          geo_check_passed: boolean | null
+          hold_reason: string | null
+          id: string
+          is_flagged: boolean | null
+          is_held: boolean | null
+          pattern_check_passed: boolean | null
+          released_at: string | null
+          released_by: string | null
+          requires_2fa: boolean | null
+          risk_factors: string[] | null
+          risk_score: number | null
+          transaction_id: string | null
+          transaction_type: string | null
+          user_id: string
+          velocity_check_passed: boolean | null
+          wallet_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string | null
+          currency?: string | null
+          flag_reason?: string | null
+          geo_check_passed?: boolean | null
+          hold_reason?: string | null
+          id?: string
+          is_flagged?: boolean | null
+          is_held?: boolean | null
+          pattern_check_passed?: boolean | null
+          released_at?: string | null
+          released_by?: string | null
+          requires_2fa?: boolean | null
+          risk_factors?: string[] | null
+          risk_score?: number | null
+          transaction_id?: string | null
+          transaction_type?: string | null
+          user_id: string
+          velocity_check_passed?: boolean | null
+          wallet_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string | null
+          currency?: string | null
+          flag_reason?: string | null
+          geo_check_passed?: boolean | null
+          hold_reason?: string | null
+          id?: string
+          is_flagged?: boolean | null
+          is_held?: boolean | null
+          pattern_check_passed?: boolean | null
+          released_at?: string | null
+          released_by?: string | null
+          requires_2fa?: boolean | null
+          risk_factors?: string[] | null
+          risk_score?: number | null
+          transaction_id?: string | null
+          transaction_type?: string | null
+          user_id?: string
+          velocity_check_passed?: boolean | null
+          wallet_id?: string | null
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
@@ -8291,6 +8990,14 @@ export type Database = {
       can_manage_prime_users: { Args: { _user_id: string }; Returns: boolean }
       can_manage_resellers: { Args: { _user_id: string }; Returns: boolean }
       can_view_leads: { Args: { _user_id: string }; Returns: boolean }
+      check_access_allowed: {
+        Args: {
+          p_device_fingerprint: string
+          p_email?: string
+          p_ip_address: string
+        }
+        Returns: Json
+      }
       exceeds_workload_threshold: {
         Args: { _developer_id: string }
         Returns: boolean
