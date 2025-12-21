@@ -219,7 +219,15 @@ export function useGlobalBlacklist() {
       const { data, error } = await query;
 
       if (error) throw error;
-      const typedData = (data || []) as unknown as BlacklistEntry[];
+      
+      // Map database results to properly typed BlacklistEntry objects
+      const typedData: BlacklistEntry[] = (data || []).map(item => ({
+        ...item,
+        list_type: item.list_type as ListType,
+        entry_type: item.entry_type as BlacklistEntryType,
+        metadata: item.metadata as Record<string, unknown> | null,
+      }));
+      
       setEntries(typedData);
       return typedData;
     } catch (error) {
