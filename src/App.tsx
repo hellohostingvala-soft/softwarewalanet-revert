@@ -126,6 +126,16 @@ const App = () => (
               <Route path="/super-admin/security-center" element={<SecurityCenter />} />
               <Route path="/super-admin/demo-manager" element={<ProductDemoManager />} />
               <Route path="/super-admin/system-settings" element={<SystemSettings />} />
+              <Route path="/super-admin/branch-manager" element={<SuperAdminCommandCenter />} />
+              <Route path="/super-admin/lead-engine" element={<SuperAdminCommandCenter />} />
+              <Route path="/super-admin/task-engine" element={<SuperAdminCommandCenter />} />
+              <Route path="/super-admin/developer-manager" element={<SuperAdminCommandCenter />} />
+              <Route path="/super-admin/franchise-manager" element={<FranchiseManagement />} />
+              <Route path="/super-admin/reseller-manager" element={<SuperAdminCommandCenter />} />
+              <Route path="/super-admin/prime-manager" element={<SuperAdminCommandCenter />} />
+              <Route path="/super-admin/influencer-manager" element={<InfluencerManager />} />
+              <Route path="/super-admin/finance-center" element={<FinanceManager />} />
+              <Route path="/super-admin/support-center" element={<SupportDashboard />} />
 
               {/* Franchise Routes */}
               <Route path="/franchise" element={<FranchiseLayout><FranchiseDashboardPage /></FranchiseLayout>} />
@@ -169,28 +179,38 @@ const App = () => (
 
               {/* Manager Routes */}
               <Route path="/lead-manager" element={<LeadManager />} />
+              <Route path="/leads/*" element={<LeadManager />} />
               <Route path="/task-manager" element={<TaskManager />} />
+              <Route path="/tasks/*" element={<TaskManager />} />
               <Route path="/demo-manager" element={<ProductDemoManager />} />
               <Route path="/demo" element={<ProductDemoManager />} />
+              <Route path="/demos/*" element={<ProductDemoManager />} />
               <Route path="/finance" element={<FinanceManager />} />
+              <Route path="/finance/*" element={<FinanceManager />} />
               <Route path="/legal" element={<LegalComplianceManager />} />
               <Route path="/marketing" element={<MarketingManager />} />
               <Route path="/marketing/*" element={<MarketingManager />} />
               <Route path="/enterprise/marketing" element={<MarketingManager />} />
               <Route path="/enterprise/marketing/*" element={<MarketingManager />} />
               <Route path="/performance" element={<PerformanceManager />} />
+              <Route path="/performance/*" element={<PerformanceManager />} />
               <Route path="/rnd-dashboard" element={<RnDDashboard />} />
+              <Route path="/rnd/*" element={<RnDDashboard />} />
               <Route path="/hr" element={<HRDashboard />} />
               <Route path="/hr/*" element={<HRDashboard />} />
               <Route path="/seo" element={<SEODashboard />} />
               <Route path="/seo/*" element={<SEODashboard />} />
               <Route path="/seo-dashboard" element={<SEODashboard />} />
               <Route path="/support" element={<SupportDashboard />} />
+              <Route path="/support/*" element={<SupportDashboard />} />
               <Route path="/support-dashboard" element={<SupportDashboard />} />
               <Route path="/sales-support" element={<SalesSupportDashboard />} />
               <Route path="/sales" element={<SalesSupportDashboard />} />
+              <Route path="/sales/*" element={<SalesSupportDashboard />} />
               <Route path="/client-success" element={<ClientSuccessDashboard />} />
+              <Route path="/clients/*" element={<ClientSuccessDashboard />} />
               <Route path="/hr-dashboard" element={<HRDashboard />} />
+              <Route path="/ai/*" element={<AIOptimizationConsole />} />
 
               {/* System Routes */}
               <Route path="/system-settings" element={<SystemSettings />} />
