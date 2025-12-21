@@ -284,6 +284,51 @@ export type Database = {
         }
         Relationships: []
       }
+      behavior_patterns: {
+        Row: {
+          anomaly_detected_at: string | null
+          baseline_data: Json
+          created_at: string
+          current_data: Json | null
+          deviation_score: number | null
+          id: string
+          is_anomalous: boolean | null
+          last_sample_at: string | null
+          pattern_type: string
+          samples_count: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          anomaly_detected_at?: string | null
+          baseline_data?: Json
+          created_at?: string
+          current_data?: Json | null
+          deviation_score?: number | null
+          id?: string
+          is_anomalous?: boolean | null
+          last_sample_at?: string | null
+          pattern_type: string
+          samples_count?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          anomaly_detected_at?: string | null
+          baseline_data?: Json
+          created_at?: string
+          current_data?: Json | null
+          deviation_score?: number | null
+          id?: string
+          is_anomalous?: boolean | null
+          last_sample_at?: string | null
+          pattern_type?: string
+          samples_count?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       branch_map: {
         Row: {
           branch_code: string
@@ -6934,6 +6979,66 @@ export type Database = {
           },
         ]
       }
+      reputation_scores: {
+        Row: {
+          complaint_ratio: number | null
+          created_at: string
+          delivery_accuracy: number | null
+          entity_id: string
+          entity_type: string
+          failed_transactions: number | null
+          fraud_incidents: number | null
+          id: string
+          lead_assignment_priority: string | null
+          payout_priority: string | null
+          performance_rating: number | null
+          star_rating: number | null
+          successful_transactions: number | null
+          total_transactions: number | null
+          trust_index: number | null
+          updated_at: string
+          wallet_privilege_level: string | null
+        }
+        Insert: {
+          complaint_ratio?: number | null
+          created_at?: string
+          delivery_accuracy?: number | null
+          entity_id: string
+          entity_type: string
+          failed_transactions?: number | null
+          fraud_incidents?: number | null
+          id?: string
+          lead_assignment_priority?: string | null
+          payout_priority?: string | null
+          performance_rating?: number | null
+          star_rating?: number | null
+          successful_transactions?: number | null
+          total_transactions?: number | null
+          trust_index?: number | null
+          updated_at?: string
+          wallet_privilege_level?: string | null
+        }
+        Update: {
+          complaint_ratio?: number | null
+          created_at?: string
+          delivery_accuracy?: number | null
+          entity_id?: string
+          entity_type?: string
+          failed_transactions?: number | null
+          fraud_incidents?: number | null
+          id?: string
+          lead_assignment_priority?: string | null
+          payout_priority?: string | null
+          performance_rating?: number | null
+          star_rating?: number | null
+          successful_transactions?: number | null
+          total_transactions?: number | null
+          trust_index?: number | null
+          updated_at?: string
+          wallet_privilege_level?: string | null
+        }
+        Relationships: []
+      }
       research_suggestions: {
         Row: {
           category: string | null
@@ -7716,6 +7821,344 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      risk_alerts: {
+        Row: {
+          acknowledged: boolean | null
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          action_taken: string | null
+          alert_type: string
+          auto_action_available: boolean | null
+          created_at: string
+          description: string | null
+          expires_at: string | null
+          id: string
+          indicators: Json | null
+          is_active: boolean | null
+          recommended_action: string | null
+          risk_level: string | null
+          risk_score: number | null
+          severity: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          action_taken?: string | null
+          alert_type: string
+          auto_action_available?: boolean | null
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          indicators?: Json | null
+          is_active?: boolean | null
+          recommended_action?: string | null
+          risk_level?: string | null
+          risk_score?: number | null
+          severity: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          action_taken?: string | null
+          alert_type?: string
+          auto_action_available?: boolean | null
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          indicators?: Json | null
+          is_active?: boolean | null
+          recommended_action?: string | null
+          risk_level?: string | null
+          risk_score?: number | null
+          severity?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      risk_audit_trail: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_role: string | null
+          calculation_details: Json | null
+          created_at: string
+          escalation_trace: Json | null
+          id: string
+          ip_address: string | null
+          reasoning: Json | null
+          risk_score_after: number | null
+          risk_score_before: number | null
+          trigger_type: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          actor_role?: string | null
+          calculation_details?: Json | null
+          created_at?: string
+          escalation_trace?: Json | null
+          id?: string
+          ip_address?: string | null
+          reasoning?: Json | null
+          risk_score_after?: number | null
+          risk_score_before?: number | null
+          trigger_type?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_role?: string | null
+          calculation_details?: Json | null
+          created_at?: string
+          escalation_trace?: Json | null
+          id?: string
+          ip_address?: string | null
+          reasoning?: Json | null
+          risk_score_after?: number | null
+          risk_score_before?: number | null
+          trigger_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      risk_escalations: {
+        Row: {
+          action_details: Json | null
+          action_taken: string
+          auto_triggered: boolean | null
+          created_at: string
+          escalation_level: number
+          id: string
+          notification_sent: boolean | null
+          reversal_reason: string | null
+          reversed: boolean | null
+          reversed_at: string | null
+          reversed_by: string | null
+          risk_score_at_time: number | null
+          trigger_event_id: string | null
+          trigger_reason: string
+          triggered_by: string | null
+          user_id: string
+        }
+        Insert: {
+          action_details?: Json | null
+          action_taken: string
+          auto_triggered?: boolean | null
+          created_at?: string
+          escalation_level: number
+          id?: string
+          notification_sent?: boolean | null
+          reversal_reason?: string | null
+          reversed?: boolean | null
+          reversed_at?: string | null
+          reversed_by?: string | null
+          risk_score_at_time?: number | null
+          trigger_event_id?: string | null
+          trigger_reason: string
+          triggered_by?: string | null
+          user_id: string
+        }
+        Update: {
+          action_details?: Json | null
+          action_taken?: string
+          auto_triggered?: boolean | null
+          created_at?: string
+          escalation_level?: number
+          id?: string
+          notification_sent?: boolean | null
+          reversal_reason?: string | null
+          reversed?: boolean | null
+          reversed_at?: string | null
+          reversed_by?: string | null
+          risk_score_at_time?: number | null
+          trigger_event_id?: string | null
+          trigger_reason?: string
+          triggered_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "risk_escalations_trigger_event_id_fkey"
+            columns: ["trigger_event_id"]
+            isOneToOne: false
+            referencedRelation: "risk_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      risk_events: {
+        Row: {
+          created_at: string
+          description: string | null
+          device_fingerprint: string | null
+          event_category: string
+          event_type: string
+          geo_location: string | null
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          resolution_notes: string | null
+          resolved: boolean | null
+          resolved_at: string | null
+          resolved_by: string | null
+          risk_contribution: number | null
+          severity: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          device_fingerprint?: string | null
+          event_category: string
+          event_type: string
+          geo_location?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          resolution_notes?: string | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          risk_contribution?: number | null
+          severity?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          device_fingerprint?: string | null
+          event_category?: string
+          event_type?: string
+          geo_location?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          resolution_notes?: string | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          risk_contribution?: number | null
+          severity?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      risk_scores: {
+        Row: {
+          auto_action_taken: string | null
+          behavior_score: number | null
+          commission_score: number | null
+          created_at: string
+          current_score: number
+          device_score: number | null
+          escalation_level: number | null
+          factors: Json | null
+          id: string
+          last_calculated_at: string | null
+          lead_score: number | null
+          login_pattern_score: number | null
+          previous_score: number | null
+          risk_level: string
+          transaction_score: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_action_taken?: string | null
+          behavior_score?: number | null
+          commission_score?: number | null
+          created_at?: string
+          current_score?: number
+          device_score?: number | null
+          escalation_level?: number | null
+          factors?: Json | null
+          id?: string
+          last_calculated_at?: string | null
+          lead_score?: number | null
+          login_pattern_score?: number | null
+          previous_score?: number | null
+          risk_level?: string
+          transaction_score?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_action_taken?: string | null
+          behavior_score?: number | null
+          commission_score?: number | null
+          created_at?: string
+          current_score?: number
+          device_score?: number | null
+          escalation_level?: number | null
+          factors?: Json | null
+          id?: string
+          last_calculated_at?: string | null
+          lead_score?: number | null
+          login_pattern_score?: number | null
+          previous_score?: number | null
+          risk_level?: string
+          transaction_score?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      risk_watchlist: {
+        Row: {
+          added_by: string | null
+          auto_added: boolean | null
+          created_at: string
+          current_status: string | null
+          expires_at: string | null
+          id: string
+          notes: string | null
+          reason: string
+          trigger_threshold: number | null
+          updated_at: string
+          user_id: string
+          watchlist_type: string
+        }
+        Insert: {
+          added_by?: string | null
+          auto_added?: boolean | null
+          created_at?: string
+          current_status?: string | null
+          expires_at?: string | null
+          id?: string
+          notes?: string | null
+          reason: string
+          trigger_threshold?: number | null
+          updated_at?: string
+          user_id: string
+          watchlist_type: string
+        }
+        Update: {
+          added_by?: string | null
+          auto_added?: boolean | null
+          created_at?: string
+          current_status?: string | null
+          expires_at?: string | null
+          id?: string
+          notes?: string | null
+          reason?: string
+          trigger_threshold?: number | null
+          updated_at?: string
+          user_id?: string
+          watchlist_type?: string
+        }
+        Relationships: []
       }
       rnd_suggestions: {
         Row: {
@@ -9007,6 +9450,7 @@ export type Database = {
       get_influencer_id: { Args: { _user_id: string }; Returns: string }
       get_prime_user_id: { Args: { _user_id: string }; Returns: string }
       get_reseller_id: { Args: { _user_id: string }; Returns: string }
+      get_risk_level: { Args: { score: number }; Returns: string }
       has_overlapping_promise: {
         Args: { _deadline: string; _developer_id: string }
         Returns: boolean
@@ -9035,6 +9479,57 @@ export type Database = {
           p_old_values?: Json
         }
         Returns: string
+      }
+      log_risk_audit: {
+        Args: {
+          p_action: string
+          p_actor_id?: string
+          p_actor_role?: string
+          p_calculation?: Json
+          p_reasoning?: Json
+          p_score_after: number
+          p_score_before: number
+          p_trigger_type: string
+          p_user_id: string
+        }
+        Returns: string
+      }
+      update_risk_score: {
+        Args: {
+          p_behavior_score?: number
+          p_commission_score?: number
+          p_device_score?: number
+          p_factors?: Json
+          p_lead_score?: number
+          p_login_score?: number
+          p_transaction_score?: number
+          p_user_id: string
+        }
+        Returns: {
+          auto_action_taken: string | null
+          behavior_score: number | null
+          commission_score: number | null
+          created_at: string
+          current_score: number
+          device_score: number | null
+          escalation_level: number | null
+          factors: Json | null
+          id: string
+          last_calculated_at: string | null
+          lead_score: number | null
+          login_pattern_score: number | null
+          previous_score: number | null
+          risk_level: string
+          transaction_score: number | null
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "risk_scores"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
     }
     Enums: {
