@@ -85,6 +85,7 @@ import DomainProtection from "./components/security/DomainProtection";
 import FloatingAIChatbotWrapper from "./components/shared/FloatingAIChatbotWrapper";
 import AIOptimizationConsole from "./pages/ai-console/AIOptimizationConsole";
 import DemoCredentials from "./pages/DemoCredentials";
+import { AIBillingDashboard } from "./components/ai-billing";
 
 const queryClient = new QueryClient();
 
@@ -139,6 +140,7 @@ const App = () => (
               <Route path="/super-admin/influencer-manager" element={<InfluencerManager />} />
               <Route path="/super-admin/finance-center" element={<FinanceManager />} />
               <Route path="/super-admin/support-center" element={<SupportDashboard />} />
+              <Route path="/super-admin/ai-billing" element={<AIBillingDashboard />} />
 
               {/* Franchise Routes */}
               <Route path="/franchise" element={<FranchiseLayout><FranchiseDashboardPage /></FranchiseLayout>} />
