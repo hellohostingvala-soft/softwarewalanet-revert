@@ -1,7 +1,7 @@
-import SecureChatHub from "@/components/chat/SecureChatHub";
+import MaskedInternalChat from "@/components/chat/MaskedInternalChat";
 
 const InternalChatPage = () => {
-  return <SecureChatHub />;
+  return <MaskedInternalChat />;
 };
 
 export default InternalChatPage;
