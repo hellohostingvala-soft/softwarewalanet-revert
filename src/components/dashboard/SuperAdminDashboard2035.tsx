@@ -145,23 +145,24 @@ const SuperAdminDashboard2035 = () => {
               {widgets.map((widget, index) => (
                 <Draggable key={widget.id} draggableId={widget.id} index={index}>
                   {(provided, snapshot) => (
-                    <motion.div
+                    <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.03 }}
                       className={cn(
-                        "cursor-grab active:cursor-grabbing",
-                        snapshot.isDragging && "z-50"
+                        "cursor-grab active:cursor-grabbing transition-all duration-200",
+                        snapshot.isDragging && "z-50 scale-105"
                       )}
+                      style={{
+                        ...provided.draggableProps.style,
+                        opacity: snapshot.isDragging ? 0.9 : 1,
+                      }}
                     >
                       <Card className={cn(
                         "h-full transition-all duration-200 hover:border-primary/30",
                         `bg-gradient-to-br ${widget.color}`,
                         "border-white/10 backdrop-blur-sm",
-                        snapshot.isDragging && "ring-2 ring-primary shadow-2xl scale-105",
+                        snapshot.isDragging && "ring-2 ring-primary shadow-2xl",
                         widget.priority && "ring-1 ring-yellow-500/50"
                       )}>
                         <CardContent className="p-4">
@@ -197,7 +198,7 @@ const SuperAdminDashboard2035 = () => {
                           )}
                         </CardContent>
                       </Card>
-                    </motion.div>
+                    </div>
                   )}
                 </Draggable>
               ))}
