@@ -8,13 +8,17 @@ import DemoClickAnalytics from "@/components/demo-manager/DemoClickAnalytics";
 import DemoUptimeAlerts from "@/components/demo-manager/DemoUptimeAlerts";
 import DemoRentalAssignment from "@/components/demo-manager/DemoRentalAssignment";
 import DemoNotifications from "@/components/demo-manager/DemoNotifications";
+import BulkDemoCreator from "@/components/demo-manager/BulkDemoCreator";
+import DemoLoginManager from "@/components/demo-manager/DemoLoginManager";
 
 type DemoView = 
   | "dashboard"
   | "manage"
   | "analytics"
   | "uptime"
-  | "rentals";
+  | "rentals"
+  | "bulk-create"
+  | "logins";
 
 const ProductDemoManager = () => {
   const [activeView, setActiveView] = useState<DemoView>("dashboard");
@@ -32,6 +36,10 @@ const ProductDemoManager = () => {
         return <DemoUptimeAlerts />;
       case "rentals":
         return <DemoRentalAssignment />;
+      case "bulk-create":
+        return <BulkDemoCreator />;
+      case "logins":
+        return <DemoLoginManager />;
       default:
         return <DemoDashboard />;
     }

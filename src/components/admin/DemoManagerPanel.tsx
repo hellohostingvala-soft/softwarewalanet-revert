@@ -460,7 +460,7 @@ export default function DemoManagerPanel() {
                         size="sm"
                         variant="ghost"
                         className="text-red-400 hover:text-red-300"
-                        onClick={() => handleDeleteDemo(demo.id)}
+                        onClick={() => handleDeleteDemo(demo.id, demo.title)}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -506,6 +506,15 @@ export default function DemoManagerPanel() {
               </ScrollArea>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="report-cards" className="mt-4">
+          <DemoReportCardsList 
+            reportCards={reportCards} 
+            onUpdateStatus={updateWorkflowStatus}
+            title="Demo Report Cards"
+            maxHeight="500px"
+          />
         </TabsContent>
       </Tabs>
     </div>
