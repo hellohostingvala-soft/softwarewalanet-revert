@@ -16,9 +16,11 @@ import {
   Crown,
   AlertTriangle,
   Power,
-  RefreshCw
+  RefreshCw,
+  Activity
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { LiveReportsDashboard } from '@/components/live-reports/LiveReportsDashboard';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -392,8 +394,12 @@ const MasterAdminDashboard = () => {
         )}
 
         {/* User Management Tabs */}
-        <Tabs defaultValue="pending" className="w-full">
+        <Tabs defaultValue="live-reports" className="w-full">
           <TabsList className="bg-muted/50">
+            <TabsTrigger value="live-reports" className="gap-2">
+              <Activity className="w-4 h-4" />
+              Live Reports
+            </TabsTrigger>
             <TabsTrigger value="pending" className="gap-2">
               <Clock className="w-4 h-4" />
               Pending ({pendingUsers.length})
@@ -411,6 +417,10 @@ const MasterAdminDashboard = () => {
               All Users ({users.length})
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="live-reports" className="mt-4">
+            <LiveReportsDashboard />
+          </TabsContent>
 
           <TabsContent value="pending" className="mt-4">
             <Card>

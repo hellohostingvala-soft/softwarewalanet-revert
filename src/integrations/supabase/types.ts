@@ -5972,6 +5972,60 @@ export type Database = {
         }
         Relationships: []
       }
+      live_activity_logs: {
+        Row: {
+          abnormal_reason: string | null
+          action_description: string | null
+          action_type: Database["public"]["Enums"]["activity_action_type"]
+          created_at: string | null
+          device_info: string | null
+          duration_seconds: number | null
+          id: string
+          ip_address: string | null
+          is_abnormal: boolean | null
+          metadata: Json | null
+          page_url: string | null
+          status: Database["public"]["Enums"]["activity_status"] | null
+          user_agent: string | null
+          user_id: string
+          user_role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          abnormal_reason?: string | null
+          action_description?: string | null
+          action_type: Database["public"]["Enums"]["activity_action_type"]
+          created_at?: string | null
+          device_info?: string | null
+          duration_seconds?: number | null
+          id?: string
+          ip_address?: string | null
+          is_abnormal?: boolean | null
+          metadata?: Json | null
+          page_url?: string | null
+          status?: Database["public"]["Enums"]["activity_status"] | null
+          user_agent?: string | null
+          user_id: string
+          user_role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          abnormal_reason?: string | null
+          action_description?: string | null
+          action_type?: Database["public"]["Enums"]["activity_action_type"]
+          created_at?: string | null
+          device_info?: string | null
+          duration_seconds?: number | null
+          id?: string
+          ip_address?: string | null
+          is_abnormal?: boolean | null
+          metadata?: Json | null
+          page_url?: string | null
+          status?: Database["public"]["Enums"]["activity_status"] | null
+          user_agent?: string | null
+          user_id?: string
+          user_role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: []
+      }
       localization: {
         Row: {
           content_key: string
@@ -9737,6 +9791,51 @@ export type Database = {
         }
         Relationships: []
       }
+      user_online_status: {
+        Row: {
+          current_page: string | null
+          device_info: string | null
+          force_logged_out: boolean | null
+          id: string
+          ip_address: string | null
+          is_online: boolean | null
+          last_seen_at: string | null
+          pending_approval: boolean | null
+          session_started_at: string | null
+          updated_at: string | null
+          user_id: string
+          user_role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          current_page?: string | null
+          device_info?: string | null
+          force_logged_out?: boolean | null
+          id?: string
+          ip_address?: string | null
+          is_online?: boolean | null
+          last_seen_at?: string | null
+          pending_approval?: boolean | null
+          session_started_at?: string | null
+          updated_at?: string | null
+          user_id: string
+          user_role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          current_page?: string | null
+          device_info?: string | null
+          force_logged_out?: boolean | null
+          id?: string
+          ip_address?: string | null
+          is_online?: boolean | null
+          last_seen_at?: string | null
+          pending_approval?: boolean | null
+          session_started_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+          user_role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           approval_status: string | null
@@ -10023,6 +10122,16 @@ export type Database = {
       is_prime_user: { Args: { _user_id: string }; Returns: boolean }
       is_reseller: { Args: { _user_id: string }; Returns: boolean }
       is_user_approved: { Args: { _user_id: string }; Returns: boolean }
+      log_activity: {
+        Args: {
+          p_action_type: Database["public"]["Enums"]["activity_action_type"]
+          p_description?: string
+          p_metadata?: Json
+          p_page_url?: string
+          p_status?: Database["public"]["Enums"]["activity_status"]
+        }
+        Returns: string
+      }
       log_compliance_audit: {
         Args: {
           p_action: string
@@ -10057,6 +10166,10 @@ export type Database = {
           _rejector_id: string
           _target_user_id: string
         }
+        Returns: boolean
+      }
+      update_online_status: {
+        Args: { p_current_page?: string; p_is_online: boolean }
         Returns: boolean
       }
       update_risk_score: {
@@ -10098,6 +10211,22 @@ export type Database = {
       }
     }
     Enums: {
+      activity_action_type:
+        | "login"
+        | "logout"
+        | "page_navigation"
+        | "demo_interaction"
+        | "copy_attempt"
+        | "link_edit"
+        | "approval_request"
+        | "force_logout"
+        | "task_update"
+        | "lead_action"
+        | "chat_message"
+        | "file_access"
+        | "settings_change"
+        | "error"
+      activity_status: "success" | "fail" | "blocked" | "pending" | "warning"
       ai_module:
         | "seo"
         | "chatbot"
@@ -10307,6 +10436,23 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      activity_action_type: [
+        "login",
+        "logout",
+        "page_navigation",
+        "demo_interaction",
+        "copy_attempt",
+        "link_edit",
+        "approval_request",
+        "force_logout",
+        "task_update",
+        "lead_action",
+        "chat_message",
+        "file_access",
+        "settings_change",
+        "error",
+      ],
+      activity_status: ["success", "fail", "blocked", "pending", "warning"],
       ai_module: [
         "seo",
         "chatbot",
