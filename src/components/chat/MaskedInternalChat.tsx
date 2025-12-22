@@ -95,9 +95,10 @@ const generateMaskedId = (role: string, userId: string, countryCode?: string): M
         countryFlag: countryData.flag
       };
     case 'ai_bot':
+    case 'ai_manager':
       return {
         maskedId: `EMP-${String(hash % 1000).padStart(3, '0')}`,
-        role: 'Staff',
+        role: role === 'ai_manager' ? 'AI Manager' : 'Staff',
         icon: <Bot className="w-4 h-4" />,
         color: 'text-cyan-500 bg-cyan-500/10',
         country: countryData.name,
@@ -105,14 +106,23 @@ const generateMaskedId = (role: string, userId: string, countryCode?: string): M
       };
     case 'developer':
     case 'employee':
-    case 'hr':
-    case 'legal':
     case 'task_manager':
+    case 'rnd_manager':
       return {
         maskedId: `EMP-${String(hash % 1000).padStart(3, '0')}`,
-        role: 'Employee',
+        role: role === 'task_manager' ? 'Task Manager' : role === 'rnd_manager' ? 'R&D Manager' : 'Employee',
         icon: <Briefcase className="w-4 h-4" />,
         color: 'text-blue-500 bg-blue-500/10',
+        country: countryData.name,
+        countryFlag: countryData.flag
+      };
+    case 'hr_manager':
+    case 'legal_compliance':
+      return {
+        maskedId: `EMP-${String(hash % 1000).padStart(3, '0')}`,
+        role: role === 'hr_manager' ? 'HR Manager' : 'Legal',
+        icon: <Shield className="w-4 h-4" />,
+        color: 'text-indigo-500 bg-indigo-500/10',
         country: countryData.name,
         countryFlag: countryData.flag
       };
@@ -136,35 +146,93 @@ const generateMaskedId = (role: string, userId: string, countryCode?: string): M
       };
     case 'sales_support':
     case 'sales':
+    case 'lead_manager':
       return {
         maskedId: `SLS-${String(hash % 100000).padStart(5, '0')}`,
-        role: 'Sales',
+        role: role === 'lead_manager' ? 'Lead Manager' : 'Sales',
         icon: <TrendingUp className="w-4 h-4" />,
         color: 'text-pink-500 bg-pink-500/10',
         country: countryData.name,
         countryFlag: countryData.flag
       };
     case 'support':
+    case 'client_success':
       return {
         maskedId: `SUP-${String(hash % 100000).padStart(5, '0')}`,
-        role: 'Support',
+        role: role === 'client_success' ? 'Client Success' : 'Support',
         icon: <Headphones className="w-4 h-4" />,
         color: 'text-cyan-500 bg-cyan-500/10',
+        country: countryData.name,
+        countryFlag: countryData.flag
+      };
+    case 'finance_manager':
+      return {
+        maskedId: `FIN-${String(hash % 100000).padStart(5, '0')}`,
+        role: 'Finance Manager',
+        icon: <TrendingUp className="w-4 h-4" />,
+        color: 'text-green-500 bg-green-500/10',
+        country: countryData.name,
+        countryFlag: countryData.flag
+      };
+    case 'performance_manager':
+      return {
+        maskedId: `PFM-${String(hash % 100000).padStart(5, '0')}`,
+        role: 'Performance Manager',
+        icon: <TrendingUp className="w-4 h-4" />,
+        color: 'text-rose-500 bg-rose-500/10',
+        country: countryData.name,
+        countryFlag: countryData.flag
+      };
+    case 'demo_manager':
+      return {
+        maskedId: `DMO-${String(hash % 100000).padStart(5, '0')}`,
+        role: 'Demo Manager',
+        icon: <Shield className="w-4 h-4" />,
+        color: 'text-violet-500 bg-violet-500/10',
+        country: countryData.name,
+        countryFlag: countryData.flag
+      };
+    case 'seo_manager':
+      return {
+        maskedId: `SEO-${String(hash % 100000).padStart(5, '0')}`,
+        role: 'SEO Manager',
+        icon: <Globe className="w-4 h-4" />,
+        color: 'text-teal-500 bg-teal-500/10',
+        country: countryData.name,
+        countryFlag: countryData.flag
+      };
+    case 'marketing_manager':
+      return {
+        maskedId: `MKT-${String(hash % 100000).padStart(5, '0')}`,
+        role: 'Marketing Manager',
+        icon: <TrendingUp className="w-4 h-4" />,
+        color: 'text-fuchsia-500 bg-fuchsia-500/10',
+        country: countryData.name,
+        countryFlag: countryData.flag
+      };
+    case 'influencer':
+      return {
+        maskedId: `INF-${String(hash % 100000).padStart(5, '0')}`,
+        role: 'Influencer',
+        icon: <Star className="w-4 h-4" />,
+        color: 'text-pink-400 bg-pink-400/10',
         country: countryData.name,
         countryFlag: countryData.flag
       };
     // BUG FIX: Add missing 6-digit general user role
     case 'general':
     case 'guest':
+    case 'client':
       return {
         maskedId: `GEN-${String(hash % 1000000).padStart(6, '0')}`,
-        role: 'General',
+        role: role === 'client' ? 'Client' : 'General',
         icon: <Users className="w-4 h-4" />,
         color: 'text-gray-500 bg-gray-500/10',
         country: countryData.name,
         countryFlag: countryData.flag
       };
     case 'prime_user':
+    case 'prime':
       return {
         maskedId: `⭐ PRM-${String(hash % 10000000).padStart(7, '0')}`,
         role: 'Prime',
