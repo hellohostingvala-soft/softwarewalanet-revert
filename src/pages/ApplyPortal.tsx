@@ -25,6 +25,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { maskEmail, maskPhone } from "@/lib/masking";
 import {
   Select,
   SelectContent,
@@ -93,16 +94,7 @@ const countries = [
   { code: "DE", name: "Germany", flag: "🇩🇪" },
 ];
 
-const maskEmail = (email: string) => {
-  if (!email || !email.includes("@")) return email;
-  const [local, domain] = email.split("@");
-  return `${local.slice(0, 2)}***@${domain}`;
-};
-
-const maskPhone = (phone: string) => {
-  if (!phone || phone.length < 5) return phone;
-  return `${phone.slice(0, 3)}*****${phone.slice(-2)}`;
-};
+// Masking functions imported at top of file from @/lib/masking
 
 const ApplyPortal = () => {
   const [selectedType, setSelectedType] = useState<string | null>(null);
