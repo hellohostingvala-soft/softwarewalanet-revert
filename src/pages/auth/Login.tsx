@@ -30,7 +30,8 @@ const Login = () => {
         toast.error('Login failed');
       } else {
         toast.success('Login successful');
-        navigate('/dashboard');
+        // Navigate to dashboard - Dashboard component handles role-based routing
+        navigate('/dashboard', { replace: true });
       }
     } catch (err) {
       setError('An unexpected error occurred');

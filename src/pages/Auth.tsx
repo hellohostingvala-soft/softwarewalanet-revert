@@ -83,7 +83,8 @@ const Auth = () => {
           }
         } else {
           showWelcomeBack(email.split('@')[0], 'default', 'SV-' + Math.random().toString(36).substring(2, 6).toUpperCase());
-          setTimeout(() => navigate('/dashboard'), 4000);
+          // Navigate to dashboard - the Dashboard component handles role-based routing
+          setTimeout(() => navigate('/dashboard', { replace: true }), 3000);
         }
       } else {
         const { error } = await signUp(email, password, selectedRole, fullName);
@@ -95,7 +96,8 @@ const Auth = () => {
           }
         } else {
           showWelcome(fullName || email.split('@')[0], selectedRole);
-          setTimeout(() => navigate('/dashboard'), 4800);
+          // Navigate to dashboard - the Dashboard component handles role-based routing
+          setTimeout(() => navigate('/dashboard', { replace: true }), 4000);
         }
       }
     } catch (err) {
