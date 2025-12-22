@@ -56,30 +56,51 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchUserRole = async (userId: string) => {
     try {
+      console.log('[Auth] Fetching role for user:', userId);
+      
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', userId)
         .maybeSingle();
 
-      if (data?.role && !error) {
+      if (error) {
+        console.error('[Auth] Error fetching role:', error);
+      }
+
+      if (data?.role) {
+        console.log('[Auth] Role found:', data.role);
         setUserRole(data.role as AppRole);
         return;
       }
 
-      // If missing (common when RLS blocks client insert), try to initialize from auth metadata.
-      const metaRole = (user?.user_metadata as any)?.role as string | undefined;
+      console.log('[Auth] No role in database, checking auth metadata...');
+      
+      // If missing, try to initialize from auth metadata
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      const metaRole = currentUser?.user_metadata?.role as string | undefined;
+      
       if (metaRole) {
-        const { data: fnData, error: fnErr } = await supabase.functions.invoke('role-init', {
-          body: { role: metaRole },
-        });
+        console.log('[Auth] Found role in metadata:', metaRole);
+        try {
+          const { data: fnData, error: fnErr } = await supabase.functions.invoke('role-init', {
+            body: { role: metaRole },
+          });
 
-        if (!fnErr && (fnData as any)?.data?.role) {
-          setUserRole(((fnData as any).data.role) as AppRole);
+          if (!fnErr && (fnData as any)?.data?.role) {
+            console.log('[Auth] Role initialized via function:', (fnData as any).data.role);
+            setUserRole(((fnData as any).data.role) as AppRole);
+          } else if (fnErr) {
+            console.error('[Auth] Role init function error:', fnErr);
+          }
+        } catch (fnError) {
+          console.error('[Auth] Role init function failed:', fnError);
         }
+      } else {
+        console.warn('[Auth] No role found in database or metadata for user:', userId);
       }
     } catch (err) {
-      console.error('Error fetching user role', err);
+      console.error('[Auth] Error in fetchUserRole:', err);
     }
   };
 
