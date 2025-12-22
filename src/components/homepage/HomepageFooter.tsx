@@ -1,3 +1,4 @@
+import React, { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Facebook, 
@@ -24,9 +25,9 @@ const socialLinks = [
   { icon: <Youtube className="w-5 h-5" />, href: 'https://youtube.com/@softwarevala', label: 'YouTube' }
 ];
 
-const HomepageFooter = () => {
+const HomepageFooter = forwardRef<HTMLElement>((_, ref) => {
   return (
-    <footer className="relative pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-8 overflow-hidden">
+    <footer ref={ref} className="relative pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-8 overflow-hidden">
       {/* Top Border */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
@@ -171,6 +172,8 @@ const HomepageFooter = () => {
       <div className="absolute bottom-0 right-0 w-64 h-64 bg-neon-teal/5 rounded-full blur-3xl" />
     </footer>
   );
-};
+});
+
+HomepageFooter.displayName = 'HomepageFooter';
 
 export default HomepageFooter;

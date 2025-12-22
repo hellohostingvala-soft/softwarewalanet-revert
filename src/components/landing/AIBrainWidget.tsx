@@ -70,9 +70,9 @@ const AIBrainWidget = forwardRef<HTMLDivElement, AIBrainWidgetProps>(({ onSearch
       </motion.button>
 
       {/* Chat Panel */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isOpen && (
-          <>
+          <div key="chat-panel">
             {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -175,7 +175,7 @@ const AIBrainWidget = forwardRef<HTMLDivElement, AIBrainWidgetProps>(({ onSearch
                 </div>
               </div>
             </motion.div>
-          </>
+          </div>
         )}
       </AnimatePresence>
     </div>
