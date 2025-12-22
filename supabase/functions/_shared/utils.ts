@@ -86,20 +86,21 @@ export function errorResponse(message: string, status = 400, buzzer = false) {
   );
 }
 
-// Role hierarchy for access control
+// Role hierarchy for access control (matches AppRole enum in types/roles.ts)
 export const ROLE_HIERARCHY: Record<string, number> = {
   super_admin: 100,
   admin: 90,
   finance_manager: 80,
   legal_compliance: 75,
+  hr_manager: 72,
   franchise: 70,
   performance_manager: 65,
   task_manager: 60,
   lead_manager: 55,
-  product_manager: 50,
   demo_manager: 50,
+  rnd_manager: 48,
   client_success: 45,
-  sales: 40,
+  ai_manager: 42,
   support: 40,
   marketing_manager: 40,
   seo_manager: 35,
@@ -107,7 +108,6 @@ export const ROLE_HIERARCHY: Record<string, number> = {
   developer: 25,
   influencer: 20,
   prime: 15,
-  rd_department: 35,
   client: 10,
 };
 
