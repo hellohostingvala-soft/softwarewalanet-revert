@@ -2,13 +2,14 @@ import { motion } from "framer-motion";
 import { 
   LayoutGrid, 
   Activity, 
-  Link2, 
   BarChart3, 
   Package,
   PlusCircle,
   Zap,
   Monitor,
-  Globe
+  Globe,
+  FileSpreadsheet,
+  Users
 } from "lucide-react";
 
 interface DemoManagerSidebarProps {
@@ -17,12 +18,13 @@ interface DemoManagerSidebarProps {
 }
 
 const menuItems = [
-  { id: "status", label: "Demo Status Grid", icon: LayoutGrid, badge: "LIVE" },
+  { id: "dashboard", label: "Dashboard", icon: LayoutGrid, badge: "LIVE" },
+  { id: "bulk-create", label: "Bulk Create", icon: FileSpreadsheet, badge: "NEW" },
+  { id: "logins", label: "Login Manager", icon: Users, badge: null },
   { id: "uptime", label: "Uptime Monitor", icon: Activity, badge: "99.9%" },
-  { id: "urls", label: "URL Manager", icon: Link2, badge: "48" },
-  { id: "analytics", label: "Demo Analytics", icon: BarChart3, badge: null },
-  { id: "catalog", label: "Product Catalog", icon: Package, badge: "40+" },
-  { id: "create", label: "Create Demo", icon: PlusCircle, badge: null },
+  { id: "manage", label: "Manage Demos", icon: PlusCircle, badge: null },
+  { id: "analytics", label: "Analytics", icon: BarChart3, badge: null },
+  { id: "rentals", label: "Rentals", icon: Package, badge: null },
 ];
 
 const DemoManagerSidebar = ({ activeView, onViewChange }: DemoManagerSidebarProps) => {
@@ -63,7 +65,7 @@ const DemoManagerSidebar = ({ activeView, onViewChange }: DemoManagerSidebarProp
             </div>
             <div>
               <div className="text-lg font-mono font-bold text-neon-orange">2</div>
-              <div className="text-[9px] text-muted-foreground">MAINTENANCE</div>
+              <div className="text-[9px] text-muted-foreground">PENDING</div>
             </div>
           </div>
         </div>
@@ -93,7 +95,7 @@ const DemoManagerSidebar = ({ activeView, onViewChange }: DemoManagerSidebarProp
               <span className="text-sm font-medium truncate">{item.label}</span>
               {item.badge && (
                 <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-full font-mono ${
-                  item.badge === "LIVE"
+                  item.badge === "LIVE" || item.badge === "NEW"
                     ? "bg-neon-green/20 text-neon-green animate-pulse"
                     : "bg-neon-teal/20 text-neon-teal"
                 }`}>

@@ -1995,6 +1995,53 @@ export type Database = {
           },
         ]
       }
+      demo_login_roles: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          demo_id: string
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          password_encrypted: string
+          role_name: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          demo_id: string
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          password_encrypted: string
+          role_name: string
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          demo_id?: string
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          password_encrypted?: string
+          role_name?: string
+          updated_at?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_login_roles_demo_id_fkey"
+            columns: ["demo_id"]
+            isOneToOne: false
+            referencedRelation: "demos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       demo_renewal_logs: {
         Row: {
           auto_renewed: boolean | null
@@ -2213,6 +2260,8 @@ export type Database = {
       }
       demos: {
         Row: {
+          activated_at: string | null
+          activated_by: string | null
           ai_category_suggestion: string | null
           ai_tech_suggestion: string | null
           backup_url: string | null
@@ -2221,6 +2270,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           demo_banner_text: string | null
+          demo_type: string | null
           description: string | null
           disable_destructive: boolean | null
           disable_exports: boolean | null
@@ -2228,8 +2278,11 @@ export type Database = {
           health_check_interval: number | null
           health_score: number | null
           id: string
+          is_bulk_created: boolean | null
           is_trending: boolean | null
           last_health_check: string | null
+          lifecycle_status: string | null
+          login_url: string | null
           masked_url: string | null
           max_concurrent_logins: number | null
           multi_login_enabled: boolean | null
@@ -2238,12 +2291,15 @@ export type Database = {
           tech_stack: Database["public"]["Enums"]["demo_tech_stack"]
           technology_id: string | null
           title: string
+          total_login_roles: number | null
           updated_at: string
           uptime_percentage: number | null
           url: string
           video_fallback_url: string | null
         }
         Insert: {
+          activated_at?: string | null
+          activated_by?: string | null
           ai_category_suggestion?: string | null
           ai_tech_suggestion?: string | null
           backup_url?: string | null
@@ -2252,6 +2308,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           demo_banner_text?: string | null
+          demo_type?: string | null
           description?: string | null
           disable_destructive?: boolean | null
           disable_exports?: boolean | null
@@ -2259,8 +2316,11 @@ export type Database = {
           health_check_interval?: number | null
           health_score?: number | null
           id?: string
+          is_bulk_created?: boolean | null
           is_trending?: boolean | null
           last_health_check?: string | null
+          lifecycle_status?: string | null
+          login_url?: string | null
           masked_url?: string | null
           max_concurrent_logins?: number | null
           multi_login_enabled?: boolean | null
@@ -2269,12 +2329,15 @@ export type Database = {
           tech_stack?: Database["public"]["Enums"]["demo_tech_stack"]
           technology_id?: string | null
           title: string
+          total_login_roles?: number | null
           updated_at?: string
           uptime_percentage?: number | null
           url: string
           video_fallback_url?: string | null
         }
         Update: {
+          activated_at?: string | null
+          activated_by?: string | null
           ai_category_suggestion?: string | null
           ai_tech_suggestion?: string | null
           backup_url?: string | null
@@ -2283,6 +2346,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           demo_banner_text?: string | null
+          demo_type?: string | null
           description?: string | null
           disable_destructive?: boolean | null
           disable_exports?: boolean | null
@@ -2290,8 +2354,11 @@ export type Database = {
           health_check_interval?: number | null
           health_score?: number | null
           id?: string
+          is_bulk_created?: boolean | null
           is_trending?: boolean | null
           last_health_check?: string | null
+          lifecycle_status?: string | null
+          login_url?: string | null
           masked_url?: string | null
           max_concurrent_logins?: number | null
           multi_login_enabled?: boolean | null
@@ -2300,6 +2367,7 @@ export type Database = {
           tech_stack?: Database["public"]["Enums"]["demo_tech_stack"]
           technology_id?: string | null
           title?: string
+          total_login_roles?: number | null
           updated_at?: string
           uptime_percentage?: number | null
           url?: string
@@ -10120,6 +10188,14 @@ export type Database = {
         Returns: boolean
       }
       authorize_role_access: { Args: { _user_id: string }; Returns: boolean }
+      bulk_create_demos: {
+        Args: { _demos: Json }
+        Returns: {
+          demo_id: string
+          demo_name: string
+          status: string
+        }[]
+      }
       calculate_regional_tax: {
         Args: {
           p_amount: number
@@ -10363,6 +10439,7 @@ export type Database = {
         | "api_security"
         | "r_and_d"
         | "master"
+      demo_lifecycle_status: "pending" | "active" | "disabled" | "archived"
       demo_status: "active" | "inactive" | "maintenance" | "down"
       demo_tech_stack:
         | "php"
@@ -10591,6 +10668,7 @@ export const Constants = {
         "r_and_d",
         "master",
       ],
+      demo_lifecycle_status: ["pending", "active", "disabled", "archived"],
       demo_status: ["active", "inactive", "maintenance", "down"],
       demo_tech_stack: [
         "php",
