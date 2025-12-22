@@ -5,7 +5,7 @@ import heroAiWoman from '@/assets/hero-ai-woman.png';
 
 const FuturisticHero = () => {
   const ctaButtons = [
-    { label: 'Explore Live Demos', href: '/demo-manager', icon: Rocket, variant: 'primary' },
+    { label: 'Explore Live Demos', href: '/demos/public', icon: Rocket, variant: 'primary' },
     { label: 'Join as Franchise', href: '/franchise-landing', icon: Users, variant: 'gold' },
     { label: 'Become Reseller', href: '/reseller-landing', icon: Users, variant: 'secondary' },
     { label: 'Apply Developer', href: '/auth', icon: Code, variant: 'secondary' },
