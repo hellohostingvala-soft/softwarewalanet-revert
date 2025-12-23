@@ -249,8 +249,9 @@ const RoleSidebar = ({ role, collapsed = false, onToggle }: RoleSidebarProps) =>
               >
                 {isActive && (
                   <motion.div
-                    layoutId="activeIndicator"
+                    layoutId={`role-sidebar-indicator-${role}`}
                     className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-primary"
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   />
                 )}
                 <item.icon className="w-5 h-5 shrink-0" />
