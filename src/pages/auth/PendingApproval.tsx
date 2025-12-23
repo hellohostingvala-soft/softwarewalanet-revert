@@ -1,50 +1,24 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Clock, LogOut, RefreshCw, Mail, CheckCircle } from 'lucide-react';
+import { Clock, LogOut, Eye, CheckCircle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
-import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useEffect } from 'react';
 
 const PendingApproval = () => {
   const navigate = useNavigate();
-  const { user, signOut, userRole } = useAuth();
-  const [checking, setChecking] = useState(false);
-  const [approvalStatus, setApprovalStatus] = useState<string>('pending');
+  const { user, signOut, userRole, approvalStatus } = useAuth();
 
   useEffect(() => {
     if (!user) {
       navigate('/auth', { replace: true });
     }
-  }, [user, navigate]);
-
-  const checkApprovalStatus = async () => {
-    if (!user) return;
-    
-    setChecking(true);
-    try {
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('approval_status, role')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (data?.approval_status === 'approved') {
-        setApprovalStatus('approved');
-        // Redirect to dashboard after a moment
-        setTimeout(() => navigate('/dashboard', { replace: true }), 1500);
-      } else if (data?.approval_status === 'rejected') {
-        setApprovalStatus('rejected');
-      } else {
-        setApprovalStatus('pending');
-      }
-    } catch (err) {
-      console.error('Error checking approval status:', err);
-    } finally {
-      setChecking(false);
+    // If already approved, redirect to dashboard
+    if (approvalStatus === 'approved') {
+      navigate('/dashboard', { replace: true });
     }
-  };
+  }, [user, approvalStatus, navigate]);
 
   const handleLogout = async () => {
     await signOut();
@@ -55,6 +29,11 @@ const PendingApproval = () => {
     navigate('/demos/public');
   };
 
+  const handleExploreFeatures = () => {
+    navigate('/explore');
+  };
+
+  // Show approved state briefly before redirect
   if (approvalStatus === 'approved') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-green-500/5 p-4">
@@ -71,41 +50,15 @@ const PendingApproval = () => {
     );
   }
 
-  if (approvalStatus === 'rejected') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-destructive/5 p-4">
-        <Card className="w-full max-w-md border-destructive/30">
-          <CardHeader className="text-center">
-            <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-              <Mail className="w-8 h-8 text-destructive" />
-            </div>
-            <CardTitle className="text-xl">Account Not Approved</CardTitle>
-            <CardDescription>
-              Unfortunately, your account request was not approved. Please contact support for more information.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button variant="outline" className="w-full" onClick={handleBrowseDemos}>
-              Browse Public Demos
-            </Button>
-            <Button variant="ghost" className="w-full" onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-amber-500/5 p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
+        className="w-full max-w-md"
       >
-        <Card className="w-full max-w-md border-amber-500/30 bg-card/80 backdrop-blur-xl">
+        <Card className="border-amber-500/30 bg-card/80 backdrop-blur-xl">
           <CardHeader className="text-center">
             <motion.div
               animate={{ rotate: 360 }}
@@ -114,9 +67,9 @@ const PendingApproval = () => {
             >
               <Clock className="w-8 h-8 text-amber-500" />
             </motion.div>
-            <CardTitle className="text-xl">Awaiting Approval</CardTitle>
+            <CardTitle className="text-xl">Account Pending Approval</CardTitle>
             <CardDescription>
-              Your account has been created successfully! An administrator will review and approve your access soon.
+              Your account is being reviewed. You can explore our features while you wait!
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -126,22 +79,28 @@ const PendingApproval = () => {
                 <span className="capitalize">{userRole?.replace(/_/g, ' ') || 'Pending'}</span>
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                You'll receive access once approved by Master or Super Admin
+                An admin will review your request soon
               </p>
             </div>
 
-            <Button 
-              variant="outline" 
-              className="w-full" 
-              onClick={checkApprovalStatus}
-              disabled={checking}
-            >
-              {checking ? (
-                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <RefreshCw className="w-4 h-4 mr-2" />
-              )}
-              Check Approval Status
+            <div className="bg-gradient-to-r from-teal-500/10 to-blue-500/10 rounded-lg p-4 border border-teal-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-4 h-4 text-teal-400" />
+                <span className="text-sm font-medium text-foreground">While you wait</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Feel free to explore demos and features. You'll get full access once approved.
+              </p>
+            </div>
+
+            <Button variant="default" className="w-full" onClick={handleBrowseDemos}>
+              <Eye className="w-4 h-4 mr-2" />
+              Browse Public Demos
+            </Button>
+
+            <Button variant="secondary" className="w-full" onClick={handleExploreFeatures}>
+              <Sparkles className="w-4 h-4 mr-2" />
+              Explore Features
             </Button>
 
             <div className="relative">
@@ -152,10 +111,6 @@ const PendingApproval = () => {
                 <span className="bg-card px-2 text-muted-foreground">or</span>
               </div>
             </div>
-
-            <Button variant="secondary" className="w-full" onClick={handleBrowseDemos}>
-              Browse Public Demos
-            </Button>
 
             <Button variant="ghost" className="w-full text-muted-foreground" onClick={handleLogout}>
               <LogOut className="w-4 h-4 mr-2" />
