@@ -85,32 +85,33 @@ const CategoryGrid = () => {
               viewport={{ once: true }}
               transition={{ delay: index * 0.02 }}
               className="relative group"
-              onMouseEnter={() => setExpandedCategory(category.name)}
-              onMouseLeave={() => setExpandedCategory(null)}
+              onClick={() => setExpandedCategory(expandedCategory === category.name ? null : category.name)}
+              onMouseEnter={() => window.innerWidth > 768 && setExpandedCategory(category.name)}
+              onMouseLeave={() => window.innerWidth > 768 && setExpandedCategory(null)}
             >
               <div className={`
                 relative p-4 rounded-xl cursor-pointer transition-all duration-300
-                bg-[hsl(220,20%,8%)] border border-[hsl(210,100%,55%)/0.2]
-                hover:border-[hsl(210,100%,55%)/0.6] hover:bg-[hsl(220,20%,10%)]
-                ${expandedCategory === category.name ? 'shadow-[0_0_30px_hsl(210_100%_55%/0.3)]' : ''}
+                bg-card border border-border/30
+                hover:border-primary/60 hover:bg-card/80
+                ${expandedCategory === category.name ? 'shadow-[0_0_30px_hsl(var(--primary)/0.3)] border-primary/50' : ''}
               `}>
                 {/* Icon */}
                 <div className="w-12 h-12 rounded-xl mb-3 flex items-center justify-center
-                              bg-[hsl(210,100%,55%)/0.1] border border-[hsl(210,100%,55%)/0.2]
-                              group-hover:bg-[hsl(210,100%,55%)/0.2] transition-colors">
-                  <category.icon className="w-6 h-6 text-[hsl(210,100%,55%)]"
-                                 style={{ filter: 'drop-shadow(0 0 6px hsl(210 100% 55% / 0.5))' }} />
+                              bg-primary/10 border border-primary/20
+                              group-hover:bg-primary/20 transition-colors">
+                  <category.icon className="w-6 h-6 text-primary"
+                                 style={{ filter: 'drop-shadow(0 0 6px hsl(var(--primary) / 0.5))' }} />
                 </div>
 
                 {/* Name */}
-                <h3 className="font-semibold text-white text-sm mb-1 group-hover:text-[hsl(210,100%,55%)] transition-colors">
+                <h3 className="font-semibold text-foreground text-sm mb-1 group-hover:text-primary transition-colors">
                   {category.name}
                 </h3>
 
                 {/* Demo count button */}
-                <button className="text-xs px-2 py-1 rounded-md border border-[hsl(45,100%,50%)/0.4]
-                                 text-[hsl(45,100%,50%)] bg-[hsl(45,100%,50%)/0.1]
-                                 hover:bg-[hsl(45,100%,50%)/0.2] transition-colors">
+                <button className="text-xs px-2 py-1 rounded-md border border-amber-500/40
+                                 text-amber-400 bg-amber-500/10
+                                 hover:bg-amber-500/20 transition-colors">
                   {category.demos} Demos
                 </button>
 
@@ -121,17 +122,18 @@ const CategoryGrid = () => {
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute top-full left-0 right-0 mt-2 p-3 rounded-xl z-20
-                               bg-[hsl(220,20%,10%)] border border-[hsl(210,100%,55%)/0.3]
+                      transition={{ duration: 0.15 }}
+                      className="absolute top-full left-0 right-0 mt-2 p-3 rounded-xl z-50
+                               bg-popover border border-primary/30
                                shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
                     >
                       <div className="flex flex-wrap gap-2">
                         {category.subtypes.map((subtype) => (
                           <span
                             key={subtype}
-                            className="text-xs px-2 py-1 rounded-md bg-[hsl(210,100%,55%)/0.1]
-                                     text-[hsl(210,100%,55%)] border border-[hsl(210,100%,55%)/0.2]
-                                     hover:bg-[hsl(210,100%,55%)/0.2] cursor-pointer transition-colors"
+                            className="text-xs px-2 py-1 rounded-md bg-primary/10
+                                     text-primary border border-primary/20
+                                     hover:bg-primary/20 cursor-pointer transition-colors"
                           >
                             {subtype}
                           </span>

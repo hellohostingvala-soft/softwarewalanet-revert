@@ -46,20 +46,20 @@ const DemoFilterBar = () => {
           <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 md:gap-4">
             {/* Search Input */}
             <div className="flex-1 min-w-0 sm:min-w-[180px] md:min-w-[200px] relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search demos..."
-                className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 rounded-xl bg-[hsl(220,25%,10%)] 
-                         border border-[hsl(210,100%,55%)/0.2] text-white text-sm sm:text-base
-                         placeholder-slate-500 focus:outline-none focus:border-[hsl(210,100%,55%)/0.5]
+                className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 rounded-xl bg-input 
+                         border border-primary/20 text-foreground text-sm sm:text-base
+                         placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20
                          transition-colors"
               />
               {searchQuery && (
                 <span className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded
-                               bg-[hsl(210,100%,55%)/0.2] text-[hsl(210,100%,55%)] text-xs">
+                               bg-primary/20 text-primary text-xs">
                   Searching...
                 </span>
               )}
@@ -71,18 +71,18 @@ const DemoFilterBar = () => {
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="w-full appearance-none px-3 sm:px-4 py-2.5 sm:py-3 pr-8 sm:pr-10 rounded-xl text-sm sm:text-base
-                         bg-[hsl(220,25%,10%)] border border-[hsl(210,100%,55%)/0.2]
-                         text-white focus:outline-none focus:border-[hsl(210,100%,55%)/0.5]
+                         bg-popover border border-primary/20
+                         text-foreground focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20
                          transition-colors cursor-pointer"
               >
                 {categories.map((cat) => (
                   <option key={cat} value={cat === 'All Categories' ? '' : cat} 
-                          className="bg-[hsl(220,25%,10%)]">
+                          className="bg-popover text-foreground">
                     {cat}
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+              <ChevronDown className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             </div>
 
             {/* Tech Stack Dropdown - Hidden on mobile */}
@@ -91,18 +91,18 @@ const DemoFilterBar = () => {
                 value={selectedTech}
                 onChange={(e) => setSelectedTech(e.target.value)}
                 className="w-full appearance-none px-4 py-3 pr-10 rounded-xl text-sm
-                         bg-[hsl(220,25%,10%)] border border-[hsl(210,100%,55%)/0.2]
-                         text-white focus:outline-none focus:border-[hsl(210,100%,55%)/0.5]
+                         bg-popover border border-primary/20
+                         text-foreground focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20
                          transition-colors cursor-pointer"
               >
                 {techStacks.map((tech) => (
                   <option key={tech} value={tech === 'All Tech' ? '' : tech}
-                          className="bg-[hsl(220,25%,10%)]">
+                          className="bg-popover text-foreground">
                     {tech}
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             </div>
 
             {/* Level Dropdown - Hidden on mobile */}
@@ -111,26 +111,26 @@ const DemoFilterBar = () => {
                 value={selectedLevel}
                 onChange={(e) => setSelectedLevel(e.target.value)}
                 className="w-full appearance-none px-4 py-3 pr-10 rounded-xl text-sm
-                         bg-[hsl(220,25%,10%)] border border-[hsl(210,100%,55%)/0.2]
-                         text-white focus:outline-none focus:border-[hsl(210,100%,55%)/0.5]
+                         bg-popover border border-primary/20
+                         text-foreground focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20
                          transition-colors cursor-pointer"
               >
                 {levels.map((level) => (
                   <option key={level} value={level === 'All Levels' ? '' : level}
-                          className="bg-[hsl(220,25%,10%)]">
+                          className="bg-popover text-foreground">
                     {level}
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             </div>
 
             {/* More Filters Toggle */}
             <button
               onClick={() => setIsExpanded(!isExpanded)}
               className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl
-                       border border-[hsl(210,100%,55%)/0.3] text-[hsl(210,100%,55%)] text-sm sm:text-base
-                       hover:bg-[hsl(210,100%,55%)/0.1] transition-colors"
+                       border border-primary/30 text-primary text-sm sm:text-base
+                       hover:bg-primary/10 transition-colors"
             >
               <Filter className="w-4 h-4" />
               <span className="hidden sm:inline">More</span>
@@ -142,7 +142,7 @@ const DemoFilterBar = () => {
               <button
                 onClick={clearFilters}
                 className="flex items-center gap-2 px-4 py-3 rounded-xl
-                         text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+                         text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               >
                 <X className="w-4 h-4" />
                 Clear
@@ -156,16 +156,16 @@ const DemoFilterBar = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="mt-4 pt-4 border-t border-[hsl(210,100%,55%)/0.1]"
+              className="mt-4 pt-4 border-t border-primary/10"
             >
               <div className="flex flex-wrap gap-2">
-                <span className="text-sm text-slate-500 mr-2">Quick filters:</span>
+                <span className="text-sm text-muted-foreground mr-2">Quick filters:</span>
                 {['Trending', 'New Arrivals', 'Most Viewed', 'Top Rated', 'Free Trial'].map((filter) => (
                   <button
                     key={filter}
-                    className="px-3 py-1.5 rounded-lg text-sm bg-[hsl(210,100%,55%)/0.1]
-                             text-[hsl(210,100%,55%)] border border-[hsl(210,100%,55%)/0.2]
-                             hover:bg-[hsl(210,100%,55%)/0.2] transition-colors"
+                    className="px-3 py-1.5 rounded-lg text-sm bg-primary/10
+                             text-primary border border-primary/20
+                             hover:bg-primary/20 transition-colors"
                   >
                     {filter}
                   </button>
