@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { 
   Globe, Search, BarChart3, Link2, FileText, Shield, 
   Wallet, Zap, Target, TrendingUp, Bell,
-  Sparkles, Map, Share2, FileCode, 
+  Sparkles, Map, Share2, FileCode, Megaphone, Mail, MessageSquare,
   Database, Calendar, MousePointer, Eye, Rocket, Settings, LogOut, Lock
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -54,25 +54,17 @@ const SEODashboard = () => {
 
   const renderContent = () => {
     switch (activeSection) {
-      case "dashboard": return <SEOMetrics activeRegion={activeRegion} />;
-      case "keywords": return <KeywordManager activeRegion={activeRegion} />;
-      case "meta": return <MetaTagEngine />;
+      case "command": return <SEOMetrics activeRegion={activeRegion} />;
+      case "leads": return <LeadIntelligence />;
       case "content": return <ContentGenerator activeRegion={activeRegion} />;
-      case "technical": return <TechnicalSEOPanel />;
-      case "ranks": return <RankTracker activeRegion={activeRegion} />;
-      case "library": return <ProductSEOLibrary />;
-      case "deployment": return <ContentDeployment />;
-      case "backlinks": return <BacklinkManager />;
-      case "competitors": return <CompetitorIntelligence />;
-      case "demo": return <DemoSEOIntegration />;
-      case "heatmap": return <HeatmapBehavior />;
-      case "scheduler": return <AutomationScheduler />;
-      case "regional": return <RegionalModes activeRegion={activeRegion} onRegionChange={setActiveRegion} />;
-      case "social": return <SocialSEOSync />;
-      case "alerts": return <SEOAlerts />;
-      case "spam": return <SpamGuard />;
-      case "wallet": return <SEOWallet />;
-      case "performance": return <PerformanceReview />;
+      case "ads": return <AdsAutomation />;
+      case "email": return <EmailAutomation />;
+      case "social": return <SocialCommentAutomation />;
+      case "chat": return <ChatMessageReply />;
+      case "automation": return <AutomationFlows />;
+      case "wallet": return <CombinedWallet />;
+      case "reports": return <ReportsAnalytics />;
+      case "settings": return <SettingsIntegrations />;
       default: return <SEOMetrics activeRegion={activeRegion} />;
     }
   };
@@ -112,7 +104,7 @@ const SEODashboard = () => {
                 <item.icon className={`w-4 h-4 ${activeSection === item.id ? "text-cyan-400" : "group-hover:text-cyan-400"}`} />
                 <span className="text-sm font-medium">{item.label}</span>
                 {activeSection === item.id && (
-                  <motion.div layoutId="activeIndicator" className="absolute left-0 w-1 h-6 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-r-full" />
+                  <motion.div layoutId="seo-activeIndicator" className="absolute left-0 w-1 h-6 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-r-full" />
                 )}
               </motion.button>
             ))}
