@@ -1,6 +1,8 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Monitor, 
   TrendingUp, 
@@ -11,31 +13,81 @@ import {
   Smartphone,
   Activity,
   CheckCircle,
-  XCircle
+  XCircle,
+  Loader2
 } from "lucide-react";
 
+interface DemoStats {
+  total: number;
+  active: number;
+  maintenance: number;
+  down: number;
+}
+
+interface TopDemo {
+  name: string;
+  clicks: number;
+  uptime: number;
+  tech: string;
+  status: string;
+}
+
 const DemoDashboard = () => {
+  const [loading, setLoading] = useState(true);
+  const [demoStats, setDemoStats] = useState<DemoStats>({ total: 0, active: 0, maintenance: 0, down: 0 });
+  const [topDemos, setTopDemos] = useState<TopDemo[]>([]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      // Fetch demo counts by status
+      const { data: demos, error } = await supabase
+        .from('demos')
+        .select('id, title, status, uptime_percentage, tech_stack');
+
+      if (error) throw error;
+
+      const stats: DemoStats = {
+        total: demos?.length || 0,
+        active: demos?.filter(d => d.status === 'active').length || 0,
+        maintenance: demos?.filter(d => d.status === 'maintenance').length || 0,
+        down: demos?.filter(d => d.status === 'down' || d.status === 'inactive').length || 0,
+      };
+      setDemoStats(stats);
+
+      // Get top demos (using available data)
+      const top = (demos || []).slice(0, 5).map(d => ({
+        name: d.title || 'Untitled',
+        clicks: Math.floor(Math.random() * 3000) + 500, // Mock clicks for now
+        uptime: d.uptime_percentage || 99.5,
+        tech: Array.isArray(d.tech_stack) ? d.tech_stack[0] : 'React',
+        status: d.status || 'active'
+      }));
+      setTopDemos(top);
+
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const metrics = [
-    { label: "Total Demos", value: "47", change: "+3", icon: Monitor, color: "text-neon-teal" },
-    { label: "Active Today", value: "42", change: "+5", icon: Activity, color: "text-neon-green" },
+    { label: "Total Demos", value: demoStats.total.toString(), change: "+0", icon: Monitor, color: "text-neon-teal" },
+    { label: "Active", value: demoStats.active.toString(), change: "+0", icon: Activity, color: "text-neon-green" },
     { label: "Total Clicks", value: "12,847", change: "+847", icon: TrendingUp, color: "text-primary" },
     { label: "Active Users", value: "1,234", change: "+89", icon: Users, color: "text-neon-cyan" },
     { label: "Uptime", value: "99.7%", change: "+0.2%", icon: Clock, color: "text-emerald-400" },
-    { label: "Active Alerts", value: "3", change: "-2", icon: AlertTriangle, color: "text-orange-400" },
+    { label: "Active Alerts", value: demoStats.down.toString(), change: "0", icon: AlertTriangle, color: "text-orange-400" },
   ];
 
   const demosByStatus = [
-    { status: "Active", count: 42, color: "bg-neon-green/20 text-neon-green border-neon-green/30" },
-    { status: "Maintenance", count: 3, color: "bg-orange-500/20 text-orange-400 border-orange-500/30" },
-    { status: "Down", count: 2, color: "bg-red-500/20 text-red-400 border-red-500/30" },
-  ];
-
-  const topDemos = [
-    { name: "CRM Enterprise", clicks: 3420, uptime: 99.9, tech: "React", status: "active" },
-    { name: "E-Commerce Suite", clicks: 2890, uptime: 99.5, tech: "Node", status: "active" },
-    { name: "HR Management", clicks: 2456, uptime: 98.7, tech: "PHP", status: "active" },
-    { name: "Inventory System", clicks: 1987, uptime: 99.2, tech: "Java", status: "maintenance" },
-    { name: "Finance Portal", clicks: 1654, uptime: 97.8, tech: "Python", status: "active" },
+    { status: "Active", count: demoStats.active, color: "bg-neon-green/20 text-neon-green border-neon-green/30" },
+    { status: "Maintenance", count: demoStats.maintenance, color: "bg-orange-500/20 text-orange-400 border-orange-500/30" },
+    { status: "Down", count: demoStats.down, color: "bg-red-500/20 text-red-400 border-red-500/30" },
   ];
 
   const regionStats = [
@@ -51,6 +103,14 @@ const DemoDashboard = () => {
     { device: "Mobile", percentage: 31, icon: Smartphone },
     { device: "Tablet", percentage: 7, icon: Globe },
   ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
