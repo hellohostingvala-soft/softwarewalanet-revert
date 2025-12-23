@@ -251,13 +251,7 @@ const SuperAdminCommandCenter = () => {
     totalRevenue: 12450000,
   });
 
-  // Auto-trigger audit after welcome
-  useEffect(() => {
-    if (!showWelcome) {
-      const timer = setTimeout(() => setShowAudit(true), 500);
-      return () => clearTimeout(timer);
-    }
-  }, [showWelcome]);
+  // Audit popup is now manual-only (via button) - removed auto-trigger to avoid annoying users
 
   useEffect(() => {
     const timer = setTimeout(() => setShowWelcome(false), 2500);
