@@ -428,6 +428,16 @@ export const ProductManager: React.FC<ProductManagerProps> = ({ viewOnly = false
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
+              ) : products.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Package className="h-12 w-12 text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No Products Found</h3>
+                  <p className="text-muted-foreground text-sm max-w-md">
+                    {search || filterCategory || filterStatus
+                      ? "No products match your search criteria. Try adjusting your filters."
+                      : "Get started by adding your first product using the 'Add Product' button above."}
+                  </p>
+                </div>
               ) : (
                 <Table>
                   <TableHeader>
