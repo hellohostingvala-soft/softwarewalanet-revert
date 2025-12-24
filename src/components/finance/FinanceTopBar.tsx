@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import GlobalNotificationHeader from "@/components/shared/GlobalNotificationHeader";
 import type { NotificationAlert } from "@/components/shared/GlobalNotificationHeader";
+import { useAuth } from "@/hooks/useAuth";
 
 interface FinanceTopBarProps {
   onNotificationsClick: () => void;
@@ -17,6 +18,10 @@ const FinanceTopBar = ({
   onDismissNotification = () => {},
   onNotificationAction = () => {}
 }: FinanceTopBarProps) => {
+  const { user } = useAuth();
+  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Finance Manager';
+  const maskedId = user?.id ? `FIN-${user.id.substring(0, 4).toUpperCase()}` : 'FIN-0000';
+  
   const metrics = [
     {
       label: "Total Revenue",
@@ -48,8 +53,21 @@ const FinanceTopBar = ({
 
   return (
     <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between">
+      {/* Welcome & Role */}
+      <div className="flex items-center gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-semibold text-slate-900 dark:text-white">Welcome, {userName}</span>
+            <Badge className="bg-gradient-to-r from-cyan-500 to-teal-600 text-white text-[10px] px-2 py-0.5">
+              FINANCE MANAGER
+            </Badge>
+          </div>
+          <span className="text-xs text-slate-500">ID: {maskedId} • Financial Operations Control</span>
+        </div>
+      </div>
+
       {/* Live Metrics */}
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-4">
         {metrics.map((metric, index) => (
           <div 
             key={index}
@@ -89,7 +107,7 @@ const FinanceTopBar = ({
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input 
             placeholder="Search transactions..." 
-            className="pl-9 w-64 h-9 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+            className="pl-9 w-48 h-9 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
           />
         </div>
 
@@ -100,16 +118,6 @@ const FinanceTopBar = ({
           onDismiss={onDismissNotification}
           onAction={onNotificationAction}
         />
-
-        <div className="flex items-center gap-2 pl-4 border-l border-slate-200 dark:border-slate-700">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-teal-600 flex items-center justify-center text-white text-sm font-medium">
-            FM
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-medium text-slate-900 dark:text-white">Finance Admin</span>
-            <span className="text-[10px] text-slate-500">Super Admin</span>
-          </div>
-        </div>
       </div>
     </header>
   );

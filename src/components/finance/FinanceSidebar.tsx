@@ -14,11 +14,18 @@ import {
   PieChart,
   Shield,
   FileText,
-  Grid3X3
+  Grid3X3,
+  LogOut,
+  Settings,
+  Lock
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NavLink } from "@/components/NavLink";
 import softwareValaLogo from '@/assets/software-vala-logo.png';
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 type FinanceView = 
   | "revenue" 
@@ -36,18 +43,16 @@ interface FinanceSidebarProps {
 }
 
 const FinanceSidebar = ({ activeView, onViewChange }: FinanceSidebarProps) => {
-  const mainNavItems = [
-    { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-    { icon: Users, label: "Lead Manager", href: "/lead-manager" },
-    { icon: CheckSquare, label: "Task Manager", href: "/task-manager" },
-    { icon: DollarSign, label: "Finance Manager", href: "/finance", active: true },
-    { icon: Heart, label: "Client Success", href: "/client-success" },
-    { icon: Lightbulb, label: "R&D", href: "/rnd-dashboard" },
-    { icon: Wallet, label: "Wallet", href: "#" },
-    { icon: Bell, label: "Notifications", href: "#" },
-    { icon: BarChart3, label: "Performance", href: "/performance" },
-    { icon: User, label: "Profile", href: "#" },
-  ];
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  
+  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Finance Manager';
+  const maskedId = user?.id ? `FIN-${user.id.substring(0, 4).toUpperCase()}` : 'FIN-0000';
+  
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/auth');
+  };
 
   const financeViews = [
     { id: "revenue" as const, icon: PieChart, label: "Revenue Dashboard" },
@@ -72,49 +77,39 @@ const FinanceSidebar = ({ activeView, onViewChange }: FinanceSidebarProps) => {
         <p className="text-xs text-slate-500 mt-1">Finance Manager</p>
       </div>
 
-      {/* Main Navigation */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        <div className="mb-4">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-            Main Menu
-          </p>
-          {mainNavItems.map((item) => (
-            <NavLink
-              key={item.label}
-              to={item.href}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
-                item.active
-                  ? "bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-400"
-                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-              )}
-            >
-              <item.icon className="w-4 h-4" />
-              {item.label}
-            </NavLink>
-          ))}
+      {/* User Info & Role Badge */}
+      <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+        <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-slate-900 dark:text-white truncate">{userName}</span>
+            <Badge className="bg-gradient-to-r from-cyan-500 to-teal-600 text-white text-[10px] px-2 py-0.5">
+              FINANCE MANAGER
+            </Badge>
+          </div>
+          <span className="text-xs text-slate-500 font-mono">{maskedId}</span>
         </div>
+      </div>
 
-        <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-            Finance Modules
-          </p>
-          {financeViews.map((view) => (
-            <button
-              key={view.id}
-              onClick={() => onViewChange(view.id)}
-              className={cn(
-                "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all",
-                activeView === view.id
-                  ? "bg-cyan-600 text-white shadow-lg shadow-cyan-600/25"
-                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-              )}
-            >
-              <view.icon className="w-4 h-4" />
-              {view.label}
-            </button>
-          ))}
-        </div>
+      {/* Finance Modules Navigation */}
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+          Finance Modules
+        </p>
+        {financeViews.map((view) => (
+          <button
+            key={view.id}
+            onClick={() => onViewChange(view.id)}
+            className={cn(
+              "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all",
+              activeView === view.id
+                ? "bg-cyan-600 text-white shadow-lg shadow-cyan-600/25"
+                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+            )}
+          >
+            <view.icon className="w-4 h-4" />
+            {view.label}
+          </button>
+        ))}
       </nav>
 
       {/* Gateway Status */}
@@ -145,6 +140,38 @@ const FinanceSidebar = ({ activeView, onViewChange }: FinanceSidebarProps) => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Footer Actions */}
+      <div className="p-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
+        <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex-1 text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-900/20"
+            onClick={() => navigate('/change-password')}
+          >
+            <Lock className="w-4 h-4 mr-1" />
+            Password
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex-1 text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-900/20"
+            onClick={() => navigate('/settings')}
+          >
+            <Settings className="w-4 h-4 mr-1" />
+            Settings
+          </Button>
+        </div>
+        <Button
+          onClick={handleLogout}
+          variant="ghost"
+          className="w-full text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 border border-red-200 dark:border-red-800"
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          Sign Out
+        </Button>
       </div>
     </aside>
   );
