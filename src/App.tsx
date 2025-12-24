@@ -145,11 +145,11 @@ const App = () => (
                 <SecurityProvider>
                   <NotificationProvider>
                     <TranslationProvider>
-                        <GlobalRealtimeProvider>
-                          <SystemNotificationsInitializer />
-                          <GlobalOfferPopup />
-                          <FloatingAIChatbotWrapper />
-                          <Routes>
+                      <GlobalRealtimeProvider>
+                        <SystemNotificationsInitializer />
+                        <GlobalOfferPopup />
+                        <FloatingAIChatbotWrapper />
+                        <Routes>
               {/* Public Routes - No login required */}
               <Route path="/" element={<Homepage />} />
               <Route path="/demos" element={<SimpleDemoList />} />
@@ -324,13 +324,13 @@ const App = () => (
 
               {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
-                          </Routes>
-                        </GlobalRealtimeProvider>
-                      </TranslationProvider>
-                    </NotificationProvider>
-                  </SecurityProvider>
-                </BrowserRouter>
-          </DomainProtection>
+            </Routes>
+          </GlobalRealtimeProvider>
+        </TranslationProvider>
+      </NotificationProvider>
+    </SecurityProvider>
+  </BrowserRouter>
+</DomainProtection>
         </TooltipProvider>
       </AnimationProvider>
     </DemoTestModeProvider>
