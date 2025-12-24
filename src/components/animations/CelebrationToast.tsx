@@ -296,6 +296,16 @@ export const roleMotivationalMessages: Record<string, string[]> = {
     "Happy clients are your superpower!",
     "Building relationships that last!"
   ],
+  api_security: [
+    "Security Sentinel Online! Systems protected! 🔐",
+    "Your vigilance keeps our APIs safe!",
+    "Zero breaches on your watch!"
+  ],
+  r_and_d: [
+    "R&D Explorer Activated! Innovation awaits! 🔬",
+    "Your discoveries shape our future!",
+    "Testing today, launching tomorrow!"
+  ],
   default: [
     "Welcome back! Great things await! ✨",
     "Let's make today amazing!",
