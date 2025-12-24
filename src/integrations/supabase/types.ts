@@ -170,6 +170,80 @@ export type Database = {
         }
         Relationships: []
       }
+      action_approval_queue: {
+        Row: {
+          action_data: Json
+          action_target: string
+          action_type: string
+          approval_status: string | null
+          approved_at: string | null
+          approved_by: string | null
+          auto_approve_eligible: boolean | null
+          created_at: string | null
+          email_verified: boolean | null
+          expires_at: string | null
+          id: string
+          otp_required: boolean | null
+          otp_verification_id: string | null
+          otp_verified: boolean | null
+          priority: string | null
+          rejection_reason: string | null
+          updated_at: string | null
+          user_id: string
+          user_role: string
+        }
+        Insert: {
+          action_data?: Json
+          action_target: string
+          action_type: string
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          auto_approve_eligible?: boolean | null
+          created_at?: string | null
+          email_verified?: boolean | null
+          expires_at?: string | null
+          id?: string
+          otp_required?: boolean | null
+          otp_verification_id?: string | null
+          otp_verified?: boolean | null
+          priority?: string | null
+          rejection_reason?: string | null
+          updated_at?: string | null
+          user_id: string
+          user_role: string
+        }
+        Update: {
+          action_data?: Json
+          action_target?: string
+          action_type?: string
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          auto_approve_eligible?: boolean | null
+          created_at?: string | null
+          email_verified?: boolean | null
+          expires_at?: string | null
+          id?: string
+          otp_required?: boolean | null
+          otp_verification_id?: string | null
+          otp_verified?: boolean | null
+          priority?: string | null
+          rejection_reason?: string | null
+          updated_at?: string | null
+          user_id?: string
+          user_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "action_approval_queue_otp_verification_id_fkey"
+            columns: ["otp_verification_id"]
+            isOneToOne: false
+            referencedRelation: "otp_verifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_billing_qr_codes: {
         Row: {
           base_cost_total: number
@@ -6682,6 +6756,51 @@ export type Database = {
           },
         ]
       }
+      otp_verifications: {
+        Row: {
+          action_data: Json | null
+          action_description: string | null
+          created_at: string | null
+          expires_at: string
+          id: string
+          ip_address: string | null
+          is_used: boolean | null
+          otp_code: string
+          otp_type: string
+          user_agent: string | null
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          action_data?: Json | null
+          action_description?: string | null
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          is_used?: boolean | null
+          otp_code: string
+          otp_type: string
+          user_agent?: string | null
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          action_data?: Json | null
+          action_description?: string | null
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          is_used?: boolean | null
+          otp_code?: string
+          otp_type?: string
+          user_agent?: string | null
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       payout_records: {
         Row: {
           amount: number
@@ -10786,6 +10905,63 @@ export type Database = {
           },
         ]
       }
+      user_2fa_settings: {
+        Row: {
+          authenticator_secret: string | null
+          authenticator_verified: boolean | null
+          backup_codes: string[] | null
+          created_at: string | null
+          id: string
+          is_2fa_enabled: boolean | null
+          last_otp_sent_at: string | null
+          otp_rate_limit_until: string | null
+          phone_number: string | null
+          phone_verified: boolean | null
+          preferred_method: string | null
+          require_otp_for_actions: boolean | null
+          require_otp_for_login: boolean | null
+          trusted_devices: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          authenticator_secret?: string | null
+          authenticator_verified?: boolean | null
+          backup_codes?: string[] | null
+          created_at?: string | null
+          id?: string
+          is_2fa_enabled?: boolean | null
+          last_otp_sent_at?: string | null
+          otp_rate_limit_until?: string | null
+          phone_number?: string | null
+          phone_verified?: boolean | null
+          preferred_method?: string | null
+          require_otp_for_actions?: boolean | null
+          require_otp_for_login?: boolean | null
+          trusted_devices?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          authenticator_secret?: string | null
+          authenticator_verified?: boolean | null
+          backup_codes?: string[] | null
+          created_at?: string | null
+          id?: string
+          is_2fa_enabled?: boolean | null
+          last_otp_sent_at?: string | null
+          otp_rate_limit_until?: string | null
+          phone_number?: string | null
+          phone_verified?: boolean | null
+          preferred_method?: string | null
+          require_otp_for_actions?: boolean | null
+          require_otp_for_login?: boolean | null
+          trusted_devices?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_agreements: {
         Row: {
           created_at: string | null
@@ -11055,6 +11231,75 @@ export type Database = {
         }
         Relationships: []
       }
+      verified_action_logs: {
+        Row: {
+          action_data: Json | null
+          action_target: string | null
+          action_type: string
+          approval_id: string | null
+          created_at: string | null
+          error_message: string | null
+          geo_location: string | null
+          id: string
+          ip_address: string | null
+          otp_verification_id: string | null
+          success: boolean | null
+          user_agent: string | null
+          user_id: string
+          user_role: string | null
+          verification_method: string | null
+        }
+        Insert: {
+          action_data?: Json | null
+          action_target?: string | null
+          action_type: string
+          approval_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          geo_location?: string | null
+          id?: string
+          ip_address?: string | null
+          otp_verification_id?: string | null
+          success?: boolean | null
+          user_agent?: string | null
+          user_id: string
+          user_role?: string | null
+          verification_method?: string | null
+        }
+        Update: {
+          action_data?: Json | null
+          action_target?: string | null
+          action_type?: string
+          approval_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          geo_location?: string | null
+          id?: string
+          ip_address?: string | null
+          otp_verification_id?: string | null
+          success?: boolean | null
+          user_agent?: string | null
+          user_id?: string
+          user_role?: string | null
+          verification_method?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verified_action_logs_approval_id_fkey"
+            columns: ["approval_id"]
+            isOneToOne: false
+            referencedRelation: "action_approval_queue"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "verified_action_logs_otp_verification_id_fkey"
+            columns: ["otp_verification_id"]
+            isOneToOne: false
+            referencedRelation: "otp_verifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       voice_logs: {
         Row: {
           audio_path: string | null
@@ -11249,6 +11494,15 @@ export type Database = {
         Args: { admin_user_id: string; target_user_id: string }
         Returns: boolean
       }
+      generate_otp: {
+        Args: {
+          p_action_data?: Json
+          p_action_description?: string
+          p_otp_type: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       get_developer_id: { Args: { _user_id: string }; Returns: string }
       get_franchise_id: { Args: { _user_id: string }; Returns: string }
       get_influencer_id: { Args: { _user_id: string }; Returns: string }
@@ -11342,6 +11596,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      requires_otp_verification: {
+        Args: { p_action_type: string; p_user_id: string }
+        Returns: boolean
+      }
       update_online_status: {
         Args: { p_current_page?: string; p_is_online: boolean }
         Returns: boolean
@@ -11382,6 +11640,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      verify_otp: {
+        Args: { p_otp_code: string; p_otp_type: string; p_user_id: string }
+        Returns: Json
       }
     }
     Enums: {
