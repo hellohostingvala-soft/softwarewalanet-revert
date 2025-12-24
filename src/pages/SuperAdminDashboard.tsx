@@ -28,6 +28,10 @@ import FloatingChatButton from "@/components/admin/FloatingChatButton";
 import WelcomeBoss from "@/components/admin/WelcomeBoss";
 import ProductManager from "@/components/demo-manager/ProductManager";
 import ServerManagement from "@/components/admin/ServerManagement";
+import { SuperAdminApprovalQueue } from "@/components/admin/SuperAdminApprovalQueue";
+import { TwoFactorSettings } from "@/components/auth/TwoFactorSettings";
+import { TrustedDeviceManager } from "@/components/auth/TrustedDeviceManager";
+import { BackupCodesManager } from "@/components/auth/BackupCodesManager";
 import type { NotificationAlert } from "@/components/shared/GlobalNotificationHeader";
 
 type AdminView =
@@ -59,6 +63,8 @@ type AdminView =
   | "influencer"
   | "prime-users"
   | "server-management"
+  | "approval-queue"
+  | "2fa-settings"
   | "settings";
 
 // Sample notifications for demo
@@ -185,6 +191,18 @@ const SuperAdminDashboard = () => {
         return <AIInfluencerManager />;
       case "server-management":
         return <ServerManagement />;
+      case "approval-queue":
+        return <SuperAdminApprovalQueue />;
+      case "2fa-settings":
+        return (
+          <div className="space-y-6">
+            <TwoFactorSettings />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TrustedDeviceManager />
+              <BackupCodesManager />
+            </div>
+          </div>
+        );
       default:
         return <GlobalLiveControlCenter />;
     }

@@ -69,6 +69,8 @@ type AdminView =
   | "influencer"
   | "prime-users"
   | "server-management"
+  | "approval-queue"
+  | "2fa-settings"
   | "settings";
 
 interface AdminSidebarFullProps {
@@ -143,6 +145,8 @@ const AdminSidebarFull = ({ activeView, onViewChange }: AdminSidebarFullProps) =
     {
       title: "Security & System",
       items: [
+        { id: "approval-queue", label: "Approvals", icon: Shield },
+        { id: "2fa-settings", label: "2FA & Security", icon: KeyRound },
         { id: "roles", label: "Role Access", icon: Shield },
         { id: "users", label: "User Mgmt", icon: Users },
         { id: "security", label: "Security", icon: Lock },
