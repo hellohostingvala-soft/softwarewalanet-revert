@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.check-demo-health]
 verify_jwt = false
+
+[functions.ai-empathy-engine]
+verify_jwt = false
