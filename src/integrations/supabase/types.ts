@@ -7794,6 +7794,62 @@ export type Database = {
           },
         ]
       }
+      promise_fines: {
+        Row: {
+          applied_at: string
+          created_at: string
+          developer_id: string
+          fine_amount: number
+          fine_reason: string
+          fine_type: string
+          id: string
+          paid_at: string | null
+          promise_id: string
+          status: string
+          waived_at: string | null
+          waived_by: string | null
+          waiver_reason: string | null
+        }
+        Insert: {
+          applied_at?: string
+          created_at?: string
+          developer_id: string
+          fine_amount?: number
+          fine_reason: string
+          fine_type?: string
+          id?: string
+          paid_at?: string | null
+          promise_id: string
+          status?: string
+          waived_at?: string | null
+          waived_by?: string | null
+          waiver_reason?: string | null
+        }
+        Update: {
+          applied_at?: string
+          created_at?: string
+          developer_id?: string
+          fine_amount?: number
+          fine_reason?: string
+          fine_type?: string
+          id?: string
+          paid_at?: string | null
+          promise_id?: string
+          status?: string
+          waived_at?: string | null
+          waived_by?: string | null
+          waiver_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promise_fines_promise_id_fkey"
+            columns: ["promise_id"]
+            isOneToOne: false
+            referencedRelation: "promise_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       promise_logs: {
         Row: {
           acknowledged_at: string | null
@@ -7804,6 +7860,7 @@ export type Database = {
           extended_by: string | null
           extended_count: number | null
           extended_deadline: string | null
+          fine_amount: number | null
           finished_time: string | null
           id: string
           promise_time: string
@@ -7821,6 +7878,7 @@ export type Database = {
           extended_by?: string | null
           extended_count?: number | null
           extended_deadline?: string | null
+          fine_amount?: number | null
           finished_time?: string | null
           id?: string
           promise_time?: string
@@ -7838,6 +7896,7 @@ export type Database = {
           extended_by?: string | null
           extended_count?: number | null
           extended_deadline?: string | null
+          fine_amount?: number | null
           finished_time?: string | null
           id?: string
           promise_time?: string

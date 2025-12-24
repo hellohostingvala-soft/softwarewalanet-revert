@@ -35,6 +35,7 @@ import { BackupCodesManager } from "@/components/auth/BackupCodesManager";
 import ForceLogoutManager from "@/components/admin/ForceLogoutManager";
 import ApprovalsHub from "@/components/admin/ApprovalsHub";
 import PromiseManagement from "@/components/admin/PromiseManagement";
+import PromiseTracker from "@/components/admin/PromiseTracker";
 import AIManagementCenter from "@/components/admin/AIManagementCenter";
 import FranchiseKeyGenerator from "@/components/admin/FranchiseKeyGenerator";
 import ServerManagementHub from "@/components/admin/ServerManagementHub";
@@ -206,7 +207,7 @@ const SuperAdminDashboard = () => {
       case "force-logout":
         return <ForceLogoutManager />;
       case "promise-management":
-        return <PromiseManagement />;
+        return <PromiseTracker />;
       case "ai-management":
         return <AIManagementCenter />;
       case "franchise-keys":
