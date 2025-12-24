@@ -2,10 +2,12 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   X, Sparkles, Zap, Clock, User, Brain,
-  AlertTriangle, FileText, RefreshCw, Send, Bot, Target
+  AlertTriangle, FileText, Send, Bot, Target, Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import type { Task } from "@/pages/TaskManager";
 
 interface TaskAIPanelProps {
@@ -14,59 +16,123 @@ interface TaskAIPanelProps {
   task: Task | null;
 }
 
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 const TaskAIPanel = ({ isOpen, onClose, task }: TaskAIPanelProps) => {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const aiAnalysis = task ? {
-    complexity: "Medium-High",
-    estimatedTime: "4-6 hours",
-    delayRisk: "Low (15%)",
-    bestDeveloper: "vala(dev)4412",
-    reason: "Specializes in POS modules, 94% on-time delivery rate"
-  } : null;
-
-  const aiSuggestions = [
-    {
-      type: "assignment",
-      title: "Best Assignment",
-      suggestion: "Assign to vala(dev)4412 for optimal efficiency",
-      confidence: 94,
-      icon: User,
-    },
-    {
-      type: "time",
-      title: "Time Estimate",
-      suggestion: "Task complexity suggests 4-6 hours completion",
-      confidence: 88,
-      icon: Clock,
-    },
-    {
-      type: "risk",
-      title: "Delay Risk",
-      suggestion: "Low risk based on developer availability and task scope",
-      confidence: 92,
-      icon: AlertTriangle,
-    },
-    {
-      type: "subtasks",
-      title: "Subtask Breakdown",
-      suggestion: "AI can convert requirements into 5 actionable subtasks",
-      confidence: 86,
-      icon: Target,
-    },
+  const quickPrompts = [
+    { icon: User, label: "Best assignment", prompt: `Analyze task "${task?.title || 'this task'}" and suggest the best developer to assign based on skills and availability` },
+    { icon: Clock, label: "Time estimate", prompt: `Estimate the time required to complete task "${task?.title || 'this task'}" and break down the work involved` },
+    { icon: AlertTriangle, label: "Risk analysis", prompt: `Analyze potential risks and blockers for task "${task?.title || 'this task'}" and suggest mitigation strategies` },
+    { icon: Target, label: "Break into subtasks", prompt: `Break down task "${task?.title || 'this task'}" into actionable subtasks with estimated time for each` },
   ];
 
-  const clientComms = [
-    { name: "Progress Update", description: "Inform client about current status" },
-    { name: "Delay Notice", description: "Notify about potential delays" },
-    { name: "Completion Notice", description: "Announce task completion" },
-    { name: "Clarification Request", description: "Ask for more details" },
-  ];
+  const sendMessage = async (messageText: string) => {
+    if (!messageText.trim() || isLoading) return;
 
-  const handleAction = (action: string) => {
-    setIsProcessing(true);
-    setTimeout(() => setIsProcessing(false), 1500);
+    const userMessage: Message = { role: 'user', content: messageText };
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
+    setInput('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-task-assistant`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ 
+            messages: updatedMessages,
+            taskContext: task ? {
+              title: task.title,
+              description: task.description,
+              priority: task.priority,
+              status: task.status,
+              estimatedHours: task.estimatedHours,
+              assignedTo: task.assignedTo
+            } : null
+          }),
+        }
+      );
+
+      if (response.status === 429) {
+        toast.error('Rate limit exceeded. Please try again later.');
+        setIsLoading(false);
+        return;
+      }
+
+      if (response.status === 402) {
+        toast.error('AI credits exhausted. Please add funds.');
+        setIsLoading(false);
+        return;
+      }
+
+      if (!response.ok || !response.body) {
+        throw new Error('Failed to get response');
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let assistantContent = '';
+
+      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+
+      let textBuffer = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        textBuffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith('\r')) line = line.slice(0, -1);
+          if (line.startsWith(':') || line.trim() === '') continue;
+          if (!line.startsWith('data: ')) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === '[DONE]') break;
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantContent += content;
+              setMessages(prev => {
+                const newMessages = [...prev];
+                newMessages[newMessages.length - 1] = {
+                  role: 'assistant',
+                  content: assistantContent,
+                };
+                return newMessages;
+              });
+            }
+          } catch {
+            textBuffer = line + '\n' + textBuffer;
+            break;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Task AI Assistant error:', error);
+      toast.error('Failed to get AI response. Please try again.');
+      setMessages(prev => prev.slice(0, -1));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -91,13 +157,19 @@ const TaskAIPanel = ({ isOpen, onClose, task }: TaskAIPanelProps) => {
             className="fixed right-0 top-0 h-full w-[480px] bg-slate-900 border-l border-violet-500/20 z-50 flex flex-col"
           >
             {/* Header */}
-            <div className="p-4 border-b border-slate-700/50 flex items-center justify-between">
+            <div className="p-4 border-b border-slate-700/50 flex items-center justify-between bg-gradient-to-r from-violet-500/10 to-purple-500/10">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg">
                   <Brain className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white">AI Task Assistant</h3>
+                  <h3 className="font-semibold text-white flex items-center gap-2">
+                    AI Task Assistant
+                    <Badge className="bg-violet-500/20 text-violet-400 border-violet-500/30">
+                      <Sparkles className="w-3 h-3 mr-1" />
+                      Lovable AI
+                    </Badge>
+                  </h3>
                   <p className="text-xs text-violet-400">Intelligent task automation</p>
                 </div>
               </div>
@@ -106,125 +178,118 @@ const TaskAIPanel = ({ isOpen, onClose, task }: TaskAIPanelProps) => {
               </Button>
             </div>
 
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-6">
-              {/* Task Analysis */}
-              {aiAnalysis && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="p-4 bg-gradient-to-r from-violet-500/10 to-purple-500/10 rounded-xl border border-violet-500/30"
-                >
-                  <div className="flex items-center gap-2 mb-4">
-                    <Sparkles className="w-5 h-5 text-violet-400" />
-                    <span className="font-medium text-white">AI Analysis</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-xs text-slate-400">Complexity</p>
-                      <p className="text-sm font-medium text-white">{aiAnalysis.complexity}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-400">Estimated Time</p>
-                      <p className="text-sm font-medium text-white">{aiAnalysis.estimatedTime}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-400">Delay Risk</p>
-                      <p className="text-sm font-medium text-green-400">{aiAnalysis.delayRisk}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-400">Best Fit</p>
-                      <p className="text-sm font-medium text-violet-400">{aiAnalysis.bestDeveloper}</p>
-                    </div>
-                  </div>
-                  <p className="text-xs text-slate-400 mt-3 p-2 bg-slate-800/50 rounded">
-                    💡 {aiAnalysis.reason}
-                  </p>
-                </motion.div>
-              )}
-
-              {/* AI Suggestions */}
-              <div>
-                <h4 className="text-sm font-semibold text-white mb-3">AI Recommendations</h4>
-                <div className="space-y-3">
-                  {aiSuggestions.map((item, index) => (
-                    <motion.div
-                      key={item.type}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="p-4 bg-slate-800/50 rounded-xl border border-slate-700/50 hover:border-violet-500/30 transition-all"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="p-2 bg-violet-500/20 rounded-lg">
-                          <item.icon className="w-4 h-4 text-violet-400" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium text-white">{item.title}</span>
-                            <span className="text-xs text-green-400">{item.confidence}% confidence</span>
-                          </div>
-                          <p className="text-sm text-slate-400">{item.suggestion}</p>
-                        </div>
-                      </div>
-                      <Button 
-                        size="sm" 
-                        className="w-full mt-3 bg-violet-500/20 text-violet-300 hover:bg-violet-500/30"
-                        onClick={() => handleAction(item.type)}
-                        disabled={isProcessing}
-                      >
-                        {isProcessing ? (
-                          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                        ) : (
-                          <Zap className="w-4 h-4 mr-2" />
-                        )}
-                        Apply
-                      </Button>
-                    </motion.div>
-                  ))}
+            {/* Task Context */}
+            {task && (
+              <div className="p-3 border-b border-slate-700/50 bg-slate-800/30">
+                <p className="text-xs text-slate-400 mb-1">Current Task:</p>
+                <p className="text-sm font-medium text-white truncate">{task.title}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge className={`text-[10px] ${
+                    task.priority === 'critical' ? 'bg-red-500/20 text-red-400' :
+                    task.priority === 'high' ? 'bg-orange-500/20 text-orange-400' :
+                    task.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                    'bg-green-500/20 text-green-400'
+                  }`}>
+                    {task.priority}
+                  </Badge>
+                  <Badge className="text-[10px] bg-slate-700/50 text-slate-400">
+                    {task.status.replace('_', ' ')}
+                  </Badge>
                 </div>
               </div>
+            )}
 
-              {/* Client Communication Drafts */}
-              <div>
-                <h4 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-violet-400" />
-                  Draft Client Communication
-                </h4>
+            {/* Quick Prompts */}
+            {messages.length === 0 && (
+              <div className="p-4 border-b border-slate-700/50">
+                <p className="text-xs text-slate-400 mb-3">Quick actions:</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {clientComms.map((comm, index) => (
+                  {quickPrompts.map((item, index) => (
                     <motion.button
-                      key={comm.name}
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: index * 0.05 }}
-                      whileHover={{ scale: 1.02 }}
-                      className="p-3 bg-slate-800/50 rounded-lg border border-slate-700/50 text-left hover:border-violet-500/30 transition-all"
+                      key={index}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      onClick={() => sendMessage(item.prompt)}
+                      className="flex items-center gap-2 p-3 rounded-lg bg-slate-800/50 border border-violet-500/20 hover:bg-violet-500/10 hover:border-violet-500/40 transition-colors text-left"
                     >
-                      <p className="text-sm font-medium text-white">{comm.name}</p>
-                      <p className="text-xs text-slate-400">{comm.description}</p>
+                      <item.icon className="w-4 h-4 text-violet-400" />
+                      <span className="text-xs text-slate-300">{item.label}</span>
                     </motion.button>
                   ))}
                 </div>
               </div>
+            )}
 
-              {/* AI Chat */}
-              <div className="bg-slate-800/50 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Bot className="w-4 h-4 text-violet-400" />
-                  <span className="text-sm font-medium text-white">Ask AI</span>
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {messages.length === 0 && (
+                <div className="text-center py-8">
+                  <Bot className="w-12 h-12 text-violet-500/30 mx-auto mb-3" />
+                  <p className="text-sm text-slate-400">
+                    Ask me anything about task management, assignments, estimates, or workflow optimization.
+                  </p>
                 </div>
-                <div className="flex gap-2">
-                  <Input
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Ask about this task..."
-                    className="bg-slate-900/50 border-slate-600"
-                  />
-                  <Button className="bg-violet-500 hover:bg-violet-600 px-3">
+              )}
+              
+              {messages.map((message, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[85%] p-3 rounded-xl ${
+                      message.role === 'user'
+                        ? 'bg-violet-500/20 border border-violet-500/30 text-white'
+                        : 'bg-slate-800/50 border border-slate-700/50 text-slate-300'
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  </div>
+                </motion.div>
+              ))}
+              
+              {isLoading && messages[messages.length - 1]?.role === 'user' && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex justify-start"
+                >
+                  <div className="p-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
+                    <Loader2 className="w-5 h-5 text-violet-400 animate-spin" />
+                  </div>
+                </motion.div>
+              )}
+            </div>
+
+            {/* Input */}
+            <div className="p-4 border-t border-slate-700/50 bg-slate-900/50">
+              <div className="flex gap-2">
+                <Textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      sendMessage(input);
+                    }
+                  }}
+                  placeholder="Ask about task assignment, estimates, risks..."
+                  className="flex-1 min-h-[44px] max-h-32 bg-slate-800/50 border-violet-500/20 resize-none"
+                />
+                <Button
+                  onClick={() => sendMessage(input)}
+                  disabled={!input.trim() || isLoading}
+                  className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
                     <Send className="w-4 h-4" />
-                  </Button>
-                </div>
+                  )}
+                </Button>
               </div>
             </div>
           </motion.div>
