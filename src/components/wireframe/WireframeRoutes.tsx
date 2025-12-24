@@ -23,6 +23,10 @@ import { ProductLibraryScreen } from './screens/ProductLibraryScreen';
 import { SupportDashboardScreen } from './screens/SupportDashboardScreen';
 import { SalesDashboardScreen } from './screens/SalesDashboardScreen';
 import { AIConsoleScreen } from './screens/AIConsoleScreen';
+// New Role Screens (25-28)
+import { SafeAssistScreen } from './screens/SafeAssistScreen';
+import { AssistManagerScreen } from './screens/AssistManagerScreen';
+import { PromiseTrackerScreen } from './screens/PromiseTrackerScreen';
 
 // Placeholder for remaining screens
 function PlaceholderScreen({ title }: { title: string }) {
@@ -67,9 +71,9 @@ export function WireframeRoutes() {
         <Route path="settings" element={<PlaceholderScreen title="Settings" />} />
         <Route path="user" element={<PlaceholderScreen title="User Dashboard" />} />
         {/* Roles 25-28 */}
-        <Route path="safe-assist" element={<PlaceholderScreen title="25. Safe Assist" />} />
-        <Route path="assist-manager" element={<PlaceholderScreen title="26. Assist Manager" />} />
-        <Route path="promise-tracker" element={<PlaceholderScreen title="27. Promise Tracker" />} />
+        <Route path="safe-assist" element={<SafeAssistScreen />} />
+        <Route path="assist-manager" element={<AssistManagerScreen />} />
+        <Route path="promise-tracker" element={<PromiseTrackerScreen />} />
         <Route path="promise-management" element={<PlaceholderScreen title="28. Promise Management" />} />
       </Route>
     </Routes>
