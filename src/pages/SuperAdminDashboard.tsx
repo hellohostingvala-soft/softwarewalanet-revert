@@ -27,6 +27,7 @@ import LiveAlertGrid from "@/components/admin/LiveAlertGrid";
 import FloatingChatButton from "@/components/admin/FloatingChatButton";
 import WelcomeBoss from "@/components/admin/WelcomeBoss";
 import ProductManager from "@/components/demo-manager/ProductManager";
+import ServerManagement from "@/components/admin/ServerManagement";
 import type { NotificationAlert } from "@/components/shared/GlobalNotificationHeader";
 
 type AdminView =
@@ -57,6 +58,7 @@ type AdminView =
   | "demo-product"
   | "influencer"
   | "prime-users"
+  | "server-management"
   | "settings";
 
 // Sample notifications for demo
@@ -181,6 +183,8 @@ const SuperAdminDashboard = () => {
         return <ProductManager viewOnly={true} />;
       case "influencer":
         return <AIInfluencerManager />;
+      case "server-management":
+        return <ServerManagement />;
       default:
         return <GlobalLiveControlCenter />;
     }

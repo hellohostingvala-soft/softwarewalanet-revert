@@ -32,7 +32,8 @@ import {
   Crown,
   Settings,
   LogOut,
-  KeyRound
+  KeyRound,
+  Server
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -67,6 +68,7 @@ type AdminView =
   | "demo-product"
   | "influencer"
   | "prime-users"
+  | "server-management"
   | "settings";
 
 interface AdminSidebarFullProps {
@@ -125,6 +127,7 @@ const AdminSidebarFull = ({ activeView, onViewChange }: AdminSidebarFullProps) =
       items: [
         { id: "demo-product", label: "Product/Demo", icon: Monitor },
         { id: "rnd", label: "R&D", icon: Lightbulb },
+        { id: "server-management", label: "Servers", icon: Server },
       ]
     },
     {

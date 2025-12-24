@@ -581,6 +581,80 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_schedules: {
+        Row: {
+          backup_type: string
+          created_at: string
+          created_by: string | null
+          cron_expression: string | null
+          failure_count: number | null
+          frequency: string
+          id: string
+          is_active: boolean | null
+          last_run_at: string | null
+          max_backups: number | null
+          next_run_at: string | null
+          notification_emails: string[] | null
+          notify_on_failure: boolean | null
+          notify_on_success: boolean | null
+          retention_days: number | null
+          schedule_name: string
+          server_id: string | null
+          success_count: number | null
+          updated_at: string
+        }
+        Insert: {
+          backup_type: string
+          created_at?: string
+          created_by?: string | null
+          cron_expression?: string | null
+          failure_count?: number | null
+          frequency: string
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          max_backups?: number | null
+          next_run_at?: string | null
+          notification_emails?: string[] | null
+          notify_on_failure?: boolean | null
+          notify_on_success?: boolean | null
+          retention_days?: number | null
+          schedule_name: string
+          server_id?: string | null
+          success_count?: number | null
+          updated_at?: string
+        }
+        Update: {
+          backup_type?: string
+          created_at?: string
+          created_by?: string | null
+          cron_expression?: string | null
+          failure_count?: number | null
+          frequency?: string
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          max_backups?: number | null
+          next_run_at?: string | null
+          notification_emails?: string[] | null
+          notify_on_failure?: boolean | null
+          notify_on_success?: boolean | null
+          retention_days?: number | null
+          schedule_name?: string
+          server_id?: string | null
+          success_count?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "backup_schedules_server_id_fkey"
+            columns: ["server_id"]
+            isOneToOne: false
+            referencedRelation: "server_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       behavior_analytics: {
         Row: {
           anomaly_flags: string[] | null
@@ -9400,6 +9474,279 @@ export type Database = {
             columns: ["keyword_id"]
             isOneToOne: false
             referencedRelation: "seo_keywords"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      server_backups: {
+        Row: {
+          backup_name: string
+          backup_type: string
+          checksum: string | null
+          completed_at: string | null
+          created_at: string
+          encryption_enabled: boolean | null
+          encryption_key_id: string | null
+          error_message: string | null
+          expires_at: string | null
+          id: string
+          is_auto_backup: boolean | null
+          metadata: Json | null
+          restore_point_id: string | null
+          retention_days: number | null
+          server_id: string | null
+          size_gb: number | null
+          started_at: string | null
+          status: string | null
+          storage_location: string | null
+          triggered_by: string | null
+        }
+        Insert: {
+          backup_name: string
+          backup_type: string
+          checksum?: string | null
+          completed_at?: string | null
+          created_at?: string
+          encryption_enabled?: boolean | null
+          encryption_key_id?: string | null
+          error_message?: string | null
+          expires_at?: string | null
+          id?: string
+          is_auto_backup?: boolean | null
+          metadata?: Json | null
+          restore_point_id?: string | null
+          retention_days?: number | null
+          server_id?: string | null
+          size_gb?: number | null
+          started_at?: string | null
+          status?: string | null
+          storage_location?: string | null
+          triggered_by?: string | null
+        }
+        Update: {
+          backup_name?: string
+          backup_type?: string
+          checksum?: string | null
+          completed_at?: string | null
+          created_at?: string
+          encryption_enabled?: boolean | null
+          encryption_key_id?: string | null
+          error_message?: string | null
+          expires_at?: string | null
+          id?: string
+          is_auto_backup?: boolean | null
+          metadata?: Json | null
+          restore_point_id?: string | null
+          retention_days?: number | null
+          server_id?: string | null
+          size_gb?: number | null
+          started_at?: string | null
+          status?: string | null
+          storage_location?: string | null
+          triggered_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "server_backups_server_id_fkey"
+            columns: ["server_id"]
+            isOneToOne: false
+            referencedRelation: "server_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      server_instances: {
+        Row: {
+          auto_scaling_enabled: boolean | null
+          auto_setup_completed: boolean | null
+          cpu_cores: number | null
+          created_at: string
+          created_by: string | null
+          current_cpu_usage: number | null
+          current_disk_usage: number | null
+          current_memory_usage: number | null
+          health_status: string | null
+          id: string
+          ip_address: string | null
+          last_health_check: string | null
+          max_instances: number | null
+          min_instances: number | null
+          os_type: string | null
+          ram_gb: number | null
+          region: string
+          server_code: string
+          server_name: string
+          server_type: string
+          setup_config: Json | null
+          status: string | null
+          storage_gb: number | null
+          tags: string[] | null
+          updated_at: string
+          uptime_percentage: number | null
+        }
+        Insert: {
+          auto_scaling_enabled?: boolean | null
+          auto_setup_completed?: boolean | null
+          cpu_cores?: number | null
+          created_at?: string
+          created_by?: string | null
+          current_cpu_usage?: number | null
+          current_disk_usage?: number | null
+          current_memory_usage?: number | null
+          health_status?: string | null
+          id?: string
+          ip_address?: string | null
+          last_health_check?: string | null
+          max_instances?: number | null
+          min_instances?: number | null
+          os_type?: string | null
+          ram_gb?: number | null
+          region: string
+          server_code: string
+          server_name: string
+          server_type: string
+          setup_config?: Json | null
+          status?: string | null
+          storage_gb?: number | null
+          tags?: string[] | null
+          updated_at?: string
+          uptime_percentage?: number | null
+        }
+        Update: {
+          auto_scaling_enabled?: boolean | null
+          auto_setup_completed?: boolean | null
+          cpu_cores?: number | null
+          created_at?: string
+          created_by?: string | null
+          current_cpu_usage?: number | null
+          current_disk_usage?: number | null
+          current_memory_usage?: number | null
+          health_status?: string | null
+          id?: string
+          ip_address?: string | null
+          last_health_check?: string | null
+          max_instances?: number | null
+          min_instances?: number | null
+          os_type?: string | null
+          ram_gb?: number | null
+          region?: string
+          server_code?: string
+          server_name?: string
+          server_type?: string
+          setup_config?: Json | null
+          status?: string | null
+          storage_gb?: number | null
+          tags?: string[] | null
+          updated_at?: string
+          uptime_percentage?: number | null
+        }
+        Relationships: []
+      }
+      server_metrics_history: {
+        Row: {
+          active_connections: number | null
+          cpu_usage: number | null
+          disk_usage: number | null
+          error_count: number | null
+          id: string
+          memory_usage: number | null
+          network_in_mbps: number | null
+          network_out_mbps: number | null
+          recorded_at: string
+          request_count: number | null
+          response_time_ms: number | null
+          server_id: string | null
+        }
+        Insert: {
+          active_connections?: number | null
+          cpu_usage?: number | null
+          disk_usage?: number | null
+          error_count?: number | null
+          id?: string
+          memory_usage?: number | null
+          network_in_mbps?: number | null
+          network_out_mbps?: number | null
+          recorded_at?: string
+          request_count?: number | null
+          response_time_ms?: number | null
+          server_id?: string | null
+        }
+        Update: {
+          active_connections?: number | null
+          cpu_usage?: number | null
+          disk_usage?: number | null
+          error_count?: number | null
+          id?: string
+          memory_usage?: number | null
+          network_in_mbps?: number | null
+          network_out_mbps?: number | null
+          recorded_at?: string
+          request_count?: number | null
+          response_time_ms?: number | null
+          server_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "server_metrics_history_server_id_fkey"
+            columns: ["server_id"]
+            isOneToOne: false
+            referencedRelation: "server_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      server_setup_logs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          duration_seconds: number | null
+          error_message: string | null
+          id: string
+          max_retries: number | null
+          output: string | null
+          retry_count: number | null
+          server_id: string | null
+          started_at: string | null
+          status: string | null
+          step_name: string
+          step_order: number
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          error_message?: string | null
+          id?: string
+          max_retries?: number | null
+          output?: string | null
+          retry_count?: number | null
+          server_id?: string | null
+          started_at?: string | null
+          status?: string | null
+          step_name: string
+          step_order: number
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          error_message?: string | null
+          id?: string
+          max_retries?: number | null
+          output?: string | null
+          retry_count?: number | null
+          server_id?: string | null
+          started_at?: string | null
+          status?: string | null
+          step_name?: string
+          step_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "server_setup_logs_server_id_fkey"
+            columns: ["server_id"]
+            isOneToOne: false
+            referencedRelation: "server_instances"
             referencedColumns: ["id"]
           },
         ]
