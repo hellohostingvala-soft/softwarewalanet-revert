@@ -2,10 +2,13 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { 
   CheckSquare, Search, Filter, Sparkles, Bell, Settings,
-  Clock, Plus, ChevronDown, Timer
+  Clock, Plus, ChevronDown, Timer, Bot
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
+import { ROLES } from "@/config/roles";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +22,9 @@ interface TaskManagerTopBarProps {
 
 const TaskManagerTopBar = ({ onAIClick }: TaskManagerTopBarProps) => {
   const [hasNotifications] = useState(true);
+  const { user } = useAuth();
+
+  const userName = user?.email?.split('@')[0] || 'Task Manager';
 
   const filters = [
     { id: "all", label: "All Tasks" },
@@ -51,8 +57,15 @@ const TaskManagerTopBar = ({ onAIClick }: TaskManagerTopBarProps) => {
             </motion.div>
           </div>
           <div>
-            <h1 className="text-lg font-bold text-white">Task Manager</h1>
-            <p className="text-xs text-violet-400">Workflow Control Center</p>
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg font-bold text-white">Task Command Center</h1>
+              <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-[10px] uppercase">
+                {ROLES.TASK_MANAGER}
+              </Badge>
+            </div>
+            <p className="text-xs text-violet-400">
+              Welcome back, <span className="text-purple-300 font-medium">{userName}</span>
+            </p>
           </div>
         </motion.div>
       </div>
@@ -136,18 +149,14 @@ const TaskManagerTopBar = ({ onAIClick }: TaskManagerTopBarProps) => {
           Create Task
         </Button>
 
-        <div className="text-right mr-2">
-          <p className="text-sm font-medium text-white">vala(admin)***</p>
-          <p className="text-xs text-violet-400">Super Admin</p>
-        </div>
-
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={onAIClick}
-          className="p-2 bg-gradient-to-r from-violet-500/20 to-purple-500/20 rounded-lg border border-violet-500/30 hover:border-violet-400/50 transition-colors"
+          className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-violet-500/20 to-purple-500/20 rounded-lg border border-violet-500/30 hover:border-violet-400/50 transition-colors"
         >
-          <Sparkles className="w-5 h-5 text-violet-400" />
+          <Bot className="w-4 h-4 text-violet-400" />
+          <span className="text-xs text-violet-300 font-medium">AI Assistant</span>
         </motion.button>
 
         <motion.button
@@ -163,14 +172,6 @@ const TaskManagerTopBar = ({ onAIClick }: TaskManagerTopBarProps) => {
               transition={{ duration: 1.5, repeat: Infinity }}
             />
           )}
-        </motion.button>
-
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="p-2 bg-slate-800/50 rounded-lg border border-slate-700 hover:border-violet-500/30 transition-colors"
-        >
-          <Settings className="w-5 h-5 text-slate-400" />
         </motion.button>
       </div>
     </motion.header>

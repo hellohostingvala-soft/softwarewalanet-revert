@@ -1,17 +1,21 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  LayoutDashboard, Users, Wallet, ClipboardList, Bell, 
-  User, BarChart3, Monitor, Zap, CheckSquare, Timer, 
-  GitBranch, FileCheck, Calendar, MessageSquare, History, AlertTriangle, Plus
+  CheckSquare, Wallet, AlertTriangle, Plus, Timer,
+  GitBranch, FileCheck, Calendar, MessageSquare, History,
+  BarChart3, LogOut, Lock, Settings
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { ROLES } from "@/config/roles";
 import TaskManagerTopBar from "@/components/tasks/TaskManagerTopBar";
 import TaskPipeline from "@/components/tasks/TaskPipeline";
 import TaskDetails from "@/components/tasks/TaskDetails";
 import TaskAIPanel from "@/components/tasks/TaskAIPanel";
 import TaskNotifications from "@/components/tasks/TaskNotifications";
 import TaskPerformance from "@/components/tasks/TaskPerformance";
-import TaskWalletPanel from "@/components/tasks/TaskWalletPanel";
 import TaskCreationPanel from "@/components/tasks/TaskCreationPanel";
 import TaskTimerSLA from "@/components/tasks/TaskTimerSLA";
 import TaskBuzzerAlert from "@/components/tasks/TaskBuzzerAlert";
@@ -51,10 +55,20 @@ const TaskManager = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showAIPanel, setShowAIPanel] = useState(false);
   const [showCreateTask, setShowCreateTask] = useState(false);
+  const navigate = useNavigate();
+  const { signOut, user } = useAuth();
   const [notifications, setNotifications] = useState([
     { id: "1", message: "Task accepted. Timer started. Please deliver before the promised window.", type: "success", time: "Just now" },
     { id: "2", message: "New task assigned: POS Module Enhancement", type: "info", time: "5 min ago" },
   ]);
+
+  const userName = user?.email?.split('@')[0] || 'Task Manager';
+
+  const handleLogout = async () => {
+    await signOut();
+    toast.success('Logged out successfully');
+    navigate('/login');
+  };
 
   const sidebarItems = [
     { id: "pipeline", label: "Task Pipeline", icon: CheckSquare },
@@ -66,7 +80,6 @@ const TaskManager = () => {
     { id: "chat", label: "Task Chat", icon: MessageSquare },
     { id: "history", label: "History & Logs", icon: History },
     { id: "performance", label: "Performance", icon: BarChart3 },
-    { id: "wallet", label: "Wallet", icon: Wallet },
   ];
 
   const dismissNotification = (id: string) => {
@@ -99,8 +112,6 @@ const TaskManager = () => {
         return <TaskHistoryLogs />;
       case "performance":
         return <TaskPerformance />;
-      case "wallet":
-        return <TaskWalletPanel />;
       default:
         return <TaskPipeline onSelectTask={setSelectedTask} selectedTask={selectedTask} />;
     }
@@ -155,9 +166,27 @@ const TaskManager = () => {
         <motion.aside
           initial={{ x: -100, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
-          className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 bg-slate-900/60 backdrop-blur-xl border-r border-violet-500/20 z-40"
+          className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 bg-slate-900/60 backdrop-blur-xl border-r border-violet-500/20 z-40 flex flex-col"
         >
-          <div className="p-4 space-y-2">
+          {/* User Profile */}
+          <div className="p-4 border-b border-violet-500/10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                <span className="text-white font-bold text-sm">
+                  {userName.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white truncate">{userName}</p>
+                <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-[9px] uppercase mt-0.5">
+                  {ROLES.TASK_MANAGER}
+                </Badge>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex-1 p-4 space-y-2 overflow-y-auto">
             {sidebarItems.map((item) => (
               <motion.button
                 key={item.id}
@@ -174,6 +203,11 @@ const TaskManager = () => {
                   activeSection === item.id ? "text-violet-400" : "group-hover:text-violet-400"
                 }`} />
                 <span className="text-sm font-medium">{item.label}</span>
+                {item.badge && (
+                  <span className="ml-auto px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-violet-500 text-white">
+                    {item.badge}
+                  </span>
+                )}
                 {activeSection === item.id && (
                   <motion.div
                     layoutId="activeTaskIndicator"
@@ -184,17 +218,42 @@ const TaskManager = () => {
             ))}
           </div>
 
-          {/* Quick Action */}
-          <div className="absolute bottom-4 left-4 right-4">
+          {/* Bottom Actions */}
+          <div className="p-4 space-y-2 border-t border-violet-500/10">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowCreateTask(true)}
-              className="w-full py-3 px-4 bg-gradient-to-r from-violet-500 to-purple-600 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-violet-500/25"
+              className="w-full py-2.5 px-4 bg-gradient-to-r from-violet-500 to-purple-600 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-violet-500/25"
             >
               <Plus className="w-4 h-4" />
               Create Task
             </motion.button>
+            
+            <div className="flex gap-2">
+              <button
+                onClick={() => navigate('/change-password')}
+                className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-slate-800/50 border border-violet-500/20 text-violet-300 text-xs hover:bg-slate-800 transition-colors"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                Password
+              </button>
+              <button
+                onClick={() => navigate('/settings')}
+                className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-slate-800/50 border border-violet-500/20 text-violet-300 text-xs hover:bg-slate-800 transition-colors"
+              >
+                <Settings className="w-3.5 h-3.5" />
+                Settings
+              </button>
+            </div>
+            
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium hover:bg-red-500/20 transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
           </div>
         </motion.aside>
 
