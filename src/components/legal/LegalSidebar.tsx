@@ -14,7 +14,8 @@ import {
   Sparkles,
   LogOut,
   Settings,
-  KeyRound
+  KeyRound,
+  ArrowLeft
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -89,14 +90,23 @@ const LegalSidebar = ({ activeSection, setActiveSection }: LegalSidebarProps) =>
         </Badge>
         
         {/* Action Buttons */}
-        <div className="flex gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate("/dashboard")}
+          className="w-full mb-2 bg-slate-800/50 border-slate-700/50 text-slate-300 hover:bg-slate-700/50 hover:text-white"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+          Back to Dashboard
+        </Button>
+        <div className="flex gap-2 mb-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate("/settings")}
+            onClick={() => navigate("/change-password")}
             className="flex-1 bg-slate-800/50 border-slate-700/50 text-slate-300 hover:bg-slate-700/50 hover:text-white"
           >
-            <KeyRound className="w-3.5 h-3.5 mr-1" />
+            <Lock className="w-3.5 h-3.5 mr-1" />
             Password
           </Button>
           <Button
@@ -109,6 +119,15 @@ const LegalSidebar = ({ activeSection, setActiveSection }: LegalSidebarProps) =>
             Settings
           </Button>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate("/forgot-password")}
+          className="w-full bg-slate-800/50 border-slate-700/50 text-slate-300 hover:bg-slate-700/50 hover:text-white"
+        >
+          <KeyRound className="w-3.5 h-3.5 mr-1" />
+          Forgot Password
+        </Button>
         
         {/* Status Badge */}
         <motion.div 
