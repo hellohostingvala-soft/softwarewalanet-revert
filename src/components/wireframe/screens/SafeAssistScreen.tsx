@@ -52,8 +52,8 @@ const getSeverityColor = (severity: string) => {
 };
 
 export function SafeAssistScreen() {
-  const [sessionCode, setSessionCode] = useState('');
-  
+  // Safe Assist role is view-only - no session code input needed
+
   const { data: sessions, isLoading: sessionsLoading, refetch: refetchSessions } = useSafeAssistSessions();
   const { data: alerts, isLoading: alertsLoading, refetch: refetchAlerts } = useSafeAssistAlerts();
   const { data: metrics, isLoading: metricsLoading, refetch: refetchMetrics } = useSafeAssistMetrics();
@@ -71,6 +71,19 @@ export function SafeAssistScreen() {
 
   return (
     <div className="space-y-6">
+      {/* Security Notice Banner */}
+      <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+        <div className="flex items-center gap-3">
+          <Shield className="h-6 w-6 text-green-500" />
+          <div>
+            <h3 className="font-medium text-green-400">Zero-Trust Security Active</h3>
+            <p className="text-xs text-muted-foreground">
+              All sessions are AI-monitored • Dual verification required • Forbidden actions blocked • Full audit trail
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -79,25 +92,13 @@ export function SafeAssistScreen() {
           </div>
           <div>
             <h1 className="text-3xl font-bold">Safe Assist</h1>
-            <p className="text-muted-foreground">AI-Monitored Remote Support Sessions</p>
+            <p className="text-muted-foreground">AI-Monitored Remote Support Sessions (View Only)</p>
           </div>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="icon" onClick={handleRefresh}>
             <RefreshCw className="h-4 w-4" />
           </Button>
-          <div className="flex items-center gap-2">
-            <Input 
-              placeholder="Enter session code..." 
-              value={sessionCode}
-              onChange={(e) => setSessionCode(e.target.value)}
-              className="w-48"
-            />
-            <Button>
-              <Video className="h-4 w-4 mr-2" />
-              Join Session
-            </Button>
-          </div>
         </div>
       </div>
 
