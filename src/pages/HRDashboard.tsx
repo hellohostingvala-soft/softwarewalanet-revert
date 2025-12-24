@@ -5,6 +5,7 @@ import HRTopBar from '@/components/hr/HRTopBar';
 import HRDashboard from '@/components/hr/HRDashboard';
 import HiringPipeline from '@/components/hr/HiringPipeline';
 import TrainingPrograms from '@/components/hr/TrainingPrograms';
+import AIHRAssistant from '@/components/hr/AIHRAssistant';
 
 const HRDashboardPage = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -13,6 +14,8 @@ const HRDashboardPage = () => {
     switch (activeSection) {
       case 'dashboard':
         return <HRDashboard />;
+      case 'ai-assistant':
+        return <AIHRAssistant />;
       case 'hiring':
         return <HiringPipeline />;
       case 'training':

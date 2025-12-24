@@ -47,3 +47,6 @@ verify_jwt = false
 
 [functions.ai-performance-coach]
 verify_jwt = false
+
+[functions.ai-hr-assistant]
+verify_jwt = false

@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, Users, UserPlus, GraduationCap, ClipboardCheck,
   FileText, Award, Calendar, Settings, ChevronLeft, ChevronRight,
-  Briefcase, Target, TrendingUp, LogOut, Lock
+  Briefcase, Target, TrendingUp, LogOut, Lock, Sparkles
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from "@/hooks/useAuth";
@@ -17,6 +17,7 @@ interface HRSidebarProps {
 
 const menuItems = [
   { id: 'dashboard', label: 'HR Dashboard', icon: LayoutDashboard },
+  { id: 'ai-assistant', label: 'AI HR Assistant', icon: Sparkles, highlight: true },
   { id: 'hiring', label: 'Hiring Pipeline', icon: UserPlus, badge: 8 },
   { id: 'candidates', label: 'Candidates', icon: Users },
   { id: 'onboarding', label: 'Onboarding', icon: ClipboardCheck },
