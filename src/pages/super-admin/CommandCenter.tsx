@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import { Badge } from '@/components/ui/badge';
@@ -71,15 +71,14 @@ const getIconForRole = (role: AppRole): LucideIcon => {
 };
 
 // Role Activity Card Component - 2x2 style with teal theme
-const RoleActivityCard = ({ 
-  role, 
-  stats, 
-  index 
-}: { 
+interface RoleActivityCardProps {
   role: AppRole;
   stats: { active: number; pending: number; done: number };
   index: number;
-}) => {
+}
+
+const RoleActivityCard = forwardRef<HTMLDivElement, RoleActivityCardProps>(
+  ({ role, stats, index }, ref) => {
   const config = ROLE_CONFIG[role];
   const Icon = getIconForRole(role);
   const total = stats.active + stats.pending + stats.done;
@@ -181,7 +180,8 @@ const RoleActivityCard = ({
       </div>
     </motion.div>
   );
-};
+});
+RoleActivityCard.displayName = "RoleActivityCard";
 
 // Stats Card for Command Center Header
 const HeaderStatCard = ({ 
