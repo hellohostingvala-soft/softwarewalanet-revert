@@ -24,15 +24,17 @@ import ResellerDash from '@/components/reseller/ResellerDash';
 import AIMonitoringCenter from '@/components/reseller/AIMonitoringCenter';
 import AILeadScoring from '@/components/reseller/AILeadScoring';
 import AIResellerAssistant from '@/components/reseller/AIResellerAssistant';
+import ResellerAICredits from '@/components/reseller/ResellerAICredits';
 
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'monitoring', label: 'AI Monitoring', icon: Radar, badge: 'AI', isAI: true },
   { id: 'scoring', label: 'Lead Scoring', icon: Brain, badge: 'AI', isAI: true },
   { id: 'assistant', label: 'AI Assistant', icon: Sparkles, badge: 'AI', isAI: true },
+  { id: 'ai-credits', label: 'AI Credits', icon: Brain, badge: 'PAID', isAI: true },
   { id: 'leads', label: 'Lead Inbox', icon: Users, badge: 12 },
   { id: 'demos', label: 'Demo Sharing', icon: Link2 },
-  { id: 'wallet', label: 'Wallet', icon: Wallet },
+  { id: 'wallet', label: 'Wallet (20%)', icon: Wallet },
   { id: 'targets', label: 'Targets', icon: Target },
   { id: 'performance', label: 'Performance', icon: BarChart3 },
 ];
@@ -54,6 +56,7 @@ const ResellerDashboard = () => {
       case 'monitoring': return <AIMonitoringCenter />;
       case 'scoring': return <AILeadScoring />;
       case 'assistant': return <AIResellerAssistant />;
+      case 'ai-credits': return <ResellerAICredits />;
       case 'leads': return <LeadInboxReseller />;
       case 'demos': return <DemoSharingHub />;
       case 'wallet': return <ResellerWallet />;
