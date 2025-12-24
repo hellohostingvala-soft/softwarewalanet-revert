@@ -7,7 +7,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
-import { ROLES } from '@/config/roles';
 
 interface IncidentCrisisTopBarProps {
   onNotificationClick: () => void;
@@ -71,7 +70,7 @@ const IncidentCrisisTopBar = ({
                 Crisis Command Center
               </h1>
               <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-[10px] uppercase">
-                {ROLES.INCIDENT_CRISIS_RESPONSE_MANAGER}
+                Crisis Response
               </Badge>
             </div>
             <p className="text-xs text-slate-400">

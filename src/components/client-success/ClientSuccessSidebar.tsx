@@ -18,7 +18,6 @@ import softwareValaLogo from '@/assets/software-vala-logo.png';
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { RoleBadge } from "@/components/ui/RoleBadge";
-import { ROLES } from "@/config/roles";
 
 interface ClientSuccessSidebarProps {
   userName?: string;
@@ -123,7 +122,7 @@ export const ClientSuccessSidebar = ({ userName = "Manager" }: ClientSuccessSide
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm text-slate-700 font-medium truncate">{userName}</p>
-            <RoleBadge role={ROLES.CLIENT_SUCCESS_MANAGER} size="sm" showTooltip={false} />
+            <RoleBadge role="client_success" size="sm" showTooltip={false} />
           </div>
         </div>
 

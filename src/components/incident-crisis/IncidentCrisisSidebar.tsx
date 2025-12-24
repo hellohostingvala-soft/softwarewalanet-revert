@@ -8,7 +8,6 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
-import { ROLES } from '@/config/roles';
 
 interface IncidentCrisisSidebarProps {
   activeSection: string;
@@ -58,7 +57,7 @@ const IncidentCrisisSidebar = ({ activeSection, onSectionChange }: IncidentCrisi
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-white truncate">{userName}</p>
             <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-[9px] uppercase mt-0.5">
-              {ROLES.INCIDENT_CRISIS_RESPONSE_MANAGER}
+              Support Manager
             </Badge>
           </div>
         </div>
