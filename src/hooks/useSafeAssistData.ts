@@ -1,5 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useEffect } from 'react';
 
 export interface SafeAssistSession {
   id: string;
@@ -39,6 +40,20 @@ export interface SafeAssistMetrics {
 }
 
 export function useSafeAssistSessions() {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('safe-assist-sessions-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'safe_assist_sessions' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['safe-assist-sessions'] });
+        queryClient.invalidateQueries({ queryKey: ['safe-assist-metrics'] });
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [queryClient]);
+
   return useQuery({
     queryKey: ['safe-assist-sessions'],
     queryFn: async () => {
@@ -55,6 +70,20 @@ export function useSafeAssistSessions() {
 }
 
 export function useSafeAssistAlerts() {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('safe-assist-alerts-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'safe_assist_ai_logs' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['safe-assist-alerts'] });
+        queryClient.invalidateQueries({ queryKey: ['safe-assist-metrics'] });
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [queryClient]);
+
   return useQuery({
     queryKey: ['safe-assist-alerts'],
     queryFn: async () => {
