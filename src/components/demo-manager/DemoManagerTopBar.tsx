@@ -11,8 +11,10 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import GlobalNotificationHeader from "@/components/shared/GlobalNotificationHeader";
 import type { NotificationAlert } from "@/components/shared/GlobalNotificationHeader";
+import { useAuth } from "@/hooks/useAuth";
 
 interface DemoManagerTopBarProps {
   onNotificationsClick: () => void;
@@ -34,25 +36,35 @@ const DemoManagerTopBar = ({
   onDismissNotification = () => {},
   onNotificationAction = () => {}
 }: DemoManagerTopBarProps) => {
+  const { user } = useAuth();
+  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Manager';
+  const maskedId = `DM-${user?.id?.slice(0, 4).toUpperCase() || 'XXXX'}`;
+
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       className="h-16 glass-panel border-b border-border/30 px-6 flex items-center justify-between sticky top-0 z-40"
     >
-      {/* Left Section - Search */}
+      {/* Left Section - Welcome & Search */}
       <div className="flex items-center gap-4">
+        <div className="hidden lg:block">
+          <h2 className="text-sm font-semibold">
+            Welcome, <span className="text-neon-teal">{userName}</span>
+          </h2>
+          <p className="text-[10px] text-muted-foreground font-mono">{maskedId}</p>
+        </div>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search demos, categories, products..."
-            className="w-80 pl-10 bg-secondary/50 border-border/50 focus:border-neon-teal/50"
+            placeholder="Search demos, categories..."
+            className="w-64 lg:w-80 pl-10 bg-secondary/50 border-border/50 focus:border-neon-teal/50"
           />
         </div>
       </div>
 
       {/* Center Section - Live Metrics */}
-      <div className="flex items-center gap-6">
+      <div className="hidden xl:flex items-center gap-6">
         {liveMetrics.map((metric, index) => {
           const Icon = metric.icon;
           return (
@@ -85,7 +97,7 @@ const DemoManagerTopBar = ({
         </Button>
 
         {/* System Health */}
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neon-green/10 border border-neon-green/30">
+        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neon-green/10 border border-neon-green/30">
           <Activity className="w-4 h-4 text-neon-green animate-pulse" />
           <span className="text-xs font-mono text-neon-green">99.9% UPTIME</span>
         </div>
@@ -103,14 +115,15 @@ const DemoManagerTopBar = ({
           <Settings className="w-5 h-5" />
         </Button>
 
-        {/* Manager Avatar */}
+        {/* Manager Avatar with Role Badge */}
         <div className="flex items-center gap-3 pl-3 border-l border-border/50">
           <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-neon-teal to-neon-green flex items-center justify-center">
             <Monitor className="w-4 h-4 text-primary-foreground" />
           </div>
-          <div>
-            <div className="text-sm font-medium">Demo Manager</div>
-            <div className="text-[10px] text-neon-teal font-mono">FULL ACCESS</div>
+          <div className="hidden md:block">
+            <Badge variant="outline" className="bg-neon-teal/10 text-neon-teal border-neon-teal/30 text-[10px] px-1.5">
+              DEMO MANAGER
+            </Badge>
           </div>
         </div>
       </div>
