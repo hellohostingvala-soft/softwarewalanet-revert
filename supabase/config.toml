@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.ai-performance-analyzer]
 verify_jwt = false
+
+[functions.ai-demo-assistant]
+verify_jwt = false

@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { 
   LayoutGrid, 
   Activity, 
@@ -10,8 +11,14 @@ import {
   Globe,
   FileSpreadsheet,
   Users,
-  Link2
+  Link2,
+  LogOut,
+  KeyRound,
+  Settings
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
 
 interface DemoManagerSidebarProps {
   activeView: string;
@@ -31,11 +38,22 @@ const menuItems = [
 ];
 
 const DemoManagerSidebar = ({ activeView, onViewChange }: DemoManagerSidebarProps) => {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Demo Manager';
+  const maskedId = `DM-${user?.id?.slice(0, 4).toUpperCase() || 'XXXX'}`;
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/auth');
+  };
+
   return (
     <motion.aside
       initial={{ x: -20, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      className="fixed left-0 top-0 bottom-0 w-64 glass-panel border-r border-border/30 z-50"
+      className="fixed left-0 top-0 bottom-0 w-64 glass-panel border-r border-border/30 z-50 flex flex-col"
     >
       {/* Logo Section */}
       <div className="p-4 border-b border-border/30">
@@ -75,7 +93,7 @@ const DemoManagerSidebar = ({ activeView, onViewChange }: DemoManagerSidebarProp
       </div>
 
       {/* Menu Items */}
-      <div className="overflow-y-auto h-[calc(100%-240px)] py-3 px-2 space-y-1">
+      <div className="flex-1 overflow-y-auto py-3 px-2 space-y-1">
         {menuItems.map((item, index) => {
           const Icon = item.icon;
           const isActive = activeView === item.id;
@@ -110,15 +128,56 @@ const DemoManagerSidebar = ({ activeView, onViewChange }: DemoManagerSidebarProp
         })}
       </div>
 
-      {/* System Status */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border/30 bg-card/80 backdrop-blur-xl">
-        <div className="flex items-center justify-between text-[10px]">
-          <span className="text-muted-foreground font-mono">DEMO HEALTH</span>
-          <div className="flex items-center gap-1.5">
-            <Zap className="w-3 h-3 text-neon-green" />
-            <span className="text-neon-green font-mono">ALL SYSTEMS GO</span>
+      {/* User Info & Actions */}
+      <div className="p-3 border-t border-border/30 space-y-3">
+        {/* User Info */}
+        <div className="flex items-center gap-3 px-3 py-2 bg-secondary/30 rounded-lg">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-neon-teal to-neon-green flex items-center justify-center">
+            <span className="text-xs font-bold text-primary-foreground">
+              {userName.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium truncate">{userName}</p>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-neon-teal/10 text-neon-teal border-neon-teal/30">
+                DEMO MANAGER
+              </Badge>
+              <span className="text-[9px] text-muted-foreground font-mono">{maskedId}</span>
+            </div>
           </div>
         </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 text-xs gap-1.5 h-8 border-border/50"
+          >
+            <KeyRound className="w-3 h-3" />
+            Password
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 text-xs gap-1.5 h-8 border-border/50"
+          >
+            <Settings className="w-3 h-3" />
+            Settings
+          </Button>
+        </div>
+
+        {/* Logout Button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleLogout}
+          className="w-full text-xs gap-2 h-8 text-red-400 hover:text-red-300 hover:bg-red-500/10"
+        >
+          <LogOut className="w-3 h-3" />
+          Sign Out
+        </Button>
       </div>
     </motion.aside>
   );
