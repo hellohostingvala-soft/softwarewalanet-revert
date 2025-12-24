@@ -12699,6 +12699,10 @@ export type Database = {
       }
       can_access_demos: { Args: { _user_id: string }; Returns: boolean }
       can_access_finance: { Args: { _user_id: string }; Returns: boolean }
+      can_access_internal_channel: {
+        Args: { _channel_id: string; _user_id: string }
+        Returns: boolean
+      }
       can_manage_demos: { Args: { _user_id: string }; Returns: boolean }
       can_manage_developers: { Args: { _user_id: string }; Returns: boolean }
       can_manage_franchises: { Args: { _user_id: string }; Returns: boolean }
