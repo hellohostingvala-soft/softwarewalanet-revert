@@ -13,6 +13,65 @@ export const corsHeaders = {
   "Cache-Control": "no-store, no-cache, must-revalidate",
 };
 
+// In-memory rate limit store (per edge function instance)
+const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
+
+// Rate limit configuration per endpoint type
+export const RATE_LIMITS: Record<string, { maxRequests: number; windowMs: number }> = {
+  login: { maxRequests: 5, windowMs: 60000 }, // 5 per minute
+  signup: { maxRequests: 3, windowMs: 300000 }, // 3 per 5 minutes
+  password_reset: { maxRequests: 3, windowMs: 300000 }, // 3 per 5 minutes
+  payment: { maxRequests: 10, windowMs: 60000 }, // 10 per minute
+  withdrawal: { maxRequests: 3, windowMs: 3600000 }, // 3 per hour
+  demo_access: { maxRequests: 30, windowMs: 60000 }, // 30 per minute
+  api_default: { maxRequests: 100, windowMs: 60000 }, // 100 per minute
+  admin_action: { maxRequests: 50, windowMs: 60000 }, // 50 per minute
+  sensitive_action: { maxRequests: 10, windowMs: 60000 }, // 10 per minute
+};
+
+// Check rate limit
+export function checkRateLimit(
+  identifier: string,
+  endpointType: string = 'api_default'
+): { allowed: boolean; remaining: number; resetIn: number } {
+  const config = RATE_LIMITS[endpointType] || RATE_LIMITS.api_default;
+  const key = `${endpointType}:${identifier}`;
+  const now = Date.now();
+  
+  const existing = rateLimitStore.get(key);
+  
+  if (!existing || existing.resetAt < now) {
+    // Reset or create new entry
+    rateLimitStore.set(key, { count: 1, resetAt: now + config.windowMs });
+    return { allowed: true, remaining: config.maxRequests - 1, resetIn: config.windowMs };
+  }
+  
+  if (existing.count >= config.maxRequests) {
+    return { 
+      allowed: false, 
+      remaining: 0, 
+      resetIn: existing.resetAt - now 
+    };
+  }
+  
+  existing.count++;
+  return { 
+    allowed: true, 
+    remaining: config.maxRequests - existing.count, 
+    resetIn: existing.resetAt - now 
+  };
+}
+
+// Clean up expired rate limit entries (call periodically)
+export function cleanupRateLimits(): void {
+  const now = Date.now();
+  for (const [key, value] of rateLimitStore.entries()) {
+    if (value.resetAt < now) {
+      rateLimitStore.delete(key);
+    }
+  }
+}
+
 // Initialize Supabase client with service role
 export function getSupabaseAdmin() {
   return createClient(
@@ -32,6 +91,41 @@ export function getSupabaseClient(authHeader: string) {
       auth: { autoRefreshToken: false, persistSession: false }
     }
   );
+}
+
+// Validate JWT token format and expiration
+export function validateTokenFormat(authHeader: string): { valid: boolean; error?: string } {
+  if (!authHeader) {
+    return { valid: false, error: 'Missing authorization header' };
+  }
+  
+  if (!authHeader.startsWith('Bearer ')) {
+    return { valid: false, error: 'Invalid authorization format' };
+  }
+  
+  const token = authHeader.replace('Bearer ', '');
+  
+  if (!token || token.length < 10) {
+    return { valid: false, error: 'Invalid token format' };
+  }
+  
+  // Basic JWT structure validation (header.payload.signature)
+  const parts = token.split('.');
+  if (parts.length !== 3) {
+    return { valid: false, error: 'Malformed JWT token' };
+  }
+  
+  // Decode and check expiration
+  try {
+    const payload = JSON.parse(atob(parts[1]));
+    if (payload.exp && payload.exp < Date.now() / 1000) {
+      return { valid: false, error: 'Token expired' };
+    }
+  } catch {
+    return { valid: false, error: 'Invalid token payload' };
+  }
+  
+  return { valid: true };
 }
 
 // Mask email: jo***@example.com
@@ -91,6 +185,27 @@ export function errorResponse(message: string, status = 400, buzzer = false) {
   );
 }
 
+// Rate limit exceeded response
+export function rateLimitResponse(resetIn: number) {
+  return new Response(
+    JSON.stringify({
+      success: false,
+      status: 429,
+      error: 'Rate limit exceeded',
+      retryAfter: Math.ceil(resetIn / 1000),
+      timestamp: new Date().toISOString(),
+    }),
+    {
+      status: 429,
+      headers: { 
+        ...corsHeaders, 
+        "Content-Type": "application/json",
+        "Retry-After": String(Math.ceil(resetIn / 1000)),
+      },
+    }
+  );
+}
+
 // Role hierarchy for access control (matches AppRole enum in types/roles.ts)
 export const ROLE_HIERARCHY: Record<string, number> = {
   // Highest privilege
@@ -120,6 +235,20 @@ export const ROLE_HIERARCHY: Record<string, number> = {
   client: 5,
 };
 
+// Admin-only roles
+export const ADMIN_ROLES = ['master', 'super_admin', 'admin'];
+
+// Sensitive endpoints that require extra protection
+export const SENSITIVE_ENDPOINTS = [
+  '/wallet/withdraw',
+  '/wallet/payout',
+  '/users/delete',
+  '/users/role',
+  '/admin/',
+  '/finance/',
+  '/backup/',
+];
+
 // Check if user has required role
 export function hasRole(userRole: string, requiredRole: string): boolean {
   if (userRole === 'master') return true; // Master bypasses all
@@ -132,6 +261,16 @@ export function hasRole(userRole: string, requiredRole: string): boolean {
 export function hasAnyRole(userRole: string, requiredRoles: string[]): boolean {
   if (userRole === 'master') return true; // Master bypasses all
   return requiredRoles.some(role => userRole === role || hasRole(userRole, role));
+}
+
+// Check if role is admin
+export function isAdminRole(role: string): boolean {
+  return ADMIN_ROLES.includes(role);
+}
+
+// Check if endpoint is sensitive
+export function isSensitiveEndpoint(path: string): boolean {
+  return SENSITIVE_ENDPOINTS.some(ep => path.includes(ep));
 }
 
 // Extract user ID and role from JWT
@@ -153,7 +292,7 @@ export async function getUserFromToken(supabase: any): Promise<{ userId: string;
   };
 }
 
-// Audit log entry
+// Comprehensive audit log entry
 export async function createAuditLog(
   supabaseAdmin: any,
   userId: string | null,
@@ -168,10 +307,51 @@ export async function createAuditLog(
       role,
       module,
       action,
-      meta_json: meta,
+      meta_json: {
+        ...meta,
+        logged_at: new Date().toISOString(),
+      },
     });
   } catch (error) {
     console.error("Audit log failed:", error);
+  }
+}
+
+// Log API call with full context
+export async function logAPICall(
+  supabaseAdmin: any,
+  params: {
+    userId: string | null;
+    role: string | null;
+    endpoint: string;
+    method: string;
+    status: 'success' | 'blocked' | 'error';
+    statusCode: number;
+    clientIP: string;
+    deviceId: string;
+    reason?: string;
+    requestBody?: any;
+  }
+) {
+  try {
+    await supabaseAdmin.from("audit_logs").insert({
+      user_id: params.userId,
+      role: params.role,
+      module: 'api_security',
+      action: `api_${params.status}`,
+      meta_json: {
+        endpoint: params.endpoint,
+        method: params.method,
+        status: params.status,
+        status_code: params.statusCode,
+        client_ip: params.clientIP,
+        device_id: params.deviceId,
+        reason: params.reason,
+        timestamp: new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    console.error("API log failed:", error);
   }
 }
 
@@ -348,6 +528,8 @@ export async function parseRequest(req: Request): Promise<{
   authHeader: string;
   deviceId: string;
   clientIP: string;
+  path: string;
+  method: string;
 }> {
   let body = {};
   if (req.method !== "GET" && req.method !== "OPTIONS") {
@@ -358,10 +540,14 @@ export async function parseRequest(req: Request): Promise<{
     }
   }
 
+  const url = new URL(req.url);
+
   return {
     body,
     authHeader: req.headers.get("Authorization") || "",
     deviceId: req.headers.get("x-device-id") || "unknown",
     clientIP: req.headers.get("x-client-ip") || req.headers.get("x-forwarded-for") || "unknown",
+    path: url.pathname,
+    method: req.method,
   };
 }
