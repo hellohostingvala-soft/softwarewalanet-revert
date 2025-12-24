@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  LayoutDashboard, Users, Wallet, Bell, User, Zap, Brain, BellRing,
+  LayoutDashboard, Users, Bell, User, Zap, Brain, BellRing,
   Globe, Target, Timer, AlertTriangle, Shield, Activity, Plus
 } from "lucide-react";
 import LeadManagerTopBar from "@/components/leads/LeadManagerTopBar";
@@ -10,7 +10,7 @@ import LeadDetails from "@/components/leads/LeadDetails";
 import AIActionPanel from "@/components/leads/AIActionPanel";
 import LeadNotifications from "@/components/leads/LeadNotifications";
 import LeadReports from "@/components/leads/LeadReports";
-import LeadWalletPanel from "@/components/leads/LeadWalletPanel";
+// SECURITY: LeadWalletPanel import removed - Lead Manager cannot access commission/wallet controls
 import LeadCaptureHub from "@/components/leads/LeadCaptureHub";
 import LeadQualificationEngine from "@/components/leads/LeadQualificationEngine";
 import LeadBuzzerAlert from "@/components/leads/LeadBuzzerAlert";
@@ -50,6 +50,8 @@ const LeadManager = () => {
     { id: "2", message: "Moved to DEMO SHOWN by vala(sales)4771", type: "success", time: "2 min ago" },
   ]);
 
+  // SECURITY: Lead Manager CANNOT access wallet/commission controls per RBAC rules
+  // Wallet section removed to prevent unauthorized financial access
   const sidebarItems = [
     { id: "pipeline", label: "Lead Pipeline", icon: Users },
     { id: "qualification", label: "AI Qualification", icon: Brain },
@@ -60,7 +62,6 @@ const LeadManager = () => {
     { id: "escalation", label: "Escalation", icon: AlertTriangle },
     { id: "compliance", label: "Compliance", icon: Shield },
     { id: "behavior", label: "Behavior", icon: Activity },
-    { id: "wallet", label: "Wallet", icon: Wallet },
     { id: "notifications", label: "Notifications", icon: Bell },
     { id: "profile", label: "Profile", icon: User },
   ];
@@ -81,7 +82,7 @@ const LeadManager = () => {
       case "compliance": return <LeadCompliancePolicy />;
       case "behavior": return <LeadBehaviorTracking />;
       case "reports": return <LeadReports />;
-      case "wallet": return <LeadWalletPanel />;
+      // SECURITY: Wallet case removed - Lead Manager cannot access commission/wallet controls
       default: return <LeadPipeline onSelectLead={setSelectedLead} selectedLead={selectedLead} />;
     }
   };
