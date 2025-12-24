@@ -119,6 +119,8 @@ import SubCategoryDemos from "./pages/SubCategoryDemos";
 import { AIBillingDashboard } from "./components/ai-billing";
 // New Role Pages (25-28)
 import PromiseManagementDashboard from "./pages/promise-management/PromiseManagementDashboard";
+// Wireframe Routes
+import { WireframeRoutes } from "./components/wireframe/WireframeRoutes";
 
 const queryClient = new QueryClient();
 
@@ -297,6 +299,9 @@ const App = () => (
               <Route path="/personal-chat" element={<RequireAuth><PersonalChat /></RequireAuth>} />
               <Route path="/ai-console" element={<RequireRole allowed={["ai_manager", "super_admin"]}><AIOptimizationConsole /></RequireRole>} />
               <Route path="/demo-credentials" element={<RequireRole allowed={["super_admin"]}><DemoCredentials /></RequireRole>} />
+
+              {/* Wireframe Routes - Design Sandbox */}
+              <Route path="/wireframe/*" element={<WireframeRoutes />} />
 
               {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
