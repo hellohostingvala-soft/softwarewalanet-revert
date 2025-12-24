@@ -17,6 +17,7 @@ import WalletFinanceConsole from "@/components/admin/WalletFinanceConsole";
 import LeadDistributionHub from "@/components/admin/LeadDistributionHub";
 import DeveloperTaskOrchestration from "@/components/admin/DeveloperTaskOrchestration";
 import AIDeveloperManagement from "@/components/admin/AIDeveloperManagement";
+import AIResellerManager from "@/components/admin/AIResellerManager";
 import PerformanceScoringAI from "@/components/admin/PerformanceScoringAI";
 import ComplianceLegalShield from "@/components/admin/ComplianceLegalShield";
 import EmergencyBuzzerControls from "@/components/admin/EmergencyBuzzerControls";
@@ -153,6 +154,8 @@ const SuperAdminDashboard = () => {
         return <LeadDistributionHub />;
       case "dev-orchestration":
         return <AIDeveloperManagement />;
+      case "reseller":
+        return <AIResellerManager />;
       case "wallet-finance":
         return <WalletFinanceConsole />;
       case "performance-ai":
