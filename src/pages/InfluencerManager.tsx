@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, UserPlus, Link2, Target, ShieldAlert, 
-  FileCheck, GraduationCap, BarChart3, Award, Wallet,
+  FileCheck, GraduationCap, BarChart3, Award,
   Users, Shield, Sparkles, Bell, Settings
 } from 'lucide-react';
 import InfluencerOnboarding from '@/components/influencer-manager/InfluencerOnboarding';
@@ -13,12 +13,13 @@ import ContentApproval from '@/components/influencer-manager/ContentApproval';
 import TrainingHub from '@/components/influencer-manager/TrainingHub';
 import PerformanceAnalytics from '@/components/influencer-manager/PerformanceAnalytics';
 import TierBadgeSystem from '@/components/influencer-manager/TierBadgeSystem';
-import PayoutWallet from '@/components/influencer-manager/PayoutWallet';
+// SECURITY: PayoutWallet import removed - Influencer Manager cannot access payout/commission controls (Step 9 compliance)
 import CampaignCollaboration from '@/components/influencer-manager/CampaignCollaboration';
 import ReputationGuard from '@/components/influencer-manager/ReputationGuard';
 import AIContentAssistant from '@/components/influencer-manager/AIContentAssistant';
 import InfluencerManagerNotifications from '@/components/influencer-manager/InfluencerManagerNotifications';
 
+// SECURITY: Influencer Manager sidebar - NO payout/wallet/commission controls per RBAC rules (Step 9)
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard Overview', icon: LayoutDashboard },
   { id: 'onboarding', label: 'Influencer Onboarding', icon: UserPlus },
@@ -29,7 +30,7 @@ const menuItems = [
   { id: 'training', label: 'Training Hub', icon: GraduationCap },
   { id: 'analytics', label: 'Performance Analytics', icon: BarChart3 },
   { id: 'tiers', label: 'Tier & Badge System', icon: Award },
-  { id: 'payout', label: 'Payout & Wallet', icon: Wallet },
+  // SECURITY: Payout & Wallet section REMOVED - Influencer Manager cannot access payout controls
   { id: 'collaboration', label: 'Campaign Collaboration', icon: Users },
   { id: 'reputation', label: 'Reputation Guard', icon: Shield },
 ];
@@ -59,8 +60,7 @@ const InfluencerManager = () => {
         return <PerformanceAnalytics />;
       case 'tiers':
         return <TierBadgeSystem />;
-      case 'payout':
-        return <PayoutWallet />;
+      // SECURITY: Payout case REMOVED - Influencer Manager cannot access payout controls
       case 'collaboration':
         return <CampaignCollaboration />;
       case 'reputation':
