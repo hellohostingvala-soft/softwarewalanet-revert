@@ -8040,6 +8040,50 @@ export type Database = {
           },
         ]
       }
+      promise_escalation_logs: {
+        Row: {
+          auto_triggered: boolean | null
+          created_at: string
+          escalated_by: string | null
+          escalated_to: string[]
+          from_level: number
+          id: string
+          promise_id: string
+          reason: string | null
+          to_level: number
+        }
+        Insert: {
+          auto_triggered?: boolean | null
+          created_at?: string
+          escalated_by?: string | null
+          escalated_to: string[]
+          from_level?: number
+          id?: string
+          promise_id: string
+          reason?: string | null
+          to_level?: number
+        }
+        Update: {
+          auto_triggered?: boolean | null
+          created_at?: string
+          escalated_by?: string | null
+          escalated_to?: string[]
+          from_level?: number
+          id?: string
+          promise_id?: string
+          reason?: string | null
+          to_level?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promise_escalation_logs_promise_id_fkey"
+            columns: ["promise_id"]
+            isOneToOne: false
+            referencedRelation: "promise_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       promise_fines: {
         Row: {
           applied_at: string
@@ -8099,17 +8143,31 @@ export type Database = {
       promise_logs: {
         Row: {
           acknowledged_at: string | null
+          approval_required: boolean | null
+          approved_at: string | null
+          approved_by: string | null
           breach_reason: string | null
           created_at: string
           deadline: string
           developer_id: string
+          escalated_at: string | null
+          escalated_to: string[] | null
+          escalation_level: number | null
           extended_by: string | null
           extended_count: number | null
           extended_deadline: string | null
           fine_amount: number | null
           finished_time: string | null
           id: string
+          is_locked: boolean | null
+          linked_demo_id: string | null
+          linked_order_id: string | null
+          priority: string | null
           promise_time: string
+          promise_type: string | null
+          rejected_at: string | null
+          rejected_by: string | null
+          rejection_reason: string | null
           score_effect: number | null
           status: Database["public"]["Enums"]["promise_status"]
           task_id: string
@@ -8117,17 +8175,31 @@ export type Database = {
         }
         Insert: {
           acknowledged_at?: string | null
+          approval_required?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
           breach_reason?: string | null
           created_at?: string
           deadline: string
           developer_id: string
+          escalated_at?: string | null
+          escalated_to?: string[] | null
+          escalation_level?: number | null
           extended_by?: string | null
           extended_count?: number | null
           extended_deadline?: string | null
           fine_amount?: number | null
           finished_time?: string | null
           id?: string
+          is_locked?: boolean | null
+          linked_demo_id?: string | null
+          linked_order_id?: string | null
+          priority?: string | null
           promise_time?: string
+          promise_type?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
           score_effect?: number | null
           status?: Database["public"]["Enums"]["promise_status"]
           task_id: string
@@ -8135,17 +8207,31 @@ export type Database = {
         }
         Update: {
           acknowledged_at?: string | null
+          approval_required?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
           breach_reason?: string | null
           created_at?: string
           deadline?: string
           developer_id?: string
+          escalated_at?: string | null
+          escalated_to?: string[] | null
+          escalation_level?: number | null
           extended_by?: string | null
           extended_count?: number | null
           extended_deadline?: string | null
           fine_amount?: number | null
           finished_time?: string | null
           id?: string
+          is_locked?: boolean | null
+          linked_demo_id?: string | null
+          linked_order_id?: string | null
+          priority?: string | null
           promise_time?: string
+          promise_type?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
           score_effect?: number | null
           status?: Database["public"]["Enums"]["promise_status"]
           task_id?: string
@@ -12401,6 +12487,10 @@ export type Database = {
         Args: { p_approver_id: string; p_payout_id: string }
         Returns: Json
       }
+      approve_promise: {
+        Args: { p_approver_id: string; p_promise_id: string }
+        Returns: Json
+      }
       approve_user: {
         Args: { _approver_id: string; _target_user_id: string }
         Returns: boolean
@@ -12465,6 +12555,7 @@ export type Database = {
         Args: { p_reason?: string; p_session_id: string }
         Returns: Json
       }
+      escalate_overdue_promises: { Args: never; Returns: number }
       exceeds_workload_threshold: {
         Args: { _developer_id: string }
         Returns: boolean
@@ -12632,6 +12723,10 @@ export type Database = {
       normalize_demo_url: { Args: { url: string }; Returns: string }
       reject_payout: {
         Args: { p_payout_id: string; p_reason?: string; p_rejector_id: string }
+        Returns: Json
+      }
+      reject_promise: {
+        Args: { p_promise_id: string; p_reason?: string; p_rejector_id: string }
         Returns: Json
       }
       reject_user: {
@@ -12815,6 +12910,7 @@ export type Database = {
         | "closed_lost"
       offer_event_type: "festival" | "sports" | "custom"
       promise_status:
+        | "pending_approval"
         | "assigned"
         | "promised"
         | "in_progress"
@@ -13071,6 +13167,7 @@ export const Constants = {
       ],
       offer_event_type: ["festival", "sports", "custom"],
       promise_status: [
+        "pending_approval",
         "assigned",
         "promised",
         "in_progress",
