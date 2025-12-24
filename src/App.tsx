@@ -92,6 +92,7 @@ import LeadManager from "./pages/LeadManager";
 import TaskManager from "./pages/TaskManager";
 import RnDDashboard from "./pages/RnDDashboard";
 import ClientSuccessDashboard from "./pages/ClientSuccessDashboard";
+import IncidentCrisisDashboard from "./pages/IncidentCrisisDashboard";
 import PerformanceManager from "./pages/PerformanceManager";
 import FinanceManager from "./pages/FinanceManager";
 import ProductDemoManager from "./pages/ProductDemoManager";
@@ -276,6 +277,8 @@ const App = () => (
               <Route path="/sales/*" element={<RequireRole allowed={["support", "super_admin"]}><SalesSupportDashboard /></RequireRole>} />
               <Route path="/client-success" element={<RequireRole allowed={["client_success", "super_admin"]}><ClientSuccessDashboard /></RequireRole>} />
               <Route path="/clients/*" element={<RequireRole allowed={["client_success", "super_admin"]}><ClientSuccessDashboard /></RequireRole>} />
+              <Route path="/incident-crisis" element={<RequireRole allowed={["incident_crisis", "super_admin"]}><IncidentCrisisDashboard /></RequireRole>} />
+              <Route path="/crisis/*" element={<RequireRole allowed={["incident_crisis", "super_admin"]}><IncidentCrisisDashboard /></RequireRole>} />
               <Route path="/hr-dashboard" element={<RequireRole allowed={["hr_manager", "super_admin"]}><HRDashboard /></RequireRole>} />
               <Route path="/ai/*" element={<RequireRole allowed={["ai_manager", "super_admin"]}><AIOptimizationConsole /></RequireRole>} />
 
