@@ -8,6 +8,7 @@ import {
   Volume2, ShieldCheck, Zap, Phone, Mail
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import CleanSweepUsers from '@/components/admin/CleanSweepUsers';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -792,6 +793,9 @@ const UnifiedSecurityCenter = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Clean Sweep Users - Master Only */}
+              <CleanSweepUsers />
             </div>
           </div>
         </div>
