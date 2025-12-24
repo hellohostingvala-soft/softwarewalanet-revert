@@ -157,10 +157,10 @@ const GlobalReach = () => {
           className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6"
         >
           {[
+            { value: '5,170+', label: 'Software Products' },
             { value: '2,870+', label: 'Active Resellers' },
             { value: '600+', label: 'VIP Clients' },
             { value: '57', label: 'Franchises Worldwide' },
-            { value: '28+', label: 'Govt. Projects Ongoing' },
           ].map((stat, i) => (
             <motion.div
               key={stat.label}
