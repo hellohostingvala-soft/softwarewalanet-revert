@@ -7,6 +7,8 @@ import { AuthProvider } from "./hooks/useAuth";
 import { AnimationProvider } from "./contexts/AnimationContext";
 import { DemoTestModeProvider } from "./contexts/DemoTestModeContext";
 import { SecurityProvider } from "./contexts/SecurityContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
+import SystemNotificationsInitializer from "./components/notifications/SystemNotificationsInitializer";
 import RequireRole from "@/components/auth/RequireRole";
 import RequireAuth from "@/components/auth/RequireAuth";
 import GlobalOfferPopup from "@/components/offers/GlobalOfferPopup";
@@ -138,8 +140,10 @@ const App = () => (
               <Sonner />
               <BrowserRouter>
                 <SecurityProvider>
-                  <GlobalOfferPopup />
-                  <FloatingAIChatbotWrapper />
+                  <NotificationProvider>
+                    <SystemNotificationsInitializer />
+                    <GlobalOfferPopup />
+                    <FloatingAIChatbotWrapper />
               <Routes>
               {/* Public Routes - No login required */}
               <Route path="/" element={<Homepage />} />
@@ -315,6 +319,7 @@ const App = () => (
               {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+                  </NotificationProvider>
                 </SecurityProvider>
             </BrowserRouter>
           </DomainProtection>
