@@ -18,6 +18,7 @@ import LeadDistributionHub from "@/components/admin/LeadDistributionHub";
 import DeveloperTaskOrchestration from "@/components/admin/DeveloperTaskOrchestration";
 import AIDeveloperManagement from "@/components/admin/AIDeveloperManagement";
 import AIResellerManager from "@/components/admin/AIResellerManager";
+import AIInfluencerManager from "@/components/admin/AIInfluencerManager";
 import PerformanceScoringAI from "@/components/admin/PerformanceScoringAI";
 import ComplianceLegalShield from "@/components/admin/ComplianceLegalShield";
 import EmergencyBuzzerControls from "@/components/admin/EmergencyBuzzerControls";
@@ -178,6 +179,8 @@ const SuperAdminDashboard = () => {
         return <GlobalMetrics />;
       case "demo-product":
         return <ProductManager viewOnly={true} />;
+      case "influencer":
+        return <AIInfluencerManager />;
       default:
         return <GlobalLiveControlCenter />;
     }
