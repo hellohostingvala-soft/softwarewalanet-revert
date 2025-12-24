@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Link2, Megaphone, Video, Palette, 
   Users, Wallet, Bell, Sparkles, MousePointer, Shield,
   Image, Trophy, PieChart, FileText, GraduationCap, Gift,
-  HeadphonesIcon, BarChart3
+  HeadphonesIcon, BarChart3, Share2
 } from 'lucide-react';
 import InfluencerTopBar from '@/components/influencer/InfluencerTopBar';
 import InfluencerMetrics from '@/components/influencer/InfluencerMetrics';
@@ -27,12 +27,15 @@ import InfluencerSupportTickets from '@/components/influencer/InfluencerSupportT
 import InfluencerWalletScreen from '@/components/influencer/InfluencerWalletScreen';
 import InfluencerPerformanceRating from '@/components/influencer/InfluencerPerformanceRating';
 import InfluencerCampaignHub from '@/components/influencer/InfluencerCampaignHub';
+import SimpleShareCenter from '@/components/influencer/SimpleShareCenter';
 
 const menuItems = [
+  { id: 'share', label: '🔗 Share & Earn', icon: Share2, highlight: true },
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'click-tracker', label: 'Live Clicks', icon: MousePointer },
+  { id: 'wallet', label: 'Wallet & Payouts', icon: Wallet },
   { id: 'create-link', label: 'Create Link', icon: Link2 },
   { id: 'campaigns', label: 'Campaign Hub', icon: Megaphone },
-  { id: 'click-tracker', label: 'Live Clicks', icon: MousePointer },
   { id: 'fraud-guard', label: 'AI Fraud Guard', icon: Shield, badge: 'AI' },
   { id: 'videos', label: 'Short Videos / Reels', icon: Video },
   { id: 'promo', label: 'Poster Generator', icon: Palette, badge: 'AI' },
@@ -40,7 +43,6 @@ const menuItems = [
   { id: 'leaderboard', label: 'Leaderboard', icon: Trophy },
   { id: 'audience', label: 'Audience Insights', icon: PieChart },
   { id: 'leads', label: 'Leads & Conversion', icon: Users },
-  { id: 'wallet', label: 'Wallet & Payouts', icon: Wallet },
   { id: 'performance', label: 'Performance', icon: BarChart3 },
   { id: 'support', label: 'Support', icon: HeadphonesIcon },
   { id: 'offers', label: 'Offers & Promos', icon: Gift },
@@ -49,12 +51,13 @@ const menuItems = [
 ];
 
 const InfluencerDashboard = () => {
-  const [activeSection, setActiveSection] = useState('dashboard');
+  const [activeSection, setActiveSection] = useState('share'); // Default to Share & Earn
   const [showNotifications, setShowNotifications] = useState(false);
   const [showAIOptimizer, setShowAIOptimizer] = useState(false);
 
   const renderContent = () => {
     switch (activeSection) {
+      case 'share': return <SimpleShareCenter />;
       case 'dashboard': return <InfluencerMetrics />;
       case 'create-link': return <LinkCreator />;
       case 'campaigns': return <InfluencerCampaignHub />;
@@ -72,7 +75,7 @@ const InfluencerDashboard = () => {
       case 'offers': return <OfferPromoCenter />;
       case 'compliance': return <CompliancePolicy />;
       case 'training': return <TrainingAcademy />;
-      default: return <InfluencerMetrics />;
+      default: return <SimpleShareCenter />;
     }
   };
 
@@ -114,28 +117,38 @@ const InfluencerDashboard = () => {
           className="fixed left-0 top-16 bottom-0 w-64 bg-slate-900/60 backdrop-blur-xl border-r border-violet-500/20 z-40 overflow-y-auto"
         >
           <nav className="p-3 space-y-1">
-            {menuItems.map((item, index) => (
-              <motion.button
-                key={item.id}
-                initial={{ x: -50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: index * 0.03 }}
-                onClick={() => setActiveSection(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-300 group ${
-                  activeSection === item.id
-                    ? 'bg-gradient-to-r from-violet-500/20 to-cyan-500/10 border border-violet-500/50 text-violet-400'
-                    : 'hover:bg-slate-800/50 text-slate-400 hover:text-violet-400'
-                }`}
-              >
-                <item.icon className="w-4 h-4" />
-                <span className="font-medium text-sm flex-1 text-left">{item.label}</span>
-                {item.badge && (
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gradient-to-r from-violet-500 to-cyan-500 text-white">
-                    {item.badge}
-                  </span>
-                )}
-              </motion.button>
-            ))}
+            {menuItems.map((item, index) => {
+              const isHighlight = 'highlight' in item && item.highlight;
+              return (
+                <motion.button
+                  key={item.id}
+                  initial={{ x: -50, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: index * 0.03 }}
+                  onClick={() => setActiveSection(item.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-300 group ${
+                    activeSection === item.id
+                      ? 'bg-gradient-to-r from-violet-500/20 to-cyan-500/10 border border-violet-500/50 text-violet-400'
+                      : isHighlight
+                        ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 text-emerald-400 hover:border-emerald-400/50'
+                        : 'hover:bg-slate-800/50 text-slate-400 hover:text-violet-400'
+                  }`}
+                >
+                  <item.icon className={`w-4 h-4 ${isHighlight && activeSection !== item.id ? 'text-emerald-400' : ''}`} />
+                  <span className={`font-medium text-sm flex-1 text-left ${isHighlight && activeSection !== item.id ? 'text-emerald-400' : ''}`}>{item.label}</span>
+                  {item.badge && (
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gradient-to-r from-violet-500 to-cyan-500 text-white">
+                      {item.badge}
+                    </span>
+                  )}
+                  {isHighlight && activeSection !== item.id && (
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gradient-to-r from-emerald-500 to-teal-500 text-white animate-pulse">
+                      START
+                    </span>
+                  )}
+                </motion.button>
+              );
+            })}
           </nav>
 
           <div className="absolute bottom-4 left-3 right-3">
