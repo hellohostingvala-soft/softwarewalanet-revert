@@ -16,9 +16,12 @@ import {
   Star,
   Target,
   Settings,
-  Loader2
+  Loader2,
+  XCircle,
+  Eye
 } from 'lucide-react';
 import { useSafeAssistSessions, useSafeAssistMetrics, useSafeAssistAlerts } from '@/hooks/useSafeAssistData';
+import { useEndSession, useTerminateSession } from '@/hooks/useSafeAssistActions';
 
 const weeklyPerformance = [
   { day: 'Mon', sessions: 45, satisfaction: 4.6 },
@@ -41,8 +44,15 @@ export function AssistManagerScreen() {
   const { data: sessions, isLoading: sessionsLoading } = useSafeAssistSessions();
   const { data: metrics, isLoading: metricsLoading } = useSafeAssistMetrics();
   const { data: alerts, isLoading: alertsLoading } = useSafeAssistAlerts();
+  const endSession = useEndSession();
+  const terminateSession = useTerminateSession();
 
   const isLoading = sessionsLoading || metricsLoading || alertsLoading;
+
+  // Get active sessions for quick management
+  const activeSessions = React.useMemo(() => {
+    return sessions?.filter(s => s.status === 'active') || [];
+  }, [sessions]);
 
   // Derive agent stats from sessions
   const agentStats = React.useMemo(() => {
@@ -275,11 +285,11 @@ export function AssistManagerScreen() {
             <CardContent className="space-y-2">
               <Button variant="outline" className="w-full justify-start">
                 <Users className="h-4 w-4 mr-2" />
-                View All Active Sessions
+                View All Active Sessions ({activeSessions.length})
               </Button>
               <Button variant="outline" className="w-full justify-start">
                 <AlertTriangle className="h-4 w-4 mr-2" />
-                Review AI Alerts
+                Review AI Alerts ({alerts?.length || 0})
               </Button>
               <Button variant="outline" className="w-full justify-start">
                 <BarChart3 className="h-4 w-4 mr-2" />
@@ -291,6 +301,48 @@ export function AssistManagerScreen() {
               </Button>
             </CardContent>
           </Card>
+
+          {/* Active Sessions Quick Actions */}
+          {activeSessions.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Eye className="h-5 w-5" />
+                  Active Sessions
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {activeSessions.slice(0, 3).map((session) => (
+                  <div key={session.id} className="p-3 bg-muted/30 rounded-lg border border-border/50">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-mono text-sm">{session.session_code}</span>
+                      <Badge className="bg-green-500/20 text-green-400">Active</Badge>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={() => endSession.mutate(session.id)}
+                        disabled={endSession.isPending}
+                      >
+                        <CheckCircle2 className="h-3 w-3 mr-1" /> End
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="destructive" 
+                        className="flex-1"
+                        onClick={() => terminateSession.mutate({ sessionId: session.id, reason: 'Manager override' })}
+                        disabled={terminateSession.isPending}
+                      >
+                        <XCircle className="h-3 w-3 mr-1" /> Terminate
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>

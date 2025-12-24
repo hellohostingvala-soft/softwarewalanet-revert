@@ -13,17 +13,22 @@ import {
   FileText,
   Shield,
   Zap,
-  Loader2
+  Loader2,
+  XCircle
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useActivePromises, usePromiseMetrics, useTopPerformers } from '@/hooks/usePromiseData';
+import { useCompletePromise, useBreachPromise } from '@/hooks/usePromiseActions';
 
 export function PromiseManagementScreen() {
   const { data: promises, isLoading: promisesLoading } = useActivePromises();
   const { data: metrics, isLoading: metricsLoading } = usePromiseMetrics();
   const { data: topPerformers, isLoading: performersLoading } = useTopPerformers();
+  const completePromise = useCompletePromise();
+  const breachPromise = useBreachPromise();
 
   const isLoading = promisesLoading || metricsLoading || performersLoading;
 
@@ -157,12 +162,34 @@ export function PromiseManagementScreen() {
                       <p className="text-sm text-muted-foreground mb-2">
                         Deadline: {new Date(promise.deadline).toLocaleDateString()}
                       </p>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 mb-2">
                         <Progress value={getProgressFromPromise(promise)} className="h-1.5 flex-1" />
                         <span className="text-xs text-muted-foreground w-10 text-right">
                           {getProgressFromPromise(promise)}%
                         </span>
                       </div>
+                      {promise.status !== 'completed' && promise.status !== 'breached' && (
+                        <div className="flex gap-2 pt-2 border-t border-border/30">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="flex-1 h-7 text-xs"
+                            onClick={() => completePromise.mutate(promise.id)}
+                            disabled={completePromise.isPending}
+                          >
+                            <CheckCircle2 className="h-3 w-3 mr-1" /> Mark Complete
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="destructive" 
+                            className="flex-1 h-7 text-xs"
+                            onClick={() => breachPromise.mutate({ promiseId: promise.id, reason: 'Manager override' })}
+                            disabled={breachPromise.isPending}
+                          >
+                            <XCircle className="h-3 w-3 mr-1" /> Mark Breached
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   ))
                 )}
