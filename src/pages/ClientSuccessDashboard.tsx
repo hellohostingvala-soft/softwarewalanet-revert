@@ -19,7 +19,6 @@ import { AIClientAssistant } from "@/components/client-success/AIClientAssistant
 import { ClientInsights } from "@/components/client-success/ClientInsights";
 import { useAuth } from "@/hooks/useAuth";
 import { RoleBadge } from "@/components/ui/RoleBadge";
-import { ROLES } from "@/config/roles";
 
 const ClientSuccessDashboard = () => {
   const [activeTab, setActiveTab] = useState<string>("health");

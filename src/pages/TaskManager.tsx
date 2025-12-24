@@ -9,7 +9,6 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-import { ROLES } from "@/config/roles";
 import TaskManagerTopBar from "@/components/tasks/TaskManagerTopBar";
 import TaskPipeline from "@/components/tasks/TaskPipeline";
 import TaskDetails from "@/components/tasks/TaskDetails";
@@ -179,7 +178,7 @@ const TaskManager = () => {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">{userName}</p>
                 <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-[9px] uppercase mt-0.5">
-                  {ROLES.TASK_MANAGER}
+                  Task Manager
                 </Badge>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import { RoleName, ROLE_COLORS, ROLE_DESCRIPTIONS } from '@/config/roles';
+import { AppRole, ROLE_CONFIG, ROLE_GRADES } from '@/types/roles';
 import { cn } from '@/lib/utils';
 import {
   Tooltip,
@@ -8,15 +8,19 @@ import {
 } from '@/components/ui/tooltip';
 
 interface RoleBadgeProps {
-  role: RoleName;
+  role: AppRole;
   size?: 'sm' | 'md' | 'lg';
   showTooltip?: boolean;
   className?: string;
 }
 
 export function RoleBadge({ role, size = 'md', showTooltip = true, className }: RoleBadgeProps) {
-  const colors = ROLE_COLORS[role];
-  const description = ROLE_DESCRIPTIONS[role];
+  const config = ROLE_CONFIG[role];
+  const gradeInfo = ROLE_GRADES[role];
+  
+  if (!config) {
+    return null;
+  }
 
   const sizeClasses = {
     sm: 'text-xs px-2 py-0.5',
@@ -28,14 +32,16 @@ export function RoleBadge({ role, size = 'md', showTooltip = true, className }: 
     <span
       className={cn(
         'inline-flex items-center font-medium rounded-full border',
-        colors.bg,
-        colors.text,
-        colors.border,
         sizeClasses[size],
         className
       )}
+      style={{
+        backgroundColor: `${config.color}20`,
+        color: config.color,
+        borderColor: `${config.color}40`,
+      }}
     >
-      {role}
+      {config.label}
     </span>
   );
 
@@ -48,7 +54,8 @@ export function RoleBadge({ role, size = 'md', showTooltip = true, className }: 
       <Tooltip>
         <TooltipTrigger asChild>{badge}</TooltipTrigger>
         <TooltipContent>
-          <p>{description}</p>
+          <p className="font-medium">{gradeInfo?.displayName || config.label}</p>
+          <p className="text-xs text-muted-foreground">{gradeInfo?.gradeLabel}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

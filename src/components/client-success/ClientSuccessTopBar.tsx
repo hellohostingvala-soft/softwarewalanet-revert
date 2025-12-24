@@ -17,7 +17,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RoleBadge } from "@/components/ui/RoleBadge";
-import { ROLES } from "@/config/roles";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -120,7 +119,7 @@ export const ClientSuccessTopBar = ({ activeTab, onTabChange, userName = "Manage
                 <p className="text-sm text-slate-600">Welcome back,</p>
                 <div className="flex items-center gap-2">
                   <p className="font-semibold text-slate-800">{userName}</p>
-                  <RoleBadge role={ROLES.CLIENT_SUCCESS_MANAGER} size="sm" />
+                  <RoleBadge role="client_success" size="sm" />
                 </div>
               </div>
             </div>

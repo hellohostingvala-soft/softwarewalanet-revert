@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
-import { ROLES } from "@/config/roles";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,7 +59,7 @@ const TaskManagerTopBar = ({ onAIClick }: TaskManagerTopBarProps) => {
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-bold text-white">Task Command Center</h1>
               <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-[10px] uppercase">
-                {ROLES.TASK_MANAGER}
+                Task Manager
               </Badge>
             </div>
             <p className="text-xs text-violet-400">
