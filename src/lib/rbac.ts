@@ -8,7 +8,7 @@ import { Database } from '@/integrations/supabase/types';
 
 export type AppRole = Database['public']['Enums']['app_role'];
 
-// Complete role hierarchy with numeric levels for comparison
+// Complete role hierarchy with numeric levels for comparison (28 roles)
 export const ROLE_HIERARCHY: Partial<Record<AppRole, number>> = {
   master: 110, // Master admin - highest level
   super_admin: 100,
@@ -28,6 +28,11 @@ export const ROLE_HIERARCHY: Partial<Record<AppRole, number>> = {
   ai_manager: 30,
   api_security: 28, // API Security role
   support: 25,
+  // New roles (25-28)
+  safe_assist: 24, // Role 25 - AI-monitored remote support
+  assist_manager: 23, // Role 26 - Manages Safe Assist agents
+  promise_tracker: 22, // Role 27 - Developer promise monitoring
+  promise_management: 21, // Role 28 - Organizational commitments
   franchise: 20,
   reseller: 15,
   developer: 12,
@@ -45,7 +50,7 @@ export const KYC_REQUIRED_ROLES: AppRole[] = ['franchise', 'reseller', 'develope
 // Roles requiring active subscription
 export const SUBSCRIPTION_REQUIRED_ROLES: AppRole[] = ['franchise', 'reseller', 'prime'];
 
-// Masked ID configuration by role (digit counts)
+// Masked ID configuration by role (digit counts) - 28 roles
 export const MASKED_ID_CONFIG: Record<string, { 
   prefix: string; 
   digits: number; 
@@ -63,6 +68,11 @@ export const MASKED_ID_CONFIG: Record<string, {
   legal_compliance: { prefix: 'EMP', digits: 3, icon: 'Scale', displayName: 'Legal' },
   ai_manager: { prefix: 'EMP', digits: 3, icon: 'Bot', displayName: 'AI Manager' },
   api_security: { prefix: 'SEC', digits: 3, icon: 'Shield', displayName: 'API Security' },
+  // New roles (25-28)
+  safe_assist: { prefix: 'SFA', digits: 4, icon: 'ShieldCheck', displayName: 'Safe Assist' },
+  assist_manager: { prefix: 'ASM', digits: 4, icon: 'Headphones', displayName: 'Assist Manager' },
+  promise_tracker: { prefix: 'PTK', digits: 4, icon: 'Timer', displayName: 'Promise Tracker' },
+  promise_management: { prefix: 'PMT', digits: 4, icon: 'FileCheck', displayName: 'Promise Management' },
   franchise: { prefix: 'FRN', digits: 4, icon: 'Building2', displayName: 'Franchise' },
   reseller: { prefix: 'RSL', digits: 5, icon: 'ShoppingBag', displayName: 'Reseller' },
   lead_manager: { prefix: 'SLS', digits: 5, icon: 'Target', displayName: 'Lead Manager' },
@@ -81,7 +91,7 @@ export const MASKED_ID_CONFIG: Record<string, {
   common: { prefix: 'USR', digits: 8, icon: 'User', displayName: 'User' },
 };
 
-// Route access mapping for all roles
+// Route access mapping for all 28 roles
 export const ROLE_ROUTES: Partial<Record<AppRole, string[]>> = {
   master: ['*'], // Master has full access to everything
   super_admin: ['*'], // Access to everything
@@ -107,6 +117,11 @@ export const ROLE_ROUTES: Partial<Record<AppRole, string[]>> = {
   support: ['/support', '/tickets', '/knowledge', '/settings'],
   ai_manager: ['/ai-console', '/cache', '/optimization', '/settings'],
   api_security: ['/api-integrations', '/security', '/settings'],
+  // New roles (25-28)
+  safe_assist: ['/safe-assist', '/sessions', '/ai-monitoring', '/settings'],
+  assist_manager: ['/assist-manager', '/agents', '/performance', '/settings'],
+  promise_tracker: ['/promise-tracker', '/promises', '/breaches', '/settings'],
+  promise_management: ['/promise-management', '/commitments', '/departments', '/settings'],
 };
 
 // Check if user has required role level
@@ -172,7 +187,7 @@ export function isValidRole(role: string): role is AppRole {
   return Object.keys(ROLE_HIERARCHY).includes(role);
 }
 
-// Get dashboard route for role
+// Get dashboard route for role (28 roles)
 export function getDashboardRoute(role: AppRole): string {
   const routeMap: Partial<Record<AppRole, string>> = {
     master: '/master-admin',
@@ -199,6 +214,11 @@ export function getDashboardRoute(role: AppRole): string {
     ai_manager: '/ai-console',
     api_security: '/api-integrations',
     support: '/support',
+    // New roles (25-28)
+    safe_assist: '/safe-assist',
+    assist_manager: '/assist-manager',
+    promise_tracker: '/promise-tracker',
+    promise_management: '/promise-management',
   };
   
   return routeMap[role] || '/settings';
