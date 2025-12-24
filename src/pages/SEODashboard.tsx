@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   Globe, Search, BarChart3, Link2, FileText, Shield, 
-  Wallet, Zap, Target, TrendingUp, Bell,
+  Zap, Target, TrendingUp, Bell,
   Sparkles, Map, Share2, FileCode, Megaphone, Mail, MessageSquare,
   Database, Calendar, MousePointer, Eye, Rocket, Settings, LogOut, Lock,
   Bot, Tag, Code2, Users, KeyRound, ArrowLeft
@@ -23,7 +23,7 @@ import EmailAutomation from "@/components/seo/EmailAutomation";
 import SocialCommentAutomation from "@/components/seo/SocialCommentAutomation";
 import ChatMessageReply from "@/components/seo/ChatMessageReply";
 import AutomationFlows from "@/components/seo/AutomationFlows";
-import CombinedWallet from "@/components/seo/CombinedWallet";
+// SECURITY: CombinedWallet import removed - SEO Manager cannot access financial controls
 import ReportsAnalytics from "@/components/seo/ReportsAnalytics";
 import SettingsIntegrations from "@/components/seo/SettingsIntegrations";
 import AIInsightPanel from "@/components/seo/AIInsightPanel";
@@ -49,6 +49,7 @@ const SEODashboard = () => {
     navigate('/auth');
   };
 
+  // SECURITY: SEO Manager sidebar items - NO wallet/finance access per RBAC rules
   const sidebarItems = [
     { id: "command", label: "SEO Command Center", icon: Globe, category: "main" },
     { id: "ai-assistant", label: "AI SEO Assistant", icon: Sparkles, category: "ai" },
@@ -65,7 +66,7 @@ const SEODashboard = () => {
     { id: "chat", label: "Chat Auto-Reply", icon: MessageSquare, category: "automation" },
     { id: "scheduler", label: "Auto Scheduler", icon: Calendar, category: "automation" },
     { id: "automation", label: "Automation Flows", icon: Zap, category: "automation" },
-    { id: "wallet", label: "Combined Wallet", icon: Wallet, category: "other" },
+    // SECURITY: Wallet section removed - SEO Manager cannot access financial controls
     { id: "reports", label: "Reports & Analytics", icon: BarChart3, category: "other" },
     { id: "settings", label: "Settings & Integrations", icon: Settings, category: "other" },
   ];
@@ -89,7 +90,7 @@ const SEODashboard = () => {
       case "chat": return <ChatMessageReply />;
       case "scheduler": return <AutomationScheduler />;
       case "automation": return <AutomationFlows />;
-      case "wallet": return <CombinedWallet />;
+      // SECURITY: Wallet case removed - SEO Manager cannot access financial controls
       case "reports": return <ReportsAnalytics />;
       case "settings": return <SettingsIntegrations />;
       default: return <SEOMetrics activeRegion={activeRegion} />;
