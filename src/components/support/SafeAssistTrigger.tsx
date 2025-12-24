@@ -5,10 +5,11 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Headphones } from 'lucide-react';
+import { Headphones } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { SafeAssistUser } from './SafeAssistUser';
+import safeAssistIcon from '@/assets/safe-assist-icon.jpg';
 
 interface SafeAssistTriggerProps {
   variant?: 'icon' | 'compact' | 'full';
@@ -37,9 +38,9 @@ export function SafeAssistTrigger({ variant = 'compact', className }: SafeAssist
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsOpen(true)}
-                className={`flex items-center gap-1.5 px-2 py-1 rounded-md bg-green-500/10 border border-green-500/30 text-green-500 hover:bg-green-500/20 transition-all text-xs font-medium ${className}`}
+                className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-green-500/10 border border-green-500/30 text-green-500 hover:bg-green-500/20 transition-all text-sm font-medium ${className}`}
               >
-                <Shield className="w-3.5 h-3.5" />
+                <img src={safeAssistIcon} alt="Safe Assist" className="w-6 h-6 rounded-full object-cover" />
                 <span className="hidden sm:inline">Safe Assist</span>
               </motion.button>
             ) : (
@@ -48,7 +49,7 @@ export function SafeAssistTrigger({ variant = 'compact', className }: SafeAssist
                 onClick={() => setIsOpen(true)}
                 className={`gap-2 border-green-500/30 text-green-500 hover:bg-green-500/10 ${className}`}
               >
-                <Shield className="w-4 h-4" />
+                <img src={safeAssistIcon} alt="Safe Assist" className="w-5 h-5 rounded-full object-cover" />
                 Safe Assist
               </Button>
             )}
