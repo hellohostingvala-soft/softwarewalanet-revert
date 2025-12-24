@@ -6,14 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { 
   Server, Shield, CheckCircle, XCircle, Clock, AlertTriangle, 
-  Brain, Eye, ThumbsUp, ThumbsDown, FileText, Activity
+  Brain, Eye, ThumbsUp, ThumbsDown
 } from "lucide-react";
 
 interface SubmissionRequest {
@@ -71,7 +70,8 @@ export function ServerSubmissionManager() {
       const { data: server, error: serverError } = await supabase
         .from('server_instances')
         .insert([{
-          name: request.server_name,
+          server_name: request.server_name,
+          server_code: `SRV-${Date.now()}`,
           server_type: request.server_type,
           ip_address: request.ip_address,
           region: request.region || 'us-east',
@@ -352,19 +352,17 @@ export function ServerSubmissionManager() {
                           </Button>
                         )}
                         {(request.status === 'pending' || request.status === 'under_review') && (
-                          <>
-                            <Button 
-                              variant="default" 
-                              size="sm"
-                              onClick={() => {
-                                setSelectedRequest(request);
-                                setIsReviewDialogOpen(true);
-                              }}
-                            >
-                              <Eye className="h-4 w-4 mr-1" />
-                              Review
-                            </Button>
-                          </>
+                          <Button 
+                            variant="default" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedRequest(request);
+                              setIsReviewDialogOpen(true);
+                            }}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            Review
+                          </Button>
                         )}
                       </div>
                     </CardContent>

@@ -13,26 +13,6 @@ import {
   RefreshCw, Server, Zap, FileSearch, Lock, TrendingUp
 } from "lucide-react";
 
-interface ServerWithAI {
-  id: string;
-  name: string | null;
-  server_type: string | null;
-  status: string | null;
-  ip_address: string | null;
-  region: string | null;
-  ai_health_score: number | null;
-  ai_risk_score: number | null;
-  ai_suggestions: any;
-  protection_enabled: boolean | null;
-  protection_level: string | null;
-  threat_alerts: any;
-  compliance_status: string | null;
-  last_ai_analysis: string | null;
-  cpu_usage: number | null;
-  memory_usage: number | null;
-  disk_usage: number | null;
-}
-
 export function ServerAIMonitor() {
   const queryClient = useQueryClient();
   const [selectedServer, setSelectedServer] = useState<string | null>(null);
@@ -47,7 +27,7 @@ export function ServerAIMonitor() {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as ServerWithAI[];
+      return data || [];
     }
   });
 
@@ -63,7 +43,7 @@ export function ServerAIMonitor() {
         .limit(20);
       
       if (error) throw error;
-      return data;
+      return data || [];
     },
     enabled: !!selectedServer
   });
@@ -80,7 +60,7 @@ export function ServerAIMonitor() {
         .limit(20);
       
       if (error) throw error;
-      return data;
+      return data || [];
     },
     enabled: !!selectedServer
   });
@@ -103,31 +83,37 @@ export function ServerAIMonitor() {
     }
   });
 
-  const getHealthColor = (score: number) => {
+  const getHealthColor = (score: number | null) => {
+    if (!score) return "text-muted-foreground";
     if (score >= 80) return "text-green-500";
     if (score >= 60) return "text-yellow-500";
     if (score >= 40) return "text-orange-500";
     return "text-red-500";
   };
 
-  const getRiskColor = (score: number) => {
+  const getRiskColor = (score: number | null) => {
+    if (!score) return "text-muted-foreground";
     if (score <= 20) return "text-green-500";
     if (score <= 40) return "text-yellow-500";
     if (score <= 60) return "text-orange-500";
     return "text-red-500";
   };
 
-  const getComplianceBadge = (status: string) => {
+  const getComplianceBadge = (status: string | null) => {
     const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
       compliant: "default",
       non_compliant: "destructive",
       review_required: "secondary",
       unknown: "outline"
     };
-    return <Badge variant={variants[status] || "outline"}>{status}</Badge>;
+    return <Badge variant={variants[status || 'unknown'] || "outline"}>{status || 'unknown'}</Badge>;
   };
 
   const selectedServerData = servers?.find(s => s.id === selectedServer);
+  const suggestions = selectedServerData?.ai_suggestions;
+  const suggestionsArray = Array.isArray(suggestions) ? suggestions : [];
+  const threatAlerts = selectedServerData?.threat_alerts;
+  const threatAlertsArray = Array.isArray(threatAlerts) ? threatAlerts : [];
 
   return (
     <div className="space-y-6">
@@ -152,39 +138,47 @@ export function ServerAIMonitor() {
           <CardContent>
             <ScrollArea className="h-[500px]">
               <div className="space-y-2">
-                {servers?.map(server => (
-                  <div
-                    key={server.id}
-                    className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                      selectedServer === server.id 
-                        ? 'bg-primary/10 border border-primary' 
-                        : 'bg-muted/50 hover:bg-muted'
-                    }`}
-                    onClick={() => setSelectedServer(server.id)}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium">{server.name}</span>
-                      {server.protection_enabled && (
-                        <Shield className="h-4 w-4 text-green-500" />
+                {servers?.map(server => {
+                  const serverThreats = Array.isArray(server.threat_alerts) ? server.threat_alerts : [];
+                  return (
+                    <div
+                      key={server.id}
+                      className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                        selectedServer === server.id 
+                          ? 'bg-primary/10 border border-primary' 
+                          : 'bg-muted/50 hover:bg-muted'
+                      }`}
+                      onClick={() => setSelectedServer(server.id)}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium">{server.server_name || 'Unnamed'}</span>
+                        {server.protection_enabled && (
+                          <Shield className="h-4 w-4 text-green-500" />
+                        )}
+                      </div>
+                      <div className="flex items-center gap-4 text-sm">
+                        <div className="flex items-center gap-1">
+                          <Activity className={`h-3 w-3 ${getHealthColor(server.ai_health_score)}`} />
+                          <span>{server.ai_health_score || 0}%</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <AlertTriangle className={`h-3 w-3 ${getRiskColor(server.ai_risk_score)}`} />
+                          <span>{server.ai_risk_score || 0}</span>
+                        </div>
+                      </div>
+                      {serverThreats.length > 0 && (
+                        <Badge variant="destructive" className="mt-2">
+                          {serverThreats.length} Active Threats
+                        </Badge>
                       )}
                     </div>
-                    <div className="flex items-center gap-4 text-sm">
-                      <div className="flex items-center gap-1">
-                        <Activity className={`h-3 w-3 ${getHealthColor(server.ai_health_score)}`} />
-                        <span>{server.ai_health_score}%</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <AlertTriangle className={`h-3 w-3 ${getRiskColor(server.ai_risk_score)}`} />
-                        <span>{server.ai_risk_score}</span>
-                      </div>
-                    </div>
-                    {server.threat_alerts?.length > 0 && (
-                      <Badge variant="destructive" className="mt-2">
-                        {server.threat_alerts.length} Active Threats
-                      </Badge>
-                    )}
+                  );
+                })}
+                {(!servers || servers.length === 0) && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No approved servers found
                   </div>
-                ))}
+                )}
               </div>
             </ScrollArea>
           </CardContent>
@@ -197,7 +191,7 @@ export function ServerAIMonitor() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>{selectedServerData.name}</CardTitle>
+                    <CardTitle>{selectedServerData.server_name || 'Server'}</CardTitle>
                     <CardDescription>
                       {selectedServerData.server_type} • {selectedServerData.region}
                     </CardDescription>
@@ -237,9 +231,9 @@ export function ServerAIMonitor() {
                             <Activity className={`h-4 w-4 ${getHealthColor(selectedServerData.ai_health_score)}`} />
                           </div>
                           <div className={`text-3xl font-bold ${getHealthColor(selectedServerData.ai_health_score)}`}>
-                            {selectedServerData.ai_health_score}%
+                            {selectedServerData.ai_health_score || 0}%
                           </div>
-                          <Progress value={selectedServerData.ai_health_score} className="mt-2" />
+                          <Progress value={selectedServerData.ai_health_score || 0} className="mt-2" />
                         </CardContent>
                       </Card>
                       <Card>
@@ -249,9 +243,9 @@ export function ServerAIMonitor() {
                             <AlertTriangle className={`h-4 w-4 ${getRiskColor(selectedServerData.ai_risk_score)}`} />
                           </div>
                           <div className={`text-3xl font-bold ${getRiskColor(selectedServerData.ai_risk_score)}`}>
-                            {selectedServerData.ai_risk_score}
+                            {selectedServerData.ai_risk_score || 0}
                           </div>
-                          <Progress value={selectedServerData.ai_risk_score} className="mt-2" />
+                          <Progress value={selectedServerData.ai_risk_score || 0} className="mt-2" />
                         </CardContent>
                       </Card>
                     </div>
@@ -259,15 +253,15 @@ export function ServerAIMonitor() {
                     <div className="grid grid-cols-3 gap-4">
                       <div className="p-3 rounded-lg bg-muted/50">
                         <span className="text-sm text-muted-foreground">CPU</span>
-                        <div className="text-xl font-bold">{selectedServerData.cpu_usage}%</div>
+                        <div className="text-xl font-bold">{selectedServerData.current_cpu_usage || 0}%</div>
                       </div>
                       <div className="p-3 rounded-lg bg-muted/50">
                         <span className="text-sm text-muted-foreground">Memory</span>
-                        <div className="text-xl font-bold">{selectedServerData.memory_usage}%</div>
+                        <div className="text-xl font-bold">{selectedServerData.current_memory_usage || 0}%</div>
                       </div>
                       <div className="p-3 rounded-lg bg-muted/50">
                         <span className="text-sm text-muted-foreground">Disk</span>
-                        <div className="text-xl font-bold">{selectedServerData.disk_usage}%</div>
+                        <div className="text-xl font-bold">{selectedServerData.current_disk_usage || 0}%</div>
                       </div>
                     </div>
 
@@ -309,33 +303,36 @@ export function ServerAIMonitor() {
                       <div className="space-y-2">
                         {analysisHistory
                           ?.filter(a => a.analysis_type === 'health')
-                          .map(analysis => (
-                            <Card key={analysis.id}>
-                              <CardContent className="py-3">
-                                <div className="flex items-center justify-between mb-2">
-                                  <span className="text-sm font-medium">Health Analysis</span>
-                                  <span className="text-xs text-muted-foreground">
-                                    {new Date(analysis.analyzed_at).toLocaleString()}
-                                  </span>
-                                </div>
-                                <div className="text-sm">
-                                  Score: <span className={getHealthColor(analysis.health_score || 0)}>
-                                    {analysis.health_score}%
-                                  </span>
-                                </div>
-                                {analysis.suggestions?.length > 0 && (
-                                  <div className="mt-2">
-                                    <span className="text-xs text-muted-foreground">Recommendations:</span>
-                                    <ul className="text-xs">
-                                      {analysis.suggestions.slice(0, 3).map((s: string, i: number) => (
-                                        <li key={i}>• {s}</li>
-                                      ))}
-                                    </ul>
+                          .map(analysis => {
+                            const analysisSuggestions = Array.isArray(analysis.suggestions) ? analysis.suggestions : [];
+                            return (
+                              <Card key={analysis.id}>
+                                <CardContent className="py-3">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="text-sm font-medium">Health Analysis</span>
+                                    <span className="text-xs text-muted-foreground">
+                                      {new Date(analysis.analyzed_at).toLocaleString()}
+                                    </span>
                                   </div>
-                                )}
-                              </CardContent>
-                            </Card>
-                          ))}
+                                  <div className="text-sm">
+                                    Score: <span className={getHealthColor(analysis.health_score)}>
+                                      {analysis.health_score}%
+                                    </span>
+                                  </div>
+                                  {analysisSuggestions.length > 0 && (
+                                    <div className="mt-2">
+                                      <span className="text-xs text-muted-foreground">Recommendations:</span>
+                                      <ul className="text-xs">
+                                        {analysisSuggestions.slice(0, 3).map((s: any, i: number) => (
+                                          <li key={i}>• {typeof s === 'string' ? s : JSON.stringify(s)}</li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
                       </div>
                     </ScrollArea>
                   </TabsContent>
@@ -372,32 +369,35 @@ export function ServerAIMonitor() {
                       <div className="space-y-2">
                         {analysisHistory
                           ?.filter(a => a.analysis_type === 'security' || a.analysis_type === 'compliance')
-                          .map(analysis => (
-                            <Card key={analysis.id}>
-                              <CardContent className="py-3">
-                                <div className="flex items-center justify-between mb-2">
-                                  <Badge variant="outline">{analysis.analysis_type}</Badge>
-                                  <span className="text-xs text-muted-foreground">
-                                    {new Date(analysis.analyzed_at).toLocaleString()}
-                                  </span>
-                                </div>
-                                {analysis.risk_score !== null && (
-                                  <div className="text-sm">
-                                    Risk Score: <span className={getRiskColor(analysis.risk_score)}>
-                                      {analysis.risk_score}/100
+                          .map(analysis => {
+                            const threats = Array.isArray(analysis.threats_detected) ? analysis.threats_detected : [];
+                            return (
+                              <Card key={analysis.id}>
+                                <CardContent className="py-3">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <Badge variant="outline">{analysis.analysis_type}</Badge>
+                                    <span className="text-xs text-muted-foreground">
+                                      {new Date(analysis.analyzed_at).toLocaleString()}
                                     </span>
                                   </div>
-                                )}
-                                {analysis.threats_detected?.length > 0 && (
-                                  <div className="mt-2">
-                                    <Badge variant="destructive" className="mb-1">
-                                      {analysis.threats_detected.length} Threats Found
-                                    </Badge>
-                                  </div>
-                                )}
-                              </CardContent>
-                            </Card>
-                          ))}
+                                  {analysis.risk_score !== null && (
+                                    <div className="text-sm">
+                                      Risk Score: <span className={getRiskColor(analysis.risk_score)}>
+                                        {analysis.risk_score}/100
+                                      </span>
+                                    </div>
+                                  )}
+                                  {threats.length > 0 && (
+                                    <div className="mt-2">
+                                      <Badge variant="destructive" className="mb-1">
+                                        {threats.length} Threats Found
+                                      </Badge>
+                                    </div>
+                                  )}
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
                       </div>
                     </ScrollArea>
                   </TabsContent>
@@ -418,7 +418,7 @@ export function ServerAIMonitor() {
                       </Button>
                     </div>
 
-                    {selectedServerData.threat_alerts?.length > 0 && (
+                    {threatAlertsArray.length > 0 && (
                       <Card className="border-destructive">
                         <CardHeader className="pb-2">
                           <CardTitle className="text-sm text-destructive flex items-center gap-2">
@@ -428,7 +428,7 @@ export function ServerAIMonitor() {
                         </CardHeader>
                         <CardContent>
                           <ul className="space-y-2">
-                            {selectedServerData.threat_alerts.map((threat: any, i: number) => (
+                            {threatAlertsArray.map((threat: any, i: number) => (
                               <li key={i} className="text-sm p-2 bg-destructive/10 rounded">
                                 <div className="font-medium">{threat.type}</div>
                                 <div className="text-xs text-muted-foreground">{threat.description}</div>
@@ -481,7 +481,7 @@ export function ServerAIMonitor() {
 
                     <ScrollArea className="h-[300px]">
                       <div className="space-y-2">
-                        {selectedServerData.ai_suggestions?.map((suggestion: any, i: number) => (
+                        {suggestionsArray.map((suggestion: any, i: number) => (
                           <Card key={i}>
                             <CardContent className="py-3">
                               <div className="flex items-center gap-2 mb-1">
@@ -505,7 +505,7 @@ export function ServerAIMonitor() {
                           </Card>
                         ))}
 
-                        {(!selectedServerData.ai_suggestions || !Array.isArray(selectedServerData.ai_suggestions) || selectedServerData.ai_suggestions.length === 0) && (
+                        {suggestionsArray.length === 0 && (
                           <div className="text-center py-8 text-muted-foreground">
                             <Brain className="h-12 w-12 mx-auto mb-2 opacity-50" />
                             <p>No AI suggestions yet</p>
