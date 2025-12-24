@@ -144,8 +144,6 @@ const CommandHeader = memo(() => {
           </span>
         </motion.button>
 
-        {/* Safe Assist */}
-        <SafeAssistTrigger variant="compact" />
 
         {/* Buzzer Control */}
         <AnimatePresence>
