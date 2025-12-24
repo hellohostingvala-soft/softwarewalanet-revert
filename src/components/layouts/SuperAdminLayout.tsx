@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, Users, Shield, Package, UserCheck, Crown,
-  Settings, Activity, Lock, Scale, LogOut, KeyRound, ArrowLeft
+  Settings, Activity, Lock, Scale, LogOut, KeyRound, ArrowLeft, BarChart3
 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,6 +17,7 @@ interface SuperAdminLayoutProps {
 const menuItems = [
   { icon: LayoutDashboard, label: 'Command Center', path: '/super-admin' },
   { icon: Activity, label: 'Live Tracking', path: '/super-admin/live-tracking' },
+  { icon: BarChart3, label: 'Performance', path: '/super-admin/performance' },
   { icon: Users, label: 'Role Manager', path: '/super-admin/role-manager' },
   { icon: UserCheck, label: 'User Manager', path: '/super-admin/user-manager' },
   { icon: Shield, label: 'Permission Matrix', path: '/super-admin/permission-matrix' },
