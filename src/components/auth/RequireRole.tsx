@@ -1,6 +1,7 @@
-import { ReactNode } from "react";
-import { Navigate } from "react-router-dom";
+import { ReactNode, useEffect, useRef } from "react";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 
 type RequireRoleProps = {
@@ -9,8 +10,79 @@ type RequireRoleProps = {
   masterOnly?: boolean;
 };
 
+// Log unauthorized access attempts to audit_logs
+const logUnauthorizedAccess = async (
+  userId: string | undefined,
+  userRole: string | null,
+  attemptedPath: string,
+  reason: string
+) => {
+  try {
+    await supabase.from('audit_logs').insert({
+      user_id: userId || null,
+      role: userRole as any || null,
+      module: 'security',
+      action: 'unauthorized_access_attempt',
+      meta_json: {
+        attempted_path: attemptedPath,
+        reason,
+        timestamp: new Date().toISOString(),
+        user_agent: navigator.userAgent,
+        blocked: true
+      }
+    });
+  } catch (error) {
+    console.error('Failed to log unauthorized access:', error);
+  }
+};
+
 export default function RequireRole({ allowed, children, masterOnly = false }: RequireRoleProps) {
   const { user, userRole, loading, approvalStatus, isPrivileged, isMaster, wasForceLoggedOut } = useAuth();
+  const location = useLocation();
+  const hasLoggedRef = useRef(false);
+
+  // Log unauthorized access attempts (only once per mount)
+  useEffect(() => {
+    if (loading || hasLoggedRef.current) return;
+
+    const shouldLog = () => {
+      // No user - not authenticated
+      if (!user) return { log: false, reason: '' };
+      
+      // No role assigned
+      if (!userRole) return { log: false, reason: '' };
+      
+      // Master-only check
+      if (masterOnly && !isMaster) {
+        return { log: true, reason: 'master_only_route' };
+      }
+      
+      // Master bypasses all
+      if (isMaster) return { log: false, reason: '' };
+      
+      // Check allowed roles
+      if (!allowed.includes(userRole)) {
+        // Super admin can access non-master routes
+        if (userRole === 'super_admin' && !masterOnly) {
+          return { log: false, reason: '' };
+        }
+        return { log: true, reason: 'role_not_allowed' };
+      }
+      
+      // Approval check
+      if (approvalStatus !== 'approved') {
+        return { log: false, reason: '' }; // This is expected behavior, not unauthorized
+      }
+      
+      return { log: false, reason: '' };
+    };
+
+    const { log, reason } = shouldLog();
+    if (log && user?.id) {
+      hasLoggedRef.current = true;
+      logUnauthorizedAccess(user.id, userRole, location.pathname, reason);
+    }
+  }, [user, userRole, loading, approvalStatus, isMaster, masterOnly, allowed, location.pathname]);
 
   if (loading) {
     return (
