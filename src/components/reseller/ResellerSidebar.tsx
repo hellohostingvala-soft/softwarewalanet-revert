@@ -20,9 +20,16 @@ import {
   Clock,
   ShoppingCart,
   Shield,
-  Star
+  Star,
+  LogOut,
+  Lock,
+  Settings,
+  ArrowLeft,
+  KeyRound
 } from 'lucide-react';
 import softwareValaLogo from '@/assets/software-vala-logo.png';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 
 const sidebarItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -55,6 +62,13 @@ export const ResellerSidebar = ({
   onCollapsedChange 
 }: ResellerSidebarProps) => {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    toast.success('Logged out successfully');
+    navigate('/auth');
+  };
 
   return (
     <aside className={`fixed left-0 top-0 bottom-0 z-40 transition-all duration-300 ${collapsed ? 'w-20' : 'w-64'} hidden lg:block`}>
@@ -148,6 +162,49 @@ export const ResellerSidebar = ({
               />
             </div>
             <p className="text-xs text-[hsl(200,80%,60%)] mt-1">Rating: 4.2/5.0</p>
+          </div>
+        )}
+
+        {/* Account Actions */}
+        {!collapsed && (
+          <div className="mx-3 mb-3 space-y-2">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[hsl(220,20%,65%)] hover:text-white hover:bg-white/5 transition-all"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm">Back to Dashboard</span>
+            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => navigate('/change-password')}
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[hsl(220,20%,65%)] hover:text-white hover:bg-white/5 transition-all"
+              >
+                <Lock className="w-4 h-4" />
+                <span className="text-sm">Password</span>
+              </button>
+              <button
+                onClick={() => navigate('/settings')}
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[hsl(220,20%,65%)] hover:text-white hover:bg-white/5 transition-all"
+              >
+                <Settings className="w-4 h-4" />
+                <span className="text-sm">Settings</span>
+              </button>
+            </div>
+            <button
+              onClick={() => navigate('/forgot-password')}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[hsl(220,20%,65%)] hover:text-white hover:bg-white/5 transition-all"
+            >
+              <KeyRound className="w-4 h-4" />
+              <span className="text-sm">Forgot Password</span>
+            </button>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="text-sm">Logout</span>
+            </button>
           </div>
         )}
 
