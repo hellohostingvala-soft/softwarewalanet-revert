@@ -30,6 +30,43 @@ const COMMISSION_RATE_LIMITS: Record<string, { min: number; max: number }> = {
   developer: { min: 0, max: 100 }, // Task-based, varies
 };
 
+// Helper to check financial mode (kill switch)
+async function checkFinancialMode(supabaseAdmin: any): Promise<{ locked: boolean; mode: string; reason: string | null }> {
+  const { data } = await supabaseAdmin.rpc("check_financial_mode");
+  return {
+    locked: data?.locked || false,
+    mode: data?.mode || "SAFE",
+    reason: data?.reason || null,
+  };
+}
+
+// Helper to log wallet audit
+async function logWalletAudit(
+  supabaseAdmin: any,
+  userId: string,
+  operationType: string,
+  status: string,
+  details: Record<string, any>
+) {
+  try {
+    await supabaseAdmin.from("wallet_audit_log").insert({
+      user_id: userId,
+      operation_type: operationType,
+      status,
+      amount: details.amount || null,
+      previous_balance: details.previous_balance || null,
+      new_balance: details.new_balance || null,
+      wallet_id: details.wallet_id || null,
+      ip_address: details.ip_address || null,
+      device_fingerprint: details.device_fingerprint || null,
+      error_message: details.error_message || null,
+      metadata: details.metadata || {},
+    });
+  } catch (e) {
+    console.error("Audit log failed:", e);
+  }
+}
+
 serve(async (req: Request) => {
   const url = new URL(req.url);
   const path = url.pathname.replace("/api-wallet", "");
@@ -68,18 +105,63 @@ serve(async (req: Request) => {
 
       const pendingAmount = pending?.reduce((sum: number, t: any) => sum + (Number(t.amount) || 0), 0) || 0;
 
+      // Also check financial mode status
+      const financialMode = await checkFinancialMode(supabaseAdmin);
+
       return jsonResponse({
         wallet_id: wallet.wallet_id,
         balance: Number(wallet.balance) || 0,
         currency: wallet.currency,
         pending: pendingAmount,
+        financial_mode: financialMode.mode,
+        withdrawals_enabled: !financialMode.locked,
       });
     }, { module: "wallet", action: "balance" });
   }
 
-  // POST /wallet/add
+  // GET /wallet/financial-mode - Check system financial status
+  if (path === "/financial-mode" && req.method === "GET") {
+    return withAuth(req, [], async ({ supabaseAdmin }) => {
+      const financialMode = await checkFinancialMode(supabaseAdmin);
+      return jsonResponse(financialMode);
+    }, { module: "wallet", action: "financial_mode" });
+  }
+
+  // POST /wallet/financial-mode - Set financial mode (Super Admin only)
+  if (path === "/financial-mode" && req.method === "POST") {
+    return withAuth(req, ["super_admin"], async ({ supabaseAdmin, body, user }) => {
+      const validation = validateRequired(body, ["mode"]);
+      if (validation) return errorResponse(validation);
+
+      const { data, error } = await supabaseAdmin.rpc("set_financial_mode", {
+        p_mode: body.mode,
+        p_reason: body.reason || null,
+        p_admin_id: user.userId,
+      });
+
+      if (error) return errorResponse(error.message, 500);
+      if (!data.success) return errorResponse(data.error, 400);
+
+      return jsonResponse({
+        message: `Financial mode set to ${body.mode}`,
+        mode: body.mode,
+      });
+    }, { module: "wallet", action: "set_financial_mode" });
+  }
+
+  // POST /wallet/add - REQUIRES APPROVAL CHECK
   if (path === "/add" && req.method === "POST") {
     return withAuth(req, ["super_admin", "admin", "finance_manager"], async ({ supabaseAdmin, body, user }) => {
+      // Check financial mode first
+      const financialMode = await checkFinancialMode(supabaseAdmin);
+      if (financialMode.locked) {
+        await logWalletAudit(supabaseAdmin, user.userId, "add_funds_blocked", "blocked", {
+          error_message: "Financial system locked",
+          metadata: { reason: financialMode.reason },
+        });
+        return errorResponse("Financial system is currently locked. All wallet operations are suspended.", 423);
+      }
+
       const validation = validateRequired(body, ["user_id", "amount", "reference"]);
       if (validation) return errorResponse(validation);
 
@@ -94,6 +176,24 @@ serve(async (req: Request) => {
         return errorResponse("Amount must be between 0.01 and 10,000,000");
       }
 
+      // Generate idempotency key for this operation
+      const txId = `ADD_${body.user_id}_${amount}_${Math.floor(Date.now() / 60000)}`;
+      
+      // Check if already processed (idempotency)
+      const { data: existingTx } = await supabaseAdmin
+        .from("processed_transactions")
+        .select("id, response_data")
+        .eq("transaction_id", txId)
+        .maybeSingle();
+
+      if (existingTx) {
+        return jsonResponse({
+          message: "Already processed",
+          idempotent: true,
+          ...existingTx.response_data,
+        });
+      }
+
       const { data: wallet } = await supabaseAdmin
         .from("wallets")
         .select("*")
@@ -102,8 +202,8 @@ serve(async (req: Request) => {
 
       if (!wallet) return errorResponse("Wallet not found", 404);
 
-      // Use atomic update with RPC to prevent race conditions
-      const newBalance = Number(wallet.balance) + amount;
+      const previousBalance = Number(wallet.balance) || 0;
+      const newBalance = previousBalance + amount;
 
       // Check for potential overflow
       if (newBalance > 999999999) {
@@ -117,6 +217,12 @@ serve(async (req: Request) => {
         .eq("balance", wallet.balance); // Optimistic locking
 
       if (updateError) {
+        await logWalletAudit(supabaseAdmin, body.user_id, "add_funds_failed", "failed", {
+          amount,
+          previous_balance: previousBalance,
+          wallet_id: wallet.wallet_id,
+          error_message: "Optimistic lock failed - concurrent modification",
+        });
         return errorResponse("Transaction failed - please retry", 409);
       }
 
@@ -130,25 +236,58 @@ serve(async (req: Request) => {
         status: "completed",
       });
 
+      // Record in processed transactions
+      await supabaseAdmin.from("processed_transactions").insert({
+        transaction_id: txId,
+        user_id: body.user_id,
+        transaction_type: "add_funds",
+        amount,
+        status: "completed",
+        response_data: { new_balance: newBalance, reference: body.reference },
+      });
+
       // Audit log for financial transaction
+      await logWalletAudit(supabaseAdmin, body.user_id, "add_funds", "completed", {
+        amount,
+        previous_balance: previousBalance,
+        new_balance: newBalance,
+        wallet_id: wallet.wallet_id,
+        metadata: { reference: body.reference, added_by: user.userId },
+      });
+
       await createAuditLog(supabaseAdmin, user.userId, user.role, "wallet", "funds_added", {
         target_user_id: body.user_id,
         amount,
         new_balance: newBalance,
         reference: body.reference,
+        transaction_id: txId,
       });
 
       return jsonResponse({
         message: "Funds added",
         new_balance: newBalance,
+        transaction_id: txId,
       });
     }, { module: "wallet", action: "add" });
   }
 
   // POST /wallet/withdraw - Creates request only, NO wallet debit
-  // Wallet is only debited when Super Admin/Master approves
+  // CRITICAL: Wallet is ONLY debited when Super Admin/Master approves via approve_payout RPC
   if (path === "/withdraw" && req.method === "POST") {
     return withAuth(req, [], async ({ supabaseAdmin, body, user }) => {
+      // FIRST: Check financial mode (kill switch)
+      const financialMode = await checkFinancialMode(supabaseAdmin);
+      if (financialMode.locked) {
+        await logWalletAudit(supabaseAdmin, user.userId, "withdrawal_blocked", "blocked", {
+          amount: body.amount,
+          error_message: "Financial system locked",
+          ip_address: body.ip_address,
+          device_fingerprint: body.device_fingerprint,
+          metadata: { reason: financialMode.reason },
+        });
+        return errorResponse("Financial system is currently locked. All withdrawals are suspended.", 423);
+      }
+
       const validation = validateRequired(body, ["amount"]);
       if (validation) return errorResponse(validation);
 
@@ -184,6 +323,14 @@ serve(async (req: Request) => {
 
       // Check for sufficient balance (prevent negative balance)
       if (currentBalance < amount) {
+        await logWalletAudit(supabaseAdmin, user.userId, "withdrawal_rejected", "rejected", {
+          amount,
+          previous_balance: currentBalance,
+          wallet_id: wallet.wallet_id,
+          error_message: "Insufficient balance",
+          ip_address: body.ip_address,
+          device_fingerprint: body.device_fingerprint,
+        });
         return errorResponse("Insufficient balance", 400);
       }
 
@@ -215,6 +362,11 @@ serve(async (req: Request) => {
         // Check if same amount already pending
         const duplicateAmount = pendingRequests.find((p: any) => Number(p.amount) === amount);
         if (duplicateAmount) {
+          await logWalletAudit(supabaseAdmin, user.userId, "withdrawal_duplicate", "rejected", {
+            amount,
+            error_message: "Duplicate request for same amount",
+            metadata: { existing_payout_id: duplicateAmount.payout_id },
+          });
           return errorResponse("Duplicate withdrawal request. You already have a pending request for the same amount.", 429);
         }
         
@@ -225,18 +377,34 @@ serve(async (req: Request) => {
         }
       }
 
-      // Generate idempotency key to prevent duplicate submissions
-      const idempotencyKey = `${user.userId}-${amount}-${Date.now()}`;
+      // Generate minute-based idempotency key (prevents duplicate submissions within same minute)
+      const idempotencyKey = `${user.userId}-${amount}-${Math.floor(Date.now() / 60000)}`;
+
+      // Check if this exact request was already made
+      const { data: existingRequest } = await supabaseAdmin
+        .from("payout_requests")
+        .select("payout_id, status")
+        .eq("idempotency_key", idempotencyKey)
+        .maybeSingle();
+
+      if (existingRequest) {
+        return jsonResponse({
+          message: "Request already submitted",
+          payout_id: existingRequest.payout_id,
+          status: existingRequest.status,
+          idempotent: true,
+        });
+      }
 
       // Create payout request with status 'requested' (NOT pending)
-      // Wallet is NOT debited at this stage
+      // CRITICAL: Wallet is NOT debited at this stage - only on approval
       const { data: payout, error } = await supabaseAdmin.from("payout_requests").insert({
         user_id: user.userId,
         amount: amount,
-        status: "requested", // New flow: requested -> pending -> approved/rejected
+        status: "requested", // Flow: requested -> (admin review) -> approved/rejected
         payment_method: body.payment_method || "bank_transfer",
         user_role: user.role,
-        wallet_debited: false, // Explicitly mark as not debited
+        wallet_debited: false, // NEVER set to true here
         idempotency_key: idempotencyKey,
         ip_address: body.ip_address || null,
         device_fingerprint: body.device_fingerprint || null,
@@ -244,18 +412,32 @@ serve(async (req: Request) => {
 
       if (error) {
         if (error.message.includes("idempotency_key")) {
-          return errorResponse("Duplicate request detected. Please wait.", 429);
+          return errorResponse("Duplicate request detected. Please wait before retrying.", 429);
         }
+        await logWalletAudit(supabaseAdmin, user.userId, "withdrawal_error", "error", {
+          amount,
+          error_message: error.message,
+        });
         return errorResponse(error.message, 400);
       }
 
-      // Audit log - no wallet debit at this stage
+      // Log the request (NO balance change)
+      await logWalletAudit(supabaseAdmin, user.userId, "withdrawal_requested", "pending", {
+        amount,
+        previous_balance: currentBalance,
+        wallet_id: wallet.wallet_id,
+        ip_address: body.ip_address,
+        device_fingerprint: body.device_fingerprint,
+        metadata: { payout_id: payout.payout_id, payment_method: body.payment_method || "bank_transfer" },
+      });
+
+      // Legacy audit log
       await createAuditLog(supabaseAdmin, user.userId, user.role, "wallet", "withdrawal_requested", {
         payout_id: payout.payout_id,
         amount,
         current_balance: currentBalance,
         payment_method: body.payment_method || "bank_transfer",
-        note: "Request submitted - awaiting Super Admin/Master approval",
+        note: "Request submitted - awaiting Super Admin/Master approval. NO BALANCE DEDUCTED.",
       });
 
       return jsonResponse({
@@ -263,7 +445,8 @@ serve(async (req: Request) => {
         payout_id: payout.payout_id,
         amount: amount,
         status: "requested",
-        note: "Your request will be reviewed by an administrator. Funds will be released upon approval.",
+        wallet_debited: false,
+        note: "Your request will be reviewed by an administrator. Funds will ONLY be released upon approval.",
       });
     }, { module: "wallet", action: "withdraw" });
   }

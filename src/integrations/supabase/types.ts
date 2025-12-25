@@ -8081,6 +8081,45 @@ export type Database = {
           },
         ]
       }
+      processed_transactions: {
+        Row: {
+          amount: number
+          device_fingerprint: string | null
+          id: string
+          ip_address: string | null
+          processed_at: string | null
+          response_data: Json | null
+          status: string
+          transaction_id: string
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          device_fingerprint?: string | null
+          id?: string
+          ip_address?: string | null
+          processed_at?: string | null
+          response_data?: Json | null
+          status?: string
+          transaction_id: string
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          device_fingerprint?: string | null
+          id?: string
+          ip_address?: string | null
+          processed_at?: string | null
+          response_data?: Json | null
+          status?: string
+          transaction_id?: string
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       product_action_logs: {
         Row: {
           action: string
@@ -11514,6 +11553,33 @@ export type Database = {
         }
         Relationships: []
       }
+      system_financial_config: {
+        Row: {
+          config_key: string
+          config_value: Json
+          id: string
+          is_active: boolean | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          config_key: string
+          config_value?: Json
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          config_key?: string
+          config_value?: Json
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       system_health: {
         Row: {
           id: string
@@ -12647,6 +12713,66 @@ export type Database = {
           },
         ]
       }
+      wallet_audit_log: {
+        Row: {
+          amount: number | null
+          approval_status: string | null
+          approved_by: string | null
+          created_at: string | null
+          device_fingerprint: string | null
+          error_message: string | null
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          new_balance: number | null
+          operation_type: string
+          previous_balance: number | null
+          status: string
+          transaction_id: string | null
+          user_agent: string | null
+          user_id: string
+          wallet_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          approval_status?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          error_message?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          new_balance?: number | null
+          operation_type: string
+          previous_balance?: number | null
+          status: string
+          transaction_id?: string | null
+          user_agent?: string | null
+          user_id: string
+          wallet_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          approval_status?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          error_message?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          new_balance?: number | null
+          operation_type?: string
+          previous_balance?: number | null
+          status?: string
+          transaction_id?: string | null
+          user_agent?: string | null
+          user_id?: string
+          wallet_id?: string | null
+        }
+        Relationships: []
+      }
       wallet_compliance_checks: {
         Row: {
           action_taken: string | null
@@ -12794,6 +12920,7 @@ export type Database = {
         }
         Returns: Json
       }
+      check_financial_mode: { Args: never; Returns: Json }
       check_force_logout: { Args: { check_user_id: string }; Returns: string }
       check_session_valid: { Args: { p_user_id: string }; Returns: Json }
       clear_force_logout: { Args: { clear_user_id: string }; Returns: boolean }
@@ -13008,9 +13135,23 @@ export type Database = {
         }
         Returns: boolean
       }
+      request_withdrawal: {
+        Args: {
+          p_amount: number
+          p_device_fingerprint?: string
+          p_ip_address?: string
+          p_payment_method?: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       requires_otp_verification: {
         Args: { p_action_type: string; p_user_id: string }
         Returns: boolean
+      }
+      set_financial_mode: {
+        Args: { p_admin_id: string; p_mode: string; p_reason: string }
+        Returns: Json
       }
       update_online_status: {
         Args: { p_current_page?: string; p_is_online: boolean }
