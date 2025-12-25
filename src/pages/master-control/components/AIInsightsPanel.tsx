@@ -31,14 +31,14 @@ const insights = [
 
 const AIInsightsPanel = () => {
   return (
-    <div className="h-full flex flex-col bg-neutral-50">
+    <div className="h-full flex flex-col bg-stone-50">
       {/* Header */}
-      <div className="p-4 border-b border-neutral-200 bg-white">
+      <div className="p-4 border-b border-stone-200 bg-white">
         <div className="flex items-center gap-2">
-          <Brain className="w-5 h-5 text-neutral-600" />
-          <h3 className="font-semibold text-neutral-800">AI Strategic Insights</h3>
+          <Brain className="w-5 h-5 text-stone-600" />
+          <h3 className="font-semibold text-stone-800">AI Strategic Insights</h3>
         </div>
-        <p className="text-xs text-neutral-500 mt-1">Read-only recommendations</p>
+        <p className="text-xs text-stone-500 mt-1">Read-only recommendations</p>
       </div>
 
       {/* Insights List */}
@@ -47,12 +47,12 @@ const AIInsightsPanel = () => {
           {insights.map((insight) => (
             <div 
               key={insight.id}
-              className="p-3 bg-white border border-neutral-200 rounded-lg shadow-sm"
+              className="p-3 bg-white border border-stone-200 rounded-lg shadow-sm"
             >
-              <p className="text-sm text-neutral-700 leading-relaxed">
+              <p className="text-sm text-stone-700 leading-relaxed">
                 {insight.message}
               </p>
-              <p className="text-xs text-neutral-500 mt-2">{insight.context}</p>
+              <p className="text-xs text-stone-500 mt-2">{insight.context}</p>
               
               <div className="flex gap-2 mt-3">
                 <Button 
@@ -65,7 +65,7 @@ const AIInsightsPanel = () => {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="text-xs h-7 border-neutral-300 text-neutral-600 hover:bg-neutral-100 bg-white"
+                  className="text-xs h-7 border-stone-300 text-stone-600 hover:bg-stone-100 bg-white"
                 >
                   <CheckCircle className="w-3 h-3 mr-1" />
                   Acknowledge
@@ -77,8 +77,8 @@ const AIInsightsPanel = () => {
       </ScrollArea>
 
       {/* Footer */}
-      <div className="p-4 border-t border-neutral-200 bg-white">
-        <p className="text-xs text-neutral-500 text-center">
+      <div className="p-4 border-t border-stone-200 bg-white">
+        <p className="text-xs text-stone-500 text-center">
           AI never executes actions — guidance only
         </p>
       </div>
