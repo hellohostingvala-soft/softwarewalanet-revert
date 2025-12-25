@@ -59,6 +59,7 @@ import ServerManagerDashboard from "./pages/server-manager/ServerManagerDashboar
 import SecurityCommandCenter from "./pages/security-command/SecurityCommandCenter";
 import APIManagerDashboard from "./pages/api-manager/APIManagerDashboard";
 import MarketingManagerDashboard from "./pages/marketing-manager/MarketingManagerDashboard";
+import SEOManagerDashboard from "./pages/seo-manager/SEOManagerDashboard";
 
 import ComplianceCenter from "./pages/super-admin/ComplianceCenter";
 
@@ -228,6 +229,10 @@ const App = () => (
               {/* Marketing Manager Routes */}
               <Route path="/marketing-manager" element={<RequireRole allowed={["master", "super_admin", "marketing_manager"]}><MarketingManagerDashboard /></RequireRole>} />
               <Route path="/marketing-manager/*" element={<RequireRole allowed={["master", "super_admin", "marketing_manager"]}><MarketingManagerDashboard /></RequireRole>} />
+
+              {/* SEO Manager Routes */}
+              <Route path="/seo-manager" element={<RequireRole allowed={["master", "super_admin", "seo_manager"]}><SEOManagerDashboard /></RequireRole>} />
+              <Route path="/seo-manager/*" element={<RequireRole allowed={["master", "super_admin", "seo_manager"]}><SEOManagerDashboard /></RequireRole>} />
 
               {/* Continent Super Admin Routes */}
               <Route path="/continent-super-admin" element={<RequireRole allowed={["master", "super_admin"]}><ContinentSuperAdminDashboard /></RequireRole>} />
