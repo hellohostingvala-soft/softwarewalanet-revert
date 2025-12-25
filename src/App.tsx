@@ -55,6 +55,7 @@ import SecurityCenter from "./pages/super-admin/SecurityCenter";
 import ProductManagerPage from "./pages/super-admin/ProductManagerPage";
 import SystemAudit from "./pages/super-admin/SystemAudit";
 import PrimeManager from "./pages/super-admin/PrimeManager";
+import ServerManagerDashboard from "./pages/server-manager/ServerManagerDashboard";
 
 import ComplianceCenter from "./pages/super-admin/ComplianceCenter";
 
@@ -208,6 +209,10 @@ const App = () => (
               {/* Area Manager Routes */}
               <Route path="/area-manager" element={<RequireRole allowed={["master", "super_admin", "area_manager"]}><AreaManagerDashboard /></RequireRole>} />
               <Route path="/area-manager/*" element={<RequireRole allowed={["master", "super_admin", "area_manager"]}><AreaManagerDashboard /></RequireRole>} />
+
+              {/* Server Manager Routes */}
+              <Route path="/server-manager" element={<RequireRole allowed={["master", "super_admin", "server_manager"]}><ServerManagerDashboard /></RequireRole>} />
+              <Route path="/server-manager/*" element={<RequireRole allowed={["master", "super_admin", "server_manager"]}><ServerManagerDashboard /></RequireRole>} />
 
               {/* Continent Super Admin Routes */}
               <Route path="/continent-super-admin" element={<RequireRole allowed={["master", "super_admin"]}><ContinentSuperAdminDashboard /></RequireRole>} />

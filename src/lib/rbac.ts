@@ -8,11 +8,12 @@ import { Database } from '@/integrations/supabase/types';
 
 export type AppRole = Database['public']['Enums']['app_role'];
 
-// Complete role hierarchy with numeric levels for comparison (28 roles)
+// Complete role hierarchy with numeric levels for comparison (29 roles)
 export const ROLE_HIERARCHY: Partial<Record<AppRole, number>> = {
   master: 110, // Master admin - highest level
   super_admin: 100,
-  area_manager: 90, // Region-based control (renamed from admin)
+  server_manager: 95, // Infrastructure control - below Super Admin, above Area Manager
+  area_manager: 90, // Region-based control
   finance_manager: 85,
   legal_compliance: 80,
   hr_manager: 75,
@@ -59,6 +60,7 @@ export const MASKED_ID_CONFIG: Record<string, {
 }> = {
   master: { prefix: '🔱 MASTER', digits: 1, icon: 'Crown', displayName: 'Master Admin' },
   super_admin: { prefix: '👑 BOSS', digits: 2, icon: 'Crown', displayName: 'Super Admin' },
+  server_manager: { prefix: 'SRV', digits: 2, icon: 'Server', displayName: 'Server Manager' },
   area_manager: { prefix: 'ARM', digits: 2, icon: 'MapPin', displayName: 'Area Manager' },
   task_manager: { prefix: 'EMP', digits: 3, icon: 'ListTodo', displayName: 'Task Manager' },
   rnd_manager: { prefix: 'EMP', digits: 3, icon: 'Lightbulb', displayName: 'R&D Manager' },
@@ -90,10 +92,11 @@ export const MASKED_ID_CONFIG: Record<string, {
   common: { prefix: 'USR', digits: 8, icon: 'User', displayName: 'User' },
 };
 
-// Route access mapping for all 28 roles
+// Route access mapping for all 29 roles
 export const ROLE_ROUTES: Partial<Record<AppRole, string[]>> = {
   master: ['*'], // Master has full access to everything
   super_admin: ['*'], // Access to everything
+  server_manager: ['/server-manager', '/server-manager/*'], // Infrastructure only - no business data
   area_manager: ['/area-manager', '/area-manager/*'], // Region-based control
   developer: ['/developer', '/tasks', '/settings'],
   franchise: ['/franchise', '/leads', '/resellers', '/settings'],

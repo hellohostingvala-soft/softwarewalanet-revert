@@ -90,6 +90,18 @@ const roleMenus: Record<AppRole, MenuItem[]> = {
     { icon: Shield, label: 'Promise Management', path: '/super-admin?cat=promise-management' },
     { icon: LayoutDashboard, label: 'Dashboard Management', path: '/super-admin?cat=dashboard-management' },
   ],
+  server_manager: [
+    { icon: Monitor, label: 'Server Dashboard', path: '/server-manager' },
+    { icon: Activity, label: 'Live Server Status', path: '/server-manager/status' },
+    { icon: Package, label: 'Server Groups', path: '/server-manager/groups' },
+    { icon: BarChart3, label: 'Load & Traffic', path: '/server-manager/traffic' },
+    { icon: Bell, label: 'Incidents & Alerts', path: '/server-manager/incidents' },
+    { icon: Shield, label: 'Backups & Recovery', path: '/server-manager/backups' },
+    { icon: Lock, label: 'Security & Patches', path: '/server-manager/security' },
+    { icon: Wallet, label: 'Cost & Usage', path: '/server-manager/costs' },
+    { icon: FileText, label: 'Change Requests', path: '/server-manager/requests' },
+    { icon: FileText, label: 'Server Audit Logs', path: '/server-manager/audit' },
+  ],
   area_manager: [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/area-manager' },
     { icon: Activity, label: 'Live Activity', path: '/area-manager/live' },
