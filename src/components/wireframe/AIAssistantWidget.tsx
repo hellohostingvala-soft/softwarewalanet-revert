@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Send, Sparkles } from 'lucide-react';
-import logoImage from '/favicon.jpg';
+import softwareValaLogo from '@/assets/software-vala-logo.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -21,7 +21,7 @@ export function AIAssistantWidget({ theme }: AIAssistantWidgetProps) {
           onClick={() => setOpen(true)}
           className="fixed bottom-24 right-6 h-14 w-14 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 shadow-lg shadow-cyan-500/25 flex items-center justify-center hover:scale-110 transition-transform z-50 overflow-hidden"
         >
-          <img src={logoImage} alt="AI Assistant" className="h-10 w-10 rounded-full object-cover" />
+          <img src={softwareValaLogo} alt="AI Assistant" className="h-10 w-10 rounded-full object-cover" />
           <span className="absolute -top-1 -right-1 h-4 w-4 bg-emerald-500 rounded-full border-2 border-white" />
         </button>
       )}
@@ -34,7 +34,7 @@ export function AIAssistantWidget({ theme }: AIAssistantWidgetProps) {
           {/* Header */}
           <div className="bg-gradient-to-r from-cyan-500 to-purple-500 p-4 flex items-center justify-between">
             <div className="flex items-center gap-2 text-white">
-              <img src={logoImage} alt="Software Vala" className="h-6 w-6 rounded-full object-cover" />
+              <img src={softwareValaLogo} alt="Software Vala" className="h-6 w-6 rounded-full object-cover" />
               <span className="font-semibold">AI Assistant</span>
               <Sparkles className="h-4 w-4" />
             </div>

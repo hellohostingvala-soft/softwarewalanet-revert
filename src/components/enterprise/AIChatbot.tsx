@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Bot, X, Send, Minimize2, Maximize2 } from "lucide-react";
+import { X, Send, Minimize2, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import softwareValaLogo from "@/assets/software-vala-logo.png";
 
 interface Message {
   id: string;
@@ -54,9 +55,9 @@ export function AIChatbot() {
     return (
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-br from-[hsl(var(--sv-blue))] to-[hsl(var(--sv-blue-bright))] text-white shadow-lg hover:shadow-xl transition-all z-50"
+        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-br from-[hsl(var(--sv-blue))] to-[hsl(var(--sv-blue-bright))] text-white shadow-lg hover:shadow-xl transition-all z-50 p-0 overflow-hidden"
       >
-        <Bot className="w-6 h-6" />
+        <img src={softwareValaLogo} alt="AI Assistant" className="w-full h-full object-cover" />
       </Button>
     );
   }
@@ -71,8 +72,8 @@ export function AIChatbot() {
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-[hsl(var(--sv-navy-light))]">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[hsl(var(--sv-blue))] to-[hsl(var(--sv-blue-bright))] flex items-center justify-center">
-            <Bot className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 rounded-full overflow-hidden">
+            <img src={softwareValaLogo} alt="AI Assistant" className="w-full h-full object-cover" />
           </div>
           <div>
             <h3 className="text-white text-sm font-medium">AI Assistant</h3>
