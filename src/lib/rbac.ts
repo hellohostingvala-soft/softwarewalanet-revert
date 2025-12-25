@@ -12,7 +12,7 @@ export type AppRole = Database['public']['Enums']['app_role'];
 export const ROLE_HIERARCHY: Partial<Record<AppRole, number>> = {
   master: 110, // Master admin - highest level
   super_admin: 100,
-  admin: 90,
+  area_manager: 90, // Region-based control (renamed from admin)
   finance_manager: 85,
   legal_compliance: 80,
   hr_manager: 75,
@@ -59,7 +59,6 @@ export const MASKED_ID_CONFIG: Record<string, {
 }> = {
   master: { prefix: '🔱 MASTER', digits: 1, icon: 'Crown', displayName: 'Master Admin' },
   super_admin: { prefix: '👑 BOSS', digits: 2, icon: 'Crown', displayName: 'Super Admin' },
-  admin: { prefix: 'ARM', digits: 2, icon: 'MapPin', displayName: 'Area Manager' },
   area_manager: { prefix: 'ARM', digits: 2, icon: 'MapPin', displayName: 'Area Manager' },
   task_manager: { prefix: 'EMP', digits: 3, icon: 'ListTodo', displayName: 'Task Manager' },
   rnd_manager: { prefix: 'EMP', digits: 3, icon: 'Lightbulb', displayName: 'R&D Manager' },
@@ -95,7 +94,7 @@ export const MASKED_ID_CONFIG: Record<string, {
 export const ROLE_ROUTES: Partial<Record<AppRole, string[]>> = {
   master: ['*'], // Master has full access to everything
   super_admin: ['*'], // Access to everything
-  admin: ['/area-manager', '/area-manager/*'], // 'admin' in database maps to 'Area Manager' in UI
+  area_manager: ['/area-manager', '/area-manager/*'], // Region-based control
   developer: ['/developer', '/tasks', '/settings'],
   franchise: ['/franchise', '/leads', '/resellers', '/settings'],
   reseller: ['/reseller', '/leads', '/settings'],
@@ -192,7 +191,7 @@ export function getDashboardRoute(role: AppRole): string {
   const routeMap: Partial<Record<AppRole, string>> = {
     master: '/master-admin',
     super_admin: '/super-admin',
-    admin: '/super-admin',
+    area_manager: '/area-manager', // Region-based dashboard
     developer: '/developer',
     franchise: '/franchise',
     reseller: '/reseller',

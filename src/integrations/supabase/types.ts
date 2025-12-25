@@ -274,53 +274,6 @@ export type Database = {
           },
         ]
       }
-      admin_area_manager: {
-        Row: {
-          assigned_super_admin_id: string | null
-          country: string
-          created_at: string | null
-          current_activity: string | null
-          id: string
-          last_login_time: string | null
-          login_device: string | null
-          status: string | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          assigned_super_admin_id?: string | null
-          country: string
-          created_at?: string | null
-          current_activity?: string | null
-          id?: string
-          last_login_time?: string | null
-          login_device?: string | null
-          status?: string | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          assigned_super_admin_id?: string | null
-          country?: string
-          created_at?: string | null
-          current_activity?: string | null
-          id?: string
-          last_login_time?: string | null
-          login_device?: string | null
-          status?: string | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "admin_area_manager_assigned_super_admin_id_fkey"
-            columns: ["assigned_super_admin_id"]
-            isOneToOne: false
-            referencedRelation: "super_admin"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       ai_billing_qr_codes: {
         Row: {
           base_cost_total: number
@@ -782,6 +735,71 @@ export type Database = {
           user_flagged?: boolean | null
         }
         Relationships: []
+      }
+      area_manager_accounts: {
+        Row: {
+          assigned_countries: string[] | null
+          assigned_super_admin_id: string | null
+          can_access_other_regions: boolean | null
+          can_export_data: boolean | null
+          country: string
+          created_at: string | null
+          current_activity: string | null
+          daily_report_enabled: boolean | null
+          id: string
+          last_login_time: string | null
+          login_device: string | null
+          region: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+          weekly_report_enabled: boolean | null
+        }
+        Insert: {
+          assigned_countries?: string[] | null
+          assigned_super_admin_id?: string | null
+          can_access_other_regions?: boolean | null
+          can_export_data?: boolean | null
+          country: string
+          created_at?: string | null
+          current_activity?: string | null
+          daily_report_enabled?: boolean | null
+          id?: string
+          last_login_time?: string | null
+          login_device?: string | null
+          region?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+          weekly_report_enabled?: boolean | null
+        }
+        Update: {
+          assigned_countries?: string[] | null
+          assigned_super_admin_id?: string | null
+          can_access_other_regions?: boolean | null
+          can_export_data?: boolean | null
+          country?: string
+          created_at?: string | null
+          current_activity?: string | null
+          daily_report_enabled?: boolean | null
+          id?: string
+          last_login_time?: string | null
+          login_device?: string | null
+          region?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+          weekly_report_enabled?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_area_manager_assigned_super_admin_id_fkey"
+            columns: ["assigned_super_admin_id"]
+            isOneToOne: false
+            referencedRelation: "super_admin"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       assist_abuse_flags: {
         Row: {
@@ -13379,6 +13397,7 @@ export type Database = {
       }
       generate_session_code: { Args: never; Returns: string }
       generate_user_verification_code: { Args: never; Returns: string }
+      get_area_manager_region: { Args: { _user_id: string }; Returns: string }
       get_developer_id: { Args: { _user_id: string }; Returns: string }
       get_franchise_id: { Args: { _user_id: string }; Returns: string }
       get_influencer_id: { Args: { _user_id: string }; Returns: string }
@@ -13428,6 +13447,10 @@ export type Database = {
         Returns: boolean
       }
       is_franchise: { Args: { _user_id: string }; Returns: boolean }
+      is_in_area_manager_region: {
+        Args: { _area_manager_id: string; _target_user_id: string }
+        Returns: boolean
+      }
       is_influencer: { Args: { _user_id: string }; Returns: boolean }
       is_master: { Args: never; Returns: boolean }
       is_password_recently_verified: {
@@ -13669,6 +13692,7 @@ export type Database = {
         | "assist_manager"
         | "promise_tracker"
         | "promise_management"
+        | "area_manager"
       critical_action_type:
         | "delete_data"
         | "edit_financial"
@@ -13920,6 +13944,7 @@ export const Constants = {
         "assist_manager",
         "promise_tracker",
         "promise_management",
+        "area_manager",
       ],
       critical_action_type: [
         "delete_data",

@@ -297,7 +297,7 @@ export const RBACGuard = {
   ROLE_HIERARCHY: {
     master: 110,
     super_admin: 100,
-    admin: 90,
+    area_manager: 90, // Region-based control (renamed from admin)
     finance_manager: 85,
     legal_compliance: 80,
     hr_manager: 75,
@@ -313,6 +313,10 @@ export const RBACGuard = {
     ai_manager: 30,
     api_security: 28,
     support: 25,
+    safe_assist: 24,
+    assist_manager: 23,
+    promise_tracker: 22,
+    promise_management: 21,
     franchise: 20,
     reseller: 15,
     developer: 12,
@@ -322,7 +326,7 @@ export const RBACGuard = {
   } as Record<string, number>,
 
   // Roles that can only be assigned by master or super_admin
-  PROTECTED_ROLES: ['master', 'super_admin', 'admin', 'finance_manager', 'legal_compliance'],
+  PROTECTED_ROLES: ['master', 'super_admin', 'area_manager', 'finance_manager', 'legal_compliance'],
 
   /**
    * Check if actor can assign a role to target
