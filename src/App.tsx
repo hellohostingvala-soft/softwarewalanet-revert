@@ -65,6 +65,7 @@ import MasterControlCenter from "./pages/master-control/MasterControlCenter";
 import BootstrapAdmins from "./pages/admin/BootstrapAdmins";
 import BulkUserCreation from "./pages/admin/BulkUserCreation";
 import AreaManagerDashboard from "./pages/area-manager/AreaManagerDashboard";
+import ContinentSuperAdminDashboard from "./pages/continent-super-admin/ContinentSuperAdminDashboard";
 
 // Franchise Layout & Pages
 import FranchiseLayout from "./components/layouts/FranchiseLayout";
@@ -207,6 +208,10 @@ const App = () => (
               {/* Area Manager Routes */}
               <Route path="/area-manager" element={<RequireRole allowed={["master", "super_admin", "area_manager"]}><AreaManagerDashboard /></RequireRole>} />
               <Route path="/area-manager/*" element={<RequireRole allowed={["master", "super_admin", "area_manager"]}><AreaManagerDashboard /></RequireRole>} />
+
+              {/* Continent Super Admin Routes */}
+              <Route path="/continent-super-admin" element={<RequireRole allowed={["master", "super_admin"]}><ContinentSuperAdminDashboard /></RequireRole>} />
+              <Route path="/continent-super-admin/*" element={<RequireRole allowed={["master", "super_admin"]}><ContinentSuperAdminDashboard /></RequireRole>} />
 
               {/* Super Admin Routes - Super Admin and Master can access */}
               <Route path="/admin" element={<RequireRole allowed={["master", "super_admin"]}><SuperAdminCommandCenter /></RequireRole>} />
