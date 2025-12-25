@@ -4,7 +4,7 @@
  * Strict data isolation - influencer can access only own data
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, Share2, Megaphone, Link2, MousePointerClick, 
@@ -16,13 +16,13 @@ import {
 import { RoleBadge } from '@/components/ui/RoleBadge';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useToast } from '@/hooks/use-toast';
 
 // Sidebar navigation items for Influencer role only
 const sidebarItems = [
@@ -42,6 +42,7 @@ const sidebarItems = [
 // Mock KPI data
 const kpiData = [
   { 
+    id: 'earnings',
     label: 'Total Earnings', 
     value: '₹2,45,890', 
     pending: '₹12,500 pending',
@@ -53,6 +54,7 @@ const kpiData = [
     glowColor: 'shadow-emerald-500/20'
   },
   { 
+    id: 'followers',
     label: 'Total Followers', 
     value: '1.2M', 
     subtitle: '+45K this month',
@@ -64,6 +66,7 @@ const kpiData = [
     glowColor: 'shadow-blue-500/20'
   },
   { 
+    id: 'views',
     label: 'Video Views', 
     value: '8.5M', 
     subtitle: '+2.1M this week',
@@ -75,6 +78,7 @@ const kpiData = [
     glowColor: 'shadow-purple-500/20'
   },
   { 
+    id: 'clicks',
     label: 'Link Clicks', 
     value: '156.2K', 
     subtitle: '+8.4K this week',
@@ -86,6 +90,7 @@ const kpiData = [
     glowColor: 'shadow-orange-500/20'
   },
   { 
+    id: 'shares',
     label: 'Social Shares', 
     value: '42.8K', 
     subtitle: 'High engagement',
@@ -97,6 +102,7 @@ const kpiData = [
     glowColor: 'shadow-pink-500/20'
   },
   { 
+    id: 'conversions',
     label: 'Conversions', 
     value: '3,847', 
     subtitle: '2.46% rate',
@@ -112,6 +118,7 @@ const kpiData = [
 // Mock top performing links
 const topLinks = [
   { 
+    id: 'link-1',
     campaign: 'Summer Tech Sale', 
     platform: 'Instagram', 
     clicks: '45.2K', 
@@ -120,6 +127,7 @@ const topLinks = [
     status: 'active' 
   },
   { 
+    id: 'link-2',
     campaign: 'Gaming Bundle Promo', 
     platform: 'YouTube', 
     clicks: '38.7K', 
@@ -128,6 +136,7 @@ const topLinks = [
     status: 'active' 
   },
   { 
+    id: 'link-3',
     campaign: 'Flash Friday Deals', 
     platform: 'Twitter', 
     clicks: '21.4K', 
@@ -136,6 +145,7 @@ const topLinks = [
     status: 'paused' 
   },
   { 
+    id: 'link-4',
     campaign: 'New Year Special', 
     platform: 'Facebook', 
     clicks: '15.8K', 
@@ -147,16 +157,25 @@ const topLinks = [
 
 // Mock security logs
 const securityLogs = [
-  { label: 'Last Login', value: 'Today, 10:45 AM', icon: Clock },
-  { label: 'Last Payout', value: 'Dec 20, 2025', icon: Wallet },
-  { label: 'Last Link Created', value: 'Dec 23, 2025', icon: Link2 },
-  { label: 'Password Changed', value: '45 days ago', icon: Shield },
+  { id: 'login', label: 'Last Login', value: 'Today, 10:45 AM', icon: Clock },
+  { id: 'payout', label: 'Last Payout', value: 'Dec 20, 2025', icon: Wallet },
+  { id: 'link', label: 'Last Link Created', value: 'Dec 23, 2025', icon: Link2 },
+  { id: 'password', label: 'Password Changed', value: '45 days ago', icon: Shield },
+];
+
+// Platform data for audience insights
+const platformData = [
+  { id: 'instagram', platform: 'Instagram', percent: 45, color: 'from-purple-500 to-pink-500' },
+  { id: 'youtube', platform: 'YouTube', percent: 30, color: 'from-red-500 to-orange-500' },
+  { id: 'twitter', platform: 'Twitter', percent: 15, color: 'from-sky-400 to-blue-500' },
+  { id: 'facebook', platform: 'Facebook', percent: 10, color: 'from-blue-500 to-indigo-500' },
 ];
 
 export default function InfluencerCommandCenter() {
   const [activeNav, setActiveNav] = useState('Dashboard');
   const [liveClicks, setLiveClicks] = useState(156234);
-  const [kycStatus, setKycStatus] = useState<'pending' | 'verified' | 'rejected'>('verified');
+  const [kycStatus] = useState<'pending' | 'verified' | 'rejected'>('verified');
+  const { toast } = useToast();
 
   // Simulate live clicks
   useEffect(() => {
@@ -185,6 +204,52 @@ export default function InfluencerCommandCenter() {
     return styles[status] || styles.ended;
   };
 
+  const handleNavClick = useCallback((label: string) => {
+    setActiveNav(label);
+    toast({
+      title: `Navigating to ${label}`,
+      description: "This feature is coming soon.",
+    });
+  }, [toast]);
+
+  const handleLogout = useCallback(() => {
+    toast({
+      title: "Logging out...",
+      description: "You will be redirected to the login page.",
+    });
+  }, [toast]);
+
+  const handleNotificationClick = useCallback(() => {
+    toast({
+      title: "Notifications",
+      description: "You have 5 unread notifications.",
+    });
+  }, [toast]);
+
+  const handleViewAllLinks = useCallback(() => {
+    toast({
+      title: "View All Links",
+      description: "Redirecting to all links page.",
+    });
+  }, [toast]);
+
+  const handleRequestPayout = useCallback(() => {
+    if (kycStatus !== 'verified') {
+      toast({
+        title: "Payout Unavailable",
+        description: "Complete KYC verification to request payouts.",
+        variant: "destructive",
+      });
+      return;
+    }
+    toast({
+      title: "Payout Requested",
+      description: "Your payout request has been submitted.",
+    });
+  }, [kycStatus, toast]);
+
+  const isPayoutDisabled = kycStatus !== 'verified';
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0f1c] via-[#0d1526] to-[#0f1a2e] text-white flex">
       {/* Left Sidebar */}
@@ -211,10 +276,11 @@ export default function InfluencerCommandCenter() {
           {sidebarItems.map((item, idx) => (
             <motion.button
               key={item.label}
+              type="button"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: idx * 0.05 }}
-              onClick={() => setActiveNav(item.label)}
+              onClick={() => handleNavClick(item.label)}
               className={cn(
                 "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
                 activeNav === item.label
@@ -230,7 +296,11 @@ export default function InfluencerCommandCenter() {
 
         {/* Logout */}
         <div className="p-4 border-t border-white/5">
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all">
+          <button 
+            type="button"
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all"
+          >
             <LogOut className="w-5 h-5" />
             Logout
           </button>
@@ -271,7 +341,11 @@ export default function InfluencerCommandCenter() {
               <RoleBadge role="influencer" size="md" />
 
               {/* Notifications */}
-              <button className="relative p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+              <button 
+                type="button"
+                onClick={handleNotificationClick}
+                className="relative p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+              >
                 <Bell className="w-5 h-5 text-gray-400" />
                 <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-[10px] font-bold flex items-center justify-center">
                   5
@@ -294,7 +368,7 @@ export default function InfluencerCommandCenter() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {kpiData.map((kpi, idx) => (
               <motion.div
-                key={kpi.label}
+                key={kpi.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
@@ -390,7 +464,13 @@ export default function InfluencerCommandCenter() {
                   </div>
                   <h3 className="font-semibold text-lg">Top Performing Links</h3>
                 </div>
-                <Button variant="ghost" size="sm" className="text-cyan-400 hover:text-cyan-300">
+                <Button 
+                  type="button"
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleViewAllLinks}
+                  className="text-cyan-400 hover:text-cyan-300"
+                >
                   View All <ExternalLink className="w-4 h-4 ml-1" />
                 </Button>
               </div>
@@ -398,7 +478,7 @@ export default function InfluencerCommandCenter() {
               <div className="space-y-3">
                 {topLinks.map((link, idx) => (
                   <motion.div
-                    key={link.campaign}
+                    key={link.id}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.1 }}
@@ -478,24 +558,26 @@ export default function InfluencerCommandCenter() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button 
-                      className={cn(
-                        "w-full",
-                        kycStatus === 'verified' 
-                          ? "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600"
-                          : "bg-gray-600 cursor-not-allowed"
-                      )}
-                      disabled={kycStatus !== 'verified'}
-                    >
-                      {kycStatus !== 'verified' && <Lock className="w-4 h-4 mr-2" />}
-                      Request Payout
-                    </Button>
+                    <span className="w-full inline-block">
+                      <Button 
+                        type="button"
+                        onClick={handleRequestPayout}
+                        disabled={isPayoutDisabled}
+                        className={cn(
+                          "w-full",
+                          !isPayoutDisabled 
+                            ? "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600"
+                            : "bg-gray-600 cursor-not-allowed opacity-50"
+                        )}
+                      >
+                        {isPayoutDisabled && <Lock className="w-4 h-4 mr-2" />}
+                        Request Payout
+                      </Button>
+                    </span>
                   </TooltipTrigger>
-                  {kycStatus !== 'verified' && (
-                    <TooltipContent>
-                      <p>KYC verification required for payouts</p>
-                    </TooltipContent>
-                  )}
+                  <TooltipContent>
+                    <p>{isPayoutDisabled ? "KYC verification required for payouts" : "Click to request payout"}</p>
+                  </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </motion.div>
@@ -570,9 +652,9 @@ export default function InfluencerCommandCenter() {
               </div>
 
               <div className="space-y-3">
-                {securityLogs.map((log, idx) => (
+                {securityLogs.map((log) => (
                   <div 
-                    key={log.label}
+                    key={log.id}
                     className="flex items-center justify-between p-3 rounded-xl bg-white/5"
                   >
                     <div className="flex items-center gap-3">
@@ -611,7 +693,7 @@ export default function InfluencerCommandCenter() {
                 <div className="flex items-end gap-2 h-24">
                   {[40, 65, 45, 80, 55, 90, 70].map((h, i) => (
                     <motion.div
-                      key={i}
+                      key={`bar-${i}`}
                       initial={{ height: 0 }}
                       animate={{ height: `${h}%` }}
                       transition={{ delay: i * 0.1, duration: 0.5 }}
@@ -652,13 +734,8 @@ export default function InfluencerCommandCenter() {
               <div className="mb-6">
                 <p className="text-sm text-gray-400 mb-3">Platform Split</p>
                 <div className="space-y-3">
-                  {[
-                    { platform: 'Instagram', percent: 45, color: 'from-purple-500 to-pink-500' },
-                    { platform: 'YouTube', percent: 30, color: 'from-red-500 to-orange-500' },
-                    { platform: 'Twitter', percent: 15, color: 'from-sky-400 to-blue-500' },
-                    { platform: 'Facebook', percent: 10, color: 'from-blue-500 to-indigo-500' },
-                  ].map((p) => (
-                    <div key={p.platform}>
+                  {platformData.map((p) => (
+                    <div key={p.id}>
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-sm text-white">{p.platform}</span>
                         <span className="text-sm text-gray-400">{p.percent}%</span>
