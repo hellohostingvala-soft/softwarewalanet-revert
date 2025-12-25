@@ -10952,6 +10952,62 @@ export type Database = {
           },
         ]
       }
+      server_actions: {
+        Row: {
+          action_type: string
+          after_state: Json | null
+          approval_status: string | null
+          approved_at: string | null
+          approved_by: string | null
+          before_state: Json | null
+          created_at: string | null
+          executed_at: string | null
+          id: string
+          rejection_reason: string | null
+          requested_by: string
+          risk_level: string
+          server_id: string | null
+        }
+        Insert: {
+          action_type: string
+          after_state?: Json | null
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          before_state?: Json | null
+          created_at?: string | null
+          executed_at?: string | null
+          id?: string
+          rejection_reason?: string | null
+          requested_by: string
+          risk_level: string
+          server_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          after_state?: Json | null
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          before_state?: Json | null
+          created_at?: string | null
+          executed_at?: string | null
+          id?: string
+          rejection_reason?: string | null
+          requested_by?: string
+          risk_level?: string
+          server_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "server_actions_server_id_fkey"
+            columns: ["server_id"]
+            isOneToOne: false
+            referencedRelation: "server_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       server_ai_analysis: {
         Row: {
           analysis_result: Json
@@ -10998,6 +11054,110 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "server_ai_analysis_server_id_fkey"
+            columns: ["server_id"]
+            isOneToOne: false
+            referencedRelation: "server_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      server_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string | null
+          id: string
+          is_resolved: boolean | null
+          message: string | null
+          resolution_notes: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          server_id: string | null
+          severity: string | null
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string | null
+          id?: string
+          is_resolved?: boolean | null
+          message?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          server_id?: string | null
+          severity?: string | null
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string | null
+          id?: string
+          is_resolved?: boolean | null
+          message?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          server_id?: string | null
+          severity?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "server_alerts_server_id_fkey"
+            columns: ["server_id"]
+            isOneToOne: false
+            referencedRelation: "server_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      server_audit_logs: {
+        Row: {
+          action: string
+          after_state: Json | null
+          approval_id: string | null
+          before_state: Json | null
+          created_at: string | null
+          device_fingerprint: string | null
+          id: string
+          ip_address: string | null
+          performed_by: string
+          risk_level: string | null
+          server_id: string | null
+        }
+        Insert: {
+          action: string
+          after_state?: Json | null
+          approval_id?: string | null
+          before_state?: Json | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          id?: string
+          ip_address?: string | null
+          performed_by: string
+          risk_level?: string | null
+          server_id?: string | null
+        }
+        Update: {
+          action?: string
+          after_state?: Json | null
+          approval_id?: string | null
+          before_state?: Json | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          id?: string
+          ip_address?: string | null
+          performed_by?: string
+          risk_level?: string | null
+          server_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "server_audit_logs_approval_id_fkey"
+            columns: ["approval_id"]
+            isOneToOne: false
+            referencedRelation: "server_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "server_audit_logs_server_id_fkey"
             columns: ["server_id"]
             isOneToOne: false
             referencedRelation: "server_instances"
@@ -11214,6 +11374,57 @@ export type Database = {
           uptime_percentage?: number | null
           verification_token?: string | null
           verified_at?: string | null
+        }
+        Relationships: []
+      }
+      server_manager_accounts: {
+        Row: {
+          allowed_ips: string[] | null
+          assigned_continents: string[] | null
+          assigned_servers: string[] | null
+          can_restart_production: boolean | null
+          can_restore_backups: boolean | null
+          created_at: string | null
+          id: string
+          ip_locked: boolean | null
+          last_login_time: string | null
+          login_device: string | null
+          max_approval_level: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          allowed_ips?: string[] | null
+          assigned_continents?: string[] | null
+          assigned_servers?: string[] | null
+          can_restart_production?: boolean | null
+          can_restore_backups?: boolean | null
+          created_at?: string | null
+          id?: string
+          ip_locked?: boolean | null
+          last_login_time?: string | null
+          login_device?: string | null
+          max_approval_level?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          allowed_ips?: string[] | null
+          assigned_continents?: string[] | null
+          assigned_servers?: string[] | null
+          can_restart_production?: boolean | null
+          can_restore_backups?: boolean | null
+          created_at?: string | null
+          id?: string
+          ip_locked?: boolean | null
+          last_login_time?: string | null
+          login_device?: string | null
+          max_approval_level?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -13459,6 +13670,7 @@ export type Database = {
       }
       is_prime_user: { Args: { _user_id: string }; Returns: boolean }
       is_reseller: { Args: { _user_id: string }; Returns: boolean }
+      is_server_manager: { Args: { _user_id: string }; Returns: boolean }
       is_super_admin: { Args: never; Returns: boolean }
       is_user_approved: { Args: { _user_id: string }; Returns: boolean }
       is_user_verified: {
@@ -13693,6 +13905,7 @@ export type Database = {
         | "promise_tracker"
         | "promise_management"
         | "area_manager"
+        | "server_manager"
       critical_action_type:
         | "delete_data"
         | "edit_financial"
@@ -13945,6 +14158,7 @@ export const Constants = {
         "promise_tracker",
         "promise_management",
         "area_manager",
+        "server_manager",
       ],
       critical_action_type: [
         "delete_data",
