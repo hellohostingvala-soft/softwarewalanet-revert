@@ -26,10 +26,12 @@ import {
   KeyRound,
   ArrowLeft,
   ClipboardList,
-  Rocket
+  Rocket,
+  Bug
 } from 'lucide-react';
 import TestPlanScreen from './screens/TestPlanScreen';
 import DeployChecklistScreen from './screens/DeployChecklistScreen';
+import BugFixExecutionScreen from './screens/BugFixExecutionScreen';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -410,6 +412,10 @@ const MasterAdminDashboard = () => {
               <Rocket className="w-4 h-4" />
               Deploy
             </TabsTrigger>
+            <TabsTrigger value="bug-fix" className="gap-2 data-[state=active]:bg-red-500 data-[state=active]:text-white">
+              <Bug className="w-4 h-4" />
+              Bug Fix
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="live-reports" className="mt-4">
@@ -500,6 +506,14 @@ const MasterAdminDashboard = () => {
             <Card className="bg-[#12121a] border-gray-800/50">
               <CardContent className="p-6">
                 <DeployChecklistScreen />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="bug-fix" className="mt-4">
+            <Card className="bg-[#12121a] border-gray-800/50">
+              <CardContent className="p-6">
+                <BugFixExecutionScreen />
               </CardContent>
             </Card>
           </TabsContent>
