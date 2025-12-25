@@ -84,13 +84,13 @@ export const ProductManager: React.FC<ProductManagerProps> = ({ viewOnly = false
   const fetchProducts = async () => {
     setLoading(true);
     try {
+      // First fetch products with categories (no demo join to avoid RLS issues)
       let query = supabase
         .from("products")
         .select(`
           *,
           category:business_categories(id, name, icon),
-          subcategory:business_subcategories(id, name),
-          demo_mappings:product_demo_mappings(demo_id, demos(id, title, url, status))
+          subcategory:business_subcategories(id, name)
         `)
         .order("created_at", { ascending: false });
 
@@ -98,9 +98,35 @@ export const ProductManager: React.FC<ProductManagerProps> = ({ viewOnly = false
       if (filterStatus) query = query.eq("status", filterStatus);
       if (search) query = query.ilike("product_name", `%${search}%`);
 
-      const { data, error } = await query;
-      if (error) throw error;
-      setProducts(data || []);
+      const { data: productsData, error: productsError } = await query;
+      if (productsError) throw productsError;
+
+      // Fetch demo mappings separately to handle RLS gracefully
+      const productIds = productsData?.map(p => p.product_id) || [];
+      let demoMappings: Record<string, any[]> = {};
+      
+      if (productIds.length > 0) {
+        const { data: mappingsData } = await supabase
+          .from("product_demo_mappings")
+          .select("product_id, demo_id")
+          .in("product_id", productIds);
+        
+        if (mappingsData) {
+          // Group mappings by product_id
+          mappingsData.forEach((m: any) => {
+            if (!demoMappings[m.product_id]) demoMappings[m.product_id] = [];
+            demoMappings[m.product_id].push({ demo_id: m.demo_id, demos: null });
+          });
+        }
+      }
+
+      // Merge demo mappings into products
+      const productsWithMappings = (productsData || []).map(p => ({
+        ...p,
+        demo_mappings: demoMappings[p.product_id] || []
+      }));
+
+      setProducts(productsWithMappings);
     } catch (error: any) {
       toast.error("Failed to fetch products: " + error.message);
     } finally {
