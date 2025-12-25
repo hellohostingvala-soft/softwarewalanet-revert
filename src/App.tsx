@@ -178,6 +178,7 @@ const App = () => (
                           {/* Public Routes - No login required */}
               <Route path="/" element={<Homepage />} />
               <Route path="/demos" element={<SimpleDemoList />} />
+              <Route path="/products" element={<SimpleDemoList />} />
               <Route path="/demo/:demoId" element={<SimpleDemoView />} />
               <Route path="/checkout/:demoId" element={<SimpleCheckout />} />
               <Route path="/user-dashboard" element={<SimpleUserDashboard />} />
