@@ -9,6 +9,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
 import TaskManagerTopBar from "@/components/tasks/TaskManagerTopBar";
 import TaskPipeline from "@/components/tasks/TaskPipeline";
 import TaskDetails from "@/components/tasks/TaskDetails";
@@ -54,6 +55,7 @@ const TaskManager = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showAIPanel, setShowAIPanel] = useState(false);
   const [showCreateTask, setShowCreateTask] = useState(false);
+  const [isCreatingTask, setIsCreatingTask] = useState(false);
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
   const [notifications, setNotifications] = useState([
@@ -67,6 +69,43 @@ const TaskManager = () => {
     await signOut();
     toast.success('Logged out successfully');
     navigate('/login');
+  };
+
+  const handleCreateTask = async (taskData: Partial<Task>) => {
+    setIsCreatingTask(true);
+    try {
+      // Log to audit
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (currentUser) {
+        await supabase.from('audit_logs').insert({
+          user_id: currentUser.id,
+          action: 'task_created',
+          module: 'task_manager',
+          role: 'task_manager',
+          meta_json: {
+            task_title: taskData.title,
+            priority: taskData.priority,
+            assigned_to: taskData.assignedTo,
+          }
+        });
+      }
+
+      // Add to notifications
+      setNotifications(prev => [{
+        id: Date.now().toString(),
+        message: `Task "${taskData.title}" created successfully`,
+        type: 'success',
+        time: 'Just now'
+      }, ...prev]);
+
+      toast.success(`Task "${taskData.title}" created successfully`);
+      setShowCreateTask(false);
+    } catch (error) {
+      console.error('Error creating task:', error);
+      toast.error('Failed to create task');
+    } finally {
+      setIsCreatingTask(false);
+    }
   };
 
   const sidebarItems = [
@@ -296,7 +335,7 @@ const TaskManager = () => {
         <TaskCreationPanel 
           isOpen={showCreateTask}
           onClose={() => setShowCreateTask(false)}
-          onCreateTask={(task) => console.log('Created task:', task)}
+          onCreateTask={handleCreateTask}
         />
       </div>
     </div>

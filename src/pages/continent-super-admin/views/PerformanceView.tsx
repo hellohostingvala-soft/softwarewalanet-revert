@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion';
 import { TrendingUp, Target, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 
 const PerformanceView = () => {
   const countryPerformance = [
@@ -11,6 +12,28 @@ const PerformanceView = () => {
     { country: 'Ghana', growth: 15, target: 70, actual: 72 },
     { country: 'Egypt', growth: 12, target: 80, actual: 68 },
     { country: 'Morocco', growth: 20, target: 75, actual: 79 },
+  ];
+
+  const growthTrendData = [
+    { month: 'Jan', growth: 12, revenue: 45000 },
+    { month: 'Feb', growth: 14, revenue: 52000 },
+    { month: 'Mar', growth: 11, revenue: 48000 },
+    { month: 'Apr', growth: 15, revenue: 58000 },
+    { month: 'May', growth: 18, revenue: 65000 },
+    { month: 'Jun', growth: 16, revenue: 62000 },
+    { month: 'Jul', growth: 19, revenue: 71000 },
+    { month: 'Aug', growth: 21, revenue: 78000 },
+    { month: 'Sep', growth: 18, revenue: 72000 },
+    { month: 'Oct', growth: 22, revenue: 85000 },
+    { month: 'Nov', growth: 24, revenue: 92000 },
+    { month: 'Dec', growth: 26, revenue: 98000 },
+  ];
+
+  const quarterlyData = [
+    { quarter: 'Q1', actual: 145000, target: 140000, growth: 12 },
+    { quarter: 'Q2', actual: 185000, target: 170000, growth: 15 },
+    { quarter: 'Q3', actual: 221000, target: 200000, growth: 18 },
+    { quarter: 'Q4', actual: 275000, target: 240000, growth: 22 },
   ];
 
   return (
@@ -79,18 +102,96 @@ const PerformanceView = () => {
         </motion.div>
       </div>
 
-      {/* Growth Chart Placeholder */}
+      {/* Growth Trend Chart */}
       <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-foreground">Growth Trend</CardTitle>
+          <CardTitle className="text-foreground flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-emerald-500" />
+            Growth Trend (Monthly)
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-64 flex items-center justify-center border border-dashed border-border rounded-lg">
-            <div className="text-center text-muted-foreground">
-              <TrendingUp className="h-12 w-12 mx-auto mb-2 opacity-50" />
-              <p>Quarterly growth chart</p>
-              <p className="text-sm">Q1: +12% | Q2: +15% | Q3: +18% | Q4: +22%</p>
-            </div>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={growthTrendData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis 
+                  dataKey="month" 
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                />
+                <YAxis 
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    color: 'hsl(var(--foreground))'
+                  }}
+                />
+                <Legend />
+                <Line 
+                  type="monotone" 
+                  dataKey="growth" 
+                  stroke="#10b981" 
+                  strokeWidth={2}
+                  dot={{ fill: '#10b981', strokeWidth: 2 }}
+                  name="Growth %"
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="revenue" 
+                  stroke="#3b82f6" 
+                  strokeWidth={2}
+                  dot={{ fill: '#3b82f6', strokeWidth: 2 }}
+                  name="Revenue ($)"
+                  yAxisId={0}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Quarterly Performance Chart */}
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <CardTitle className="text-foreground flex items-center gap-2">
+            <BarChart3 className="h-5 w-5 text-blue-500" />
+            Quarterly Performance (Actual vs Target)
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={quarterlyData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis 
+                  dataKey="quarter" 
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                />
+                <YAxis 
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    color: 'hsl(var(--foreground))'
+                  }}
+                  formatter={(value: number) => [`$${value.toLocaleString()}`, '']}
+                />
+                <Legend />
+                <Bar dataKey="target" fill="#6366f1" name="Target" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="actual" fill="#10b981" name="Actual" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>
