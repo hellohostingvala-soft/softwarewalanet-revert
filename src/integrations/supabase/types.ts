@@ -9096,6 +9096,7 @@ export type Database = {
           fine_type: string
           id: string
           paid_at: string | null
+          payment_cut_percent: number | null
           promise_id: string
           status: string
           waived_at: string | null
@@ -9111,6 +9112,7 @@ export type Database = {
           fine_type?: string
           id?: string
           paid_at?: string | null
+          payment_cut_percent?: number | null
           promise_id: string
           status?: string
           waived_at?: string | null
@@ -9126,6 +9128,7 @@ export type Database = {
           fine_type?: string
           id?: string
           paid_at?: string | null
+          payment_cut_percent?: number | null
           promise_id?: string
           status?: string
           waived_at?: string | null
@@ -9149,6 +9152,8 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           breach_reason: string | null
+          confirmed_at: string | null
+          confirmed_by_developer: boolean | null
           created_at: string
           deadline: string
           developer_id: string
@@ -9164,12 +9169,15 @@ export type Database = {
           is_locked: boolean | null
           linked_demo_id: string | null
           linked_order_id: string | null
+          on_time_bonus: boolean | null
+          penalty_amount: number | null
           priority: string | null
           promise_time: string
           promise_type: string | null
           rejected_at: string | null
           rejected_by: string | null
           rejection_reason: string | null
+          reward_amount: number | null
           score_effect: number | null
           status: Database["public"]["Enums"]["promise_status"]
           task_id: string
@@ -9181,6 +9189,8 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           breach_reason?: string | null
+          confirmed_at?: string | null
+          confirmed_by_developer?: boolean | null
           created_at?: string
           deadline: string
           developer_id: string
@@ -9196,12 +9206,15 @@ export type Database = {
           is_locked?: boolean | null
           linked_demo_id?: string | null
           linked_order_id?: string | null
+          on_time_bonus?: boolean | null
+          penalty_amount?: number | null
           priority?: string | null
           promise_time?: string
           promise_type?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
           rejection_reason?: string | null
+          reward_amount?: number | null
           score_effect?: number | null
           status?: Database["public"]["Enums"]["promise_status"]
           task_id: string
@@ -9213,6 +9226,8 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           breach_reason?: string | null
+          confirmed_at?: string | null
+          confirmed_by_developer?: boolean | null
           created_at?: string
           deadline?: string
           developer_id?: string
@@ -9228,12 +9243,15 @@ export type Database = {
           is_locked?: boolean | null
           linked_demo_id?: string | null
           linked_order_id?: string | null
+          on_time_bonus?: boolean | null
+          penalty_amount?: number | null
           priority?: string | null
           promise_time?: string
           promise_type?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
           rejection_reason?: string | null
+          reward_amount?: number | null
           score_effect?: number | null
           status?: Database["public"]["Enums"]["promise_status"]
           task_id?: string
@@ -14069,6 +14087,10 @@ export type Database = {
         Returns: boolean
       }
       authorize_role_access: { Args: { _user_id: string }; Returns: boolean }
+      breach_promise_with_penalty: {
+        Args: { p_promise_id: string; p_reason?: string }
+        Returns: Json
+      }
       bulk_create_demos: {
         Args: { _demos: Json }
         Returns: {
@@ -14112,6 +14134,14 @@ export type Database = {
       check_force_logout: { Args: { check_user_id: string }; Returns: string }
       check_session_valid: { Args: { p_user_id: string }; Returns: Json }
       clear_force_logout: { Args: { clear_user_id: string }; Returns: boolean }
+      complete_promise_with_reward: {
+        Args: { p_promise_id: string }
+        Returns: Json
+      }
+      confirm_developer_commitment: {
+        Args: { p_promise_id: string }
+        Returns: Json
+      }
       create_demo_order: {
         Args: {
           p_client_domain: string
