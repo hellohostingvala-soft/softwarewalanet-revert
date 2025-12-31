@@ -105,6 +105,9 @@ import SecureSEOManagerDashboard from "./pages/seo-manager/SecureSEOManagerDashb
 import SecureControlSystem from "./pages/control-system/SecureControlSystem";
 import MasterAdminControl from "./pages/control-system/MasterAdminControl";
 
+// Enterprise Control System
+import EnterpriseControlHub from "./pages/enterprise-control/EnterpriseControlHub";
+
 import BulkUserCreation from "./pages/admin/BulkUserCreation";
 import AreaManagerDashboard from "./pages/area-manager/AreaManagerDashboard";
 import ContinentSuperAdminDashboard from "./pages/continent-super-admin/ContinentSuperAdminDashboard";
@@ -444,6 +447,9 @@ const App = () => (
               <Route path="/vala-control/regional" element={<RequireAuth><ValaControlCenter roleView="regional" /></RequireAuth>} />
               <Route path="/vala-control/ai-head" element={<RequireAuth><ValaControlCenter roleView="ai_head" /></RequireAuth>} />
               <Route path="/vala-control/master" element={<RequireRole allowed={["master"]} masterOnly><ValaControlCenter roleView="master" /></RequireRole>} />
+
+              {/* Enterprise Control System - Isolated Workspaces */}
+              <Route path="/enterprise-control" element={<EnterpriseControlHub />} />
 
               {/* New Vala Control System - Isolated Workspaces */}
               <Route path="/vala" element={<RequireAuth><ValaControlHub /></RequireAuth>} />
