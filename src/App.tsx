@@ -95,6 +95,12 @@ import SecureProManagerDashboard from "./pages/pro-manager/SecureProManagerDashb
 // Lead Manager Pages
 import SecureLeadManagerDashboard from "./pages/lead-manager/SecureLeadManagerDashboard";
 
+// Marketing Manager Pages
+import SecureMarketingManagerDashboard from "./pages/marketing-manager/SecureMarketingManagerDashboard";
+
+// SEO Manager Pages
+import SecureSEOManagerDashboard from "./pages/seo-manager/SecureSEOManagerDashboard";
+
 // Secure Control System Pages
 import SecureControlSystem from "./pages/control-system/SecureControlSystem";
 import MasterAdminControl from "./pages/control-system/MasterAdminControl";
