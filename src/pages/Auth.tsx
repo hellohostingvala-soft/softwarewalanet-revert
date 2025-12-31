@@ -17,11 +17,12 @@ const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
 
 const roleOptions: { value: AppRole; label: string; description: string; icon: string }[] = [
+  { value: 'user' as AppRole, label: 'User', description: 'Browse demos and purchase products', icon: '👤' },
+  { value: 'prime', label: 'Prime User', description: 'Premium client with priority access', icon: '⭐' },
   { value: 'developer', label: 'Developer', description: 'Join as a developer to work on tasks', icon: '💻' },
   { value: 'franchise', label: 'Franchise', description: 'Become a franchise partner', icon: '🏢' },
   { value: 'reseller', label: 'Reseller', description: 'Start reselling our products', icon: '🤝' },
   { value: 'influencer', label: 'Influencer', description: 'Promote and earn commissions', icon: '📢' },
-  { value: 'prime', label: 'Prime User', description: 'Premium client access', icon: '⭐' },
 ];
 
 const Auth = () => {
@@ -29,7 +30,7 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [selectedRole, setSelectedRole] = useState<AppRole>('developer');
+  const [selectedRole, setSelectedRole] = useState<AppRole>('user' as AppRole);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; name?: string }>({});

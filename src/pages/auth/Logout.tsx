@@ -1,22 +1,37 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Logout = () => {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
 
   useEffect(() => {
     const performLogout = async () => {
+      // Auto-end any Safe Assist sessions before logout
+      if (user?.id) {
+        try {
+          await supabase.rpc('end_user_safe_assist_on_logout', {
+            p_user_id: user.id
+          });
+        } catch (err) {
+          // Silent fail - don't block logout
+          console.warn('Failed to end Safe Assist sessions:', err);
+        }
+      }
+      
       await signOut();
       toast.success('Logged out successfully');
-      navigate('/login');
+      
+      // Block back button by replacing history
+      navigate('/auth', { replace: true });
     };
     performLogout();
-  }, [signOut, navigate]);
+  }, [signOut, navigate, user?.id]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
