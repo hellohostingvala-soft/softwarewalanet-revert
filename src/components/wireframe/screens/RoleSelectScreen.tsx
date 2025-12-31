@@ -11,8 +11,10 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 
 const roles = [
+  { id: 'master_admin', name: 'Master Admin', icon: Crown, color: 'from-red-500 to-orange-500', description: 'Ownership & system-wide controls', tier: 'admin' },
   { id: 'super_admin', name: 'Super Admin', icon: Crown, color: 'from-red-500 to-orange-500', description: 'Full system access and control', tier: 'admin' },
   { id: 'admin', name: 'Admin', icon: Shield, color: 'from-orange-500 to-amber-500', description: 'Administrative operations', tier: 'admin' },
+  { id: 'server_manager', name: 'Server Manager', icon: Package, color: 'from-slate-500 to-slate-700', description: 'Infrastructure overview & tooling', tier: 'admin' },
   { id: 'franchise', name: 'Franchise', icon: Building2, color: 'from-blue-500 to-cyan-500', description: 'Territory and reseller management', tier: 'partner' },
   { id: 'reseller', name: 'Reseller', icon: Users, color: 'from-cyan-500 to-teal-500', description: 'Lead conversion and sales', tier: 'partner' },
   { id: 'developer', name: 'Developer', icon: Code2, color: 'from-purple-500 to-violet-500', description: 'Task execution and delivery', tier: 'user' },
@@ -77,7 +79,7 @@ export function RoleSelectScreen() {
             className={`group relative p-4 rounded-xl border cursor-pointer transition-all hover:scale-105 hover:shadow-xl ${
               isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-white border-gray-200'
             } ${tierColors[role.tier as keyof typeof tierColors]}`}
-            onClick={() => navigate(`/wireframe/${role.id.replace('_', '-')}`)}
+            onClick={() => navigate(`/wireframe/${role.id.replace(/_/g, '-')}`)}
           >
             {/* Icon */}
             <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${role.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>

@@ -23,6 +23,8 @@ import { ProductLibraryScreen } from './screens/ProductLibraryScreen';
 import { SupportDashboardScreen } from './screens/SupportDashboardScreen';
 import { SalesDashboardScreen } from './screens/SalesDashboardScreen';
 import { AIConsoleScreen } from './screens/AIConsoleScreen';
+import { MasterAdminScreen } from './screens/MasterAdminScreen';
+import { ServerManagerWireframeScreen } from './screens/ServerManagerWireframeScreen';
 // New Role Screens (25-28)
 import { SafeAssistScreen } from './screens/SafeAssistScreen';
 import { AssistManagerScreen } from './screens/AssistManagerScreen';
@@ -47,15 +49,15 @@ export function WireframeRoutes() {
       <Route path="/" element={<WireframeLayout />}>
         <Route index element={<Navigate to="roles" replace />} />
         <Route path="roles" element={<RoleSelectScreen />} />
+        <Route path="master-admin" element={<MasterAdminScreen />} />
         <Route path="super-admin" element={<SuperAdminDashboard />} />
         <Route path="admin" element={<PlaceholderScreen title="Admin Dashboard" />} />
+        <Route path="server-manager" element={<ServerManagerWireframeScreen />} />
         <Route path="lead-manager" element={<LeadManagerScreen />} />
         <Route path="developer" element={<DeveloperScreen />} />
         <Route path="franchise" element={<FranchiseScreen />} />
         <Route path="reseller" element={<ResellerScreen />} />
         <Route path="prime-user" element={<PrimeUserScreen />} />
-        <Route path="demo-manager" element={<DemoManagerScreen />} />
-        <Route path="finance" element={<FinanceWalletScreen />} />
         <Route path="seo-manager" element={<SEOManagerScreen />} />
         <Route path="task-manager" element={<TaskManagerScreen />} />
         <Route path="rnd" element={<RnDScreen />} />
