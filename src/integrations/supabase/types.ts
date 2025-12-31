@@ -8016,6 +8016,87 @@ export type Database = {
         }
         Relationships: []
       }
+      master_access_checks: {
+        Row: {
+          action: string
+          check_permission: boolean | null
+          check_rental: boolean | null
+          check_risk_score: boolean | null
+          check_role_scope: boolean | null
+          check_system_lock: boolean | null
+          check_user_status: boolean | null
+          created_at: string | null
+          denial_reason: string | null
+          device_fingerprint: string | null
+          entity_id: string | null
+          entity_type: string | null
+          final_result: boolean
+          id: string
+          ip_address: string | null
+          module: string | null
+          permission_passed: boolean | null
+          rental_passed: boolean | null
+          risk_score: number | null
+          risk_score_passed: boolean | null
+          role_scope_passed: boolean | null
+          system_lock_passed: boolean | null
+          user_id: string | null
+          user_status_passed: boolean | null
+        }
+        Insert: {
+          action: string
+          check_permission?: boolean | null
+          check_rental?: boolean | null
+          check_risk_score?: boolean | null
+          check_role_scope?: boolean | null
+          check_system_lock?: boolean | null
+          check_user_status?: boolean | null
+          created_at?: string | null
+          denial_reason?: string | null
+          device_fingerprint?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          final_result: boolean
+          id?: string
+          ip_address?: string | null
+          module?: string | null
+          permission_passed?: boolean | null
+          rental_passed?: boolean | null
+          risk_score?: number | null
+          risk_score_passed?: boolean | null
+          role_scope_passed?: boolean | null
+          system_lock_passed?: boolean | null
+          user_id?: string | null
+          user_status_passed?: boolean | null
+        }
+        Update: {
+          action?: string
+          check_permission?: boolean | null
+          check_rental?: boolean | null
+          check_risk_score?: boolean | null
+          check_role_scope?: boolean | null
+          check_system_lock?: boolean | null
+          check_user_status?: boolean | null
+          created_at?: string | null
+          denial_reason?: string | null
+          device_fingerprint?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          final_result?: boolean
+          id?: string
+          ip_address?: string | null
+          module?: string | null
+          permission_passed?: boolean | null
+          rental_passed?: boolean | null
+          risk_score?: number | null
+          risk_score_passed?: boolean | null
+          role_scope_passed?: boolean | null
+          system_lock_passed?: boolean | null
+          user_id?: string | null
+          user_status_passed?: boolean | null
+        }
+        Relationships: []
+      }
       master_admin_activity_log: {
         Row: {
           action: string
@@ -8393,6 +8474,50 @@ export type Database = {
         }
         Relationships: []
       }
+      master_blackbox_hash_chain: {
+        Row: {
+          blackbox_event_id: string
+          chain_hash: string
+          created_at: string | null
+          event_hash: string
+          id: string
+          previous_hash: string
+          sequence_number: number
+          verification_status: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          blackbox_event_id: string
+          chain_hash: string
+          created_at?: string | null
+          event_hash: string
+          id?: string
+          previous_hash: string
+          sequence_number: number
+          verification_status?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          blackbox_event_id?: string
+          chain_hash?: string
+          created_at?: string | null
+          event_hash?: string
+          id?: string
+          previous_hash?: string
+          sequence_number?: number
+          verification_status?: string | null
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "master_blackbox_hash_chain_blackbox_event_id_fkey"
+            columns: ["blackbox_event_id"]
+            isOneToOne: false
+            referencedRelation: "blackbox_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       master_continents: {
         Row: {
           code: string
@@ -8463,6 +8588,69 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      master_device_fingerprints: {
+        Row: {
+          blocked_at: string | null
+          blocked_by: string | null
+          blocked_reason: string | null
+          browser: string | null
+          created_at: string | null
+          device_name: string | null
+          fingerprint_hash: string
+          first_seen_at: string | null
+          geo_location: string | null
+          id: string
+          ip_address: string | null
+          is_blocked: boolean | null
+          is_trusted: boolean | null
+          last_seen_at: string | null
+          os: string | null
+          trust_level: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          blocked_at?: string | null
+          blocked_by?: string | null
+          blocked_reason?: string | null
+          browser?: string | null
+          created_at?: string | null
+          device_name?: string | null
+          fingerprint_hash: string
+          first_seen_at?: string | null
+          geo_location?: string | null
+          id?: string
+          ip_address?: string | null
+          is_blocked?: boolean | null
+          is_trusted?: boolean | null
+          last_seen_at?: string | null
+          os?: string | null
+          trust_level?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          blocked_at?: string | null
+          blocked_by?: string | null
+          blocked_reason?: string | null
+          browser?: string | null
+          created_at?: string | null
+          device_name?: string | null
+          fingerprint_hash?: string
+          first_seen_at?: string | null
+          geo_location?: string | null
+          id?: string
+          ip_address?: string | null
+          is_blocked?: boolean | null
+          is_trusted?: boolean | null
+          last_seen_at?: string | null
+          os?: string | null
+          trust_level?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       master_global_rules: {
         Row: {
@@ -8607,6 +8795,60 @@ export type Database = {
           },
         ]
       }
+      master_login_attempts: {
+        Row: {
+          anomaly_reasons: Json | null
+          attempt_type: string
+          captcha_passed: boolean | null
+          captcha_required: boolean | null
+          created_at: string | null
+          device_fingerprint: string | null
+          email: string | null
+          failure_reason: string | null
+          geo_location: string | null
+          id: string
+          ip_address: string
+          is_anomaly: boolean | null
+          risk_score: number | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          anomaly_reasons?: Json | null
+          attempt_type: string
+          captcha_passed?: boolean | null
+          captcha_required?: boolean | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          email?: string | null
+          failure_reason?: string | null
+          geo_location?: string | null
+          id?: string
+          ip_address: string
+          is_anomaly?: boolean | null
+          risk_score?: number | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          anomaly_reasons?: Json | null
+          attempt_type?: string
+          captcha_passed?: boolean | null
+          captcha_required?: boolean | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          email?: string | null
+          failure_reason?: string | null
+          geo_location?: string | null
+          id?: string
+          ip_address?: string
+          is_anomaly?: boolean | null
+          risk_score?: number | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       master_permission_grants: {
         Row: {
           created_at: string
@@ -8685,6 +8927,89 @@ export type Database = {
           permission_code?: string
           permission_name?: string
           requires_2fa?: boolean | null
+        }
+        Relationships: []
+      }
+      master_rate_limit_tracking: {
+        Row: {
+          cooldown_until: string | null
+          created_at: string | null
+          id: string
+          identifier: string
+          identifier_type: string
+          is_blocked: boolean | null
+          rate_limit_id: string | null
+          request_count: number | null
+          updated_at: string | null
+          window_start: string | null
+        }
+        Insert: {
+          cooldown_until?: string | null
+          created_at?: string | null
+          id?: string
+          identifier: string
+          identifier_type: string
+          is_blocked?: boolean | null
+          rate_limit_id?: string | null
+          request_count?: number | null
+          updated_at?: string | null
+          window_start?: string | null
+        }
+        Update: {
+          cooldown_until?: string | null
+          created_at?: string | null
+          id?: string
+          identifier?: string
+          identifier_type?: string
+          is_blocked?: boolean | null
+          rate_limit_id?: string | null
+          request_count?: number | null
+          updated_at?: string | null
+          window_start?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "master_rate_limit_tracking_rate_limit_id_fkey"
+            columns: ["rate_limit_id"]
+            isOneToOne: false
+            referencedRelation: "master_rate_limits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      master_rate_limits: {
+        Row: {
+          cooldown_seconds: number | null
+          created_at: string | null
+          endpoint: string
+          id: string
+          is_active: boolean | null
+          limit_type: string
+          max_requests: number
+          updated_at: string | null
+          window_seconds: number
+        }
+        Insert: {
+          cooldown_seconds?: number | null
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          is_active?: boolean | null
+          limit_type: string
+          max_requests: number
+          updated_at?: string | null
+          window_seconds: number
+        }
+        Update: {
+          cooldown_seconds?: number | null
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          is_active?: boolean | null
+          limit_type?: string
+          max_requests?: number
+          updated_at?: string | null
+          window_seconds?: number
         }
         Relationships: []
       }
@@ -8875,6 +9200,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      master_replay_protection: {
+        Row: {
+          endpoint: string
+          expires_at: string
+          id: string
+          ip_address: string | null
+          request_hash: string
+          request_id: string
+          used_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          endpoint: string
+          expires_at: string
+          id?: string
+          ip_address?: string | null
+          request_hash: string
+          request_id: string
+          used_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          endpoint?: string
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          request_hash?: string
+          request_id?: string
+          used_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       master_risk_entity_scores: {
         Row: {
@@ -9100,6 +9458,105 @@ export type Database = {
           },
         ]
       }
+      master_security_settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_secret: boolean | null
+          last_rotated_at: string | null
+          rotation_interval_days: number | null
+          rotation_required: boolean | null
+          setting_key: string
+          setting_type: string | null
+          setting_value_encrypted: string | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_secret?: boolean | null
+          last_rotated_at?: string | null
+          rotation_interval_days?: number | null
+          rotation_required?: boolean | null
+          setting_key: string
+          setting_type?: string | null
+          setting_value_encrypted?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_secret?: boolean | null
+          last_rotated_at?: string | null
+          rotation_interval_days?: number | null
+          rotation_required?: boolean | null
+          setting_key?: string
+          setting_type?: string | null
+          setting_value_encrypted?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      master_security_threats: {
+        Row: {
+          auto_response: string | null
+          auto_response_at: string | null
+          blackbox_event_id: string | null
+          created_at: string | null
+          id: string
+          is_resolved: boolean | null
+          resolution_notes: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          source_ip: string | null
+          source_user_id: string | null
+          target_entity: string | null
+          target_id: string | null
+          threat_data: Json | null
+          threat_type: string
+        }
+        Insert: {
+          auto_response?: string | null
+          auto_response_at?: string | null
+          blackbox_event_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_resolved?: boolean | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity: string
+          source_ip?: string | null
+          source_user_id?: string | null
+          target_entity?: string | null
+          target_id?: string | null
+          threat_data?: Json | null
+          threat_type: string
+        }
+        Update: {
+          auto_response?: string | null
+          auto_response_at?: string | null
+          blackbox_event_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_resolved?: boolean | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          source_ip?: string | null
+          source_user_id?: string | null
+          target_entity?: string | null
+          target_id?: string | null
+          threat_data?: Json | null
+          threat_type?: string
+        }
+        Relationships: []
+      }
       master_super_admin_profiles: {
         Row: {
           assigned_continent_id: string | null
@@ -9251,6 +9708,60 @@ export type Database = {
           setting_type?: string | null
           setting_value?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      master_token_registry: {
+        Row: {
+          created_at: string | null
+          device_fingerprint: string | null
+          expires_at: string
+          geo_location: string | null
+          id: string
+          ip_address: string | null
+          is_revoked: boolean | null
+          issued_at: string | null
+          last_used_at: string | null
+          revoke_reason: string | null
+          revoked_at: string | null
+          revoked_by: string | null
+          token_hash: string
+          token_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          device_fingerprint?: string | null
+          expires_at: string
+          geo_location?: string | null
+          id?: string
+          ip_address?: string | null
+          is_revoked?: boolean | null
+          issued_at?: string | null
+          last_used_at?: string | null
+          revoke_reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          token_hash: string
+          token_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          device_fingerprint?: string | null
+          expires_at?: string
+          geo_location?: string | null
+          id?: string
+          ip_address?: string | null
+          is_revoked?: boolean | null
+          issued_at?: string | null
+          last_used_at?: string | null
+          revoke_reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          token_hash?: string
+          token_type?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -16532,9 +17043,60 @@ export type Database = {
         }
         Returns: string
       }
+      master_auto_threat_response: {
+        Args: { p_threat_id: string }
+        Returns: Json
+      }
+      master_check_access: {
+        Args: {
+          p_action: string
+          p_device_fingerprint?: string
+          p_entity_id?: string
+          p_entity_type?: string
+          p_ip_address?: string
+          p_module?: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      master_check_login_security: {
+        Args: {
+          p_device_fingerprint: string
+          p_email: string
+          p_geo_location?: string
+          p_ip_address: string
+        }
+        Returns: Json
+      }
+      master_check_rate_limit: {
+        Args: {
+          p_endpoint: string
+          p_identifier: string
+          p_identifier_type: string
+        }
+        Returns: Json
+      }
+      master_check_replay: {
+        Args: {
+          p_endpoint: string
+          p_ip_address: string
+          p_request_hash: string
+          p_request_id: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      master_revoke_user_tokens: {
+        Args: { p_reason: string; p_revoked_by?: string; p_user_id: string }
+        Returns: number
+      }
       master_user_has_permission: {
         Args: { p_permission_code: string; p_user_id: string }
         Returns: boolean
+      }
+      master_verify_hash_chain: {
+        Args: { p_end_sequence?: number; p_start_sequence?: number }
+        Returns: Json
       }
       normalize_demo_url: { Args: { url: string }; Returns: string }
       reject_payout: {
