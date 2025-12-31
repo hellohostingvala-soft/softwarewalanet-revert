@@ -4,63 +4,143 @@ import { supabase } from '@/integrations/supabase/client';
 import { Loader2, CheckCircle2, Shield, Users, Code, Store, Megaphone, UserCheck } from 'lucide-react';
 import { useDemoTestMode } from '@/contexts/DemoTestModeContext';
 
-// Demo credentials for each role - NO PASSWORD REQUIRED, ONE-CLICK LOGIN
+// Demo credentials for each role - AUTO-CREATE & ONE-CLICK LOGIN
 const DEMO_ACCOUNTS: Record<string, { email: string; password: string; name: string; icon: React.ElementType; color: string; dashboard: string }> = {
   'master': {
-    email: 'hellosoftwarevala@gmail.com',
-    password: 'Demo@Master2024!',
+    email: 'demo.master@softwarevala.com',
+    password: 'Demo@Master2025!',
     name: 'Master Admin',
     icon: Shield,
     color: 'from-yellow-500 to-amber-600',
     dashboard: '/master-admin'
   },
   'super-admin': {
-    email: 'superadmin@softwarevala.com',
-    password: 'SuperAdmin@2024!',
+    email: 'demo.superadmin@softwarevala.com',
+    password: 'Demo@Super2025!',
     name: 'Super Admin',
     icon: Shield,
     color: 'from-purple-500 to-indigo-600',
     dashboard: '/super-admin'
   },
+  'admin': {
+    email: 'demo.admin@softwarevala.com',
+    password: 'Demo@Admin2025!',
+    name: 'Admin',
+    icon: Users,
+    color: 'from-blue-500 to-blue-700',
+    dashboard: '/admin'
+  },
   'franchise': {
-    email: 'john@gmail.com',
-    password: 'Demo@Franchise2024!',
-    name: 'Franchise Partner',
+    email: 'demo.franchise@softwarevala.com',
+    password: 'Demo@Franchise2025!',
+    name: 'Franchise Manager',
     icon: Store,
     color: 'from-blue-500 to-cyan-600',
     dashboard: '/franchise'
   },
   'reseller': {
-    email: 'skiketi@student.kibu.ac.ke',
-    password: 'Demo@Reseller2024!',
+    email: 'demo.reseller@softwarevala.com',
+    password: 'Demo@Reseller2025!',
     name: 'Reseller Partner',
     icon: Users,
     color: 'from-green-500 to-emerald-600',
     dashboard: '/reseller'
   },
   'developer': {
-    email: 'developer@softwarevala.com',
-    password: 'Demo@Developer2024!',
+    email: 'demo.developer@softwarevala.com',
+    password: 'Demo@Dev2025!',
     name: 'Developer',
     icon: Code,
     color: 'from-cyan-500 to-teal-600',
     dashboard: '/developer'
   },
   'influencer': {
-    email: 'influencer@softwarevala.com',
-    password: 'Demo@Influencer2024!',
+    email: 'demo.influencer@softwarevala.com',
+    password: 'Demo@Influencer2025!',
     name: 'Influencer',
     icon: Megaphone,
     color: 'from-pink-500 to-rose-600',
     dashboard: '/influencer'
   },
   'prime': {
-    email: 'prime@softwarevala.com',
-    password: 'Demo@Prime2024!',
+    email: 'demo.prime@softwarevala.com',
+    password: 'Demo@Prime2025!',
     name: 'Prime User',
     icon: UserCheck,
     color: 'from-amber-500 to-orange-600',
     dashboard: '/prime'
+  },
+  'finance': {
+    email: 'demo.finance@softwarevala.com',
+    password: 'Demo@Finance2025!',
+    name: 'Finance Manager',
+    icon: UserCheck,
+    color: 'from-green-500 to-green-700',
+    dashboard: '/finance'
+  },
+  'sales': {
+    email: 'demo.sales@softwarevala.com',
+    password: 'Demo@Sales2025!',
+    name: 'Sales Lead',
+    icon: UserCheck,
+    color: 'from-cyan-500 to-cyan-700',
+    dashboard: '/sales'
+  },
+  'support': {
+    email: 'demo.support@softwarevala.com',
+    password: 'Demo@Support2025!',
+    name: 'Support Staff',
+    icon: UserCheck,
+    color: 'from-pink-500 to-pink-700',
+    dashboard: '/support'
+  },
+  'server': {
+    email: 'demo.server@softwarevala.com',
+    password: 'Demo@Server2025!',
+    name: 'Server Manager',
+    icon: Shield,
+    color: 'from-slate-500 to-slate-700',
+    dashboard: '/server-manager'
+  },
+  'area': {
+    email: 'demo.area@softwarevala.com',
+    password: 'Demo@Area2025!',
+    name: 'Area Manager',
+    icon: UserCheck,
+    color: 'from-teal-500 to-teal-700',
+    dashboard: '/area-manager'
+  },
+  'hr': {
+    email: 'demo.hr@softwarevala.com',
+    password: 'Demo@HR2025!',
+    name: 'HR Manager',
+    icon: Users,
+    color: 'from-indigo-500 to-indigo-700',
+    dashboard: '/hr'
+  },
+  'legal': {
+    email: 'demo.legal@softwarevala.com',
+    password: 'Demo@Legal2025!',
+    name: 'Legal Manager',
+    icon: Shield,
+    color: 'from-gray-500 to-gray-700',
+    dashboard: '/legal'
+  },
+  'marketing': {
+    email: 'demo.marketing@softwarevala.com',
+    password: 'Demo@Marketing2025!',
+    name: 'Marketing Manager',
+    icon: Megaphone,
+    color: 'from-orange-500 to-orange-700',
+    dashboard: '/marketing'
+  },
+  'seo': {
+    email: 'demo.seo@softwarevala.com',
+    password: 'Demo@SEO2025!',
+    name: 'SEO Manager',
+    icon: Code,
+    color: 'from-violet-500 to-violet-700',
+    dashboard: '/seo'
   },
 };
 
