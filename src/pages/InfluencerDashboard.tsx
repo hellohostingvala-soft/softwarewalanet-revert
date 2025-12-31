@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, Link2, Megaphone, Video, Palette, 
   Users, Wallet, Bell, Sparkles, MousePointer, Shield,
   Image, Trophy, PieChart, FileText, GraduationCap, Gift,
-  HeadphonesIcon, BarChart3, Share2, ArrowLeft, Lock, KeyRound, LogOut
+  HeadphonesIcon, BarChart3, Share2, ArrowLeft, Lock, KeyRound, LogOut, Loader2
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useInfluencerGuard } from '@/hooks/useInfluencerGuard';
 import InfluencerTopBar from '@/components/influencer/InfluencerTopBar';
 import InfluencerMetrics from '@/components/influencer/InfluencerMetrics';
 import LinkCreator from '@/components/influencer/LinkCreator';
@@ -30,6 +31,8 @@ import InfluencerWalletScreen from '@/components/influencer/InfluencerWalletScre
 import InfluencerPerformanceRating from '@/components/influencer/InfluencerPerformanceRating';
 import InfluencerCampaignHub from '@/components/influencer/InfluencerCampaignHub';
 import SimpleShareCenter from '@/components/influencer/SimpleShareCenter';
+import InfluencerStatusBanner from '@/components/influencer/InfluencerStatusBanner';
+import InfluencerIDCard from '@/components/influencer/InfluencerIDCard';
 
 const menuItems = [
   { id: 'share', label: '🔗 Share & Earn', icon: Share2, highlight: true },
@@ -55,7 +58,8 @@ const menuItems = [
 const InfluencerDashboard = () => {
   const navigate = useNavigate();
   const { signOut } = useAuth();
-  const [activeSection, setActiveSection] = useState('share'); // Default to Share & Earn
+  const { account, wallet, loading, canEarn, canPromote, canWithdraw, statusMessage } = useInfluencerGuard();
+  const [activeSection, setActiveSection] = useState('share');
   const [showNotifications, setShowNotifications] = useState(false);
   const [showAIOptimizer, setShowAIOptimizer] = useState(false);
 
@@ -63,6 +67,15 @@ const InfluencerDashboard = () => {
     await signOut();
     navigate('/auth');
   };
+
+  // Show loader while checking account
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin text-violet-400" />
+      </div>
+    );
+  }
 
   const renderContent = () => {
     switch (activeSection) {
