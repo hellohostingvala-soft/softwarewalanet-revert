@@ -135,7 +135,7 @@ const AdminSidebarFull = ({ activeView, onViewChange }: AdminSidebarFullProps) =
 
       {/* Flat Navigation - No Groups */}
       <ScrollArea className="flex-1">
-        <nav className="p-3 space-y-0.5">
+        <nav className="p-2 space-y-1">
           {sidebarItems.map((item, index) => {
             const isActive = activeView === item.id;
             return (
@@ -144,23 +144,30 @@ const AdminSidebarFull = ({ activeView, onViewChange }: AdminSidebarFullProps) =
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.02 }}
-                whileHover={{ x: 4 }}
+                whileHover={{ x: isActive ? 0 : 4 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => onViewChange(item.id as AdminView)}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all text-left text-sm ${
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-left text-sm relative ${
                   isActive
-                    ? "bg-primary/20 text-primary border border-primary/30"
+                    ? "bg-gradient-to-r from-primary/30 to-primary/10 text-primary-foreground shadow-lg shadow-primary/10"
                     : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                 }`}
               >
-                <item.icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-primary" : ""}`} />
-                <span className="font-medium truncate">{item.label}</span>
+                {/* Active indicator bar on left */}
                 {isActive && (
                   <motion.div
-                    layoutId="sidebarActiveIndicator"
-                    className="ml-auto w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"
+                    layoutId="sidebarActiveBar"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full"
                   />
                 )}
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                  isActive 
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/30" 
+                    : "bg-white/5"
+                }`}>
+                  <item.icon className="w-4 h-4" />
+                </div>
+                <span className={`font-medium truncate ${isActive ? "text-white" : ""}`}>{item.label}</span>
               </motion.button>
             );
           })}
