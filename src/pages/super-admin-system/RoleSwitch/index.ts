@@ -11,3 +11,4 @@ export { default as LegalManagerView } from "./LegalManagerView";
 export { default as TaskManagementView } from "./TaskManagementView";
 export { default as FinanceManagerDashboard } from "./FinanceManagerDashboard";
 export { default as DeveloperManagementDashboard } from "./DeveloperManagementDashboard";
+export { default as MarketingManagementDashboard } from "./MarketingManagementDashboard";

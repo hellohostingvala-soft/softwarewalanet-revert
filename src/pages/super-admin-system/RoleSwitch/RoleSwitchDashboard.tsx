@@ -20,6 +20,7 @@ import LegalManagerView from "./LegalManagerView";
 import TaskManagementView from "./TaskManagementView";
 import FinanceManagerDashboard from "./FinanceManagerDashboard";
 import DeveloperManagementDashboard from "./DeveloperManagementDashboard";
+import MarketingManagementDashboard from "./MarketingManagementDashboard";
 
 const RoleSwitchDashboard = () => {
   const navigate = useNavigate();
@@ -110,6 +111,8 @@ const RoleSwitchDashboard = () => {
         return <FinanceManagerDashboard />;
       case "developer_management":
         return <DeveloperManagementDashboard />;
+      case "marketing_management":
+        return <MarketingManagementDashboard />;
       default:
         return null;
     }
@@ -118,7 +121,8 @@ const RoleSwitchDashboard = () => {
   return (
     <div className={cn(
       "min-h-screen flex flex-col transition-colors duration-300",
-      activeRole === "server_manager" ? "bg-zinc-950" : "bg-background"
+      activeRole === "server_manager" || activeRole === "developer_management" ? "bg-zinc-950" : 
+      activeRole === "marketing_management" ? "bg-gradient-to-br from-pink-950/20 via-background to-rose-950/20" : "bg-background"
     )}>
       {/* TOP BAR */}
       <header className={cn(
