@@ -5145,6 +5145,53 @@ export type Database = {
         }
         Relationships: []
       }
+      firewall_rules: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          ip_range: string | null
+          is_active: boolean | null
+          port_range: string | null
+          protocol: string | null
+          rule_name: string
+          rule_type: string
+          server_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          ip_range?: string | null
+          is_active?: boolean | null
+          port_range?: string | null
+          protocol?: string | null
+          rule_name: string
+          rule_type?: string
+          server_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          ip_range?: string | null
+          is_active?: boolean | null
+          port_range?: string | null
+          protocol?: string | null
+          rule_name?: string
+          rule_type?: string
+          server_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "firewall_rules_server_id_fkey"
+            columns: ["server_id"]
+            isOneToOne: false
+            referencedRelation: "server_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       franchise_accounts: {
         Row: {
           address: string | null
@@ -14539,6 +14586,125 @@ export type Database = {
           },
         ]
       }
+      server_billing: {
+        Row: {
+          bandwidth_used_gb: number | null
+          base_cost: number | null
+          billing_period_end: string
+          billing_period_start: string
+          cpu_hours: number | null
+          created_at: string | null
+          id: string
+          invoice_id: string | null
+          is_paid: boolean | null
+          server_id: string | null
+          storage_gb_hours: number | null
+          total_cost: number | null
+          usage_cost: number | null
+        }
+        Insert: {
+          bandwidth_used_gb?: number | null
+          base_cost?: number | null
+          billing_period_end: string
+          billing_period_start: string
+          cpu_hours?: number | null
+          created_at?: string | null
+          id?: string
+          invoice_id?: string | null
+          is_paid?: boolean | null
+          server_id?: string | null
+          storage_gb_hours?: number | null
+          total_cost?: number | null
+          usage_cost?: number | null
+        }
+        Update: {
+          bandwidth_used_gb?: number | null
+          base_cost?: number | null
+          billing_period_end?: string
+          billing_period_start?: string
+          cpu_hours?: number | null
+          created_at?: string | null
+          id?: string
+          invoice_id?: string | null
+          is_paid?: boolean | null
+          server_id?: string | null
+          storage_gb_hours?: number | null
+          total_cost?: number | null
+          usage_cost?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "server_billing_server_id_fkey"
+            columns: ["server_id"]
+            isOneToOne: false
+            referencedRelation: "server_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      server_incidents: {
+        Row: {
+          alert_id: string | null
+          assigned_to: string | null
+          created_at: string | null
+          description: string | null
+          escalated: boolean | null
+          escalated_to: string | null
+          id: string
+          priority: string
+          resolution_notes: string | null
+          server_id: string | null
+          status: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          alert_id?: string | null
+          assigned_to?: string | null
+          created_at?: string | null
+          description?: string | null
+          escalated?: boolean | null
+          escalated_to?: string | null
+          id?: string
+          priority?: string
+          resolution_notes?: string | null
+          server_id?: string | null
+          status?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          alert_id?: string | null
+          assigned_to?: string | null
+          created_at?: string | null
+          description?: string | null
+          escalated?: boolean | null
+          escalated_to?: string | null
+          id?: string
+          priority?: string
+          resolution_notes?: string | null
+          server_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "server_incidents_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "server_alerts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "server_incidents_server_id_fkey"
+            columns: ["server_id"]
+            isOneToOne: false
+            referencedRelation: "server_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       server_instances: {
         Row: {
           ai_health_score: number | null
@@ -14778,6 +14944,98 @@ export type Database = {
           },
         ]
       }
+      server_performance: {
+        Row: {
+          avg_latency_ms: number | null
+          error_rate: number | null
+          id: string
+          last_calculated: string | null
+          performance_score: number | null
+          server_id: string | null
+          sla_percent: number | null
+          uptime_percent: number | null
+        }
+        Insert: {
+          avg_latency_ms?: number | null
+          error_rate?: number | null
+          id?: string
+          last_calculated?: string | null
+          performance_score?: number | null
+          server_id?: string | null
+          sla_percent?: number | null
+          uptime_percent?: number | null
+        }
+        Update: {
+          avg_latency_ms?: number | null
+          error_rate?: number | null
+          id?: string
+          last_calculated?: string | null
+          performance_score?: number | null
+          server_id?: string | null
+          sla_percent?: number | null
+          uptime_percent?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "server_performance_server_id_fkey"
+            columns: ["server_id"]
+            isOneToOne: false
+            referencedRelation: "server_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      server_plans: {
+        Row: {
+          bandwidth_tb: number
+          cpu_cores: number
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          is_recommended: boolean | null
+          plan_name: string
+          plan_type: string
+          price_monthly: number
+          price_yearly: number | null
+          ram_gb: number
+          recommended_for: string[] | null
+          regions: string[] | null
+          storage_gb: number
+        }
+        Insert: {
+          bandwidth_tb?: number
+          cpu_cores: number
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_recommended?: boolean | null
+          plan_name: string
+          plan_type: string
+          price_monthly: number
+          price_yearly?: number | null
+          ram_gb: number
+          recommended_for?: string[] | null
+          regions?: string[] | null
+          storage_gb: number
+        }
+        Update: {
+          bandwidth_tb?: number
+          cpu_cores?: number
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_recommended?: boolean | null
+          plan_name?: string
+          plan_type?: string
+          price_monthly?: number
+          price_yearly?: number | null
+          ram_gb?: number
+          recommended_for?: string[] | null
+          regions?: string[] | null
+          storage_gb?: number
+        }
+        Relationships: []
+      }
       server_protection_events: {
         Row: {
           auto_resolved: boolean | null
@@ -14824,6 +15082,75 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "server_protection_events_server_id_fkey"
+            columns: ["server_id"]
+            isOneToOne: false
+            referencedRelation: "server_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      server_purchases: {
+        Row: {
+          amount: number
+          auto_backup: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          firewall_preset: string | null
+          id: string
+          os: string | null
+          payment_method: string
+          plan_id: string | null
+          region: string
+          scaling_rules: Json | null
+          server_id: string | null
+          status: string
+          user_id: string
+          wallet_transaction_id: string | null
+        }
+        Insert: {
+          amount: number
+          auto_backup?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          firewall_preset?: string | null
+          id?: string
+          os?: string | null
+          payment_method?: string
+          plan_id?: string | null
+          region: string
+          scaling_rules?: Json | null
+          server_id?: string | null
+          status?: string
+          user_id: string
+          wallet_transaction_id?: string | null
+        }
+        Update: {
+          amount?: number
+          auto_backup?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          firewall_preset?: string | null
+          id?: string
+          os?: string | null
+          payment_method?: string
+          plan_id?: string | null
+          region?: string
+          scaling_rules?: Json | null
+          server_id?: string | null
+          status?: string
+          user_id?: string
+          wallet_transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "server_purchases_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "server_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "server_purchases_server_id_fkey"
             columns: ["server_id"]
             isOneToOne: false
             referencedRelation: "server_instances"
@@ -14967,6 +15294,47 @@ export type Database = {
           {
             foreignKeyName: "server_submission_requests_created_server_id_fkey"
             columns: ["created_server_id"]
+            isOneToOne: false
+            referencedRelation: "server_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      server_webhooks: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          id: string
+          last_attempt: string | null
+          payload: Json
+          retry_count: number | null
+          server_id: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          id?: string
+          last_attempt?: string | null
+          payload: Json
+          retry_count?: number | null
+          server_id?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          last_attempt?: string | null
+          payload?: Json
+          retry_count?: number | null
+          server_id?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "server_webhooks_server_id_fkey"
+            columns: ["server_id"]
             isOneToOne: false
             referencedRelation: "server_instances"
             referencedColumns: ["id"]
