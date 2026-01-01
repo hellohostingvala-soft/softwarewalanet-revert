@@ -92,12 +92,12 @@ const ResellerDashboard = () => {
       {/* Top Bar */}
       <header className="fixed top-0 left-0 right-0 h-16 bg-slate-900/90 backdrop-blur-xl border-b border-emerald-500/20 z-50 flex items-center justify-between px-6">
         <div className="flex items-center gap-3">
-          <img 
-            src={softwareValaLogo} 
-            alt="Software Vala" 
-            className="h-10 w-auto object-contain cursor-pointer"
+          <div 
+            className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center cursor-pointer shadow-lg shadow-emerald-500/30"
             onClick={() => navigate('/')}
-          />
+          >
+            <span className="text-white font-bold text-lg">SV</span>
+          </div>
           <p className="text-xs text-emerald-400 font-medium">Reseller Portal</p>
         </div>
         <div className="flex items-center gap-4">
@@ -158,22 +158,8 @@ const ResellerDashboard = () => {
             })}
           </nav>
 
-          {/* Footer Actions - Fixed at bottom */}
-          <div className="absolute bottom-0 left-0 right-0 bg-slate-900/95 border-t border-emerald-500/10 p-3 space-y-1">
-            <button 
-              onClick={() => navigate('/dashboard')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-emerald-400 hover:bg-slate-800/50 transition-all ${collapsed ? 'justify-center' : ''}`}
-            >
-              <ArrowLeft className="w-4 h-4" />
-              {!collapsed && <span className="text-sm">Back</span>}
-            </button>
-            <button 
-              onClick={() => navigate('/change-password')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-emerald-400 hover:bg-slate-800/50 transition-all ${collapsed ? 'justify-center' : ''}`}
-            >
-              <Lock className="w-4 h-4" />
-              {!collapsed && <span className="text-sm">Password</span>}
-            </button>
+          {/* Footer - Just Logout */}
+          <div className="absolute bottom-0 left-0 right-0 bg-slate-900/95 border-t border-emerald-500/10 p-3">
             <button 
               onClick={handleLogout}
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all ${collapsed ? 'justify-center' : ''}`}
