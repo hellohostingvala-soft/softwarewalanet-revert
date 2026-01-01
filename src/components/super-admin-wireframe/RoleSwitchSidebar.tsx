@@ -31,6 +31,7 @@ interface RoleSwitchSidebarProps {
   onLogout: () => void;
   activeNav?: string;
   onNavChange?: (navId: string) => void;
+  onSubItemClick?: (subItemId: string) => void;
 }
 
 // Role configurations with themes
@@ -462,6 +463,7 @@ const RoleSwitchSidebar = ({
   onLogout,
   activeNav: externalActiveNav,
   onNavChange,
+  onSubItemClick,
 }: RoleSwitchSidebarProps) => {
   const currentConfig = roleConfigs[activeRole];
   const currentNavItems = roleNavItems[activeRole];
@@ -754,7 +756,7 @@ const RoleSwitchSidebar = ({
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: "auto" }}
                           exit={{ opacity: 0, height: 0 }}
-                          className="ml-6 mt-1 space-y-1 border-l border-slate-700/50 pl-3"
+                          className="mt-2 space-y-1.5"
                         >
                           {(item as any).subItems.map((subItem: { id: string; label: string; status: string }, subIdx: number) => (
                             <motion.button
@@ -762,15 +764,35 @@ const RoleSwitchSidebar = ({
                               initial={{ opacity: 0, x: -5 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: subIdx * 0.02 }}
-                              className="w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs hover:bg-slate-800/50 transition-colors group"
+                              onClick={() => onSubItemClick?.(subItem.id)}
+                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-slate-800/50 border border-slate-700/50 hover:bg-slate-700/50 hover:border-slate-600 transition-all group"
                             >
-                              <div className={cn(
-                                "w-2 h-2 rounded-full flex-shrink-0",
-                                subItem.status === "active" ? "bg-emerald-500" : "bg-slate-500"
-                              )} />
-                              <span className="text-slate-400 group-hover:text-white truncate">
-                                {subItem.label}
-                              </span>
+                              {/* Globe Icon */}
+                              <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-lg flex-shrink-0">
+                                🌍
+                              </div>
+                              
+                              {/* Name */}
+                              <div className="flex-1 text-left min-w-0">
+                                <span className="text-sm text-white font-medium truncate block">
+                                  {subItem.label.replace(" Super Admin", "")}
+                                </span>
+                                <span className="text-xs text-slate-500">Super Admin</span>
+                              </div>
+                              
+                              {/* Status & Arrow */}
+                              <div className="flex items-center gap-2 flex-shrink-0">
+                                <div className="relative">
+                                  <div className={cn(
+                                    "w-3 h-3 rounded-full",
+                                    subItem.status === "active" ? "bg-emerald-500" : "bg-slate-500"
+                                  )} />
+                                  {subItem.status === "active" && (
+                                    <div className="absolute inset-0 w-3 h-3 rounded-full bg-emerald-500 animate-ping opacity-40" />
+                                  )}
+                                </div>
+                                <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-blue-400 transition-colors" />
+                              </div>
                             </motion.button>
                           ))}
                         </motion.div>
