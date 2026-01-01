@@ -281,10 +281,6 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/demos" element={<Index />} />
               <Route path="/products" element={<Index />} />
-              <Route path="/products" element={<SimpleDemoList />} />
-              <Route path="/demo/:demoId" element={<SimpleDemoView />} />
-              <Route path="/checkout/:demoId" element={<SimpleCheckout />} />
-              <Route path="/user-dashboard" element={<SimpleUserDashboard />} />
               <Route path="/pricing" element={<SimpleDemoList />} />
               <Route path="/demos/public" element={<PublicDemos />} />
               <Route path="/auth" element={<Auth />} />
@@ -300,14 +296,7 @@ const App = () => (
               <Route path="/sectors" element={<SectorsBrowse />} />
               <Route path="/sectors/:sectorId/:subCategoryId" element={<SubCategoryDemos />} />
               
-              {/* One-Click Demo Access - No Login Required */}
-              <Route path="/demo-directory" element={<DemoDirectory />} />
-              <Route path="/demo/:role" element={<DemoAccess />} />
-              <Route path="/demo-login" element={<DemoLogin />} />
-              <Route path="/showcase" element={<Index />} />
-              <Route path="/premium-demos" element={<PremiumDemoShowcase />} />
-              
-              {/* Product Demo Pages - Direct Access, Software Vala Branded */}
+              {/* Product Demo Pages - MUST come BEFORE dynamic routes */}
               <Route path="/demo/restaurant-pos" element={<RestaurantPOSDemo />} />
               <Route path="/demo/school-erp" element={<SchoolERPDemo />} />
               <Route path="/demo/hospital-hms" element={<HospitalHMSDemo />} />
@@ -328,6 +317,15 @@ const App = () => (
               <Route path="/demo/event" element={<EventDemo />} />
               <Route path="/demo/crm" element={<CRMDemo />} />
               <Route path="/demo/logistics" element={<LogisticsDemo />} />
+              
+              {/* Dynamic Demo Routes - MUST come AFTER specific routes */}
+              <Route path="/demo-directory" element={<DemoDirectory />} />
+              <Route path="/demo/:demoId" element={<SimpleDemoView />} />
+              <Route path="/checkout/:demoId" element={<SimpleCheckout />} />
+              <Route path="/user-dashboard" element={<SimpleUserDashboard />} />
+              <Route path="/demo-login" element={<DemoLogin />} />
+              <Route path="/showcase" element={<Index />} />
+              <Route path="/premium-demos" element={<PremiumDemoShowcase />} />
               
               {/* Client Portal - Public Route */}
               <Route path="/client-portal" element={<ClientPortal />} />
