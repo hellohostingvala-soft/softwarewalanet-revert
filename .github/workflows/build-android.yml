@@ -64,16 +64,29 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
       
-      - name: Update Android app name
+      - name: Update Android app name and config
         run: |
+          # Update app name
           sed -i 's/app_name">.*</app_name">Software Vala</' android/app/src/main/res/values/strings.xml
+          
+          # Add internet permission for live updates
+          sed -i '/<uses-permission android:name="android.permission.INTERNET"/a\    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />' android/app/src/main/AndroidManifest.xml
       
-      - name: Configure for worldwide release
+      - name: Configure for worldwide scalable release
         run: |
-          # Enable all languages/locales
-          echo 'android.enableJetifier=true' >> android/gradle.properties
-          echo 'android.useAndroidX=true' >> android/gradle.properties
-          echo 'org.gradle.jvmargs=-Xmx4096m' >> android/gradle.properties
+          # Enable all languages/locales and optimize for scale
+          cat >> android/gradle.properties << EOF
+          android.enableJetifier=true
+          android.useAndroidX=true
+          org.gradle.jvmargs=-Xmx4096m
+          org.gradle.parallel=true
+          org.gradle.caching=true
+          android.enableR8.fullMode=true
+          EOF
+          
+          # Update build.gradle for better compatibility
+          sed -i 's/minSdkVersion = .*/minSdkVersion = 23/' android/variables.gradle
+          sed -i 's/targetSdkVersion = .*/targetSdkVersion = 34/' android/variables.gradle
       
       - name: Make Gradlew executable
         run: chmod +x android/gradlew
@@ -81,12 +94,12 @@ jobs:
       - name: Build Debug APK
         if: ${{ github.event.inputs.build_type == 'debug' || github.event.inputs.build_type == '' }}
         working-directory: android
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --no-daemon
       
       - name: Build Release APK
         if: ${{ github.event.inputs.build_type == 'release' }}
         working-directory: android
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleRelease --no-daemon
       
       - name: Rename Debug APK
         if: ${{ github.event.inputs.build_type == 'debug' || github.event.inputs.build_type == '' }}
@@ -123,7 +136,7 @@ jobs:
           echo "================================================"
           echo "📱 App Name: ${{ env.APP_NAME }}"
           echo "📦 Package ID: ${{ env.APP_ID }}"
-          echo "🌍 Target: Worldwide Release"
+          echo "🌍 Target: Worldwide Release (All Countries)"
           echo "📅 Build Date: $(date)"
           echo "📝 Commit: ${{ github.sha }}"
           echo "================================================"
@@ -133,11 +146,17 @@ jobs:
           echo "   Account: ${{ env.PLAY_CONSOLE_ACCOUNT }}"
           echo "   Account ID: ${{ env.PLAY_CONSOLE_ACCOUNT_ID }}"
           echo ""
-          echo "📥 Download APK from 'Artifacts' section"
+          echo "🔄 AUTO-UPDATE ARCHITECTURE:"
+          echo "   ✓ APK loads from live website"
+          echo "   ✓ Updates automatically when you update website"
+          echo "   ✓ One APK for all users (features based on login)"
+          echo "   ✓ Role-based access control built-in"
           echo ""
-          echo "🚀 Play Console Upload Steps:"
-          echo "   1. Go to play.google.com/console"
-          echo "   2. Account ID: 5003822724528726207"
-          echo "   3. Create new app → Upload APK"
-          echo "   4. Set target: All countries"
+          echo "👥 USER FEATURES (Login-Based):"
+          echo "   • Master Admin - Full system control"
+          echo "   • Super Admin - Admin management"
+          echo "   • Franchise - Franchise features"
+          echo "   • Reseller - Reseller features"
+          echo "   • Developer - Developer tools"
+          echo "   • Client - Client portal"
           echo "================================================"
