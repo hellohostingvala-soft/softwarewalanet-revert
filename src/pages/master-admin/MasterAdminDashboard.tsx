@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { PremiumButton } from '@/components/ui/PremiumButton';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -240,28 +241,30 @@ const MasterAdminDashboard = () => {
           <div className="flex items-center gap-2 flex-wrap" role="group" aria-label="User actions">
             {userRole.approval_status === 'pending' && (
               <>
-                <Button
+                <PremiumButton
                   size="sm"
-                  variant="outline"
-                  className="h-8 border-green-500/30 text-green-400 hover:bg-green-500/10 bg-transparent text-xs font-medium"
+                  variant="primary"
+                  userRole="master"
+                  className="h-8 border-green-500/30 text-green-400 hover:bg-green-500/10 bg-green-500/15"
                   onClick={() => handleApprove(userRole.user_id)}
                   disabled={actionLoading === userRole.user_id}
                   aria-label="Approve user"
                 >
                   <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
                   Approve
-                </Button>
-                <Button
+                </PremiumButton>
+                <PremiumButton
                   size="sm"
-                  variant="outline"
-                  className="h-8 border-red-500/30 text-red-400 hover:bg-red-500/10 bg-transparent text-xs font-medium"
+                  variant="danger"
+                  userRole="master"
+                  className="h-8 border-red-500/30 text-red-400 hover:bg-red-500/10 bg-red-500/15"
                   onClick={() => handleReject(userRole.user_id)}
                   disabled={actionLoading === userRole.user_id}
                   aria-label="Reject user"
                 >
                   <XCircle className="w-3.5 h-3.5 mr-1.5" />
                   Reject
-                </Button>
+                </PremiumButton>
               </>
             )}
             
@@ -337,11 +340,11 @@ const MasterAdminDashboard = () => {
             {/* Module Switcher */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-8 bg-gray-800/50 border-gray-700/50 text-gray-300 hover:bg-gray-700/50 gap-2 text-xs font-medium">
+                <PremiumButton variant="secondary" size="sm" userRole="master" className="h-8 bg-gray-800/50 border-gray-700/50 text-gray-300 hover:bg-gray-700/50 gap-2">
                   <LayoutDashboard className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">Switch</span>
                   <ChevronDown className="w-3.5 h-3.5" />
-                </Button>
+                </PremiumButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-[#12121a] border-gray-800 w-48">
                 <DropdownMenuLabel className="text-gray-500 text-xs">Admin Modules</DropdownMenuLabel>
@@ -366,30 +369,32 @@ const MasterAdminDashboard = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button 
+            <PremiumButton 
               variant="ghost" 
               size="sm"
+              userRole="master"
               onClick={fetchUsers} 
               disabled={loading} 
               className="h-8 w-8 p-0 text-gray-400 hover:text-white hover:bg-gray-800/50"
               aria-label="Refresh"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            </Button>
+            </PremiumButton>
             
             {/* Force Logout All - Destructive */}
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button 
-                  variant="ghost"
+                <PremiumButton 
+                  variant="danger"
                   size="sm"
+                  userRole="master"
                   disabled={forceLogoutAllLoading || nonMasterUsers.length === 0}
-                  className="h-8 text-red-400 hover:text-red-300 hover:bg-red-500/10 gap-1.5 text-xs font-medium"
+                  className="h-8 text-red-400 hover:text-red-300 hover:bg-red-500/10 gap-1.5"
                   aria-label="Force logout all users"
                 >
                   <Power className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">Logout All</span>
-                </Button>
+                </PremiumButton>
               </AlertDialogTrigger>
               <AlertDialogContent className="bg-[#12121a] border-gray-800 max-w-md">
                 <AlertDialogHeader>
@@ -427,16 +432,17 @@ const MasterAdminDashboard = () => {
             </Button>
             
             {/* Secure Logout */}
-            <Button 
-              variant="ghost" 
+            <PremiumButton 
+              variant="danger" 
               size="sm" 
+              userRole="master"
               onClick={handleLogout} 
-              className="h-8 text-gray-400 hover:text-white hover:bg-red-500/10 gap-1.5 text-xs font-medium"
+              className="h-8 text-gray-400 hover:text-white hover:bg-red-500/10 gap-1.5"
               aria-label="Secure logout"
             >
               <LogOut className="w-4 h-4" />
               <span className="hidden sm:inline">Logout</span>
-            </Button>
+            </PremiumButton>
           </div>
         </div>
       </header>
