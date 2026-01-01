@@ -150,6 +150,7 @@ import MasterAdminControl from "./pages/control-system/MasterAdminControl";
 import EnterpriseControlHub from "./pages/enterprise-control/EnterpriseControlHub";
 
 import BulkUserCreation from "./pages/admin/BulkUserCreation";
+import BulkActionsReference from "./pages/admin/BulkActionsReference";
 import AreaManagerDashboard from "./pages/area-manager/AreaManagerDashboard";
 import ContinentSuperAdminDashboard from "./pages/continent-super-admin/ContinentSuperAdminDashboard";
 
@@ -589,6 +590,9 @@ const App = () => (
 
               {/* Leader Security Assessment */}
               <Route path="/leader-security" element={<LeaderSecurityAssessment />} />
+
+              {/* Bulk Actions Reference */}
+              <Route path="/bulk-actions" element={<BulkActionsReference />} />
 
                           {/* Catch-all */}
                           <Route path="*" element={<NotFound />} />
