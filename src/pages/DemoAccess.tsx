@@ -6,29 +6,13 @@ import { useDemoTestMode } from '@/contexts/DemoTestModeContext';
 
 // Demo credentials for each role - AUTO-CREATE & ONE-CLICK LOGIN
 const DEMO_ACCOUNTS: Record<string, { email: string; password: string; name: string; icon: React.ElementType; color: string; dashboard: string }> = {
-  'master': {
-    email: 'demo.master@softwarevala.com',
-    password: 'Demo@Master2025!',
-    name: 'Master Admin',
+  'boss_owner': {
+    email: 'demo.boss@softwarevala.com',
+    password: 'Demo@Boss2025!',
+    name: 'Boss Owner',
     icon: Shield,
     color: 'from-yellow-500 to-amber-600',
-    dashboard: '/master-admin'
-  },
-  'super-admin': {
-    email: 'demo.superadmin@softwarevala.com',
-    password: 'Demo@Super2025!',
-    name: 'Super Admin',
-    icon: Shield,
-    color: 'from-purple-500 to-indigo-600',
     dashboard: '/super-admin'
-  },
-  'admin': {
-    email: 'demo.admin@softwarevala.com',
-    password: 'Demo@Admin2025!',
-    name: 'Admin',
-    icon: Users,
-    color: 'from-blue-500 to-blue-700',
-    dashboard: '/admin'
   },
   'franchise': {
     email: 'demo.franchise@softwarevala.com',

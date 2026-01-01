@@ -295,9 +295,10 @@ export const AuthGuard = {
 export const RBACGuard = {
   // Role hierarchy (higher number = more privileges)
   ROLE_HIERARCHY: {
-    master: 110,
-    super_admin: 100,
-    area_manager: 90, // Region-based control (renamed from admin)
+    boss_owner: 110, // Supreme authority
+    admin: 100,
+    ceo: 95,
+    area_manager: 90,
     finance_manager: 85,
     legal_compliance: 80,
     hr_manager: 75,
@@ -325,8 +326,8 @@ export const RBACGuard = {
     client: 5,
   } as Record<string, number>,
 
-  // Roles that can only be assigned by master or super_admin
-  PROTECTED_ROLES: ['master', 'super_admin', 'area_manager', 'finance_manager', 'legal_compliance'],
+  // Roles that can only be assigned by boss_owner
+  PROTECTED_ROLES: ['boss_owner', 'admin', 'ceo', 'area_manager', 'finance_manager', 'legal_compliance'],
 
   /**
    * Check if actor can assign a role to target

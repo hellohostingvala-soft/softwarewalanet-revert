@@ -25,8 +25,8 @@ serve(async (req: Request) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const masterPassword = Deno.env.get("MASTER_ADMIN_PASSWORD");
-    const superAdminPassword = Deno.env.get("SUPER_ADMIN_PASSWORD");
+    const bossOwnerPassword = Deno.env.get("BOSS_OWNER_PASSWORD") || Deno.env.get("MASTER_ADMIN_PASSWORD");
+    const adminPassword = Deno.env.get("ADMIN_PASSWORD") || Deno.env.get("SUPER_ADMIN_PASSWORD");
 
     // SECURITY: Verify the caller is authenticated as Master
     const authHeader = req.headers.get("Authorization");
@@ -58,27 +58,27 @@ serve(async (req: Request) => {
       .eq("user_id", user.id)
       .single();
 
-    // Allow first-time bootstrap if no master exists yet
+    // Allow first-time bootstrap if no boss_owner exists yet
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
       auth: { autoRefreshToken: false, persistSession: false }
     });
 
-    const { data: existingMasterCheck } = await supabaseAdmin
+    const { data: existingBossOwnerCheck } = await supabaseAdmin
       .from("user_roles")
       .select("user_id")
-      .eq("role", "master")
+      .eq("role", "boss_owner")
       .maybeSingle();
 
-    // If master exists and caller is not master, deny access
-    if (existingMasterCheck && (!roleData || roleData.role !== "master")) {
+    // If boss_owner exists and caller is not boss_owner, deny access
+    if (existingBossOwnerCheck && (!roleData || roleData.role !== "boss_owner")) {
       console.log("Unauthorized bootstrap attempt by user:", user.id);
       return new Response(
-        JSON.stringify({ error: "Only Master Admin can perform this action" }),
+        JSON.stringify({ error: "Only Boss Owner can perform this action" }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    if (!masterPassword || !superAdminPassword) {
+    if (!bossOwnerPassword || !adminPassword) {
       return new Response(
         JSON.stringify({ error: "Admin passwords not configured in secrets" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -87,130 +87,130 @@ serve(async (req: Request) => {
 
     const results: Array<{ email: string; action?: string; role?: string; error?: string }> = [];
 
-    // Bootstrap Master Admin
-    const masterEmail = "hellosoftwarevala@gmail.com";
-    const { data: existingMaster } = await supabaseAdmin
+    // Bootstrap Boss Owner
+    const bossOwnerEmail = "hellosoftwarevala@gmail.com";
+    const { data: existingBossOwner } = await supabaseAdmin
       .from("user_roles")
       .select("user_id, role")
-      .eq("role", "master")
+      .eq("role", "boss_owner")
       .maybeSingle();
 
-    if (!existingMaster) {
+    if (!existingBossOwner) {
       const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers();
-      const existingUser = authUsers?.users?.find(u => u.email === masterEmail);
+      const existingUser = authUsers?.users?.find(u => u.email === bossOwnerEmail);
 
-      let masterUserId: string | undefined;
+      let bossOwnerUserId: string | undefined;
 
       if (existingUser) {
-        masterUserId = existingUser.id;
-        await supabaseAdmin.auth.admin.updateUserById(masterUserId, {
-          password: masterPassword
+        bossOwnerUserId = existingUser.id;
+        await supabaseAdmin.auth.admin.updateUserById(bossOwnerUserId, {
+          password: bossOwnerPassword
         });
-        results.push({ email: masterEmail, action: "password_updated", role: "master" });
+        results.push({ email: bossOwnerEmail, action: "password_updated", role: "boss_owner" });
       } else {
         const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-          email: masterEmail,
-          password: masterPassword,
+          email: bossOwnerEmail,
+          password: bossOwnerPassword,
           email_confirm: true,
-          user_metadata: { full_name: "Master Admin", role: "master" }
+          user_metadata: { full_name: "Boss Owner", role: "boss_owner" }
         });
 
         if (createError) {
-          results.push({ email: masterEmail, error: createError.message });
+          results.push({ email: bossOwnerEmail, error: createError.message });
         } else if (newUser?.user) {
-          masterUserId = newUser.user.id;
-          results.push({ email: masterEmail, action: "created", role: "master" });
+          bossOwnerUserId = newUser.user.id;
+          results.push({ email: bossOwnerEmail, action: "created", role: "boss_owner" });
         }
       }
 
-      if (masterUserId) {
+      if (bossOwnerUserId) {
         const { data: existingRole } = await supabaseAdmin
           .from("user_roles")
           .select("id")
-          .eq("user_id", masterUserId)
+          .eq("user_id", bossOwnerUserId)
           .maybeSingle();
 
         if (existingRole) {
           await supabaseAdmin
             .from("user_roles")
-            .update({ role: "master", approval_status: "approved", approved_at: new Date().toISOString() })
-            .eq("user_id", masterUserId);
+            .update({ role: "boss_owner", approval_status: "approved", approved_at: new Date().toISOString() })
+            .eq("user_id", bossOwnerUserId);
         } else {
           await supabaseAdmin
             .from("user_roles")
             .insert({ 
-              user_id: masterUserId, 
-              role: "master", 
+              user_id: bossOwnerUserId, 
+              role: "boss_owner", 
               approval_status: "approved",
               approved_at: new Date().toISOString()
             });
         }
       }
     } else {
-      results.push({ email: masterEmail, action: "already_exists", role: "master" });
+      results.push({ email: bossOwnerEmail, action: "already_exists", role: "boss_owner" });
     }
 
-    // Bootstrap Super Admin
-    const superAdminEmail = "superadmin@softwarevala.com";
-    const { data: existingSuperAdmin } = await supabaseAdmin
+    // Bootstrap Admin
+    const adminEmail = "admin@softwarevala.com";
+    const { data: existingAdmin } = await supabaseAdmin
       .from("user_roles")
       .select("user_id")
-      .eq("role", "super_admin")
+      .eq("role", "admin")
       .maybeSingle();
 
-    if (!existingSuperAdmin) {
+    if (!existingAdmin) {
       const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers();
-      const existingUser = authUsers?.users?.find(u => u.email === superAdminEmail);
+      const existingUser = authUsers?.users?.find(u => u.email === adminEmail);
 
-      let superAdminUserId: string | undefined;
+      let adminUserId: string | undefined;
 
       if (existingUser) {
-        superAdminUserId = existingUser.id;
-        await supabaseAdmin.auth.admin.updateUserById(superAdminUserId, {
-          password: superAdminPassword
+        adminUserId = existingUser.id;
+        await supabaseAdmin.auth.admin.updateUserById(adminUserId, {
+          password: adminPassword
         });
-        results.push({ email: superAdminEmail, action: "password_updated", role: "super_admin" });
+        results.push({ email: adminEmail, action: "password_updated", role: "admin" });
       } else {
         const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-          email: superAdminEmail,
-          password: superAdminPassword,
+          email: adminEmail,
+          password: adminPassword,
           email_confirm: true,
-          user_metadata: { full_name: "Super Admin", role: "super_admin" }
+          user_metadata: { full_name: "Admin", role: "admin" }
         });
 
         if (createError) {
-          results.push({ email: superAdminEmail, error: createError.message });
+          results.push({ email: adminEmail, error: createError.message });
         } else if (newUser?.user) {
-          superAdminUserId = newUser.user.id;
-          results.push({ email: superAdminEmail, action: "created", role: "super_admin" });
+          adminUserId = newUser.user.id;
+          results.push({ email: adminEmail, action: "created", role: "admin" });
         }
       }
 
-      if (superAdminUserId) {
+      if (adminUserId) {
         const { data: existingRole } = await supabaseAdmin
           .from("user_roles")
           .select("id")
-          .eq("user_id", superAdminUserId)
+          .eq("user_id", adminUserId)
           .maybeSingle();
 
         if (existingRole) {
           await supabaseAdmin
             .from("user_roles")
-            .update({ role: "super_admin", approval_status: "approved", approved_at: new Date().toISOString() })
-            .eq("user_id", superAdminUserId);
+            .update({ role: "admin", approval_status: "approved", approved_at: new Date().toISOString() })
+            .eq("user_id", adminUserId);
         } else {
           await supabaseAdmin
             .from("user_roles")
             .insert({ 
-              user_id: superAdminUserId, 
-              role: "super_admin", 
+              user_id: adminUserId, 
+              role: "admin", 
               approval_status: "approved",
               approved_at: new Date().toISOString()
             });
         }
       }
     } else {
-      results.push({ email: superAdminEmail, action: "already_exists", role: "super_admin" });
+      results.push({ email: adminEmail, action: "already_exists", role: "admin" });
     }
 
     // Log to audit trail
@@ -218,7 +218,7 @@ serve(async (req: Request) => {
       user_id: user.id,
       action: "bootstrap_admins_function_executed",
       module: "security",
-      role: "master",
+      role: "boss_owner",
       meta_json: { results, caller_id: user.id }
     });
 

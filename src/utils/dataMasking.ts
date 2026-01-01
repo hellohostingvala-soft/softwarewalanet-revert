@@ -46,16 +46,18 @@ export const maskData = (input: string | null | undefined, type: MaskType = 'par
  * Role hierarchy for determining data visibility
  */
 const roleHierarchy: Record<string, number> = {
-  'master_admin_supreme': 100,
-  'master_admin': 90,
-  'super_admin': 80,
-  'admin': 70,
-  'area_manager': 60,
-  'franchise': 50,
-  'reseller': 40,
-  'influencer': 30,
-  'prime_user': 20,
-  'client': 15,
+  'boss_owner': 110, // Supreme authority - sees everything
+  'admin': 90,
+  'ceo': 85,
+  'area_manager': 80,
+  'finance_manager': 75,
+  'franchise': 60,
+  'reseller': 50,
+  'influencer': 40,
+  'developer': 35,
+  'prime_user': 30,
+  'prime': 30,
+  'client': 20,
   'user': 10,
 };
 
@@ -63,16 +65,17 @@ const roleHierarchy: Record<string, number> = {
  * Fields that should be masked for each role level
  */
 const maskedFieldsByLevel: Record<number, string[]> = {
-  100: [], // Master admin supreme sees everything
-  90: [], // Master admin sees everything
-  80: ['address'], // Super admin - only address masked
-  70: ['phone', 'address'], // Admin
-  60: ['email', 'phone', 'address'], // Area manager
-  50: ['email', 'phone', 'full_name', 'address'], // Franchise
-  40: ['email', 'phone', 'full_name', 'address'], // Reseller
-  30: ['email', 'phone', 'full_name', 'address', 'company'], // Influencer
-  20: ['email', 'phone', 'full_name', 'address', 'company'], // Prime user
-  15: ['email', 'phone', 'full_name', 'address', 'company'], // Client
+  110: [], // Boss owner sees everything
+  90: [], // Admin sees everything
+  85: ['address'], // CEO - only address masked
+  80: ['phone', 'address'], // Area manager
+  75: ['email', 'phone', 'address'], // Finance manager
+  60: ['email', 'phone', 'full_name', 'address'], // Franchise
+  50: ['email', 'phone', 'full_name', 'address'], // Reseller
+  40: ['email', 'phone', 'full_name', 'address', 'company'], // Influencer
+  35: ['email', 'phone', 'full_name', 'address', 'company'], // Developer
+  30: ['email', 'phone', 'full_name', 'address', 'company'], // Prime user
+  20: ['email', 'phone', 'full_name', 'address', 'company'], // Client
   10: ['email', 'phone', 'full_name', 'address', 'company'], // User
 };
 
