@@ -6506,6 +6506,42 @@ export type Database = {
           },
         ]
       }
+      immutable_security_log: {
+        Row: {
+          action_details: Json | null
+          created_at: string | null
+          device_fingerprint: string | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          signature: string | null
+          user_id: string | null
+          user_role: string | null
+        }
+        Insert: {
+          action_details?: Json | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          signature?: string | null
+          user_id?: string | null
+          user_role?: string | null
+        }
+        Update: {
+          action_details?: Json | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          signature?: string | null
+          user_id?: string | null
+          user_role?: string | null
+        }
+        Relationships: []
+      }
       incidents: {
         Row: {
           assigned_to: string | null
@@ -8656,6 +8692,57 @@ export type Database = {
           previous_location_id?: string | null
           session_id?: string | null
           travel_speed_kmh?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      login_whitelist: {
+        Row: {
+          added_by: string | null
+          added_by_role: string | null
+          created_at: string | null
+          device_whitelist: string[] | null
+          email: string
+          id: string
+          ip_whitelist: string[] | null
+          is_active: boolean | null
+          last_login_at: string | null
+          last_login_device: string | null
+          last_login_ip: string | null
+          login_count: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          added_by?: string | null
+          added_by_role?: string | null
+          created_at?: string | null
+          device_whitelist?: string[] | null
+          email: string
+          id?: string
+          ip_whitelist?: string[] | null
+          is_active?: boolean | null
+          last_login_at?: string | null
+          last_login_device?: string | null
+          last_login_ip?: string | null
+          login_count?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          added_by?: string | null
+          added_by_role?: string | null
+          created_at?: string | null
+          device_whitelist?: string[] | null
+          email?: string
+          id?: string
+          ip_whitelist?: string[] | null
+          is_active?: boolean | null
+          last_login_at?: string | null
+          last_login_device?: string | null
+          last_login_ip?: string | null
+          login_count?: number | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -14872,6 +14959,51 @@ export type Database = {
           },
         ]
       }
+      security_breach_attempts: {
+        Row: {
+          attempt_type: string
+          attempted_action: string | null
+          attempted_resource: string | null
+          blocked: boolean | null
+          created_at: string | null
+          device_fingerprint: string | null
+          geo_location: string | null
+          id: string
+          ip_address: string | null
+          severity: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          attempt_type: string
+          attempted_action?: string | null
+          attempted_resource?: string | null
+          blocked?: boolean | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          geo_location?: string | null
+          id?: string
+          ip_address?: string | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          attempt_type?: string
+          attempted_action?: string | null
+          attempted_resource?: string | null
+          blocked?: boolean | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          geo_location?: string | null
+          id?: string
+          ip_address?: string | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       security_events: {
         Row: {
           affected_user_id: string | null
@@ -19771,6 +19903,15 @@ export type Database = {
       }
     }
     Functions: {
+      add_to_login_whitelist: {
+        Args: {
+          p_device_whitelist?: string[]
+          p_email: string
+          p_ip_whitelist?: string[]
+          p_target_user_id: string
+        }
+        Returns: Json
+      }
       approve_payout: {
         Args: { p_approver_id: string; p_payout_id: string }
         Returns: Json
@@ -20158,6 +20299,16 @@ export type Database = {
         }
         Returns: string
       }
+      log_security_event: {
+        Args: {
+          p_action_details?: Json
+          p_device_fingerprint?: string
+          p_event_type: string
+          p_ip_address?: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       log_super_admin_action: {
         Args: {
           p_action_category: string
@@ -20275,6 +20426,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      remove_from_login_whitelist: {
+        Args: { p_target_user_id: string }
+        Returns: Json
+      }
       request_withdrawal: {
         Args: {
           p_amount: number
@@ -20382,6 +20537,16 @@ export type Database = {
           p_request_domain: string
           p_request_ip: string
           p_user_agent?: string
+        }
+        Returns: Json
+      }
+      verify_login_allowed: {
+        Args: {
+          p_device_fingerprint: string
+          p_email: string
+          p_ip_address: string
+          p_user_agent?: string
+          p_user_id: string
         }
         Returns: Json
       }
