@@ -289,8 +289,7 @@ const DemoDirectory = () => {
                       </td>
                       <td className="p-4">
                         <span className="text-sm text-white/50">
-                          {role.id === 'master' ? '/master-admin' :
-                           role.id === 'super-admin' ? '/super-admin' :
+                          {role.id === 'boss_owner' ? '/super-admin' :
                            `/${role.id}`}
                         </span>
                       </td>

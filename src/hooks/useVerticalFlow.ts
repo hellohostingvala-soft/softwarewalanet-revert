@@ -47,8 +47,8 @@ const ROLE_HIERARCHY: Record<string, string> = {
   'front': 'area_control',
   'area_control': 'regional_control',
   'regional_control': 'ai_head',
-  'ai_head': 'master_admin',
-  'master_admin': 'master_admin' // Terminal
+  'ai_head': 'boss_owner',
+  'boss_owner': 'boss_owner' // Terminal - highest authority
 };
 
 export function useVerticalFlow(currentRole: string) {

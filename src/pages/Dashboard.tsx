@@ -4,12 +4,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 
 // Strict role-to-dashboard mapping (31 roles - ALL ROLES COVERED)
-// MASTER gets a separate dashboard, SUPER_ADMIN gets the command center
+// BOSS_OWNER gets the super-admin command center
 const ROLE_DASHBOARD_MAP: Record<string, string> = {
   // Tier 1: Admin Roles
-  master: '/master-admin',
-  super_admin: '/super-admin',
+  boss_owner: '/super-admin',
   admin: '/super-admin',
+  ceo: '/super-admin',
   
   // Tier 2: Partner Roles
   franchise: '/franchise',

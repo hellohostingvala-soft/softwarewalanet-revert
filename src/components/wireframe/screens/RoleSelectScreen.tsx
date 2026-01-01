@@ -11,9 +11,9 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 
 const roles = [
-  { id: 'master_admin', name: 'Boss', icon: Crown, color: 'from-red-500 to-orange-500', description: 'Top-level system authority', tier: 'admin' },
-  { id: 'super_admin', name: 'Boss', icon: Crown, color: 'from-red-500 to-orange-500', description: 'Full system access and control', tier: 'admin' },
+  { id: 'boss_owner', name: 'Boss Owner', icon: Crown, color: 'from-red-500 to-orange-500', description: 'Supreme system authority', tier: 'admin' },
   { id: 'admin', name: 'Admin', icon: Shield, color: 'from-orange-500 to-amber-500', description: 'Administrative operations', tier: 'admin' },
+  { id: 'ceo', name: 'CEO', icon: Crown, color: 'from-amber-500 to-yellow-500', description: 'Executive oversight', tier: 'admin' },
   { id: 'server_manager', name: 'Server Manager', icon: Package, color: 'from-slate-500 to-slate-700', description: 'Infrastructure overview & tooling', tier: 'admin' },
   { id: 'franchise', name: 'Franchise', icon: Building2, color: 'from-blue-500 to-cyan-500', description: 'Territory and reseller management', tier: 'partner' },
   { id: 'reseller', name: 'Reseller', icon: Users, color: 'from-cyan-500 to-teal-500', description: 'Lead conversion and sales', tier: 'partner' },
