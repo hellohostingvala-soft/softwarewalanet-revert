@@ -19,7 +19,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
-export type ActiveRole = "continent_super_admin" | "area_manager" | "server_manager" | "franchise_manager" | "sales_support_manager" | "reseller_manager" | "lead_manager" | "pro_manager" | "legal_manager" | "task_management" | "finance_manager" | "developer_management" | "marketing_management" | "customer_support_management" | "role_manager";
+export type ActiveRole = "master_admin" | "super_admin_hierarchy" | "continent_super_admin" | "country_head" | "area_manager" | "server_manager" | "franchise_manager" | "sales_support_manager" | "reseller_manager" | "lead_manager" | "pro_manager" | "legal_manager" | "task_management" | "finance_manager" | "developer_management" | "marketing_management" | "customer_support_management" | "role_manager";
 
 interface RoleSwitchSidebarProps {
   activeRole: ActiveRole;
@@ -31,6 +31,28 @@ interface RoleSwitchSidebarProps {
 
 // Role configurations with themes
 const roleConfigs = {
+  master_admin: {
+    id: "master_admin",
+    label: "Master Admin",
+    shortLabel: "MA",
+    icon: Crown,
+    themeColor: "from-amber-500 via-yellow-500 to-orange-600",
+    accentColor: "text-amber-400",
+    bgAccent: "bg-amber-500/10",
+    borderAccent: "border-amber-500/50",
+    description: "Top-level authority • System Owner",
+  },
+  super_admin_hierarchy: {
+    id: "super_admin_hierarchy",
+    label: "Super Admin",
+    shortLabel: "SA",
+    icon: Globe2,
+    themeColor: "from-blue-500 via-indigo-500 to-purple-600",
+    accentColor: "text-blue-400",
+    bgAccent: "bg-blue-500/10",
+    borderAccent: "border-blue-500/50",
+    description: "Global Operations Head",
+  },
   continent_super_admin: {
     id: "continent_super_admin",
     label: "Continent Super Admin",
@@ -40,7 +62,18 @@ const roleConfigs = {
     accentColor: "text-blue-400",
     bgAccent: "bg-blue-500/10",
     borderAccent: "border-blue-500/50",
-    description: "Global continent-level management",
+    description: "Continent-level management",
+  },
+  country_head: {
+    id: "country_head",
+    label: "Country Head",
+    shortLabel: "CH",
+    icon: Flag,
+    themeColor: "from-orange-500 to-amber-600",
+    accentColor: "text-orange-400",
+    bgAccent: "bg-orange-500/10",
+    borderAccent: "border-orange-500/50",
+    description: "Country Operations Head",
   },
   area_manager: {
     id: "area_manager",
