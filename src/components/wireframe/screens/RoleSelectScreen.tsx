@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 
 const roles = [
-  { id: 'master_admin', name: 'Master Admin', icon: Crown, color: 'from-red-500 to-orange-500', description: 'Ownership & system-wide controls', tier: 'admin' },
+  { id: 'master_admin', name: 'Boss', icon: Crown, color: 'from-red-500 to-orange-500', description: 'Top-level system authority', tier: 'admin' },
   { id: 'super_admin', name: 'Boss', icon: Crown, color: 'from-red-500 to-orange-500', description: 'Full system access and control', tier: 'admin' },
   { id: 'admin', name: 'Admin', icon: Shield, color: 'from-orange-500 to-amber-500', description: 'Administrative operations', tier: 'admin' },
   { id: 'server_manager', name: 'Server Manager', icon: Package, color: 'from-slate-500 to-slate-700', description: 'Infrastructure overview & tooling', tier: 'admin' },

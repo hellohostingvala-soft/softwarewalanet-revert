@@ -192,7 +192,7 @@ export const useSuperAdminGuard = () => {
     reason: string
   ) => {
     if (role === 'master_admin') {
-      toast.error('Cannot modify Master Admin role');
+      toast.error('Cannot modify Boss role');
       return false;
     }
     const logged = await logActionWithReason('role_activated', userId, reason, { role });
@@ -207,7 +207,7 @@ export const useSuperAdminGuard = () => {
     reason: string
   ) => {
     if (role === 'master_admin') {
-      toast.error('Cannot suspend Master Admin');
+      toast.error('Cannot suspend Boss');
       return false;
     }
     const logged = await logActionWithReason('role_suspended', userId, reason, { role });

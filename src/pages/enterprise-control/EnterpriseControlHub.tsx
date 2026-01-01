@@ -25,7 +25,7 @@ const RoleSelector = ({ onSelect }: { onSelect: (role: ValaRole) => void }) => {
     { id: "operation", label: "FRONT / OPERATION", icon: <Users className="h-6 w-6" />, color: "emerald" },
     { id: "regional", label: "AREA / REGIONAL", icon: <Globe className="h-6 w-6" />, color: "blue" },
     { id: "ai_head", label: "AI HEAD", icon: <Brain className="h-6 w-6" />, color: "pink" },
-    { id: "master_admin", label: "MASTER ADMIN", icon: <Crown className="h-6 w-6" />, color: "amber" },
+    { id: "master_admin", label: "BOSS", icon: <Crown className="h-6 w-6" />, color: "amber" },
   ];
 
   return (

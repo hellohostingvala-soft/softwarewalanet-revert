@@ -34,8 +34,8 @@ interface RoleSwitchSidebarProps {
 const roleConfigs = {
   master_admin: {
     id: "master_admin",
-    label: "Master Admin",
-    shortLabel: "MA",
+    label: "Boss",
+    shortLabel: "BO",
     icon: Crown,
     themeColor: "from-amber-500 via-yellow-500 to-orange-600",
     accentColor: "text-amber-400",
