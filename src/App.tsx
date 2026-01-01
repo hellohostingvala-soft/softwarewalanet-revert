@@ -49,6 +49,8 @@ import DemoDirectory from "./pages/DemoDirectory";
 import DemoLogin from "./pages/DemoLogin";
 import DemoShowcase from "./pages/DemoShowcase";
 import PremiumDemoShowcase from "./pages/PremiumDemoShowcase";
+import PremiumDemoShowcaseNew from "./pages/showcase/PremiumDemoShowcase";
+import ServerManagementPortal from "./pages/server/ServerManagementPortal";
 import ClientPortal from "./pages/ClientPortal";
 
 // Demo Product Pages - One-click access, no login
@@ -295,6 +297,8 @@ const App = () => (
               <Route path="/products" element={<Index />} />
               <Route path="/pricing" element={<SimpleDemoList />} />
               <Route path="/demos/public" element={<PublicDemos />} />
+              <Route path="/showcase" element={<PremiumDemoShowcaseNew />} />
+              <Route path="/server-portal" element={<RequireAuth><ServerManagementPortal /></RequireAuth>} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/pending-approval" element={<PendingApproval />} />
