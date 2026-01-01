@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { 
   LayoutGrid, Globe2, Users, Shield, AlertTriangle, 
-  Eye, FileText, Lock, LogOut, Clock, CheckCircle
+  Eye, FileText, Lock, LogOut, Clock, CheckCircle, Smartphone
 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { PremiumButton } from '@/components/ui/PremiumButton';
@@ -21,10 +21,11 @@ import HighRiskApprovalsView from './views/HighRiskApprovalsView';
 import SecurityMonitorView from './views/SecurityMonitorView';
 import AuditView from './views/AuditView';
 import SystemLockView from './views/SystemLockView';
+import PlayConsoleView from './views/PlayConsoleView';
 import AIInsightsPanel from './components/AIInsightsPanel';
 
 type ViewType = 'overview' | 'continents' | 'super-admins' | 'global-rules' | 
-                'approvals' | 'security' | 'audit' | 'system-lock';
+                'approvals' | 'security' | 'audit' | 'system-lock' | 'play-console';
 
 const sidebarItems: { id: ViewType; label: string; icon: any }[] = [
   { id: 'overview', label: 'Overview', icon: LayoutGrid },
@@ -35,6 +36,7 @@ const sidebarItems: { id: ViewType; label: string; icon: any }[] = [
   { id: 'security', label: 'Security Monitor', icon: Eye },
   { id: 'audit', label: 'Audit (Read-Only)', icon: FileText },
   { id: 'system-lock', label: 'System Lock', icon: Lock },
+  { id: 'play-console', label: 'Play Console', icon: Smartphone },
 ];
 
 const MasterControlCenter = () => {
@@ -81,6 +83,7 @@ const MasterControlCenter = () => {
       case 'security': return <SecurityMonitorView />;
       case 'audit': return <AuditView />;
       case 'system-lock': return <SystemLockView />;
+      case 'play-console': return <PlayConsoleView />;
       default: return <OverviewView />;
     }
   };
