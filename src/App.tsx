@@ -154,7 +154,6 @@ import EnterpriseControlHub from "./pages/enterprise-control/EnterpriseControlHu
 
 import BulkUserCreation from "./pages/admin/BulkUserCreation";
 import BulkActionsReference from "./pages/admin/BulkActionsReference";
-import AreaManagerDashboard from "./pages/area-manager/AreaManagerDashboard";
 import ContinentSuperAdminDashboard from "./pages/continent-super-admin/ContinentSuperAdminDashboard";
 
 // Product Demo Manager
@@ -377,9 +376,9 @@ const App = () => (
               <Route path="/admin/role-manager" element={<RequireRole allowed={["master", "super_admin"]}><RoleManagerPage /></RequireRole>} />
 
 
-              {/* Area Manager Routes */}
-              <Route path="/area-manager" element={<RequireRole allowed={["master", "super_admin", "area_manager"]}><AreaManagerDashboard /></RequireRole>} />
-              <Route path="/area-manager/*" element={<RequireRole allowed={["master", "super_admin", "area_manager"]}><AreaManagerDashboard /></RequireRole>} />
+              {/* Area Manager now redirects to Country Head - merged roles */}
+              <Route path="/area-manager" element={<Navigate to="/super-admin-system/role-switch?role=country_head" replace />} />
+              <Route path="/area-manager/*" element={<Navigate to="/super-admin-system/role-switch?role=country_head" replace />} />
 
               {/* Server Manager Routes */}
               <Route path="/server-manager" element={<RequireRole allowed={["master", "super_admin", "server_manager"]}><ServerManagerDashboard /></RequireRole>} />

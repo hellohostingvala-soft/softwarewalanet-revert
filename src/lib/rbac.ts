@@ -13,7 +13,7 @@ export const ROLE_HIERARCHY: Partial<Record<AppRole, number>> = {
   master: 110, // Master admin - highest level
   super_admin: 100,
   server_manager: 95, // Infrastructure control - below Super Admin, above Area Manager
-  area_manager: 90, // Region-based control
+  area_manager: 90, // Now redirects to Country Head dashboard
   finance_manager: 85,
   legal_compliance: 80,
   hr_manager: 75,
@@ -61,7 +61,7 @@ export const MASKED_ID_CONFIG: Record<string, {
   master: { prefix: '🔱 MASTER', digits: 1, icon: 'Crown', displayName: 'Master Admin' },
   super_admin: { prefix: '👑 BOSS', digits: 2, icon: 'Crown', displayName: 'Super Admin' },
   server_manager: { prefix: 'SRV', digits: 2, icon: 'Server', displayName: 'Server Manager' },
-  area_manager: { prefix: 'ARM', digits: 2, icon: 'MapPin', displayName: 'Area Manager' },
+  area_manager: { prefix: 'CTH', digits: 2, icon: 'MapPin', displayName: 'Country Head' }, // Merged
   task_manager: { prefix: 'EMP', digits: 3, icon: 'ListTodo', displayName: 'Task Manager' },
   rnd_manager: { prefix: 'EMP', digits: 3, icon: 'Lightbulb', displayName: 'R&D Manager' },
   r_and_d: { prefix: 'EMP', digits: 3, icon: 'Lightbulb', displayName: 'R&D' },
@@ -97,7 +97,7 @@ export const ROLE_ROUTES: Partial<Record<AppRole, string[]>> = {
   master: ['*'], // Master has full access to everything
   super_admin: ['*'], // Access to everything
   server_manager: ['/server-manager', '/server-manager/*'], // Infrastructure only - no business data
-  area_manager: ['/area-manager', '/area-manager/*'], // Region-based control
+  area_manager: ['/super-admin-system/role-switch', '/country-head/*'], // Redirects to Country Head
   developer: ['/developer', '/tasks', '/settings'],
   franchise: ['/franchise', '/leads', '/resellers', '/settings'],
   reseller: ['/reseller', '/leads', '/settings'],
@@ -194,7 +194,7 @@ export function getDashboardRoute(role: AppRole): string {
   const routeMap: Partial<Record<AppRole, string>> = {
     master: '/master-admin',
     super_admin: '/super-admin',
-    area_manager: '/area-manager', // Region-based dashboard
+    area_manager: '/super-admin-system/role-switch?role=country_head', // Redirects to Country Head
     developer: '/developer',
     franchise: '/franchise',
     reseller: '/reseller',
