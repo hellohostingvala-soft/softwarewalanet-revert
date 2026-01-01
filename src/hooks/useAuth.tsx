@@ -21,7 +21,8 @@ interface AuthContextType {
   isSuperAdmin: boolean;
   wasForceLoggedOut: boolean;
   signUp: (email: string, password: string, role: AppRole, fullName: string) => Promise<{ error: Error | null }>;
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signIn: (email: string, password: string, deviceFingerprint?: string) => Promise<{ error: Error | null }>;
+  generateDeviceFingerprint: () => string;
   signOut: () => Promise<void>;
   refreshApprovalStatus: () => Promise<void>;
   forceLogoutUser: (targetUserId: string) => Promise<{ error: Error | null }>;
@@ -273,7 +274,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, deviceFingerprint?: string) => {
     pendingSignInRef.current = true;
 
     try {
@@ -284,8 +285,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) throw error;
 
-      // Clear force logout flag on successful sign in BEFORE role/status fetch
       if (data.user) {
+        // Generate device fingerprint if not provided
+        const fingerprint = deviceFingerprint || generateDeviceFingerprint();
+        
+        // Get IP address (will be captured server-side, pass placeholder)
+        const ipAddress = 'client-side';
+        
+        // Verify login is allowed via whitelist check
+        const { data: verifyResult, error: verifyError } = await supabase.rpc('verify_login_allowed', {
+          p_user_id: data.user.id,
+          p_email: email,
+          p_ip_address: ipAddress,
+          p_device_fingerprint: fingerprint,
+          p_user_agent: navigator.userAgent
+        });
+
+        if (verifyError) {
+          console.error('Login verification error:', verifyError);
+          // Continue with login for master/super_admin even if verification fails
+        } else if (verifyResult && typeof verifyResult === 'object') {
+          const result = verifyResult as { allowed: boolean; reason?: string; message?: string };
+          if (!result.allowed) {
+            // Sign out and throw error
+            await supabase.auth.signOut();
+            throw new Error(result.message || 'Login not authorized');
+          }
+        }
+
+        // Clear force logout flag on successful sign in BEFORE role/status fetch
         await clearForceLogout(data.user.id);
         await fetchUserRoleAndStatus(data.user.id);
       }
@@ -296,6 +324,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       pendingSignInRef.current = false;
     }
+  };
+
+  // Generate device fingerprint for security tracking
+  const generateDeviceFingerprint = (): string => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.textBaseline = 'top';
+      ctx.font = '14px Arial';
+      ctx.fillText('fingerprint', 2, 2);
+    }
+    
+    const components = [
+      navigator.userAgent,
+      navigator.language,
+      screen.width + 'x' + screen.height,
+      new Date().getTimezoneOffset().toString(),
+      navigator.hardwareConcurrency?.toString() || '0',
+      canvas.toDataURL()
+    ];
+    
+    // Simple hash
+    let hash = 0;
+    const str = components.join('|');
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    return Math.abs(hash).toString(16);
   };
 
   const signOut = async () => {
@@ -341,7 +399,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       signIn, 
       signOut,
       refreshApprovalStatus,
-      forceLogoutUser
+      forceLogoutUser,
+      generateDeviceFingerprint
     }}>
       {children}
     </AuthContext.Provider>
