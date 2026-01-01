@@ -6,7 +6,7 @@ import {
   Eye, FileText, Lock, LogOut, Clock, CheckCircle
 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
+import { PremiumButton } from '@/components/ui/PremiumButton';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -119,15 +119,16 @@ const MasterControlCenter = () => {
           </div>
 
           {/* Secure Logout */}
-          <Button 
-            variant="ghost" 
+          <PremiumButton 
+            variant="danger" 
             size="sm" 
             onClick={handleLogout}
-            className="text-gray-400 hover:text-white hover:bg-red-500/10 gap-1.5 text-xs font-medium"
+            userRole="master"
+            className="gap-1.5"
           >
             <LogOut className="w-4 h-4" />
             Secure Logout
-          </Button>
+          </PremiumButton>
         </div>
       </header>
 
@@ -138,10 +139,14 @@ const MasterControlCenter = () => {
           <ScrollArea className="h-full py-4">
             <nav className="space-y-1 px-3">
               {sidebarItems.map((item) => (
-                <button
+                <PremiumButton
                   key={item.id}
                   onClick={() => setActiveView(item.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-100 ${
+                  variant={activeView === item.id ? 'primary' : 'ghost'}
+                  size="sm"
+                  userRole="master"
+                  glowOnHover={activeView === item.id}
+                  className={`w-full justify-start gap-3 ${
                     activeView === item.id
                       ? 'bg-primary/10 text-primary border border-primary/20'
                       : 'text-gray-400 hover:bg-gray-800/50 hover:text-white border border-transparent'
@@ -149,7 +154,7 @@ const MasterControlCenter = () => {
                 >
                   <item.icon className="w-4 h-4" />
                   <span>{item.label}</span>
-                </button>
+                </PremiumButton>
               ))}
             </nav>
           </ScrollArea>
