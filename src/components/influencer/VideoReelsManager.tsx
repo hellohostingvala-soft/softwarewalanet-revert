@@ -4,6 +4,7 @@ import {
   Video, Play, Upload, Eye, Heart, Share2, 
   MessageCircle, TrendingUp, Plus, Clock, Sparkles
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const videos = [
   {
@@ -58,6 +59,7 @@ const VideoReelsManager = () => {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          onClick={() => toast.info("Upload Video", { description: "Video upload feature coming soon" })}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-500 to-cyan-500 text-white font-medium shadow-lg shadow-violet-500/20"
         >
           <Upload className="w-5 h-5" />
@@ -94,6 +96,7 @@ const VideoReelsManager = () => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           whileHover={{ scale: 1.02 }}
+          onClick={() => toast.info("Upload New Reel", { description: "Drag and drop or click to upload" })}
           className="aspect-[9/16] max-h-[400px] rounded-xl bg-slate-900/60 border-2 border-dashed border-slate-700/50 hover:border-violet-500/50 transition-all flex flex-col items-center justify-center cursor-pointer group"
         >
           <div className="w-16 h-16 rounded-full bg-violet-500/20 flex items-center justify-center mb-4 group-hover:bg-violet-500/30 transition-colors">
@@ -134,11 +137,11 @@ const VideoReelsManager = () => {
               {video.status === 'published' ? 'Published' : 'Draft'}
             </div>
 
-            {/* Play Button Overlay */}
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
+                onClick={() => toast.info(`Playing "${video.title}"`, { description: "Video player coming soon" })}
                 className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center"
               >
                 <Play className="w-8 h-8 text-white ml-1" />
@@ -192,7 +195,10 @@ const VideoReelsManager = () => {
           ].map((suggestion, i) => (
             <div key={i} className="p-4 rounded-lg bg-slate-900/50 border border-slate-700/30">
               <p className="text-sm text-slate-300">{suggestion}</p>
-              <button className="mt-2 text-xs text-violet-400 hover:text-violet-300 transition-colors">
+              <button 
+                onClick={() => toast.success(`Generating script for: "${suggestion}"`, { description: "AI script generation in progress..." })}
+                className="mt-2 text-xs text-violet-400 hover:text-violet-300 transition-colors"
+              >
                 Generate Script →
               </button>
             </div>

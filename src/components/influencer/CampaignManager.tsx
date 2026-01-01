@@ -4,6 +4,7 @@ import {
   Megaphone, Plus, Calendar, Users, TrendingUp, 
   Play, Pause, BarChart3, Target, Clock
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const campaigns = [
   {
@@ -61,7 +62,10 @@ const CampaignManager = () => {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => setShowNewCampaign(true)}
+          onClick={() => {
+            setShowNewCampaign(true);
+            toast.info("Create New Campaign", { description: "Campaign creation wizard coming soon" });
+          }}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-500 to-cyan-500 text-white font-medium shadow-lg shadow-violet-500/20"
         >
           <Plus className="w-5 h-5" />
@@ -182,6 +186,13 @@ const CampaignManager = () => {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    if (campaign.status === 'active') {
+                      toast.warning(`Campaign "${campaign.name}" paused`, { description: "You can resume it anytime" });
+                    } else {
+                      toast.success(`Campaign "${campaign.name}" resumed`, { description: "Campaign is now active" });
+                    }
+                  }}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all ${
                     campaign.status === 'active'
                       ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
@@ -203,6 +214,9 @@ const CampaignManager = () => {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={() => toast.info(`Analytics for "${campaign.name}"`, { 
+                    description: `Reach: ${campaign.reach.toLocaleString()} | Clicks: ${campaign.clicks.toLocaleString()} | Conversions: ${campaign.conversions}` 
+                  })}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-slate-800/50 border border-slate-700/50 text-slate-300 hover:border-slate-600 transition-all"
                 >
                   <BarChart3 className="w-4 h-4" />

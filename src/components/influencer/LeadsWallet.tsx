@@ -5,6 +5,7 @@ import {
   XCircle, ArrowUpRight, ArrowDownRight, Filter,
   Download, Eye, MessageCircle
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface LeadsWalletProps {
   activeTab?: string;
@@ -110,7 +111,10 @@ const LeadsWallet = ({ activeTab = 'leads' }: LeadsWalletProps) => {
           >
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white">Recent Leads</h3>
-              <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/50 border border-slate-700/50 text-slate-400 hover:text-white transition-colors">
+              <button 
+                onClick={() => toast.info("Filter options coming soon", { description: "Filter by status, date, and value" })}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/50 border border-slate-700/50 text-slate-400 hover:text-white transition-colors"
+              >
                 <Filter className="w-4 h-4" />
                 Filter
               </button>
@@ -146,10 +150,16 @@ const LeadsWallet = ({ activeTab = 'leads' }: LeadsWalletProps) => {
                       <td className="py-4 px-4 text-right text-white font-medium">₹{lead.value.toLocaleString()}</td>
                       <td className="py-4 px-4 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <button className="p-2 rounded-lg hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors">
+                          <button 
+                            onClick={() => toast.info(`Viewing lead: ${lead.name}`, { description: `Product: ${lead.product}` })}
+                            className="p-2 rounded-lg hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors"
+                          >
                             <Eye className="w-4 h-4" />
                           </button>
-                          <button className="p-2 rounded-lg hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors">
+                          <button 
+                            onClick={() => toast.success(`Opening chat with ${lead.name}`, { description: "Chat feature coming soon" })}
+                            className="p-2 rounded-lg hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors"
+                          >
                             <MessageCircle className="w-4 h-4" />
                           </button>
                         </div>
@@ -176,6 +186,7 @@ const LeadsWallet = ({ activeTab = 'leads' }: LeadsWalletProps) => {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={() => toast.success("Withdrawal request initiated", { description: "Amount: ₹45,280 - Processing time: 2-3 business days" })}
                 className="mt-4 w-full py-2.5 rounded-lg bg-gradient-to-r from-violet-500 to-cyan-500 text-white font-medium"
               >
                 Withdraw
@@ -219,7 +230,10 @@ const LeadsWallet = ({ activeTab = 'leads' }: LeadsWalletProps) => {
           >
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white">Transaction History</h3>
-              <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/50 border border-slate-700/50 text-slate-400 hover:text-white transition-colors">
+              <button 
+                onClick={() => toast.success("Exporting transactions...", { description: "Your transaction history will be downloaded as CSV" })}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/50 border border-slate-700/50 text-slate-400 hover:text-white transition-colors"
+              >
                 <Download className="w-4 h-4" />
                 Export
               </button>

@@ -3,6 +3,7 @@ import { Sparkles, User, Settings, TrendingUp } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import GlobalNotificationHeader from '@/components/shared/GlobalNotificationHeader';
 import type { NotificationAlert } from '@/components/shared/GlobalNotificationHeader';
+import { toast } from 'sonner';
 
 interface InfluencerTopBarProps {
   onNotificationClick: () => void;
@@ -114,6 +115,7 @@ const InfluencerTopBar = ({
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          onClick={() => toast.info("Settings", { description: "Account settings coming soon" })}
           className="p-2.5 rounded-lg bg-slate-800/50 border border-slate-700/50 hover:border-slate-600/50 transition-all"
         >
           <Settings className="w-5 h-5 text-slate-400" />
