@@ -11,7 +11,8 @@ import {
   Package, Truck, Store, Map, Database, HardDrive, Cpu,
   Monitor, Zap, Lock, Key, Gavel, FileCheck, BookOpen,
   Bug, GitBranch, Rocket, Terminal, AlertTriangle, Radio,
-  Megaphone, Image, Share2, BarChart, LineChart, Palette, Ticket
+  Megaphone, Image, Share2, BarChart, LineChart, Palette, Ticket,
+  Flag, Box, ShoppingCart, Eye, Play, Layers
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -19,7 +20,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
-export type ActiveRole = "master_admin" | "super_admin_hierarchy" | "continent_super_admin" | "country_head" | "area_manager" | "server_manager" | "franchise_manager" | "sales_support_manager" | "reseller_manager" | "lead_manager" | "pro_manager" | "legal_manager" | "task_management" | "finance_manager" | "developer_management" | "marketing_management" | "customer_support_management" | "role_manager";
+export type ActiveRole = "master_admin" | "super_admin_hierarchy" | "continent_super_admin" | "country_head" | "area_manager" | "server_manager" | "franchise_manager" | "sales_support_manager" | "reseller_manager" | "lead_manager" | "pro_manager" | "legal_manager" | "task_management" | "finance_manager" | "developer_management" | "marketing_management" | "customer_support_management" | "role_manager" | "product_manager";
 
 interface RoleSwitchSidebarProps {
   activeRole: ActiveRole;
@@ -229,6 +230,17 @@ const roleConfigs = {
     borderAccent: "border-violet-500/50",
     description: "Role & permission management",
   },
+  product_manager: {
+    id: "product_manager",
+    label: "Product Manager",
+    shortLabel: "PM",
+    icon: Box,
+    themeColor: "from-indigo-500 to-violet-600",
+    accentColor: "text-indigo-400",
+    bgAccent: "bg-indigo-500/10",
+    borderAccent: "border-indigo-500/50",
+    description: "Product catalog & demo management",
+  },
 } as const;
 
 // Extended navigation items per role - role-specific features
@@ -384,6 +396,44 @@ const roleNavItems = {
     { id: "assignments", label: "Role Assignments", icon: UserCheck },
     { id: "versions", label: "Role Versions", icon: FileText },
     { id: "audit", label: "Audit Log", icon: Activity },
+    { id: "settings", label: "Settings", icon: Settings },
+  ],
+  master_admin: [
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "super-admins", label: "Super Admins", icon: Users },
+    { id: "roles", label: "Roles & Permissions", icon: Key },
+    { id: "modules", label: "System Modules", icon: Cpu },
+    { id: "audit", label: "Audit & Blackbox", icon: Database },
+    { id: "security", label: "Security & Legal", icon: Shield },
+    { id: "settings", label: "Settings", icon: Settings },
+  ],
+  super_admin_hierarchy: [
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "continents", label: "Continents", icon: Globe2 },
+    { id: "admins", label: "Continent Admins", icon: Users },
+    { id: "modules", label: "Global Modules", icon: Cpu },
+    { id: "activity", label: "Activity Log", icon: Activity },
+    { id: "settings", label: "Settings", icon: Settings },
+  ],
+  country_head: [
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "areas", label: "Regions & Areas", icon: Map },
+    { id: "managers", label: "Area Managers", icon: Users },
+    { id: "users", label: "Country Users", icon: UserCheck },
+    { id: "analytics", label: "Analytics", icon: BarChart3 },
+    { id: "escalations", label: "Escalations", icon: AlertTriangle },
+    { id: "settings", label: "Settings", icon: Settings },
+  ],
+  product_manager: [
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "products", label: "All Products", icon: Box },
+    { id: "demos", label: "Demo Management", icon: Play },
+    { id: "catalog", label: "Product Catalog", icon: Layers },
+    { id: "pricing", label: "Pricing & Plans", icon: CreditCard },
+    { id: "inventory", label: "Inventory", icon: Package },
+    { id: "orders", label: "Orders", icon: ShoppingCart },
+    { id: "analytics", label: "Product Analytics", icon: BarChart3 },
+    { id: "activity", label: "Product Activity", icon: Activity },
     { id: "settings", label: "Settings", icon: Settings },
   ],
 };
