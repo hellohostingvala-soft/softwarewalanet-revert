@@ -35,7 +35,7 @@ const FORBIDDEN_ROUTES = [
   '/marketing-manager',
   '/seo-manager',
   '/legal-manager',
-  '/area-manager',
+  '/country-head',
   '/continent-super-admin',
   '/safe-assist', // Admin routes
   '/assist-manager',

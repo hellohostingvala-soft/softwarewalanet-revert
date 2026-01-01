@@ -15,7 +15,6 @@ import { useAuth } from '@/hooks/useAuth';
 // Views
 import OverviewView from './views/OverviewView';
 import CountriesView from './views/CountriesView';
-import AreaManagersView from './views/AreaManagersView';
 import ApprovalsView from './views/ApprovalsView';
 import TasksView from './views/TasksView';
 import PerformanceView from './views/PerformanceView';
@@ -23,13 +22,12 @@ import RiskAlertsView from './views/RiskAlertsView';
 import AIInsightsView from './views/AIInsightsView';
 import AuditView from './views/AuditView';
 
-type ViewType = 'overview' | 'countries' | 'area-managers' | 'approvals' | 
+type ViewType = 'overview' | 'countries' | 'approvals' | 
                 'tasks' | 'performance' | 'risk-alerts' | 'ai-insights' | 'audit';
 
 const sidebarItems: { id: ViewType; label: string; icon: any }[] = [
   { id: 'overview', label: 'Overview', icon: LayoutGrid },
-  { id: 'countries', label: 'Countries', icon: Globe2 },
-  { id: 'area-managers', label: 'Area Managers', icon: Users },
+  { id: 'countries', label: 'Countries & Regions', icon: Globe2 },
   { id: 'approvals', label: 'Approvals', icon: ClipboardCheck },
   { id: 'tasks', label: 'Tasks', icon: ClipboardList },
   { id: 'performance', label: 'Performance', icon: TrendingUp },
@@ -76,7 +74,6 @@ const ContinentSuperAdminDashboard = () => {
     switch (activeView) {
       case 'overview': return <OverviewView />;
       case 'countries': return <CountriesView />;
-      case 'area-managers': return <AreaManagersView />;
       case 'approvals': return <ApprovalsView />;
       case 'tasks': return <TasksView />;
       case 'performance': return <PerformanceView />;

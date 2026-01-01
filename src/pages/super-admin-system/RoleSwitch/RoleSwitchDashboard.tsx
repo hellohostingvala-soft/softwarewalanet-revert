@@ -129,7 +129,6 @@ const RoleSwitchDashboard = () => {
       case "continent_super_admin":
         return <ContinentSuperAdminView activeNav={activeNav} selectedSubItem={selectedSubItem} />;
       case "country_head":
-      case "area_manager": // Merged into Country Head
         return <CountryHeadDashboard />;
       case "server_manager":
         return <ServerManagerView />;

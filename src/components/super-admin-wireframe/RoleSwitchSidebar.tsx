@@ -21,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
 
-export type ActiveRole = "master_admin" | "super_admin_hierarchy" | "continent_super_admin" | "country_head" | "area_manager" | "server_manager" | "franchise_manager" | "sales_support_manager" | "reseller_manager" | "lead_manager" | "pro_manager" | "legal_manager" | "task_management" | "finance_manager" | "developer_management" | "marketing_management" | "customer_support_management" | "role_manager" | "product_manager";
+export type ActiveRole = "master_admin" | "super_admin_hierarchy" | "continent_super_admin" | "country_head" | "server_manager" | "franchise_manager" | "sales_support_manager" | "reseller_manager" | "lead_manager" | "pro_manager" | "legal_manager" | "task_management" | "finance_manager" | "developer_management" | "marketing_management" | "customer_support_management" | "role_manager" | "product_manager";
 
 interface RoleSwitchSidebarProps {
   activeRole: ActiveRole;
@@ -258,14 +258,6 @@ const roleNavItems = {
     { id: "countries", label: "Country Overview", icon: Map },
     { id: "activity", label: "Live Activity", icon: Activity },
     { id: "reports", label: "Global Reports", icon: BarChart3 },
-    { id: "settings", label: "Settings", icon: Settings },
-  ],
-  area_manager: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "managers", label: "All Area Managers", icon: Users },
-    { id: "regions", label: "Regions & Zones", icon: Map },
-    { id: "performance", label: "Performance", icon: TrendingUp },
-    { id: "activity", label: "Area Activity", icon: Activity },
     { id: "settings", label: "Settings", icon: Settings },
   ],
   server_manager: [
