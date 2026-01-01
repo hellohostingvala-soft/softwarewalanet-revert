@@ -7189,6 +7189,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ip_blocklist: {
+        Row: {
+          blocked_at: string | null
+          blocked_by: string
+          expires_at: string | null
+          id: string
+          ip_address: string
+          is_permanent: boolean | null
+          reason: string
+          unblocked_at: string | null
+          unblocked_by: string | null
+        }
+        Insert: {
+          blocked_at?: string | null
+          blocked_by: string
+          expires_at?: string | null
+          id?: string
+          ip_address: string
+          is_permanent?: boolean | null
+          reason: string
+          unblocked_at?: string | null
+          unblocked_by?: string | null
+        }
+        Update: {
+          blocked_at?: string | null
+          blocked_by?: string
+          expires_at?: string | null
+          id?: string
+          ip_address?: string
+          is_permanent?: boolean | null
+          reason?: string
+          unblocked_at?: string | null
+          unblocked_by?: string | null
+        }
+        Relationships: []
+      }
       ip_intelligence: {
         Row: {
           blacklist_reason: string | null
@@ -8279,6 +8315,39 @@ export type Database = {
           created_at?: string | null
           id?: string
           lang_code?: string
+        }
+        Relationships: []
+      }
+      login_attempts: {
+        Row: {
+          attempt_type: string | null
+          created_at: string | null
+          device_fingerprint: string | null
+          email: string
+          failure_reason: string | null
+          id: string
+          ip_address: string
+          success: boolean | null
+        }
+        Insert: {
+          attempt_type?: string | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          email: string
+          failure_reason?: string | null
+          id?: string
+          ip_address: string
+          success?: boolean | null
+        }
+        Update: {
+          attempt_type?: string | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          email?: string
+          failure_reason?: string | null
+          id?: string
+          ip_address?: string
+          success?: boolean | null
         }
         Relationships: []
       }
@@ -15952,43 +16021,157 @@ export type Database = {
       }
       super_admin: {
         Row: {
+          allowed_ip_ranges: string[] | null
           continent: string
           countries_managed: number | null
           created_at: string | null
           current_device: string | null
+          failed_login_count: number | null
+          force_password_change: boolean | null
           id: string
+          last_login_at: string | null
+          last_login_device: string | null
+          last_login_ip: string | null
           last_login_time: string | null
+          locked_until: string | null
           login_status: string | null
+          max_session_duration_minutes: number | null
           name: string
+          requires_2fa: boolean | null
           risk_score: number | null
+          security_clearance: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          allowed_ip_ranges?: string[] | null
           continent: string
           countries_managed?: number | null
           created_at?: string | null
           current_device?: string | null
+          failed_login_count?: number | null
+          force_password_change?: boolean | null
           id?: string
+          last_login_at?: string | null
+          last_login_device?: string | null
+          last_login_ip?: string | null
           last_login_time?: string | null
+          locked_until?: string | null
           login_status?: string | null
+          max_session_duration_minutes?: number | null
           name: string
+          requires_2fa?: boolean | null
           risk_score?: number | null
+          security_clearance?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          allowed_ip_ranges?: string[] | null
           continent?: string
           countries_managed?: number | null
           created_at?: string | null
           current_device?: string | null
+          failed_login_count?: number | null
+          force_password_change?: boolean | null
           id?: string
+          last_login_at?: string | null
+          last_login_device?: string | null
+          last_login_ip?: string | null
           last_login_time?: string | null
+          locked_until?: string | null
           login_status?: string | null
+          max_session_duration_minutes?: number | null
           name?: string
+          requires_2fa?: boolean | null
           risk_score?: number | null
+          security_clearance?: string | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      super_admin_action_log: {
+        Row: {
+          action_category: string
+          action_type: string
+          admin_id: string
+          confirmation_provided: boolean | null
+          created_at: string | null
+          device_fingerprint: string | null
+          error_message: string | null
+          execution_time_ms: number | null
+          geo_location: string | null
+          id: string
+          ip_address: string | null
+          new_state: Json | null
+          previous_state: Json | null
+          reason: string | null
+          requires_confirmation: boolean | null
+          risk_level: string | null
+          scope_type: string | null
+          scope_value: string | null
+          session_id: string | null
+          signature: string | null
+          status: string
+          target_id: string | null
+          target_name: string | null
+          target_type: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action_category: string
+          action_type: string
+          admin_id: string
+          confirmation_provided?: boolean | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          error_message?: string | null
+          execution_time_ms?: number | null
+          geo_location?: string | null
+          id?: string
+          ip_address?: string | null
+          new_state?: Json | null
+          previous_state?: Json | null
+          reason?: string | null
+          requires_confirmation?: boolean | null
+          risk_level?: string | null
+          scope_type?: string | null
+          scope_value?: string | null
+          session_id?: string | null
+          signature?: string | null
+          status: string
+          target_id?: string | null
+          target_name?: string | null
+          target_type?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action_category?: string
+          action_type?: string
+          admin_id?: string
+          confirmation_provided?: boolean | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          error_message?: string | null
+          execution_time_ms?: number | null
+          geo_location?: string | null
+          id?: string
+          ip_address?: string | null
+          new_state?: Json | null
+          previous_state?: Json | null
+          reason?: string | null
+          requires_confirmation?: boolean | null
+          risk_level?: string | null
+          scope_type?: string | null
+          scope_value?: string | null
+          session_id?: string | null
+          signature?: string | null
+          status?: string
+          target_id?: string | null
+          target_name?: string | null
+          target_type?: string | null
+          user_agent?: string | null
         }
         Relationships: []
       }
@@ -17279,41 +17462,59 @@ export type Database = {
       }
       system_locks: {
         Row: {
+          expires_at: string | null
           force_logout_triggered: boolean | null
           id: string
           is_active: boolean | null
           lock_scope: string
+          lock_type: string | null
           locked_at: string | null
           locked_by_super_admin_id: string | null
+          metadata: Json | null
           reason: string
+          scope_type: string | null
+          scope_value: string | null
           target_id: string | null
           target_name: string | null
+          unlock_reason: string | null
           unlocked_at: string | null
           unlocked_by: string | null
         }
         Insert: {
+          expires_at?: string | null
           force_logout_triggered?: boolean | null
           id?: string
           is_active?: boolean | null
           lock_scope: string
+          lock_type?: string | null
           locked_at?: string | null
           locked_by_super_admin_id?: string | null
+          metadata?: Json | null
           reason: string
+          scope_type?: string | null
+          scope_value?: string | null
           target_id?: string | null
           target_name?: string | null
+          unlock_reason?: string | null
           unlocked_at?: string | null
           unlocked_by?: string | null
         }
         Update: {
+          expires_at?: string | null
           force_logout_triggered?: boolean | null
           id?: string
           is_active?: boolean | null
           lock_scope?: string
+          lock_type?: string | null
           locked_at?: string | null
           locked_by_super_admin_id?: string | null
+          metadata?: Json | null
           reason?: string
+          scope_type?: string | null
+          scope_value?: string | null
           target_id?: string | null
           target_name?: string | null
+          unlock_reason?: string | null
           unlocked_at?: string | null
           unlocked_by?: string | null
         }
@@ -19211,11 +19412,19 @@ export type Database = {
         | { Args: { p_server_id: string }; Returns: Json }
       check_financial_mode: { Args: never; Returns: Json }
       check_force_logout: { Args: { check_user_id: string }; Returns: string }
+      check_login_rate_limit: {
+        Args: { p_email: string; p_ip_address: string }
+        Returns: Json
+      }
       check_rental_active: {
         Args: { p_feature_code: string; p_user_id: string }
         Returns: boolean
       }
       check_session_valid: { Args: { p_user_id: string }; Returns: Json }
+      check_super_admin_authorization: {
+        Args: { p_action: string; p_target_scope?: Json; p_user_id: string }
+        Returns: Json
+      }
       clear_force_logout: { Args: { clear_user_id: string }; Returns: boolean }
       complete_promise_with_reward: {
         Args: { p_promise_id: string }
@@ -19264,6 +19473,15 @@ export type Database = {
         Returns: Json
       }
       create_remote_assist_session: { Args: never; Returns: Json }
+      create_super_admin_session: {
+        Args: {
+          p_device_fingerprint: string
+          p_ip_address: string
+          p_user_agent?: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       end_remote_assist_session: {
         Args: { p_reason?: string; p_session_id: string }
         Returns: Json
@@ -19490,6 +19708,22 @@ export type Database = {
         }
         Returns: string
       }
+      log_super_admin_action: {
+        Args: {
+          p_action_category: string
+          p_action_type: string
+          p_admin_id: string
+          p_ip_address?: string
+          p_new_state?: Json
+          p_previous_state?: Json
+          p_reason?: string
+          p_risk_level?: string
+          p_status?: string
+          p_target_id?: string
+          p_target_type?: string
+        }
+        Returns: string
+      }
       log_to_blackbox: {
         Args: {
           p_device_fingerprint?: string
@@ -19665,6 +19899,15 @@ export type Database = {
       }
       validate_promise_integrity: {
         Args: { p_promise_id: string }
+        Returns: Json
+      }
+      validate_super_admin_session: {
+        Args: {
+          p_device_fingerprint: string
+          p_ip_address: string
+          p_session_token: string
+          p_user_id: string
+        }
         Returns: Json
       }
       validate_user_route_access: {
