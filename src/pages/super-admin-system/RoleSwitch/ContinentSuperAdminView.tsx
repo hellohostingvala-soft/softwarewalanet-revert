@@ -373,232 +373,98 @@ const ContinentSuperAdminView = ({ activeNav = "dashboard" }: ContinentSuperAdmi
     return "text-red-400";
   };
 
-  // Main Registry View
+  // Main Registry View - Left side: Only 7 CSA list
   const renderRegistryView = () => (
     <div className="h-full flex overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Left Side - ONLY the 7 Continent Super Admins List */}
+      <div className="w-[380px] border-r border-slate-700/50 flex flex-col bg-slate-900/50">
         {/* Header */}
-        <div className="p-6 border-b border-slate-700/50 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-indigo-500/5">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 flex items-center justify-center shadow-2xl">
-                <Globe2 className="w-7 h-7 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white">Continent Super Admin Registry</h1>
-                <p className="text-slate-400 text-sm">Manage all 7 Continent Super Administrators</p>
-              </div>
+        <div className="p-5 border-b border-slate-700/50 bg-gradient-to-r from-blue-500/10 to-purple-500/10">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+              <Globe2 className="w-6 h-6 text-white" />
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="gap-2 border-slate-700">
-                <Download className="w-4 h-4" />
-                Export
-              </Button>
-              <Button variant="outline" size="sm" className="gap-2 border-slate-700">
-                <RefreshCw className="w-4 h-4" />
-                Sync
-              </Button>
+            <div>
+              <h2 className="text-xl font-bold text-white">Continent Super Admins</h2>
+              <p className="text-sm text-slate-400">7 Global Administrators</p>
             </div>
-          </div>
-
-          {/* Summary Cards */}
-          <div className="grid grid-cols-5 gap-4">
-            <Card className="bg-slate-800/50 border-slate-700/50">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-slate-500 uppercase tracking-wider">Total Continents</p>
-                    <p className="text-3xl font-bold text-white mt-1">7</p>
-                  </div>
-                  <Globe2 className="w-10 h-10 text-blue-400/30" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-slate-800/50 border-slate-700/50">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-slate-500 uppercase tracking-wider">Total CSAs</p>
-                    <p className="text-3xl font-bold text-white mt-1">{totalCSAs}</p>
-                  </div>
-                  <Users className="w-10 h-10 text-purple-400/30" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-emerald-500/10 border-emerald-500/30">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-emerald-400/80 uppercase tracking-wider">Active CSAs</p>
-                    <p className="text-3xl font-bold text-emerald-400 mt-1">{activeCSAs}</p>
-                  </div>
-                  <CheckCircle className="w-10 h-10 text-emerald-400/30" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-slate-500/10 border-slate-500/30">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-slate-400/80 uppercase tracking-wider">System Locked</p>
-                    <p className="text-3xl font-bold text-slate-400 mt-1">{lockedCSAs}</p>
-                  </div>
-                  <Lock className="w-10 h-10 text-slate-400/30" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-amber-500/10 border-amber-500/30">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-amber-400/80 uppercase tracking-wider">Live Actions Today</p>
-                    <p className="text-3xl font-bold text-amber-400 mt-1">{liveActionsToday}</p>
-                  </div>
-                  <Zap className="w-10 h-10 text-amber-400/30" />
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="px-6 py-4 border-b border-slate-700/50 bg-slate-900/50">
-          <div className="flex items-center gap-4">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-              <Input
-                placeholder="Search by Name / ID / Continent..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-slate-800/50 border-slate-700 text-white"
-              />
-            </div>
-            <Select value={continentFilter} onValueChange={setContinentFilter}>
-              <SelectTrigger className="w-48 bg-slate-800/50 border-slate-700 text-white">
-                <SelectValue placeholder="By Continent" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Continents</SelectItem>
-                {continentSuperAdmins.map(c => (
-                  <SelectItem key={c.continent} value={c.continent}>{c.continent}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-40 bg-slate-800/50 border-slate-700 text-white">
-                <SelectValue placeholder="By Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="suspended">Suspended</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" size="sm" className="gap-2 border-slate-700">
-              <Filter className="w-4 h-4" />
-              More Filters
-            </Button>
-          </div>
-        </div>
-
-        {/* Main Table */}
+        {/* The 7 CSA List - Simple & Clean */}
         <ScrollArea className="flex-1">
-          <div className="p-6">
-            <Card className="bg-slate-900/50 border-slate-700/50">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-slate-700/50 hover:bg-transparent">
-                    <TableHead className="text-slate-400 font-semibold">Continent</TableHead>
-                    <TableHead className="text-slate-400 font-semibold">CSA Name</TableHead>
-                    <TableHead className="text-slate-400 font-semibold">CSA ID</TableHead>
-                    <TableHead className="text-slate-400 font-semibold">Email</TableHead>
-                    <TableHead className="text-slate-400 font-semibold">Status</TableHead>
-                    <TableHead className="text-slate-400 font-semibold text-center">Countries</TableHead>
-                    <TableHead className="text-slate-400 font-semibold">Created</TableHead>
-                    <TableHead className="text-slate-400 font-semibold">Last Activity</TableHead>
-                    <TableHead className="text-slate-400 font-semibold text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredCSAs.map((csa) => (
-                    <TableRow 
-                      key={csa.id} 
-                      className="border-slate-700/30 hover:bg-slate-800/50 cursor-pointer transition-colors"
-                      onClick={() => setSelectedCSA(csa)}
+          <div className="p-3 space-y-2">
+            {continentSuperAdmins.map((csa, index) => (
+              <motion.div
+                key={csa.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05 }}
+                whileHover={{ x: 4 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setSelectedCSA(csa)}
+                className={cn(
+                  "p-4 rounded-xl border cursor-pointer transition-all duration-200",
+                  selectedCSA?.id === csa.id
+                    ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-blue-500/50"
+                    : "bg-slate-800/50 border-slate-700/50 hover:border-slate-600"
+                )}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {/* Number Badge */}
+                    <div className="w-8 h-8 rounded-full bg-slate-700/50 flex items-center justify-center text-sm font-bold text-slate-300">
+                      {index + 1}
+                    </div>
+                    
+                    {/* Continent Icon */}
+                    <div 
+                      className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+                      style={{ backgroundColor: `${csa.color}20` }}
                     >
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div 
-                            className="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
-                            style={{ backgroundColor: `${csa.color}20` }}
-                          >
-                            {csa.icon}
-                          </div>
-                          <span className="text-white font-medium">{csa.continent}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Avatar className="w-8 h-8">
-                            <AvatarFallback className="bg-slate-700 text-white text-xs">
-                              {csa.name.split(' ').map(n => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="text-white">{csa.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <code className="text-xs text-blue-400 bg-blue-500/10 px-2 py-1 rounded">
-                          {csa.id}
-                        </code>
-                      </TableCell>
-                      <TableCell className="text-slate-400 text-sm">{csa.email}</TableCell>
-                      <TableCell>{getStatusBadge(csa.status)}</TableCell>
-                      <TableCell className="text-center">
-                        <span className="text-white font-medium">{csa.countriesCount}</span>
-                      </TableCell>
-                      <TableCell className="text-slate-400 text-sm">{csa.createdDate}</TableCell>
-                      <TableCell className="text-slate-400 text-sm">{csa.lastActivity}</TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MoreHorizontal className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setSelectedCSA(csa); setDetailTab("profile"); }}>
-                              <Eye className="w-4 h-4 mr-2" /> View Profile
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setSelectedCSA(csa); setDetailTab("activity"); }}>
-                              <Activity className="w-4 h-4 mr-2" /> View Activity
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setSelectedCSA(csa); setDetailTab("countries"); }}>
-                              <MapPin className="w-4 h-4 mr-2" /> View Countries
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={(e) => e.stopPropagation()} className="text-yellow-400">
-                              {csa.status === "active" ? (
-                                <><Pause className="w-4 h-4 mr-2" /> Suspend</>
-                              ) : (
-                                <><Play className="w-4 h-4 mr-2" /> Activate</>
-                              )}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
-                              <FileText className="w-4 h-4 mr-2" /> Audit Logs
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
+                      {csa.icon}
+                    </div>
+                    
+                    {/* Name & Details */}
+                    <div>
+                      <h3 className="text-white font-semibold text-base">
+                        {csa.continent} <span className="text-blue-400">Super Admin</span>
+                      </h3>
+                      <p className="text-xs text-slate-500">ID: {csa.id}</p>
+                    </div>
+                  </div>
+
+                  {/* Status Dot */}
+                  <div className="flex items-center gap-2">
+                    <div className="relative">
+                      <div className={cn(
+                        "w-4 h-4 rounded-full shadow-lg",
+                        csa.status === "active" && "bg-emerald-500 shadow-emerald-500/50",
+                        csa.status === "locked" && "bg-slate-500 shadow-slate-500/50"
+                      )} />
+                      {csa.status === "active" && (
+                        <div className="absolute inset-0 w-4 h-4 rounded-full bg-emerald-500 animate-ping opacity-40" />
+                      )}
+                    </div>
+                    <ChevronRight className={cn(
+                      "w-5 h-5 transition-colors",
+                      selectedCSA?.id === csa.id ? "text-blue-400" : "text-slate-600"
+                    )} />
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </ScrollArea>
+
+        {/* Summary Footer */}
+        <div className="p-4 border-t border-slate-700/50 bg-slate-900/80">
+          <div className="flex justify-between text-sm">
+            <span className="text-slate-500">Active: <span className="text-emerald-400 font-bold">{activeCSAs}</span></span>
+            <span className="text-slate-500">Locked: <span className="text-slate-400 font-bold">{lockedCSAs}</span></span>
+            <span className="text-slate-500">Total: <span className="text-white font-bold">{totalCSAs}</span></span>
+          </div>
+        </div>
       </div>
 
       {/* Detail Panel - Slide Out */}
