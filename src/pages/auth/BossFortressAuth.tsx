@@ -114,10 +114,10 @@ const BossFortressAuth = () => {
     }
   }, [countdown]);
 
-  // Redirect if already logged in as master
+  // Redirect if already logged in as boss_owner
   useEffect(() => {
-    if (user && userRole === 'master') {
-      navigate('/master-admin');
+    if (user && userRole === 'boss_owner') {
+      navigate('/super-admin');
     }
   }, [user, userRole, navigate]);
 

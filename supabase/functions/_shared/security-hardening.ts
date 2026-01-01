@@ -332,20 +332,20 @@ export const RBACGuard = {
    * Check if actor can assign a role to target
    */
   canAssignRole(actorRole: string, targetRole: string): boolean {
-    // Master can assign any role
-    if (actorRole === 'master') return true;
+    // Boss owner can assign any role
+    if (actorRole === 'boss_owner') return true;
     
     const actorLevel = this.ROLE_HIERARCHY[actorRole] || 0;
     const targetLevel = this.ROLE_HIERARCHY[targetRole] || 0;
     
-    // Can't assign master role unless you are master
-    if (targetRole === 'master') return false;
+    // Can't assign boss_owner role unless you are boss_owner
+    if (targetRole === 'boss_owner') return false;
     
     // Can't assign roles equal or higher than own
     if (targetLevel >= actorLevel) return false;
     
-    // Only master or super_admin can assign protected roles
-    if (this.PROTECTED_ROLES.includes(targetRole) && !['master', 'super_admin'].includes(actorRole)) {
+    // Only boss_owner can assign protected roles
+    if (this.PROTECTED_ROLES.includes(targetRole) && actorRole !== 'boss_owner') {
       return false;
     }
     
@@ -365,8 +365,8 @@ export const RBACGuard = {
    * Validate role-based action
    */
   validateAction(userRole: string, requiredRoles: string[]): boolean {
-    // Master bypasses all
-    if (userRole === 'master') return true;
+    // Boss owner bypasses all
+    if (userRole === 'boss_owner') return true;
     
     const userLevel = this.ROLE_HIERARCHY[userRole] || 0;
     return requiredRoles.some(role => {

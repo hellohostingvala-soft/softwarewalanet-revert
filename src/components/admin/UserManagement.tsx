@@ -333,8 +333,8 @@ const UserManagement = () => {
 
   const getRoleColor = (role: string) => {
     const colors: Record<string, string> = {
-      "super_admin": "text-primary",
-      "master": "text-amber-400",
+      "boss_owner": "text-amber-400",
+      "admin": "text-primary",
       "finance_manager": "text-neon-teal",
       "developer": "text-neon-purple",
       "support_agent": "text-neon-red",

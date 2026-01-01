@@ -393,13 +393,13 @@ export async function withPublic(
   }
 }
 
-// Super admin only wrapper (strictest security)
-export async function withSuperAdmin(
+// Boss owner only wrapper (highest privilege - strictest security)
+export async function withBossOwner(
   req: Request,
   handler: (ctx: RequestContext) => Promise<Response>,
   options: { module?: string; action?: string } = {}
 ): Promise<Response> {
-  return withAuth(req, ["super_admin", "master"], handler, {
+  return withAuth(req, ["boss_owner"], handler, {
     ...options,
     skipIPLock: true,
     requireKYC: false,
@@ -408,20 +408,9 @@ export async function withSuperAdmin(
   });
 }
 
-// Master admin only wrapper (highest privilege)
-export async function withMasterAdmin(
-  req: Request,
-  handler: (ctx: RequestContext) => Promise<Response>,
-  options: { module?: string; action?: string } = {}
-): Promise<Response> {
-  return withAuth(req, ["master"], handler, {
-    ...options,
-    skipIPLock: true,
-    requireKYC: false,
-    requireSubscription: false,
-    rateLimitType: 'admin_action',
-  });
-}
+// Alias for backward compatibility
+export const withSuperAdmin = withBossOwner;
+export const withMasterAdmin = withBossOwner;
 
 // Sensitive action wrapper (extra logging, strict rate limiting)
 export async function withSensitiveAction(

@@ -215,8 +215,8 @@ export function restoreMaskedIds(text: string, maskedIds: string[]): string {
 
 // Full data masking for sensitive objects
 export function maskSensitiveData(data: Record<string, any>, role: AppRole | string): Record<string, any> {
-  // Super admin and admin see full data
-  if (role === 'super_admin' || role === 'admin') {
+  // Boss owner and admin see full data
+  if (role === 'boss_owner' || role === 'admin') {
     return data;
   }
 

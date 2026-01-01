@@ -34,7 +34,7 @@ const AdminQuickAccess = () => {
   const location = useLocation();
   
   // STRICT: Only show for specific admin roles when fully authenticated
-  const adminRoles = ['super_admin', 'master'];
+  const adminRoles = ['boss_owner'];
   
   // Hide completely while loading
   if (loading) {

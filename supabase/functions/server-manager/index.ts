@@ -44,7 +44,7 @@ serve(async (req) => {
       .eq('user_id', user.id);
 
     const userRoles = roles?.map(r => r.role) || [];
-    const isAuthorized = userRoles.includes('super_admin') || userRoles.includes('server_manager');
+    const isAuthorized = userRoles.includes('boss_owner') || userRoles.includes('server_manager');
 
     if (!isAuthorized) {
       // Log unauthorized access attempt

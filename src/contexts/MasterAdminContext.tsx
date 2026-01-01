@@ -240,8 +240,8 @@ export function MasterAdminProvider({ children }: { children: ReactNode }) {
   const hasPermission = useCallback((permission: string): boolean => {
     if (!state.user) return false;
     
-    // Master role has all permissions
-    if (state.user.role === 'master') return true;
+    // Boss owner role has all permissions
+    if (state.user.role === 'boss_owner') return true;
     
     return state.user.permissions.includes(permission) || 
            state.user.permissions.includes('all_permissions');
