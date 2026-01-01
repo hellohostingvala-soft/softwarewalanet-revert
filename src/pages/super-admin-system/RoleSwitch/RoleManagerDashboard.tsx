@@ -803,6 +803,68 @@ const RoleManagerDashboard = () => {
         ))}
       </motion.div>
 
+      {/* Live Role Tracking Grid - 15 Boxes (3 per row) */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="mb-6"
+      >
+        <div className="flex items-center gap-2 mb-4">
+          <Activity className="w-5 h-5 text-violet-400" />
+          <h2 className="text-lg font-semibold text-white">Live Role Tracking</h2>
+          <Badge className="bg-emerald-500/20 text-emerald-400 text-xs">LIVE</Badge>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            { name: "Super Admin", icon: Shield, users: 3, status: "active", color: "violet" },
+            { name: "Admin", icon: UserCheck, users: 8, status: "active", color: "blue" },
+            { name: "Master Admin", icon: Lock, users: 2, status: "active", color: "purple" },
+            { name: "Continent Manager", icon: Globe2, users: 12, status: "active", color: "cyan" },
+            { name: "Country Admin", icon: MapPin, users: 45, status: "active", color: "emerald" },
+            { name: "Franchise Manager", icon: Building2, users: 28, status: "active", color: "amber" },
+            { name: "Lead Manager", icon: Users, users: 34, status: "active", color: "orange" },
+            { name: "Sales Manager", icon: Activity, users: 22, status: "active", color: "pink" },
+            { name: "Support Manager", icon: UserCheck, users: 18, status: "active", color: "teal" },
+            { name: "Developer", icon: Layers, users: 56, status: "active", color: "indigo" },
+            { name: "Finance Manager", icon: Shield, users: 6, status: "active", color: "lime" },
+            { name: "HR Manager", icon: Users, users: 4, status: "active", color: "rose" },
+            { name: "Marketing Manager", icon: Activity, users: 9, status: "active", color: "sky" },
+            { name: "Legal Manager", icon: FileText, users: 3, status: "active", color: "slate" },
+            { name: "Reseller", icon: Building2, users: 120, status: "active", color: "fuchsia" },
+          ].map((role, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.15 + idx * 0.02 }}
+              className={cn(
+                "p-4 rounded-xl bg-slate-800/50 border backdrop-blur-sm hover:bg-slate-800/70 transition-all cursor-pointer group",
+                `border-${role.color}-500/30 hover:border-${role.color}-500/60`
+              )}
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className={cn(
+                  "w-10 h-10 rounded-lg flex items-center justify-center",
+                  `bg-${role.color}-500/20`
+                )}>
+                  <role.icon className={cn("w-5 h-5", `text-${role.color}-400`)} />
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-xs text-emerald-400">Online</span>
+                </div>
+              </div>
+              <h3 className="font-semibold text-white text-sm mb-1">{role.name}</h3>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-slate-400">{role.users} active users</span>
+                <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-white transition-colors" />
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+
       {/* Top Actions */}
       <motion.div
         initial={{ opacity: 0 }}
