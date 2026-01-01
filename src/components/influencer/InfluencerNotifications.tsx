@@ -3,6 +3,7 @@ import {
   X, Users, DollarSign, Video, TrendingUp, 
   Bell, Award, Megaphone, Link2
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface InfluencerNotificationsProps {
   onClose: () => void;
@@ -118,6 +119,7 @@ const InfluencerNotifications = ({ onClose }: InfluencerNotificationsProps) => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.05 }}
+              onClick={() => toast.info(notification.title, { description: notification.message })}
               className={`p-4 border-b border-slate-700/30 hover:bg-slate-800/30 transition-colors cursor-pointer ${
                 !notification.read ? 'bg-violet-500/5' : ''
               }`}
@@ -148,9 +150,11 @@ const InfluencerNotifications = ({ onClose }: InfluencerNotificationsProps) => {
         })}
       </div>
 
-      {/* Footer */}
       <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700/50 bg-slate-900/95">
-        <button className="w-full py-2.5 rounded-lg bg-slate-800/50 border border-slate-700/50 text-slate-400 text-sm hover:border-violet-500/30 hover:text-violet-400 transition-all">
+        <button 
+          onClick={() => toast.success("All notifications marked as read")}
+          className="w-full py-2.5 rounded-lg bg-slate-800/50 border border-slate-700/50 text-slate-400 text-sm hover:border-violet-500/30 hover:text-violet-400 transition-all"
+        >
           Mark all as read
         </button>
       </div>
