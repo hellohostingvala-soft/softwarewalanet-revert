@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 import {
   Select,
   SelectContent,
@@ -156,6 +157,14 @@ interface DeveloperManagerDetailProps {
 
 const DeveloperManagerDetail = ({ manager, onClose }: DeveloperManagerDetailProps) => {
   const [activeTab, setActiveTab] = useState("developers");
+  const { toast } = useToast();
+
+  const handleAction = (actionName: string) => {
+    toast({
+      title: `Action: ${actionName}`,
+      description: `${actionName} for ${manager.name} initiated successfully.`,
+    });
+  };
 
   return (
     <motion.div
@@ -250,7 +259,12 @@ const DeveloperManagerDetail = ({ manager, onClose }: DeveloperManagerDetailProp
               {devManagerActions.map((item, idx) => (
                 <Button
                   key={idx}
+                  type="button"
                   variant="ghost"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAction(item.action);
+                  }}
                   className={cn(
                     "justify-start gap-2 h-10 bg-zinc-800/50 hover:bg-zinc-700/60 border border-zinc-700/50 font-mono text-xs",
                     item.color
