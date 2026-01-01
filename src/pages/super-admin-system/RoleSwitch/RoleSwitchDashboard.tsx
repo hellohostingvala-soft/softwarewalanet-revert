@@ -19,6 +19,7 @@ import ProManagerView from "./ProManagerView";
 import LegalManagerView from "./LegalManagerView";
 import TaskManagementView from "./TaskManagementView";
 import FinanceManagerDashboard from "./FinanceManagerDashboard";
+import DeveloperManagementDashboard from "./DeveloperManagementDashboard";
 
 const RoleSwitchDashboard = () => {
   const navigate = useNavigate();
@@ -107,6 +108,8 @@ const RoleSwitchDashboard = () => {
         return <TaskManagementView />;
       case "finance_manager":
         return <FinanceManagerDashboard />;
+      case "developer_management":
+        return <DeveloperManagementDashboard />;
       default:
         return null;
     }
