@@ -14816,6 +14816,781 @@ export type Database = {
         }
         Relationships: []
       }
+      super_admin_actions: {
+        Row: {
+          action_category: string
+          action_data: Json | null
+          action_type: string
+          created_at: string | null
+          device_fingerprint: string | null
+          duration_ms: number | null
+          error_message: string | null
+          id: string
+          ip_address: string | null
+          is_sensitive: boolean | null
+          requires_approval: boolean | null
+          result_status: string | null
+          scope_context: Json | null
+          session_id: string | null
+          target_entity: string | null
+          target_id: string | null
+          user_id: string
+        }
+        Insert: {
+          action_category: string
+          action_data?: Json | null
+          action_type: string
+          created_at?: string | null
+          device_fingerprint?: string | null
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          ip_address?: string | null
+          is_sensitive?: boolean | null
+          requires_approval?: boolean | null
+          result_status?: string | null
+          scope_context?: Json | null
+          session_id?: string | null
+          target_entity?: string | null
+          target_id?: string | null
+          user_id: string
+        }
+        Update: {
+          action_category?: string
+          action_data?: Json | null
+          action_type?: string
+          created_at?: string | null
+          device_fingerprint?: string | null
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          ip_address?: string | null
+          is_sensitive?: boolean | null
+          requires_approval?: boolean | null
+          result_status?: string | null
+          scope_context?: Json | null
+          session_id?: string | null
+          target_entity?: string | null
+          target_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "super_admin_actions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "super_admin_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      super_admin_admin_management: {
+        Row: {
+          action_type: string
+          actor_id: string
+          created_at: string | null
+          hierarchy_validated: boolean | null
+          id: string
+          new_state: Json | null
+          previous_state: Json | null
+          role_assigned: string | null
+          scope_assigned: Json | null
+          scope_validated: boolean | null
+          target_admin_id: string | null
+        }
+        Insert: {
+          action_type: string
+          actor_id: string
+          created_at?: string | null
+          hierarchy_validated?: boolean | null
+          id?: string
+          new_state?: Json | null
+          previous_state?: Json | null
+          role_assigned?: string | null
+          scope_assigned?: Json | null
+          scope_validated?: boolean | null
+          target_admin_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          actor_id?: string
+          created_at?: string | null
+          hierarchy_validated?: boolean | null
+          id?: string
+          new_state?: Json | null
+          previous_state?: Json | null
+          role_assigned?: string | null
+          scope_assigned?: Json | null
+          scope_validated?: boolean | null
+          target_admin_id?: string | null
+        }
+        Relationships: []
+      }
+      super_admin_approvals: {
+        Row: {
+          approval_steps: Json | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          request_data: Json
+          request_type: string
+          requested_by: string
+          requested_by_role: string
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          risk_factors: Json | null
+          risk_score: number | null
+          scope_context: Json | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          approval_steps?: Json | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          request_data: Json
+          request_type: string
+          requested_by: string
+          requested_by_role: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          risk_factors?: Json | null
+          risk_score?: number | null
+          scope_context?: Json | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          approval_steps?: Json | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          request_data?: Json
+          request_type?: string
+          requested_by?: string
+          requested_by_role?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          risk_factors?: Json | null
+          risk_score?: number | null
+          scope_context?: Json | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      super_admin_audit_access: {
+        Row: {
+          access_duration_seconds: number | null
+          access_type: string
+          accessed_module: string
+          created_at: string | null
+          export_approved: boolean | null
+          export_approved_by: string | null
+          export_requested: boolean | null
+          filter_criteria: Json | null
+          id: string
+          records_viewed: number | null
+          session_id: string | null
+          user_id: string
+          watermark_applied: boolean | null
+        }
+        Insert: {
+          access_duration_seconds?: number | null
+          access_type: string
+          accessed_module: string
+          created_at?: string | null
+          export_approved?: boolean | null
+          export_approved_by?: string | null
+          export_requested?: boolean | null
+          filter_criteria?: Json | null
+          id?: string
+          records_viewed?: number | null
+          session_id?: string | null
+          user_id: string
+          watermark_applied?: boolean | null
+        }
+        Update: {
+          access_duration_seconds?: number | null
+          access_type?: string
+          accessed_module?: string
+          created_at?: string | null
+          export_approved?: boolean | null
+          export_approved_by?: string | null
+          export_requested?: boolean | null
+          filter_criteria?: Json | null
+          id?: string
+          records_viewed?: number | null
+          session_id?: string | null
+          user_id?: string
+          watermark_applied?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "super_admin_audit_access_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "super_admin_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      super_admin_live_activity_views: {
+        Row: {
+          alerts_acknowledged: number | null
+          created_at: string | null
+          events_observed: number | null
+          filters_applied: Json | null
+          id: string
+          session_id: string | null
+          user_id: string
+          view_ended_at: string | null
+          view_started_at: string | null
+        }
+        Insert: {
+          alerts_acknowledged?: number | null
+          created_at?: string | null
+          events_observed?: number | null
+          filters_applied?: Json | null
+          id?: string
+          session_id?: string | null
+          user_id: string
+          view_ended_at?: string | null
+          view_started_at?: string | null
+        }
+        Update: {
+          alerts_acknowledged?: number | null
+          created_at?: string | null
+          events_observed?: number | null
+          filters_applied?: Json | null
+          id?: string
+          session_id?: string | null
+          user_id?: string
+          view_ended_at?: string | null
+          view_started_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "super_admin_live_activity_views_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "super_admin_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      super_admin_locks: {
+        Row: {
+          affected_users: number | null
+          created_at: string | null
+          force_logout_triggered: boolean | null
+          global_request_status: string | null
+          id: string
+          is_active: boolean | null
+          is_global_request: boolean | null
+          lock_reason: string
+          lock_target: string
+          lock_target_id: string | null
+          lock_type: string
+          locked_by: string
+          scope_context: Json | null
+          unlock_reason: string | null
+          unlocked_at: string | null
+          unlocked_by: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          affected_users?: number | null
+          created_at?: string | null
+          force_logout_triggered?: boolean | null
+          global_request_status?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_global_request?: boolean | null
+          lock_reason: string
+          lock_target: string
+          lock_target_id?: string | null
+          lock_type: string
+          locked_by: string
+          scope_context?: Json | null
+          unlock_reason?: string | null
+          unlocked_at?: string | null
+          unlocked_by?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          affected_users?: number | null
+          created_at?: string | null
+          force_logout_triggered?: boolean | null
+          global_request_status?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_global_request?: boolean | null
+          lock_reason?: string
+          lock_target?: string
+          lock_target_id?: string | null
+          lock_type?: string
+          locked_by?: string
+          scope_context?: Json | null
+          unlock_reason?: string | null
+          unlocked_at?: string | null
+          unlocked_by?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      super_admin_module_controls: {
+        Row: {
+          access_level: string | null
+          created_at: string | null
+          disabled_at: string | null
+          disabled_by: string | null
+          enabled_at: string | null
+          enabled_by: string | null
+          id: string
+          is_enabled: boolean | null
+          last_used_at: string | null
+          module_name: string
+          restrictions: Json | null
+          scope_type: string
+          scope_value: string
+          updated_at: string | null
+          usage_count: number | null
+        }
+        Insert: {
+          access_level?: string | null
+          created_at?: string | null
+          disabled_at?: string | null
+          disabled_by?: string | null
+          enabled_at?: string | null
+          enabled_by?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          last_used_at?: string | null
+          module_name: string
+          restrictions?: Json | null
+          scope_type: string
+          scope_value: string
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Update: {
+          access_level?: string | null
+          created_at?: string | null
+          disabled_at?: string | null
+          disabled_by?: string | null
+          enabled_at?: string | null
+          enabled_by?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          last_used_at?: string | null
+          module_name?: string
+          restrictions?: Json | null
+          scope_type?: string
+          scope_value?: string
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Relationships: []
+      }
+      super_admin_rentals: {
+        Row: {
+          assigned_by: string
+          assigned_to: string
+          auto_revoke: boolean | null
+          created_at: string | null
+          extended_count: number | null
+          feature_name: string
+          id: string
+          is_active: boolean | null
+          last_extended_at: string | null
+          rental_end: string
+          rental_start: string | null
+          revoke_reason: string | null
+          revoked_at: string | null
+          revoked_by: string | null
+          scope_context: Json | null
+          updated_at: string | null
+          usage_stats: Json | null
+        }
+        Insert: {
+          assigned_by: string
+          assigned_to: string
+          auto_revoke?: boolean | null
+          created_at?: string | null
+          extended_count?: number | null
+          feature_name: string
+          id?: string
+          is_active?: boolean | null
+          last_extended_at?: string | null
+          rental_end: string
+          rental_start?: string | null
+          revoke_reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          scope_context?: Json | null
+          updated_at?: string | null
+          usage_stats?: Json | null
+        }
+        Update: {
+          assigned_by?: string
+          assigned_to?: string
+          auto_revoke?: boolean | null
+          created_at?: string | null
+          extended_count?: number | null
+          feature_name?: string
+          id?: string
+          is_active?: boolean | null
+          last_extended_at?: string | null
+          rental_end?: string
+          rental_start?: string | null
+          revoke_reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          scope_context?: Json | null
+          updated_at?: string | null
+          usage_stats?: Json | null
+        }
+        Relationships: []
+      }
+      super_admin_risk_views: {
+        Row: {
+          anomaly_data: Json | null
+          created_at: string | null
+          id: string
+          manual_review_triggered: boolean | null
+          review_notes: string | null
+          risk_score_viewed: number | null
+          target_entity_id: string | null
+          view_type: string
+          viewer_id: string
+        }
+        Insert: {
+          anomaly_data?: Json | null
+          created_at?: string | null
+          id?: string
+          manual_review_triggered?: boolean | null
+          review_notes?: string | null
+          risk_score_viewed?: number | null
+          target_entity_id?: string | null
+          view_type: string
+          viewer_id: string
+        }
+        Update: {
+          anomaly_data?: Json | null
+          created_at?: string | null
+          id?: string
+          manual_review_triggered?: boolean | null
+          review_notes?: string | null
+          risk_score_viewed?: number | null
+          target_entity_id?: string | null
+          view_type?: string
+          viewer_id?: string
+        }
+        Relationships: []
+      }
+      super_admin_rule_executions: {
+        Row: {
+          affected_entities: Json | null
+          created_at: string | null
+          error_details: string | null
+          execution_duration_ms: number | null
+          execution_result: string
+          id: string
+          rule_id: string | null
+          trigger_context: Json | null
+          triggered_by: string
+        }
+        Insert: {
+          affected_entities?: Json | null
+          created_at?: string | null
+          error_details?: string | null
+          execution_duration_ms?: number | null
+          execution_result: string
+          id?: string
+          rule_id?: string | null
+          trigger_context?: Json | null
+          triggered_by: string
+        }
+        Update: {
+          affected_entities?: Json | null
+          created_at?: string | null
+          error_details?: string | null
+          execution_duration_ms?: number | null
+          execution_result?: string
+          id?: string
+          rule_id?: string | null
+          trigger_context?: Json | null
+          triggered_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "super_admin_rule_executions_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "super_admin_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      super_admin_rules: {
+        Row: {
+          activated_at: string | null
+          created_at: string | null
+          created_by: string
+          deactivated_at: string | null
+          execution_count: number | null
+          id: string
+          impact_assessment: Json | null
+          is_active: boolean | null
+          is_simulated: boolean | null
+          last_executed_at: string | null
+          rule_logic: Json
+          rule_name: string
+          rule_type: string
+          scope_type: string
+          scope_value: string
+          simulation_results: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          created_at?: string | null
+          created_by: string
+          deactivated_at?: string | null
+          execution_count?: number | null
+          id?: string
+          impact_assessment?: Json | null
+          is_active?: boolean | null
+          is_simulated?: boolean | null
+          last_executed_at?: string | null
+          rule_logic: Json
+          rule_name: string
+          rule_type: string
+          scope_type: string
+          scope_value: string
+          simulation_results?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          created_at?: string | null
+          created_by?: string
+          deactivated_at?: string | null
+          execution_count?: number | null
+          id?: string
+          impact_assessment?: Json | null
+          is_active?: boolean | null
+          is_simulated?: boolean | null
+          last_executed_at?: string | null
+          rule_logic?: Json
+          rule_name?: string
+          rule_type?: string
+          scope_type?: string
+          scope_value?: string
+          simulation_results?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      super_admin_scope_assignments: {
+        Row: {
+          assigned_by: string | null
+          assignment_reason: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          parent_scope_id: string | null
+          scope_type: string
+          scope_value: string
+          updated_at: string | null
+          user_id: string
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          assigned_by?: string | null
+          assignment_reason?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          parent_scope_id?: string | null
+          scope_type: string
+          scope_value: string
+          updated_at?: string | null
+          user_id: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          assigned_by?: string | null
+          assignment_reason?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          parent_scope_id?: string | null
+          scope_type?: string
+          scope_value?: string
+          updated_at?: string | null
+          user_id?: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "super_admin_scope_assignments_parent_scope_id_fkey"
+            columns: ["parent_scope_id"]
+            isOneToOne: false
+            referencedRelation: "super_admin_scope_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      super_admin_security_events: {
+        Row: {
+          action_taken: string | null
+          action_taken_at: string | null
+          action_taken_by: string | null
+          created_at: string | null
+          event_data: Json | null
+          event_type: string
+          id: string
+          is_resolved: boolean | null
+          resolution_notes: string | null
+          scope_context: Json | null
+          severity: string | null
+          source_ip: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          action_taken?: string | null
+          action_taken_at?: string | null
+          action_taken_by?: string | null
+          created_at?: string | null
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          is_resolved?: boolean | null
+          resolution_notes?: string | null
+          scope_context?: Json | null
+          severity?: string | null
+          source_ip?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          action_taken?: string | null
+          action_taken_at?: string | null
+          action_taken_by?: string | null
+          created_at?: string | null
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          is_resolved?: boolean | null
+          resolution_notes?: string | null
+          scope_context?: Json | null
+          severity?: string | null
+          source_ip?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
+      super_admin_sessions: {
+        Row: {
+          assigned_scope: Json | null
+          created_at: string | null
+          device_fingerprint: string | null
+          force_logged_out: boolean | null
+          geo_location: string | null
+          id: string
+          ip_address: string | null
+          is_active: boolean | null
+          last_activity_at: string | null
+          login_at: string | null
+          logout_at: string | null
+          logout_reason: string | null
+          session_token: string
+          updated_at: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          assigned_scope?: Json | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          force_logged_out?: boolean | null
+          geo_location?: string | null
+          id?: string
+          ip_address?: string | null
+          is_active?: boolean | null
+          last_activity_at?: string | null
+          login_at?: string | null
+          logout_at?: string | null
+          logout_reason?: string | null
+          session_token: string
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          assigned_scope?: Json | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          force_logged_out?: boolean | null
+          geo_location?: string | null
+          id?: string
+          ip_address?: string | null
+          is_active?: boolean | null
+          last_activity_at?: string | null
+          login_at?: string | null
+          logout_at?: string | null
+          logout_reason?: string | null
+          session_token?: string
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      super_admin_user_actions: {
+        Row: {
+          action_data: Json | null
+          action_type: string
+          admin_user_id: string
+          created_at: string | null
+          id: string
+          permission_checked: boolean | null
+          result_status: string | null
+          scope_validated: boolean | null
+          target_user_id: string
+        }
+        Insert: {
+          action_data?: Json | null
+          action_type: string
+          admin_user_id: string
+          created_at?: string | null
+          id?: string
+          permission_checked?: boolean | null
+          result_status?: string | null
+          scope_validated?: boolean | null
+          target_user_id: string
+        }
+        Update: {
+          action_data?: Json | null
+          action_type?: string
+          admin_user_id?: string
+          created_at?: string | null
+          id?: string
+          permission_checked?: boolean | null
+          result_status?: string | null
+          scope_validated?: boolean | null
+          target_user_id?: string
+        }
+        Relationships: []
+      }
       suspicious_activity: {
         Row: {
           details: Json | null
