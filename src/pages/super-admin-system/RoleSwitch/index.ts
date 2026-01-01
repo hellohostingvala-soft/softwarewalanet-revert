@@ -14,3 +14,7 @@ export { default as DeveloperManagementDashboard } from "./DeveloperManagementDa
 export { default as MarketingManagementDashboard } from "./MarketingManagementDashboard";
 export { default as CustomerSupportManagementDashboard } from "./CustomerSupportManagementDashboard";
 export { default as RoleManagerDashboard } from "./RoleManagerDashboard";
+export { default as MasterAdminDashboard } from "./MasterAdminDashboard";
+export { default as SuperAdminHierarchyDashboard } from "./SuperAdminHierarchyDashboard";
+export { default as CountryHeadDashboard } from "./CountryHeadDashboard";
+export { default as ProductManagerDashboard } from "./ProductManagerDashboard";
