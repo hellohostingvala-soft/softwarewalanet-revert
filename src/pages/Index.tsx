@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import { 
   Play, Heart, ShoppingCart, Lightbulb, Filter, Search,
   Monitor, Server, Database, Code, Shield, Smartphone,
@@ -1165,14 +1166,33 @@ const Index = () => {
 
                     {/* Action Buttons */}
                     <div className="flex gap-2 mb-3">
-                      <Button className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs hover:from-orange-600 hover:to-red-600">
-                        Buy Now
+                      <Button 
+                        className={`flex-1 text-white text-xs ${demo.status === "ACTIVE" ? "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600" : "bg-gray-500 cursor-not-allowed"}`}
+                        onClick={() => {
+                          if (demo.status === "COMING_SOON") {
+                            toast.info(`${demo.name} is coming soon! Stay tuned.`);
+                          } else {
+                            toast.success(`Redirecting to purchase ${demo.name}...`);
+                          }
+                        }}
+                      >
+                        {demo.status === "ACTIVE" ? "Buy Now" : "Coming Soon"}
                       </Button>
-                      <Link to={demo.url} className="flex-1">
-                        <Button variant="outline" className="w-full border-cyan-500/50 text-cyan-400 text-xs hover:bg-cyan-500/10">
+                      {demo.status === "ACTIVE" ? (
+                        <Link to={demo.url} className="flex-1">
+                          <Button variant="outline" className="w-full border-cyan-500/50 text-cyan-400 text-xs hover:bg-cyan-500/10">
+                            <Play className="h-3 w-3 mr-1" /> Demo
+                          </Button>
+                        </Link>
+                      ) : (
+                        <Button 
+                          variant="outline" 
+                          className="flex-1 border-gray-500/50 text-gray-400 text-xs cursor-not-allowed"
+                          onClick={() => toast.info(`${demo.name} demo will be available soon!`)}
+                        >
                           <Play className="h-3 w-3 mr-1" /> Demo
                         </Button>
-                      </Link>
+                      )}
                     </div>
 
                     {/* Secondary Links */}
