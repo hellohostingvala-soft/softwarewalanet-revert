@@ -5,3 +5,5 @@ export { default as ServerManagerView } from "./ServerManagerView";
 export { default as FranchiseManagerView } from "./FranchiseManagerView";
 export { default as SalesSupportManagerView } from "./SalesSupportManagerView";
 export { default as ResellerManagerView } from "./ResellerManagerView";
+export { default as LeadManagerView } from "./LeadManagerView";
+export { default as ProManagerView } from "./ProManagerView";

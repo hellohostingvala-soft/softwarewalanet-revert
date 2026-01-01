@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 import { 
   Globe2, MapPin, Server, ChevronLeft, ChevronRight,
   Crown, LayoutDashboard, Users, Shield, Activity,
-  Settings, LogOut, AlertCircle, Building2, Headphones, Handshake
+  Settings, LogOut, AlertCircle, Building2, Headphones, Handshake,
+  Target, Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -12,7 +13,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
-export type ActiveRole = "continent_super_admin" | "area_manager" | "server_manager" | "franchise_manager" | "sales_support_manager" | "reseller_manager";
+export type ActiveRole = "continent_super_admin" | "area_manager" | "server_manager" | "franchise_manager" | "sales_support_manager" | "reseller_manager" | "lead_manager" | "pro_manager";
 
 interface RoleSwitchSidebarProps {
   activeRole: ActiveRole;
@@ -90,6 +91,28 @@ const roleConfigs = {
     borderAccent: "border-amber-500/50",
     description: "Partner & channel view",
   },
+  lead_manager: {
+    id: "lead_manager",
+    label: "Lead Manager",
+    shortLabel: "LM",
+    icon: Target,
+    themeColor: "from-violet-500 to-purple-600",
+    accentColor: "text-violet-400",
+    bgAccent: "bg-violet-500/10",
+    borderAccent: "border-violet-500/50",
+    description: "Sales pipeline & leads view",
+  },
+  pro_manager: {
+    id: "pro_manager",
+    label: "Pro Manager",
+    shortLabel: "PM",
+    icon: Crown,
+    themeColor: "from-yellow-500 to-amber-600",
+    accentColor: "text-yellow-400",
+    bgAccent: "bg-yellow-500/10",
+    borderAccent: "border-yellow-500/50",
+    description: "Prime user management",
+  },
 } as const;
 
 // Navigation items per role
@@ -128,6 +151,18 @@ const roleNavItems = {
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "list", label: "All Resellers", icon: Handshake },
     { id: "activity", label: "Partner Activity", icon: Activity },
+    { id: "settings", label: "Settings", icon: Settings },
+  ],
+  lead_manager: [
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "list", label: "All Lead Managers", icon: Target },
+    { id: "activity", label: "Lead Activity", icon: Activity },
+    { id: "settings", label: "Settings", icon: Settings },
+  ],
+  pro_manager: [
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "list", label: "All Pro Managers", icon: Crown },
+    { id: "activity", label: "Pro Activity", icon: Activity },
     { id: "settings", label: "Settings", icon: Settings },
   ],
 };
