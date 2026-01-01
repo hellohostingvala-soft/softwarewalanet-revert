@@ -283,8 +283,8 @@ const RoleSwitchDashboard = () => {
 
           {/* Profile */}
           <div className="text-right hidden md:block">
-            <p className="text-sm font-medium">Super Admin</p>
-            <p className="text-xs text-muted-foreground font-mono">SA-XXXX-001</p>
+            <p className="text-sm font-medium">Boss</p>
+            <p className="text-xs text-muted-foreground font-mono">BO-XXXX-001</p>
           </div>
           <div className={cn(
             "w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br",

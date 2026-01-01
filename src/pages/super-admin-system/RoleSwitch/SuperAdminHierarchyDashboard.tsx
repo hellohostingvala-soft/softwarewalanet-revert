@@ -152,7 +152,7 @@ const SuperAdminHierarchyDashboard = () => {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-white">Boss Dashboard</h1>
-              <p className="text-blue-400/80">Global Operations Head • All Continents</p>
+              <p className="text-blue-400/80">Global Operations • All Continents</p>
             </div>
           </div>
           <div className="flex items-center gap-3">

@@ -97,8 +97,8 @@ const MasterAdminDashboard = () => {
               <Crown className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white">Master Admin Dashboard</h1>
-              <p className="text-amber-400/80">System Owner • Full Authority</p>
+              <h1 className="text-3xl font-bold text-white">Boss Dashboard</h1>
+              <p className="text-amber-400/80">Top Authority • Full Control</p>
             </div>
           </div>
           <div className="flex items-center gap-3">

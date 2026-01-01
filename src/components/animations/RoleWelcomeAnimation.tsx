@@ -101,22 +101,22 @@ const roleConfig: Record<string, {
     welcomeText: 'Welcome Partner',
     accentGradient: 'linear-gradient(135deg, hsl(45,100%,50%), hsl(200,100%,50%))',
   },
-  // Master Admin - Dark/Gold
+  // Boss - Dark/Gold
   master_admin: {
     color: 'hsl(45, 100%, 55%)',
     secondaryColor: 'hsl(30, 100%, 50%)',
     icon: Crown,
-    title: 'Master Admin',
-    welcomeText: 'System Control Enabled',
+    title: 'Boss',
+    welcomeText: 'Full Control Enabled',
     accentGradient: 'linear-gradient(135deg, hsl(45,100%,55%), hsl(30,100%,50%))',
   },
-  // Super Admin - Dark/Gold
+  // Boss - Dark/Gold
   super_admin: {
     color: 'hsl(0, 100%, 60%)',
     secondaryColor: 'hsl(45, 100%, 50%)',
     icon: Shield,
-    title: 'Supreme Commander',
-    welcomeText: 'System Control Enabled',
+    title: 'Boss',
+    welcomeText: 'Full Control Enabled',
     accentGradient: 'linear-gradient(135deg, hsl(0,100%,60%), hsl(45,100%,50%))',
   },
   admin: {
