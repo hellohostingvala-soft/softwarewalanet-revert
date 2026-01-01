@@ -99,7 +99,7 @@ const GlobalSidebar2035 = ({ collapsed, onToggle, lowDataMode }: SidebarProps) =
   
   // Filter navigation items based on role - ensure RBAC compliance
   const filteredItems = allRoleNavItems.filter((item) => {
-    if (userRole === 'super_admin') return true; // Super admin sees everything
+    if (userRole === 'boss_owner') return true; // Boss owner sees everything
     return allowedPaths.includes(item.path);
   });
 

@@ -129,7 +129,7 @@ const RoleSwitchDashboard = () => {
       case "boss_owner":
         return <BossOwnerDashboard />;
       case "master_admin":
-        return <MasterAdminDashboard />;
+        return <BossOwnerDashboard />; // Redirect legacy master_admin to BossOwner
       case "super_admin_hierarchy":
         return <SuperAdminHierarchyDashboard />;
       case "continent_super_admin":

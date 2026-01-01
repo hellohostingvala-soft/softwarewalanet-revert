@@ -143,7 +143,7 @@ export function useAdminGuard() {
   };
 
   const canModifyRole = (targetRole: string) => {
-    const blockedRoles = ['admin', 'super_admin', 'master'];
+    const blockedRoles = ['admin', 'boss_owner'];
     if (blockedRoles.includes(targetRole.toLowerCase())) {
       return { allowed: false, reason: 'Cannot modify Admin-level or higher roles' };
     }

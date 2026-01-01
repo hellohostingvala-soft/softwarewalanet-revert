@@ -43,7 +43,7 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .single();
 
-    const allowedRoles = ['server_manager', 'super_admin', 'master'];
+    const allowedRoles = ['server_manager', 'boss_owner'];
     if (!roleData || !allowedRoles.includes(roleData.role)) {
       return new Response("Forbidden", { status: 403 });
     }

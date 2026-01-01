@@ -43,9 +43,9 @@ serve(async (req: Request) => {
       .single();
 
     const userRole = roleData?.role || "guest";
-    // Super Admin has full access - can view, add, edit, delete, publish products
-    const canManage = ["demo_manager", "master", "super_admin", "admin"].includes(userRole);
-    const canEdit = ["demo_manager", "master", "super_admin"].includes(userRole);
+    // Boss owner has full access - can view, add, edit, delete, publish products
+    const canManage = ["demo_manager", "boss_owner", "admin"].includes(userRole);
+    const canEdit = ["demo_manager", "boss_owner"].includes(userRole);
 
     const url = new URL(req.url);
     const path = url.pathname.replace("/api-product-management", "");

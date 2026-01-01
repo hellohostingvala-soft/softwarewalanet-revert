@@ -201,8 +201,8 @@ export function useLiveActivityLogs(options: UseLiveActivityLogsOptions = {}) {
         },
         (payload) => {
           const newLog = payload.new as LiveActivityLog;
-          // Check role-based visibility
-          if (userRole === 'master' || (userRole === 'super_admin' && newLog.user_role !== 'master')) {
+          // Check role-based visibility - boss_owner sees everything
+          if (userRole === 'boss_owner') {
             setLogs(prev => [newLog, ...prev].slice(0, limit));
           }
         }

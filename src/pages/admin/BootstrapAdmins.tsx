@@ -28,16 +28,15 @@ const BootstrapAdmins = () => {
         const { data, error } = await supabase
           .from('user_roles')
           .select('role')
-          .in('role', ['master', 'super_admin']);
+          .in('role', ['boss_owner']);
         
         if (error) throw error;
         
-        // If both master and super_admin exist, bootstrap is complete
+        // If boss_owner exists, bootstrap is complete
         const roles = data?.map(r => r.role) || [];
-        const hasMaster = roles.includes('master');
-        const hasSuperAdmin = roles.includes('super_admin');
+        const hasBossOwner = roles.includes('boss_owner');
         
-        setAlreadyBootstrapped(hasMaster && hasSuperAdmin);
+        setAlreadyBootstrapped(hasBossOwner);
       } catch (error) {
         console.error('Error checking bootstrap status:', error);
       } finally {
