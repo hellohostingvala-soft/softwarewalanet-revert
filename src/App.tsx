@@ -46,6 +46,13 @@ import DemoLogin from "./pages/DemoLogin";
 import DemoShowcase from "./pages/DemoShowcase";
 import ClientPortal from "./pages/ClientPortal";
 
+// Demo Product Pages - One-click access, no login
+import RestaurantPOSDemo from "./pages/demos/RestaurantPOSDemo";
+import SchoolERPDemo from "./pages/demos/SchoolERPDemo";
+import HospitalHMSDemo from "./pages/demos/HospitalHMSDemo";
+import EcommerceStoreDemo from "./pages/demos/EcommerceStoreDemo";
+import HotelBookingDemo from "./pages/demos/HotelBookingDemo";
+
 import SettingsPage from "./pages/Settings";
 
 // Super Admin Pages
@@ -280,6 +287,13 @@ const App = () => (
               <Route path="/demo/:role" element={<DemoAccess />} />
               <Route path="/demo-login" element={<DemoLogin />} />
               <Route path="/showcase" element={<DemoShowcase />} />
+              
+              {/* Product Demo Pages - Direct Access, Software Vala Branded */}
+              <Route path="/demo/restaurant-pos" element={<RestaurantPOSDemo />} />
+              <Route path="/demo/school-erp" element={<SchoolERPDemo />} />
+              <Route path="/demo/hospital-hms" element={<HospitalHMSDemo />} />
+              <Route path="/demo/ecommerce-marketplace" element={<EcommerceStoreDemo />} />
+              <Route path="/demo/hotel-booking" element={<HotelBookingDemo />} />
               
               {/* Client Portal - Public Route */}
               <Route path="/client-portal" element={<ClientPortal />} />
