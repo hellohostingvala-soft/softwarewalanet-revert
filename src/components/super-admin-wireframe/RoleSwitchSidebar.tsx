@@ -10,7 +10,8 @@ import {
   UserCheck, Briefcase, Award, MessageSquare, Phone, Mail,
   Package, Truck, Store, Map, Database, HardDrive, Cpu,
   Monitor, Zap, Lock, Key, Gavel, FileCheck, BookOpen,
-  Bug, GitBranch, Rocket, Terminal, AlertTriangle, Radio
+  Bug, GitBranch, Rocket, Terminal, AlertTriangle, Radio,
+  Megaphone, Image, Share2, BarChart, LineChart, Palette
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,7 +19,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
-export type ActiveRole = "continent_super_admin" | "area_manager" | "server_manager" | "franchise_manager" | "sales_support_manager" | "reseller_manager" | "lead_manager" | "pro_manager" | "legal_manager" | "task_management" | "finance_manager" | "developer_management";
+export type ActiveRole = "continent_super_admin" | "area_manager" | "server_manager" | "franchise_manager" | "sales_support_manager" | "reseller_manager" | "lead_manager" | "pro_manager" | "legal_manager" | "task_management" | "finance_manager" | "developer_management" | "marketing_management";
 
 interface RoleSwitchSidebarProps {
   activeRole: ActiveRole;
@@ -162,6 +163,17 @@ const roleConfigs = {
     borderAccent: "border-cyan-500/50",
     description: "Tech & engineering operations",
   },
+  marketing_management: {
+    id: "marketing_management",
+    label: "Marketing Management",
+    shortLabel: "MKT",
+    icon: Megaphone,
+    themeColor: "from-pink-500 to-rose-600",
+    accentColor: "text-pink-400",
+    bgAccent: "bg-pink-500/10",
+    borderAccent: "border-pink-500/50",
+    description: "Marketing & growth operations",
+  },
 } as const;
 
 // Extended navigation items per role - role-specific features
@@ -283,6 +295,18 @@ const roleNavItems = {
     { id: "monitoring", label: "System Monitoring", icon: Monitor },
     { id: "security", label: "Security & Access", icon: Key },
     { id: "activity", label: "Tech Activity", icon: Activity },
+    { id: "settings", label: "Settings", icon: Settings },
+  ],
+  marketing_management: [
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "managers", label: "All Marketing Managers", icon: Users },
+    { id: "campaigns", label: "Campaigns", icon: Megaphone },
+    { id: "leads", label: "Lead Sources", icon: Target },
+    { id: "content", label: "Content Library", icon: Image },
+    { id: "ads", label: "Ad Accounts", icon: Share2 },
+    { id: "analytics", label: "Analytics & Insights", icon: LineChart },
+    { id: "brand", label: "Brand & Compliance", icon: Palette },
+    { id: "activity", label: "Marketing Activity", icon: Activity },
     { id: "settings", label: "Settings", icon: Settings },
   ],
 };
