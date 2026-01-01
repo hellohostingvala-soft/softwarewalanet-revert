@@ -343,25 +343,29 @@ const ContinentSuperAdminView = ({ activeNav = "dashboard", selectedSubItem }: C
   const [detailTab, setDetailTab] = useState("profile");
   const [showContinentDashboard, setShowContinentDashboard] = useState<string | null>(null);
 
-  // Handle sub-item selection from sidebar
+  // Map sub-item id to continent
+  const continentMap: Record<string, string> = {
+    "csa-asia": "Asia",
+    "csa-africa": "Africa",
+    "csa-europe": "Europe",
+    "csa-north-america": "North America",
+    "csa-south-america": "South America",
+    "csa-australia": "Australia/Oceania",
+    "csa-antarctica": "Antarctica"
+  };
+
+  // Handle sub-item selection from sidebar - always update when selectedSubItem changes
   useEffect(() => {
     if (selectedSubItem) {
-      // Map sub-item id to continent
-      const continentMap: Record<string, string> = {
-        "csa-asia": "Asia",
-        "csa-africa": "Africa",
-        "csa-europe": "Europe",
-        "csa-north-america": "North America",
-        "csa-south-america": "South America",
-        "csa-australia": "Australia/Oceania",
-        "csa-antarctica": "Antarctica"
-      };
       const continent = continentMap[selectedSubItem];
       if (continent) {
         setShowContinentDashboard(continent);
       }
     }
   }, [selectedSubItem]);
+
+  // Directly compute continent from selectedSubItem for immediate response
+  const currentContinent = selectedSubItem ? continentMap[selectedSubItem] : showContinentDashboard;
 
   // Stats calculations
   const totalCSAs = continentSuperAdmins.length;
@@ -770,9 +774,9 @@ const ContinentSuperAdminView = ({ activeNav = "dashboard", selectedSubItem }: C
     </div>
   );
 
-  // If a continent dashboard is selected from sidebar
-  if (showContinentDashboard) {
-    return <ContinentDashboard continent={showContinentDashboard} onBack={() => setShowContinentDashboard(null)} />;
+  // If a continent dashboard is selected from sidebar - use currentContinent for immediate response
+  if (currentContinent) {
+    return <ContinentDashboard continent={currentContinent} onBack={() => setShowContinentDashboard(null)} />;
   }
 
   // If activeNav is "admins", show the registry view with the list
