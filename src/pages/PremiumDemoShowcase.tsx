@@ -489,7 +489,7 @@ export default function PremiumDemoShowcase() {
           <div className="border-t border-cyan-500/10 pt-6">
             <div className="text-center space-y-3">
               <p className="text-white font-medium">
-                © 2025 Software Vala™. All Rights Reserved.
+                © 2026 Software Vala™. All Rights Reserved.
               </p>
               <p className="text-red-400 font-semibold text-sm">
                 ⚠️ STRICTLY PROHIBITED: Unauthorized reproduction, distribution, or modification of any content, demos, or software is a violation of Software Vala's intellectual property rights.
