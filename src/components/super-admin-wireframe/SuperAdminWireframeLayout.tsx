@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { 
-  LayoutDashboard, Users, UserCog, Shield, Globe, Box, 
+import {
+  LayoutDashboard, Users, UserCog, Shield, Globe, Box,
   Key, FileText, CheckCircle, AlertTriangle, Lock, Activity,
   Eye, LogOut, ChevronLeft, ChevronRight, Bell, Timer,
   AlertCircle, X, Crown
@@ -14,6 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 interface SuperAdminWireframeLayoutProps {
   children: React.ReactNode;
@@ -52,10 +53,28 @@ const SuperAdminWireframeLayout = ({
 }: SuperAdminWireframeLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, userRole, isBossOwner, isCEO } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [sessionTime, setSessionTime] = useState(0);
   const [riskLevel, setRiskLevel] = useState<"low" | "medium" | "high">("low");
   const [liveAlerts, setLiveAlerts] = useState(3);
+
+  const openSupremeControl = () => {
+    // Boss panel is protected; if user isn't Boss Owner/CEO, the route will redirect.
+    if (!user) {
+      toast.error("Please login first to open Supreme Control");
+      navigate("/auth");
+      return;
+    }
+
+    if (isBossOwner || isCEO) {
+      navigate("/super-admin");
+      return;
+    }
+
+    toast.error(`Supreme Control is only for Boss Owner (current: ${userRole || "no role"})`);
+    navigate("/super-admin-system/dashboard");
+  };
 
   // Session timer
   useEffect(() => {
@@ -211,9 +230,12 @@ const SuperAdminWireframeLayout = ({
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
                 <Button
-                  onClick={() => navigate("/super-admin")}
+                  onClick={openSupremeControl}
                   className={cn(
-                    "w-full justify-start gap-3 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black font-semibold",
+                    "w-full justify-start gap-3 font-semibold",
+                    "bg-[var(--gradient-status-warning)] text-foreground",
+                    "shadow-[0_10px_30px_-12px_hsl(var(--gold)/0.45)]",
+                    "hover:opacity-95",
                     collapsed && "justify-center px-0"
                   )}
                 >
