@@ -13,12 +13,17 @@ import {
   ChevronDown,
   Menu,
   X,
-  Zap
+  Zap,
+  LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useCRMAuth } from "@/hooks/useCRMAuth";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface SalesCRMLayoutProps {
   children: React.ReactNode;
@@ -38,6 +43,16 @@ const menuItems = [
 
 const SalesCRMLayout = ({ children, activeSection, onSectionChange }: SalesCRMLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { user, signOut } = useCRMAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success('Signed out successfully');
+    navigate('/sales-crm/auth');
+  };
+
+  const userInitials = user?.email?.slice(0, 2).toUpperCase() || 'U';
 
   return (
     <div className="min-h-screen bg-[hsl(225,30%,96%)]">
@@ -140,17 +155,27 @@ const SalesCRMLayout = ({ children, activeSection, onSectionChange }: SalesCRMLa
               </span>
             </Button>
 
-            <div className="flex items-center gap-3 pl-4 border-l border-[hsl(225,20%,90%)]">
-              <Avatar className="w-9 h-9">
-                <AvatarImage src="/placeholder.svg" />
-                <AvatarFallback className="bg-[hsl(225,85%,55%)] text-white">JD</AvatarFallback>
-              </Avatar>
-              <div className="hidden md:block">
-                <p className="text-sm font-medium text-[hsl(225,30%,20%)]">John Doe</p>
-                <p className="text-xs text-[hsl(225,15%,50%)]">Sales Manager</p>
-              </div>
-              <ChevronDown className="w-4 h-4 text-[hsl(225,15%,50%)]" />
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="flex items-center gap-3 pl-4 border-l border-[hsl(225,20%,90%)] cursor-pointer hover:opacity-80">
+                  <Avatar className="w-9 h-9">
+                    <AvatarImage src="/placeholder.svg" />
+                    <AvatarFallback className="bg-[hsl(225,85%,55%)] text-white">{userInitials}</AvatarFallback>
+                  </Avatar>
+                  <div className="hidden md:block">
+                    <p className="text-sm font-medium text-[hsl(225,30%,20%)]">{user?.email?.split('@')[0] || 'User'}</p>
+                    <p className="text-xs text-[hsl(225,15%,50%)]">Sales Manager</p>
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-[hsl(225,15%,50%)]" />
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={handleSignOut} className="text-red-600 cursor-pointer">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 

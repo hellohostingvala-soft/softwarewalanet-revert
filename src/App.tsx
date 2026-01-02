@@ -81,6 +81,8 @@ import PetCareDemo from "./pages/demos/PetCareDemo";
 import EventDemo from "./pages/demos/EventDemo";
 import CRMDemo from "./pages/demos/CRMDemo";
 import LogisticsDemo from "./pages/demos/LogisticsDemo";
+import SalesCRMDemo from "./pages/sales-crm/SalesCRMDemo";
+import SalesCRMAuthPage from "./pages/sales-crm/SalesCRMAuthPage";
 
 import SettingsPage from "./pages/Settings";
 
@@ -358,6 +360,9 @@ const App = () => (
               <Route path="/demo/crm" element={<CRMDemo />} />
               <Route path="/demo/logistics" element={<LogisticsDemo />} />
               
+              {/* Sales CRM Demo */}
+              <Route path="/sales-crm" element={<SalesCRMDemo />} />
+              <Route path="/sales-crm/auth" element={<SalesCRMAuthPage />} />
               {/* Dynamic Demo Routes - MUST come AFTER specific routes */}
               <Route path="/demo-directory" element={<DemoDirectory />} />
               <Route path="/demo/:demoId" element={<SimpleDemoView />} />
