@@ -2505,18 +2505,11 @@ const Index = () => {
               <Badge className="bg-white/20 text-white border-0 text-xs px-3 py-1.5">
                 🎉 40% OFF
               </Badge>
-              {/* Login Button */}
+              {/* Login Button - For regular users */}
               <Link to="/auth">
                 <Button className="bg-white text-orange-600 hover:bg-white/90 font-bold gap-2">
                   <Lock className="h-4 w-4" />
                   Login
-                </Button>
-              </Link>
-              {/* Admin/Boss Login */}
-              <Link to="/super-admin-system/login">
-                <Button size="sm" className="bg-slate-900 hover:bg-slate-800 text-white gap-1 text-xs border border-white/20">
-                  <Shield className="h-3 w-3" />
-                  Admin
                 </Button>
               </Link>
             </div>
