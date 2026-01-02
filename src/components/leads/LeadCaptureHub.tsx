@@ -192,6 +192,10 @@ const LeadCaptureHub = ({ isOpen, onClose }: LeadCaptureHubProps) => {
                       <SelectItem value="kenya">Kenya</SelectItem>
                       <SelectItem value="usa">USA</SelectItem>
                       <SelectItem value="uk">UK</SelectItem>
+                      <SelectItem value="burundi">Burundi</SelectItem>
+                      <SelectItem value="liberia">Liberia</SelectItem>
+                      <SelectItem value="south-sudan">South Sudan</SelectItem>
+                      <SelectItem value="philippines">Philippines</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
