@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Users, UserCog, Shield, Globe, Box, 
   Key, FileText, CheckCircle, AlertTriangle, Lock, Activity,
   Eye, LogOut, ChevronLeft, ChevronRight, Bell, Timer,
-  AlertCircle, X
+  AlertCircle, X, Crown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -205,6 +205,29 @@ const SuperAdminWireframeLayout = ({
               })}
             </nav>
           </ScrollArea>
+
+          {/* Supreme Control Button */}
+          <div className="p-3 border-t border-sidebar-border">
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={() => navigate("/super-admin")}
+                  className={cn(
+                    "w-full justify-start gap-3 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black font-semibold",
+                    collapsed && "justify-center px-0"
+                  )}
+                >
+                  <Crown className="w-5 h-5" />
+                  {!collapsed && <span>Supreme Control</span>}
+                </Button>
+              </TooltipTrigger>
+              {collapsed && (
+                <TooltipContent side="right" sideOffset={10}>
+                  Supreme Control (Boss Panel)
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </div>
 
           {/* Logout */}
           <div className="p-3 border-t border-sidebar-border">
