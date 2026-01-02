@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Gift, Sparkles, Trophy, Calendar, LogIn, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -62,7 +62,7 @@ const incrementAdminShowCount = () => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: todayKey, count: currentCount + 1 }));
 };
 
-const GlobalOfferPopupInner = forwardRef<HTMLDivElement, object>((_, ref) => {
+const GlobalOfferPopupInner = () => {
   const { userRole, user } = useAuth();
   const navigate = useNavigate();
   const [currentOffer, setCurrentOffer] = useState<GlobalOffer | null>(null);
@@ -186,7 +186,6 @@ const GlobalOfferPopupInner = forwardRef<HTMLDivElement, object>((_, ref) => {
     <AnimatePresence>
       {!isMinimized ? (
         <motion.div
-          ref={ref}
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -100, opacity: 0 }}
@@ -344,9 +343,7 @@ const GlobalOfferPopupInner = forwardRef<HTMLDivElement, object>((_, ref) => {
       )}
     </AnimatePresence>
   );
-});
-
-GlobalOfferPopupInner.displayName = 'GlobalOfferPopup';
+};
 
 export const GlobalOfferPopup = GlobalOfferPopupInner;
 export default GlobalOfferPopup;
