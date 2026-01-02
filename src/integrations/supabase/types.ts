@@ -763,6 +763,44 @@ export type Database = {
         }
         Relationships: []
       }
+      approval_actions: {
+        Row: {
+          approval_id: string
+          boss_id: string | null
+          decided_at: string | null
+          decision: string | null
+          reason: string | null
+          request_ref_id: string | null
+          request_type: string
+        }
+        Insert: {
+          approval_id?: string
+          boss_id?: string | null
+          decided_at?: string | null
+          decision?: string | null
+          reason?: string | null
+          request_ref_id?: string | null
+          request_type: string
+        }
+        Update: {
+          approval_id?: string
+          boss_id?: string | null
+          decided_at?: string | null
+          decision?: string | null
+          reason?: string | null
+          request_ref_id?: string | null
+          request_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approval_actions_boss_id_fkey"
+            columns: ["boss_id"]
+            isOneToOne: false
+            referencedRelation: "boss_accounts"
+            referencedColumns: ["boss_id"]
+          },
+        ]
+      }
       approval_audit_logs: {
         Row: {
           action: string
@@ -1584,6 +1622,68 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      boss_accounts: {
+        Row: {
+          boss_id: string
+          created_at: string | null
+          email: string
+          name: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          boss_id?: string
+          created_at?: string | null
+          email: string
+          name: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          boss_id?: string
+          created_at?: string | null
+          email?: string
+          name?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      boss_sessions: {
+        Row: {
+          boss_id: string | null
+          device_fingerprint: string | null
+          ip_address: string | null
+          login_time: string | null
+          logout_time: string | null
+          session_id: string
+        }
+        Insert: {
+          boss_id?: string | null
+          device_fingerprint?: string | null
+          ip_address?: string | null
+          login_time?: string | null
+          logout_time?: string | null
+          session_id?: string
+        }
+        Update: {
+          boss_id?: string | null
+          device_fingerprint?: string | null
+          ip_address?: string | null
+          login_time?: string | null
+          logout_time?: string | null
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "boss_sessions_boss_id_fkey"
+            columns: ["boss_id"]
+            isOneToOne: false
+            referencedRelation: "boss_accounts"
+            referencedColumns: ["boss_id"]
+          },
+        ]
       }
       branch_map: {
         Row: {
@@ -2454,6 +2554,36 @@ export type Database = {
           severity?: string | null
           status?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      compliance_status: {
+        Row: {
+          compliance_score: number | null
+          country: string | null
+          issues: Json | null
+          last_checked: string | null
+          notes: string | null
+          record_id: string
+          region: string
+        }
+        Insert: {
+          compliance_score?: number | null
+          country?: string | null
+          issues?: Json | null
+          last_checked?: string | null
+          notes?: string | null
+          record_id?: string
+          region: string
+        }
+        Update: {
+          compliance_score?: number | null
+          country?: string | null
+          issues?: Json | null
+          last_checked?: string | null
+          notes?: string | null
+          record_id?: string
+          region?: string
         }
         Relationships: []
       }
@@ -5620,6 +5750,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      emergency_events: {
+        Row: {
+          action: string
+          affected_modules: string[] | null
+          boss_id: string | null
+          event_id: string
+          reason: string
+          timestamp: string | null
+        }
+        Insert: {
+          action: string
+          affected_modules?: string[] | null
+          boss_id?: string | null
+          event_id?: string
+          reason: string
+          timestamp?: string | null
+        }
+        Update: {
+          action?: string
+          affected_modules?: string[] | null
+          boss_id?: string | null
+          event_id?: string
+          reason?: string
+          timestamp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emergency_events_boss_id_fkey"
+            columns: ["boss_id"]
+            isOneToOne: false
+            referencedRelation: "boss_accounts"
+            referencedColumns: ["boss_id"]
+          },
+        ]
       }
       encrypted_vault: {
         Row: {
@@ -15370,6 +15535,45 @@ export type Database = {
           },
         ]
       }
+      security_alerts: {
+        Row: {
+          affected_role: string | null
+          affected_user_id: string | null
+          alert_id: string
+          created_at: string | null
+          description: string
+          metadata: Json | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string | null
+          source: string
+        }
+        Insert: {
+          affected_role?: string | null
+          affected_user_id?: string | null
+          alert_id?: string
+          created_at?: string | null
+          description: string
+          metadata?: Json | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string | null
+          source: string
+        }
+        Update: {
+          affected_role?: string | null
+          affected_user_id?: string | null
+          alert_id?: string
+          created_at?: string | null
+          description?: string
+          metadata?: Json | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string | null
+          source?: string
+        }
+        Relationships: []
+      }
       security_breach_attempts: {
         Row: {
           attempt_type: string
@@ -18403,6 +18607,45 @@ export type Database = {
           transaction_ids?: string[] | null
           user_id?: string
           wallet_id?: string | null
+        }
+        Relationships: []
+      }
+      system_activity_log: {
+        Row: {
+          action_type: string
+          actor_id: string | null
+          actor_role: string
+          hash_signature: string | null
+          log_id: string
+          metadata: Json | null
+          risk_level: string | null
+          target: string | null
+          target_id: string | null
+          timestamp: string | null
+        }
+        Insert: {
+          action_type: string
+          actor_id?: string | null
+          actor_role: string
+          hash_signature?: string | null
+          log_id?: string
+          metadata?: Json | null
+          risk_level?: string | null
+          target?: string | null
+          target_id?: string | null
+          timestamp?: string | null
+        }
+        Update: {
+          action_type?: string
+          actor_id?: string | null
+          actor_role?: string
+          hash_signature?: string | null
+          log_id?: string
+          metadata?: Json | null
+          risk_level?: string | null
+          target?: string | null
+          target_id?: string | null
+          timestamp?: string | null
         }
         Relationships: []
       }
