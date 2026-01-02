@@ -26,7 +26,7 @@ export function BossPanelLayout({ children }: BossPanelLayoutProps) {
   const [streamingOn, setStreamingOn] = useState(true);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a1929] via-[#0d2137] to-[#0a1929] text-white flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0a10] via-[#0d0d14] to-[#0a0a10] text-white flex flex-col">
       {/* Fixed Global Header */}
       <BossPanelHeader 
         streamingOn={streamingOn}
