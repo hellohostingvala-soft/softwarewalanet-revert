@@ -220,7 +220,16 @@ const RoleSwitchDashboard = () => {
       case "product_manager":
         return <ProductManagerDashboard />;
       default:
-        return null;
+        // Fallback to prevent blank screen
+        return (
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center p-8 bg-card/50 rounded-xl border border-border/50">
+              <Shield className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h2 className="text-xl font-semibold mb-2">Dashboard Loading</h2>
+              <p className="text-muted-foreground">Please select a role from the sidebar</p>
+            </div>
+          </div>
+        );
     }
   };
 
