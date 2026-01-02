@@ -92,6 +92,11 @@ const countries = [
   { code: "AU", name: "Australia", flag: "🇦🇺" },
   { code: "CA", name: "Canada", flag: "🇨🇦" },
   { code: "DE", name: "Germany", flag: "🇩🇪" },
+  { code: "KE", name: "Kenya", flag: "🇰🇪" },
+  { code: "BI", name: "Burundi", flag: "🇧🇮" },
+  { code: "LR", name: "Liberia", flag: "🇱🇷" },
+  { code: "SS", name: "South Sudan", flag: "🇸🇸" },
+  { code: "PH", name: "Philippines", flag: "🇵🇭" },
 ];
 
 // Masking functions imported at top of file from @/lib/masking
