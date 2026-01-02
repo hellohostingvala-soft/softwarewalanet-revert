@@ -236,13 +236,14 @@ const RoleSwitchDashboard = () => {
       case "product_manager":
         return <ProductManagerDashboard />;
       default:
-        // Fallback to prevent blank screen
+        // Fallback to prevent blank screen - use proper error UI
         return (
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center p-8 bg-card/50 rounded-xl border border-border/50">
-              <Shield className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Dashboard Loading</h2>
-              <p className="text-muted-foreground">Please select a role from the sidebar</p>
+              <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
+              <h2 className="text-xl font-semibold mb-2">Dashboard Unavailable</h2>
+              <p className="text-muted-foreground mb-4">This role view is not configured or not available.</p>
+              <p className="text-xs text-muted-foreground">Error Code: 404-ROLE-VIEW-NOT-FOUND</p>
             </div>
           </div>
         );
