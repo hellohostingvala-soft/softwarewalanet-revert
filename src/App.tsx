@@ -60,6 +60,9 @@ import RestaurantSmallDemo from "./pages/demos/restaurant/RestaurantSmallDemo";
 import RestaurantMediumDemo from "./pages/demos/restaurant/RestaurantMediumDemo";
 import RestaurantLargeDemo from "./pages/demos/restaurant/RestaurantLargeDemo";
 import SchoolERPDemo from "./pages/demos/SchoolERPDemo";
+import SchoolSmallDemo from "./pages/demos/school/SchoolSmallDemo";
+import SchoolMediumDemo from "./pages/demos/school/SchoolMediumDemo";
+import SchoolLargeDemo from "./pages/demos/school/SchoolLargeDemo";
 import HospitalHMSDemo from "./pages/demos/HospitalHMSDemo";
 import EcommerceStoreDemo from "./pages/demos/EcommerceStoreDemo";
 import HotelBookingDemo from "./pages/demos/HotelBookingDemo";
@@ -325,6 +328,9 @@ const App = () => (
               <Route path="/demo/restaurant-medium" element={<RestaurantMediumDemo />} />
               <Route path="/demo/restaurant-large" element={<RestaurantLargeDemo />} />
               <Route path="/demo/school-erp" element={<SchoolERPDemo />} />
+              <Route path="/demo/school-small" element={<SchoolSmallDemo />} />
+              <Route path="/demo/school-medium" element={<SchoolMediumDemo />} />
+              <Route path="/demo/school-large" element={<SchoolLargeDemo />} />
               <Route path="/demo/hospital-hms" element={<HospitalHMSDemo />} />
               <Route path="/demo/ecommerce-store" element={<EcommerceStoreDemo />} />
               <Route path="/demo/hotel-booking" element={<HotelBookingDemo />} />
