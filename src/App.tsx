@@ -90,6 +90,7 @@ import SaasHRMDemo from "./pages/saas-hrm/SaasHRMDemo";
 import RetailPOSDemo from "./pages/retail-pos/RetailPOSDemo";
 import RestaurantPOSNewDemo from "./pages/restaurant-pos-new/RestaurantPOSNewDemo";
 import AccountingDemo from "./pages/accounting/AccountingDemo";
+import ProAccountingDemo from "./pages/pro-accounting/ProAccountingDemo";
 
 import SettingsPage from "./pages/Settings";
 
