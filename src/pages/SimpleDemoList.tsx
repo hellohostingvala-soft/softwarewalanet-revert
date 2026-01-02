@@ -106,12 +106,20 @@ const SimpleDemoList = () => {
     setShowSuggestionForm(true);
   };
 
-  const filteredDemos = demos.filter(demo => {
-    const matchesSearch = demo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         (demo.description || '').toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = activeCategory === 'all' || demo.category?.toLowerCase().includes(activeCategory);
-    return matchesSearch && matchesCategory;
-  });
+  const filteredDemos = demos
+    .filter(demo => {
+      const matchesSearch = demo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           (demo.description || '').toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = activeCategory === 'all' || demo.category?.toLowerCase().includes(activeCategory);
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => {
+      // Sort by status: active first, then pending, then others
+      const statusOrder: Record<string, number> = { 'active': 0, 'pending': 1, 'inactive': 2, 'maintenance': 3 };
+      const aOrder = statusOrder[a.status] ?? 4;
+      const bOrder = statusOrder[b.status] ?? 4;
+      return aOrder - bOrder;
+    });
 
   // Calculate category counts
   const categoryWithCounts = categories.map(cat => ({
