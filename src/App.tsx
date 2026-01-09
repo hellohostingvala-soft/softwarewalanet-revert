@@ -92,6 +92,7 @@ import RetailPOSDemo from "./pages/retail-pos/RetailPOSDemo";
 import RestaurantPOSNewDemo from "./pages/restaurant-pos-new/RestaurantPOSNewDemo";
 import AccountingDemo from "./pages/accounting/AccountingDemo";
 import ProAccountingDemo from "./pages/pro-accounting/ProAccountingDemo";
+import AutoDevEngine from "./pages/auto-dev/AutoDevEngine";
 
 import SettingsPage from "./pages/Settings";
 
@@ -351,6 +352,9 @@ const App = () => (
               <Route path="/bootstrap-admins" element={<RequireRole allowed={["master"]} masterOnly><BootstrapAdmins /></RequireRole>} />
               <Route path="/sectors" element={<SectorsBrowse />} />
               <Route path="/sectors/:sectorId/:subCategoryId" element={<SubCategoryDemos />} />
+              
+              {/* Auto Development Engine */}
+              <Route path="/auto-dev" element={<AutoDevEngine />} />
               
               {/* Product Demo Pages - MUST come BEFORE dynamic routes */}
 <Route path="/demo/restaurant-pos" element={<RestaurantPOSDemo />} />

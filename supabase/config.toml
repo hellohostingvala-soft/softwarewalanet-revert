@@ -101,3 +101,6 @@ verify_jwt = false
 
 [functions.health-check]
 verify_jwt = false
+
+[functions.auto-dev-engine]
+verify_jwt = false
