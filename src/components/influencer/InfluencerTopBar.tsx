@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Sparkles, User, Settings, TrendingUp, MessageSquare, Bell, HandHeart } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import GlobalNotificationHeader from '@/components/shared/GlobalNotificationHeader';
 import type { NotificationAlert } from '@/components/shared/GlobalNotificationHeader';
 import { toast } from 'sonner';
@@ -21,7 +22,9 @@ const InfluencerTopBar = ({
   onDismissNotification = () => {},
   onNotificationAction = () => {}
 }: InfluencerTopBarProps) => {
+  const navigate = useNavigate();
   const [earnings, setEarnings] = useState(45280);
+  const [showChat, setShowChat] = useState(false);
 
   // Simulate live earnings pulse
   useEffect(() => {
@@ -30,6 +33,19 @@ const InfluencerTopBar = ({
     }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  const handlePromiseClick = () => {
+    navigate('/promise-tracker');
+  };
+
+  const handleChatClick = () => {
+    setShowChat(!showChat);
+    toast.success('Opening internal chat...', { description: 'Team communication panel' });
+  };
+
+  const handleSettingsClick = () => {
+    navigate('/settings');
+  };
 
   return (
     <motion.header
@@ -96,8 +112,9 @@ const InfluencerTopBar = ({
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => toast.info("Promise", { description: "Active promise tracking" })}
+          onClick={handlePromiseClick}
           className="relative p-2.5 rounded-lg bg-gradient-to-r from-emerald-500/20 to-green-500/20 border border-emerald-500/30 hover:border-emerald-400/50 transition-all group"
+          data-testid="promise-button"
         >
           <HandHeart className="w-5 h-5 text-emerald-400 group-hover:text-emerald-300" />
         </motion.button>
@@ -106,8 +123,9 @@ const InfluencerTopBar = ({
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => toast.info("Internal Chat", { description: "Team communication" })}
+          onClick={handleChatClick}
           className="relative p-2.5 rounded-lg bg-slate-800/50 border border-slate-700/50 hover:border-cyan-500/50 transition-all group"
+          data-testid="internal-chat-button"
         >
           <MessageSquare className="w-5 h-5 text-cyan-400 group-hover:text-cyan-300" />
           <span className="absolute -top-1 -right-1 w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
@@ -155,8 +173,9 @@ const InfluencerTopBar = ({
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => toast.info("Settings", { description: "Account settings coming soon" })}
+          onClick={handleSettingsClick}
           className="p-2.5 rounded-lg bg-slate-800/50 border border-slate-700/50 hover:border-slate-600/50 transition-all"
+          data-testid="settings-button"
         >
           <Settings className="w-5 h-5 text-slate-400" />
         </motion.button>
