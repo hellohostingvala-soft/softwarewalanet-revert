@@ -102,10 +102,23 @@ const ResellerNav = () => {
                 </a>
               ))}
               <div className="pt-4 border-t border-border/30 space-y-2">
-                <Button variant="outline" className="w-full border-neon-blue/50 text-neon-blue">
+                <Button 
+                  variant="outline" 
+                  className="w-full border-neon-blue/50 text-neon-blue"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate('/reseller-dashboard');
+                  }}
+                >
                   Reseller Login
                 </Button>
-                <Button className="w-full bg-gradient-to-r from-neon-blue to-primary text-background">
+                <Button 
+                  className="w-full bg-gradient-to-r from-neon-blue to-primary text-background"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    document.getElementById('apply')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
                   Start Selling
                 </Button>
               </div>
