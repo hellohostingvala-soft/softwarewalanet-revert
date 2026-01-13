@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
+import { toast } from "sonner";
 
 // Mock data for resellers
 const resellersData = [
@@ -155,6 +156,8 @@ const ResellerManagerView = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCountry, setFilterCountry] = useState("all");
   const [filterCommission, setFilterCommission] = useState("all");
+  const [resellers, setResellers] = useState(resellersData);
+  const [isLiveMode, setIsLiveMode] = useState(false);
 
   const handleSelectReseller = (reseller: typeof resellersData[0]) => {
     setSelectedReseller(reseller);
@@ -166,7 +169,48 @@ const ResellerManagerView = () => {
     setSelectedReseller(null);
   };
 
-  const filteredResellers = resellersData.filter(rs => {
+  const handleRefresh = () => {
+    toast.success("Data refreshed successfully");
+  };
+
+  const handleToggleLiveMode = () => {
+    setIsLiveMode(!isLiveMode);
+    toast.success(isLiveMode ? "Live mode disabled" : "Live mode enabled - Real-time updates active");
+  };
+
+  const handleViewClients = (reseller: typeof resellersData[0]) => {
+    toast.success(`Viewing ${reseller.activeClients} clients for ${reseller.resellerName}`);
+  };
+
+  const handleViewSales = (reseller: typeof resellersData[0]) => {
+    toast.success(`Viewing sales data: ${reseller.totalSales} total`);
+  };
+
+  const handleViewCommission = (reseller: typeof resellersData[0]) => {
+    toast.success(`Commission: ${reseller.commissionLevel} tier at ${reseller.commissionPercent}%`);
+  };
+
+  const handleApprovePayout = (reseller: typeof resellersData[0]) => {
+    if (reseller.pendingPayout === "$0") {
+      toast.error("No pending payout to approve");
+      return;
+    }
+    toast.success(`Payout of ${reseller.pendingPayout} approved for ${reseller.resellerName}`);
+  };
+
+  const handleSuspend = (reseller: typeof resellersData[0]) => {
+    setResellers(prev => 
+      prev.map(r => r.id === reseller.id ? { ...r, status: "suspended" } : r)
+    );
+    setSelectedReseller(prev => prev ? { ...prev, status: "suspended" } : null);
+    toast.success(`${reseller.resellerName} has been suspended`);
+  };
+
+  const handleLockAccess = (reseller: typeof resellersData[0]) => {
+    toast.success(`Access locked for ${reseller.resellerName} - All operations frozen`);
+  };
+
+  const filteredResellers = resellers.filter(rs => {
     const matchesSearch = 
       rs.resellerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       rs.ownerName.toLowerCase().includes(searchQuery.toLowerCase());
@@ -175,14 +219,14 @@ const ResellerManagerView = () => {
     return matchesSearch && matchesCountry && matchesCommission;
   });
 
-  const uniqueCountries = [...new Set(resellersData.map(rs => rs.country))];
+  const uniqueCountries = [...new Set(resellers.map(rs => rs.country))];
 
   const totalStats = {
-    total: resellersData.length,
-    active: resellersData.filter(rs => rs.status === "active").length,
-    pending: resellersData.filter(rs => rs.status === "pending").length,
-    suspended: resellersData.filter(rs => rs.status === "suspended").length,
-    totalClients: resellersData.reduce((sum, rs) => sum + rs.activeClients, 0),
+    total: resellers.length,
+    active: resellers.filter(rs => rs.status === "active").length,
+    pending: resellers.filter(rs => rs.status === "pending").length,
+    suspended: resellers.filter(rs => rs.status === "suspended").length,
+    totalClients: resellers.reduce((sum, rs) => sum + rs.activeClients, 0),
   };
 
   return (
@@ -203,13 +247,17 @@ const ResellerManagerView = () => {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Button variant="outline" size="sm" className="gap-2">
+                <Button variant="outline" size="sm" className="gap-2" onClick={handleRefresh}>
                   <RefreshCw className="w-4 h-4" />
                   Refresh
                 </Button>
-                <Button size="sm" className="gap-2 bg-gradient-to-r from-amber-500 to-orange-600">
+                <Button 
+                  size="sm" 
+                  className={cn("gap-2", isLiveMode ? "bg-emerald-600 hover:bg-emerald-700" : "bg-gradient-to-r from-amber-500 to-orange-600")}
+                  onClick={handleToggleLiveMode}
+                >
                   <Activity className="w-4 h-4" />
-                  Live Mode
+                  {isLiveMode ? "Live" : "Live Mode"}
                 </Button>
               </div>
             </div>
@@ -518,27 +566,58 @@ const ResellerManagerView = () => {
                     Actions
                   </h3>
                   <div className="grid grid-cols-2 gap-2">
-                    <Button variant="outline" size="sm" className="gap-2 justify-start">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-2 justify-start"
+                      onClick={() => handleViewClients(selectedReseller)}
+                    >
                       <Users className="w-4 h-4" />
                       View Clients
                     </Button>
-                    <Button variant="outline" size="sm" className="gap-2 justify-start">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-2 justify-start"
+                      onClick={() => handleViewSales(selectedReseller)}
+                    >
                       <DollarSign className="w-4 h-4" />
                       View Sales
                     </Button>
-                    <Button variant="outline" size="sm" className="gap-2 justify-start">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-2 justify-start"
+                      onClick={() => handleViewCommission(selectedReseller)}
+                    >
                       <Percent className="w-4 h-4" />
                       View Commission
                     </Button>
-                    <Button variant="outline" size="sm" className="gap-2 justify-start text-emerald-400 hover:text-emerald-400">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-2 justify-start text-emerald-400 hover:text-emerald-400"
+                      onClick={() => handleApprovePayout(selectedReseller)}
+                    >
                       <Wallet className="w-4 h-4" />
                       Approve Payout
                     </Button>
-                    <Button variant="outline" size="sm" className="gap-2 justify-start text-orange-400 hover:text-orange-400">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-2 justify-start text-orange-400 hover:text-orange-400"
+                      onClick={() => handleSuspend(selectedReseller)}
+                      disabled={selectedReseller.status === "suspended"}
+                    >
                       <Ban className="w-4 h-4" />
-                      Suspend
+                      {selectedReseller.status === "suspended" ? "Suspended" : "Suspend"}
                     </Button>
-                    <Button variant="outline" size="sm" className="gap-2 justify-start text-red-400 hover:text-red-400">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-2 justify-start text-red-400 hover:text-red-400"
+                      onClick={() => handleLockAccess(selectedReseller)}
+                    >
                       <Lock className="w-4 h-4" />
                       Lock Access
                     </Button>
