@@ -4,8 +4,21 @@ import { Users, Bell, CheckCircle, XCircle, Clock, AlertTriangle, Eye, Calendar 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 
-const leads = [
+interface Lead {
+  id: number;
+  maskedName: string;
+  maskedPhone: string;
+  category: string;
+  urgency: 'high' | 'medium' | 'low';
+  source: string;
+  time: string;
+  followUp: string | null;
+  status?: 'pending' | 'accepted' | 'rejected';
+}
+
+const initialLeads: Lead[] = [
   { 
     id: 1, 
     maskedName: 'R*** S***', 
@@ -40,7 +53,23 @@ const leads = [
 
 export const LeadInboxReseller = () => {
   const [buzzerEnabled, setBuzzerEnabled] = useState(true);
+  const [leads, setLeads] = useState<Lead[]>(initialLeads);
 
+  const handleAcceptLead = (leadId: number) => {
+    setLeads(prev => prev.map(lead => 
+      lead.id === leadId ? { ...lead, status: 'accepted' } : lead
+    ));
+    toast.success('Lead accepted! Full contact details are now visible.');
+  };
+
+  const handleRejectLead = (leadId: number) => {
+    setLeads(prev => prev.filter(lead => lead.id !== leadId));
+    toast.info('Lead rejected and returned to pool.');
+  };
+
+  const activeLeads = leads.filter(l => l.status !== 'rejected');
+  const urgentCount = activeLeads.filter(l => l.urgency === 'high').length;
+  const followUpCount = activeLeads.filter(l => l.followUp).length;
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -77,7 +106,7 @@ export const LeadInboxReseller = () => {
                 <Users className="w-5 h-5 text-neon-blue" />
               </div>
               <div>
-                <p className="text-2xl font-mono font-bold text-foreground">{leads.length}</p>
+                <p className="text-2xl font-mono font-bold text-foreground">{activeLeads.length}</p>
                 <p className="text-xs text-muted-foreground">Active Leads</p>
               </div>
             </div>
@@ -90,7 +119,7 @@ export const LeadInboxReseller = () => {
                 <AlertTriangle className="w-5 h-5 text-neon-red" />
               </div>
               <div>
-                <p className="text-2xl font-mono font-bold text-foreground">1</p>
+                <p className="text-2xl font-mono font-bold text-foreground">{urgentCount}</p>
                 <p className="text-xs text-muted-foreground">Urgent</p>
               </div>
             </div>
@@ -103,7 +132,7 @@ export const LeadInboxReseller = () => {
                 <Clock className="w-5 h-5 text-neon-orange" />
               </div>
               <div>
-                <p className="text-2xl font-mono font-bold text-foreground">2</p>
+                <p className="text-2xl font-mono font-bold text-foreground">{followUpCount}</p>
                 <p className="text-xs text-muted-foreground">Follow-ups Today</p>
               </div>
             </div>
@@ -113,7 +142,7 @@ export const LeadInboxReseller = () => {
 
       <div className="space-y-4">
         <AnimatePresence>
-          {leads.map((lead, index) => (
+          {activeLeads.map((lead, index) => (
             <motion.div
               key={lead.id}
               initial={{ opacity: 0, y: 20 }}
@@ -163,14 +192,30 @@ export const LeadInboxReseller = () => {
 
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-muted-foreground">{lead.time}</span>
-                      <Button variant="outline" size="sm" className="border-neon-green/30 text-neon-green hover:bg-neon-green/10">
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        Accept
-                      </Button>
-                      <Button variant="outline" size="sm" className="border-neon-red/30 text-neon-red hover:bg-neon-red/10">
-                        <XCircle className="w-4 h-4 mr-1" />
-                        Reject
-                      </Button>
+                      {lead.status === 'accepted' ? (
+                        <Badge className="bg-neon-green/20 text-neon-green">Accepted</Badge>
+                      ) : (
+                        <>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="border-neon-green/30 text-neon-green hover:bg-neon-green/10"
+                            onClick={() => handleAcceptLead(lead.id)}
+                          >
+                            <CheckCircle className="w-4 h-4 mr-1" />
+                            Accept
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="border-neon-red/30 text-neon-red hover:bg-neon-red/10"
+                            onClick={() => handleRejectLead(lead.id)}
+                          >
+                            <XCircle className="w-4 h-4 mr-1" />
+                            Reject
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </CardContent>

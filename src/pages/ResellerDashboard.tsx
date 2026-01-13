@@ -77,7 +77,7 @@ const ResellerDashboard = () => {
       case 'notifications': return <ResellerNotifications />;
       case 'performance': return <ResellerPerformanceBoard />;
       case 'settings': return <ResellerSettings />;
-      default: return <ResellerDash />;
+      default: return <ResellerDash onSectionChange={setActiveSection} />;
     }
   };
 

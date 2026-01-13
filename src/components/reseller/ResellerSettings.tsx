@@ -339,7 +339,11 @@ const ResellerSettings = () => {
                           <p className="text-slate-400 text-sm">View your login history</p>
                         </div>
                       </div>
-                      <Button variant="outline" className="border-emerald-500/30 text-emerald-400">
+                      <Button 
+                        variant="outline" 
+                        className="border-emerald-500/30 text-emerald-400"
+                        onClick={() => toast.info('Session history: Last 5 logins from India (Mumbai). All sessions secure.')}
+                      >
                         View History
                       </Button>
                     </div>
