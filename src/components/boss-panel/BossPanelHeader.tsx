@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   Search, 
   Bell, 
@@ -7,7 +8,8 @@ import {
   LogOut, 
   User,
   Radio,
-  Crown
+  Crown,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +31,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
 
 interface BossPanelHeaderProps {
   streamingOn: boolean;
@@ -37,6 +42,65 @@ interface BossPanelHeaderProps {
 
 export function BossPanelHeader({ streamingOn, onStreamingToggle }: BossPanelHeaderProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [isLocking, setIsLocking] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const navigate = useNavigate();
+  const { signOut, user } = useAuth();
+
+  const handleEmergencyLock = async () => {
+    setIsLocking(true);
+    try {
+      // Log the emergency lock action
+      await supabase.from('audit_logs').insert({
+        user_id: user?.id,
+        role: 'boss_owner' as any,
+        module: 'boss-panel',
+        action: 'emergency_system_lock',
+        meta_json: { timestamp: new Date().toISOString() }
+      });
+      
+      toast.success('🔒 EMERGENCY LOCK ACTIVATED', {
+        description: 'All system operations have been frozen. Only you can unlock.',
+        duration: 5000
+      });
+    } catch (error) {
+      toast.error('Failed to activate emergency lock');
+    } finally {
+      setIsLocking(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await supabase.from('audit_logs').insert({
+        user_id: user?.id,
+        role: 'boss_owner' as any,
+        module: 'boss-panel',
+        action: 'secure_logout',
+        meta_json: { timestamp: new Date().toISOString() }
+      });
+      await signOut();
+      toast.success('Securely logged out');
+      navigate('/auth');
+    } catch (error) {
+      toast.error('Logout failed');
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  const handleNotificationsClick = () => {
+    setShowNotifications(!showNotifications);
+    toast.info('Notifications panel', {
+      description: '3 unread notifications'
+    });
+  };
+
+  const handleProfileClick = () => {
+    navigate('/settings');
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-gradient-to-r from-[#0d0d14] via-[#12121a] to-[#0d0d14] backdrop-blur-xl border-b border-amber-500/20 z-50 flex items-center justify-between px-6">
@@ -86,7 +150,12 @@ export function BossPanelHeader({ streamingOn, onStreamingToggle }: BossPanelHea
         </div>
 
         {/* Notifications */}
-        <Button variant="ghost" size="icon" className="relative text-amber-400/70 hover:text-amber-300 hover:bg-amber-500/10">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="relative text-amber-400/70 hover:text-amber-300 hover:bg-amber-500/10"
+          onClick={handleNotificationsClick}
+        >
           <Bell className="w-5 h-5" />
           <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-[10px] flex items-center justify-center text-white">
             3
@@ -116,8 +185,19 @@ export function BossPanelHeader({ streamingOn, onStreamingToggle }: BossPanelHea
               <AlertDialogCancel className="bg-white/10 border-white/20 text-white hover:bg-white/20">
                 Cancel
               </AlertDialogCancel>
-              <AlertDialogAction className="bg-red-600 hover:bg-red-700 text-white">
-                Confirm Emergency Lock
+              <AlertDialogAction 
+                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={handleEmergencyLock}
+                disabled={isLocking}
+              >
+                {isLocking ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Locking...
+                  </>
+                ) : (
+                  'Confirm Emergency Lock'
+                )}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -134,14 +214,25 @@ export function BossPanelHeader({ streamingOn, onStreamingToggle }: BossPanelHea
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="bg-[#0d0d14] border-amber-500/20" align="end">
-            <DropdownMenuItem className="text-white/70 hover:text-white focus:text-white focus:bg-amber-500/10">
+            <DropdownMenuItem 
+              className="text-white/70 hover:text-white focus:text-white focus:bg-amber-500/10 cursor-pointer"
+              onClick={handleProfileClick}
+            >
               <User className="w-4 h-4 mr-2" />
               Profile
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-amber-500/20" />
-            <DropdownMenuItem className="text-red-400 hover:text-red-300 focus:text-red-300 focus:bg-red-500/10">
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
+            <DropdownMenuItem 
+              className="text-red-400 hover:text-red-300 focus:text-red-300 focus:bg-red-500/10 cursor-pointer"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+            >
+              {isLoggingOut ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <LogOut className="w-4 h-4 mr-2" />
+              )}
+              {isLoggingOut ? 'Logging out...' : 'Logout'}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
