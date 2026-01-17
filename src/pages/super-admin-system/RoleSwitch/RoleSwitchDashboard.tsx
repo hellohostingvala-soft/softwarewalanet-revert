@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Globe2, Timer, AlertCircle, Shield } from "lucide-react";
+import { Globe2, Timer, AlertCircle, Shield, Home, ArrowLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { RouteNotFoundScreen, LoadingSkeleton } from "@/components/shared/RouteLoadingFallback";
 import GlobalHeaderActions from "@/components/shared/GlobalHeaderActions";
+import ModuleBreadcrumb from "@/components/shared/ModuleBreadcrumb";
 
 import RoleSwitchSidebar, { ActiveRole, roleConfigs } from "@/components/super-admin-wireframe/RoleSwitchSidebar";
 import ContinentSuperAdminView from "./ContinentSuperAdminView";
@@ -83,6 +84,7 @@ const RoleSwitchDashboard = () => {
   const [riskLevel] = useState<"low" | "medium" | "high">("low");
   const [liveAlerts] = useState(3);
   const [initialized, setInitialized] = useState(false);
+  const [navHistory, setNavHistory] = useState<string[]>(['dashboard']);
 
   // STEP 8: Derive user role for header actions
   const getHeaderRole = useCallback((): 'boss' | 'employee' | 'client' | 'super_admin' | 'manager' => {
@@ -91,6 +93,94 @@ const RoleSwitchDashboard = () => {
     if (activeRole === 'server_manager' || activeRole === 'developer_management') return 'manager';
     return 'employee';
   }, [isBossOwner, activeRole]);
+
+  // STEP 9: Module view detection - determines if we're inside a full-screen module
+  const moduleViewIds = useMemo(() => ['server-control', 'dev-control', 'product-demo', 'leads', 'marketing'], []);
+  const isInModuleView = activeRole === 'boss_owner' && moduleViewIds.includes(activeNav);
+
+  // STEP 9: Navigation labels for breadcrumb
+  const navLabels: Record<string, string> = useMemo(() => ({
+    'dashboard': 'Dashboard',
+    'server-control': 'Server Control',
+    'dev-control': 'Development',
+    'product-demo': 'Product Demo',
+    'leads': 'Lead Management',
+    'marketing': 'Marketing',
+    'approvals': 'Approvals',
+    'franchise-control': 'Franchise Control',
+    'reseller-control': 'Reseller Control',
+    'finance': 'Finance',
+    'support-overview': 'Support',
+    'security': 'Security',
+    'settings': 'Settings',
+  }), []);
+
+  // STEP 9: Build breadcrumb items
+  const breadcrumbItems = useMemo(() => {
+    const items: { label: string; onClick?: () => void; isActive?: boolean }[] = [];
+    
+    // Add role as first item if not boss_owner
+    if (activeRole !== 'boss_owner') {
+      items.push({
+        label: roleConfigs[activeRole]?.label || activeRole,
+        isActive: activeNav === 'dashboard',
+        onClick: activeNav !== 'dashboard' ? () => {
+          setActiveNav('dashboard');
+          setSelectedSubItem(undefined);
+        } : undefined
+      });
+    } else {
+      items.push({
+        label: 'Boss Dashboard',
+        isActive: activeNav === 'dashboard' && !isInModuleView,
+        onClick: activeNav !== 'dashboard' ? () => {
+          setActiveNav('dashboard');
+          setSelectedSubItem(undefined);
+          setNavHistory(['dashboard']);
+        } : undefined
+      });
+    }
+    
+    // Add current nav if not dashboard
+    if (activeNav !== 'dashboard') {
+      items.push({
+        label: navLabels[activeNav] || activeNav.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+        isActive: !selectedSubItem,
+        onClick: selectedSubItem ? () => setSelectedSubItem(undefined) : undefined
+      });
+    }
+    
+    // Add sub-item if exists
+    if (selectedSubItem) {
+      items.push({
+        label: selectedSubItem.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+        isActive: true
+      });
+    }
+    
+    return items;
+  }, [activeRole, activeNav, selectedSubItem, isInModuleView, navLabels]);
+
+  // STEP 9: Handle back navigation
+  const handleBack = useCallback(() => {
+    if (selectedSubItem) {
+      setSelectedSubItem(undefined);
+    } else if (activeNav !== 'dashboard') {
+      setActiveNav('dashboard');
+      setSelectedSubItem(undefined);
+    }
+  }, [selectedSubItem, activeNav]);
+
+  // STEP 9: Handle home navigation - always returns to Boss Dashboard
+  const handleHome = useCallback(() => {
+    if (activeRole !== 'boss_owner') {
+      setActiveRole('boss_owner');
+    }
+    setActiveNav('dashboard');
+    setSelectedSubItem(undefined);
+    setNavHistory(['dashboard']);
+    toast.success('Returned to Boss Dashboard');
+  }, [activeRole]);
 
   // Initialize role based on URL or user's actual role
   const didInitRef = useRef(false);
@@ -289,21 +379,77 @@ const RoleSwitchDashboard = () => {
         "h-16 backdrop-blur-xl border-b flex items-center justify-between px-6 z-50 transition-colors duration-300",
         "bg-gradient-to-r from-[#0d0d14] via-[#12121a] to-[#0d0d14] border-amber-500/20"
       )}>
-        {/* Left - Current Role Identity */}
+        {/* Left - Role Identity + Breadcrumb */}
         <div className="flex items-center gap-4">
+          {/* Home Button - STEP 9: Always returns to Boss Dashboard */}
+          {(activeNav !== 'dashboard' || activeRole !== 'boss_owner') && (
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleHome}
+              className="w-9 h-9 rounded-lg bg-secondary/50 border border-border/50 hover:border-primary/50 flex items-center justify-center transition-all group"
+              title="Return to Boss Dashboard"
+            >
+              <Home className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
+            </motion.button>
+          )}
+          
+          {/* Back Button - STEP 9: Returns to previous view */}
+          {(activeNav !== 'dashboard' || selectedSubItem) && (
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleBack}
+              className="w-9 h-9 rounded-lg bg-secondary/50 border border-border/50 hover:border-primary/50 flex items-center justify-center transition-all group"
+              title="Go Back"
+            >
+              <ArrowLeft className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
+            </motion.button>
+          )}
+          
+          {/* Divider */}
+          {(activeNav !== 'dashboard' || activeRole !== 'boss_owner') && (
+            <div className="w-px h-8 bg-border/30" />
+          )}
+          
+          {/* Role Icon */}
           <div className={cn(
             "w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br shadow-lg",
             currentConfig.themeColor
           )}>
             <currentConfig.icon className="w-5 h-5 text-white" />
           </div>
-          <div>
-            <h1 className="font-bold text-foreground">{currentConfig.label}</h1>
-            <p className="text-xs text-muted-foreground">{currentConfig.description}</p>
-          </div>
-          <Badge variant="outline" className={cn("ml-4", currentConfig.accentColor, currentConfig.borderAccent)}>
+          
+          {/* Breadcrumb Trail - STEP 9: Shows navigation path */}
+          <nav className="flex items-center gap-1">
+            {breadcrumbItems.map((item, index) => (
+              <div key={index} className="flex items-center gap-1">
+                {index > 0 && (
+                  <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
+                )}
+                <motion.button
+                  whileHover={!item.isActive ? { scale: 1.02 } : undefined}
+                  onClick={item.onClick}
+                  disabled={item.isActive || !item.onClick}
+                  className={cn(
+                    "px-2 py-1 rounded-md text-sm transition-all",
+                    item.isActive
+                      ? "font-semibold text-foreground cursor-default"
+                      : item.onClick
+                      ? "text-muted-foreground hover:text-foreground hover:bg-secondary/50 cursor-pointer"
+                      : "text-muted-foreground cursor-default"
+                  )}
+                >
+                  {item.label}
+                </motion.button>
+              </div>
+            ))}
+          </nav>
+          
+          {/* Scope Badge */}
+          <Badge variant="outline" className={cn("ml-2", currentConfig.accentColor, currentConfig.borderAccent)}>
             <Globe2 className="w-3 h-3 mr-1" />
-            GLOBAL SCOPE
+            {isInModuleView ? navLabels[activeNav]?.toUpperCase() || 'MODULE' : 'GLOBAL SCOPE'}
           </Badge>
         </div>
 
@@ -379,73 +525,69 @@ const RoleSwitchDashboard = () => {
           chatUnread={5}
         />
       </header>
-      {/* Main Content Area */}
-      {(() => {
-        // STEP 1 FIX: Detect module views that have their own sidebar
-        const moduleViewIds = ['server-control', 'dev-control', 'product-demo', 'leads', 'marketing'];
-        const isModuleView = activeRole === 'boss_owner' && moduleViewIds.includes(activeNav);
-        
-        return (
-          <div className="flex-1 flex overflow-hidden">
-            {/* Role Switch Sidebar - HIDDEN when inside module view to prevent double sidebar */}
-            {!isModuleView && (
-              <RoleSwitchSidebar
-                activeRole={activeRole}
-                onRoleChange={handleRoleChange}
-                collapsed={collapsed}
-                onToggleCollapse={() => setCollapsed(!collapsed)}
-                onLogout={handleLogout}
-                activeNav={activeNav}
-                onNavChange={handleNavChange}
-                onSubItemClick={(subItemId) => setSelectedSubItem(subItemId)}
-              />
-            )}
+      
+      {/* STEP 9: Main Content Area - Single Active View Only */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Role Switch Sidebar - HIDDEN when inside module view to prevent double sidebar */}
+        {!isInModuleView && (
+          <RoleSwitchSidebar
+            activeRole={activeRole}
+            onRoleChange={handleRoleChange}
+            collapsed={collapsed}
+            onToggleCollapse={() => setCollapsed(!collapsed)}
+            onLogout={handleLogout}
+            activeNav={activeNav}
+            onNavChange={handleNavChange}
+            onSubItemClick={(subItemId) => setSelectedSubItem(subItemId)}
+          />
+        )}
 
-            {/* Dynamic Role View */}
-            <main className="flex-1 overflow-auto" style={{ minHeight: 0, height: '100%' }}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={`${activeRole}-${activeNav}`}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.2 }}
-                  className="h-full min-h-full"
-                  style={{ height: '100%', minHeight: '100%' }}
-                >
-                  <ErrorBoundary
-                    onError={(error) => {
-                      console.error("Role dashboard crashed", { role: activeRole, error });
-                      toast.error("Dashboard failed to load", {
-                        description: "Something went wrong while opening this role.",
-                      });
-                    }}
-                    fallback={
-                      <div className="flex items-center justify-center min-h-[60vh]">
-                        <div className="text-center p-8 bg-card/50 rounded-xl border border-border/50 max-w-md">
-                          <Shield className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                          <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
-                          <p className="text-muted-foreground mb-6">This dashboard failed to render. You can retry or switch roles.</p>
-                          <div className="flex items-center justify-center gap-3">
-                            <Button variant="outline" onClick={() => window.location.reload()}>
-                              Reload dashboard
-                            </Button>
-                            <Button onClick={() => navigate("/super-admin-system/role-switch", { replace: true })}>
-                              Back to Role Switch
-                            </Button>
-                          </div>
-                        </div>
+        {/* Dynamic Role View - STEP 9: Content area = 100% width of active module */}
+        <main className={cn(
+          "flex-1 overflow-auto transition-all duration-300",
+          isInModuleView ? "w-full" : ""
+        )} style={{ minHeight: 0, height: '100%' }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`${activeRole}-${activeNav}-${selectedSubItem || 'main'}`}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              className="h-full min-h-full"
+              style={{ height: '100%', minHeight: '100%' }}
+            >
+              <ErrorBoundary
+                onError={(error) => {
+                  console.error("Role dashboard crashed", { role: activeRole, error });
+                  toast.error("Dashboard failed to load", {
+                    description: "Something went wrong while opening this role.",
+                  });
+                }}
+                fallback={
+                  <div className="flex items-center justify-center min-h-[60vh]">
+                    <div className="text-center p-8 bg-card/50 rounded-xl border border-border/50 max-w-md">
+                      <Shield className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                      <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
+                      <p className="text-muted-foreground mb-6">This dashboard failed to render. You can retry or switch roles.</p>
+                      <div className="flex items-center justify-center gap-3">
+                        <Button variant="outline" onClick={() => window.location.reload()}>
+                          Reload dashboard
+                        </Button>
+                        <Button onClick={handleHome}>
+                          Back to Boss Dashboard
+                        </Button>
                       </div>
-                    }
-                  >
-                    {renderRoleView()}
-                  </ErrorBoundary>
-                </motion.div>
-              </AnimatePresence>
-            </main>
-          </div>
-        );
-      })()}
+                    </div>
+                  </div>
+                }
+              >
+                {renderRoleView()}
+              </ErrorBoundary>
+            </motion.div>
+          </AnimatePresence>
+        </main>
+      </div>
 
       {/* FOOTER */}
       <footer className={cn(
