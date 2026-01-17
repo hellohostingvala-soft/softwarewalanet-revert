@@ -1,28 +1,27 @@
 /**
  * PRODUCT & DEMO MODULE SIDEBAR
- * 11-item sidebar as per Step 8 spec
+ * 10-item sidebar as per Step 11 spec
  */
 import React from 'react';
 import { motion } from 'framer-motion';
 import { 
-  LayoutDashboard, Package, Factory, FolderTree, Puzzle,
-  DollarSign, GitBranch, Bug, Shield, BarChart3, Settings
+  LayoutDashboard, Package, Monitor, Plus, PlusCircle,
+  DollarSign, Key, Bug, BarChart3, Archive
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 export type ProductDemoSection = 
   | 'dashboard'
-  | 'products'
-  | 'demo-factory'
-  | 'categories'
-  | 'features'
-  | 'pricing'
-  | 'versions'
-  | 'issues'
-  | 'approvals'
-  | 'reports'
-  | 'settings';
+  | 'all-products'
+  | 'demo-manager'
+  | 'create-product'
+  | 'create-demo'
+  | 'pricing-plans'
+  | 'license-domain'
+  | 'demo-issues'
+  | 'performance'
+  | 'archive';
 
 interface ProductDemoModuleSidebarProps {
   activeSection: ProductDemoSection;
@@ -31,16 +30,15 @@ interface ProductDemoModuleSidebarProps {
 
 const menuItems: { id: ProductDemoSection; label: string; icon: React.ElementType }[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'products', label: 'Products', icon: Package },
-  { id: 'demo-factory', label: 'Demo Factory', icon: Factory },
-  { id: 'categories', label: 'Categories', icon: FolderTree },
-  { id: 'features', label: 'Features Library', icon: Puzzle },
-  { id: 'pricing', label: 'Pricing', icon: DollarSign },
-  { id: 'versions', label: 'Versions', icon: GitBranch },
-  { id: 'issues', label: 'Issues', icon: Bug },
-  { id: 'approvals', label: 'Approvals', icon: Shield },
-  { id: 'reports', label: 'Reports', icon: BarChart3 },
-  { id: 'settings', label: 'Settings', icon: Settings },
+  { id: 'all-products', label: 'All Products', icon: Package },
+  { id: 'demo-manager', label: 'Demo Manager', icon: Monitor },
+  { id: 'create-product', label: 'Create Product', icon: Plus },
+  { id: 'create-demo', label: 'Create Demo', icon: PlusCircle },
+  { id: 'pricing-plans', label: 'Pricing & Plans', icon: DollarSign },
+  { id: 'license-domain', label: 'License & Domain', icon: Key },
+  { id: 'demo-issues', label: 'Demo Issues', icon: Bug },
+  { id: 'performance', label: 'Performance', icon: BarChart3 },
+  { id: 'archive', label: 'Archive', icon: Archive },
 ];
 
 export const ProductDemoModuleSidebar: React.FC<ProductDemoModuleSidebarProps> = ({
@@ -56,7 +54,7 @@ export const ProductDemoModuleSidebar: React.FC<ProductDemoModuleSidebarProps> =
           </div>
           <div>
             <h2 className="text-sm font-bold text-foreground">Product & Demo</h2>
-            <p className="text-[10px] text-muted-foreground">AI-Driven Manager</p>
+            <p className="text-[10px] text-muted-foreground">Enterprise Manager</p>
           </div>
         </div>
       </div>
