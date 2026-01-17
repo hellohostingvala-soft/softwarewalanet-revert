@@ -2,7 +2,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { 
   LayoutDashboard, Brain, Plug, Search, Users, Code2, 
-  Zap, Server, CreditCard, Settings, Shield
+  Zap, Server, CreditCard, Settings, Shield, Mic, FileText,
+  Bell, Smartphone, CheckSquare, FileSearch, Package
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UnifiedOverview } from "@/components/unified-control/UnifiedOverview";
@@ -15,17 +16,31 @@ import { UnifiedAutomation } from "@/components/unified-control/UnifiedAutomatio
 import { UnifiedServerInfra } from "@/components/unified-control/UnifiedServerInfra";
 import { UnifiedBilling } from "@/components/unified-control/UnifiedBilling";
 import { UnifiedSettings } from "@/components/unified-control/UnifiedSettings";
+import { UnifiedVoiceCommand } from "@/components/unified-control/UnifiedVoiceCommand";
+import { UnifiedFileManager } from "@/components/unified-control/UnifiedFileManager";
+import { UnifiedNotifications } from "@/components/unified-control/UnifiedNotifications";
+import { UnifiedAPKBuilder } from "@/components/unified-control/UnifiedAPKBuilder";
+import { UnifiedApprovals } from "@/components/unified-control/UnifiedApprovals";
+import { UnifiedAuditLogs } from "@/components/unified-control/UnifiedAuditLogs";
+import { UnifiedProductDemo } from "@/components/unified-control/UnifiedProductDemo";
 
 const SIDEBAR_ITEMS = [
-  { id: 'overview', label: 'Dashboard', icon: LayoutDashboard, color: 'orange' },
+  { id: 'overview', label: 'Global Dashboard', icon: LayoutDashboard, color: 'orange' },
   { id: 'ai', label: 'AI Management', icon: Brain, color: 'violet' },
   { id: 'api', label: 'API Management', icon: Plug, color: 'blue' },
-  { id: 'seo', label: 'SEO Management', icon: Search, color: 'emerald' },
+  { id: 'seo', label: 'SEO & Growth', icon: Search, color: 'emerald' },
   { id: 'leads', label: 'Lead Management', icon: Users, color: 'cyan' },
+  { id: 'products', label: 'Product & Demo', icon: Package, color: 'indigo' },
   { id: 'dev', label: 'Development Control', icon: Code2, color: 'pink' },
-  { id: 'automation', label: 'Automation Rules', icon: Zap, color: 'amber' },
+  { id: 'automation', label: 'Automation Engine', icon: Zap, color: 'amber' },
   { id: 'server', label: 'Server & Infra', icon: Server, color: 'red' },
-  { id: 'billing', label: 'Billing & Usage', icon: CreditCard, color: 'green' },
+  { id: 'billing', label: 'Billing & Payments', icon: CreditCard, color: 'green' },
+  { id: 'notifications', label: 'Notification Center', icon: Bell, color: 'yellow' },
+  { id: 'voice', label: 'Voice & Command', icon: Mic, color: 'purple' },
+  { id: 'files', label: 'File & Media', icon: FileText, color: 'teal' },
+  { id: 'apk', label: 'Mobile / APK Builder', icon: Smartphone, color: 'lime' },
+  { id: 'approvals', label: 'Approvals (Boss)', icon: CheckSquare, color: 'rose' },
+  { id: 'logs', label: 'Logs & Audit Trail', icon: FileSearch, color: 'gray' },
   { id: 'settings', label: 'System Settings', icon: Settings, color: 'slate' },
 ];
 
@@ -39,10 +54,17 @@ const UnifiedControlDashboard = () => {
       case 'api': return <UnifiedAPIManagement />;
       case 'seo': return <UnifiedSEOManagement />;
       case 'leads': return <UnifiedLeadManagement />;
+      case 'products': return <UnifiedProductDemo />;
       case 'dev': return <UnifiedDevControl />;
       case 'automation': return <UnifiedAutomation />;
       case 'server': return <UnifiedServerInfra />;
       case 'billing': return <UnifiedBilling />;
+      case 'notifications': return <UnifiedNotifications />;
+      case 'voice': return <UnifiedVoiceCommand />;
+      case 'files': return <UnifiedFileManager />;
+      case 'apk': return <UnifiedAPKBuilder />;
+      case 'approvals': return <UnifiedApprovals />;
+      case 'logs': return <UnifiedAuditLogs />;
       case 'settings': return <UnifiedSettings />;
       default: return <UnifiedOverview />;
     }
