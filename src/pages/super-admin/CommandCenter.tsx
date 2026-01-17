@@ -762,7 +762,7 @@ const SuperAdminCommandCenter = () => {
           <motion.div
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-slate-900 flex items-center justify-center"
+            className="fixed inset-0 z-50 bg-slate-900 flex items-center justify-center pointer-events-none"
           >
             <motion.div
               initial={{ scale: 0.5, opacity: 0 }}
@@ -806,7 +806,7 @@ const SuperAdminCommandCenter = () => {
         )}
       </AnimatePresence>
 
-      <div className="space-y-6 bg-slate-900 min-h-screen -m-6 p-6">
+      <div className="space-y-6 bg-background min-h-screen -m-6 p-6">
         {/* Command Center Header */}
         <motion.div 
           className="space-y-5"

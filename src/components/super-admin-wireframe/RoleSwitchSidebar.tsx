@@ -480,23 +480,14 @@ const RoleSwitchSidebar = ({
       transition={{ duration: 0.2 }}
       className={cn(
         "flex flex-col border-r transition-colors duration-300",
-        activeRole === "server_manager" || activeRole === "developer_management"
-          ? "bg-zinc-900 border-zinc-700" 
-          : activeRole === "finance_manager"
-          ? "bg-emerald-950 border-emerald-800"
-          : "bg-sidebar border-sidebar-border"
+        "bg-sidebar border-sidebar-border"
       )}
     >
       {/* Header - Generic Control Panel (no role name to avoid duplication) */}
       <div className="p-4 border-b border-sidebar-border/50">
         <div className="flex items-center gap-3">
-          <div
-            className={cn(
-              "w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br",
-              currentConfig.themeColor
-            )}
-          >
-            <currentConfig.icon className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white">
+            <currentConfig.icon className="w-5 h-5" style={{ color: 'hsl(var(--sidebar-background))' }} />
           </div>
           <AnimatePresence>
             {!collapsed && (
@@ -506,8 +497,8 @@ const RoleSwitchSidebar = ({
                 exit={{ opacity: 0 }}
                 className="flex-1"
               >
-                <h2 className="text-sm font-bold text-foreground">Control Panel</h2>
-                <p className="text-xs text-muted-foreground">Navigation Menu</p>
+                <h2 className="text-sm font-bold text-white">Control Panel</h2>
+                <p className="text-xs text-white/80">Navigation Menu</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -556,8 +547,8 @@ const RoleSwitchSidebar = ({
                             className={cn(
                               "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
                               isActive
-                                ? cn("border-l-4", role.bgAccent, role.borderAccent, role.accentColor)
-                                : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-foreground border-l-4 border-transparent"
+                                ? "border-l-4 bg-white/20 border-white text-white"
+                                : "text-white/90 hover:bg-white/15 hover:text-white border-l-4 border-transparent"
                             )}
                           >
                             <div className={cn(
