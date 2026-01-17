@@ -30,15 +30,21 @@ import MMPerformance from "./screens/MMPerformance";
 import MMApprovals from "./screens/MMApprovals";
 import MMReports from "./screens/MMReports";
 import MMAudit from "./screens/MMAudit";
+import MMSEOManagement from "./screens/MMSEOManagement";
+import MMLeadSources from "./screens/MMLeadSources";
+import MMContentLibrary from "./screens/MMContentLibrary";
+import MMROIAnalytics from "./screens/MMROIAnalytics";
 
 const sidebarItems = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "campaigns", label: "Campaigns", icon: Megaphone },
+  { id: "seo", label: "SEO Management", icon: TrendingUp },
+  { id: "lead-sources", label: "Lead Sources", icon: MapPin },
+  { id: "content", label: "Content Library", icon: Image },
   { id: "offers", label: "Offers & Festivals", icon: Gift },
   { id: "targeting", label: "Location Targeting", icon: MapPin },
-  { id: "creatives", label: "Creatives Library", icon: Image },
   { id: "schedules", label: "Schedules", icon: Calendar },
-  { id: "performance", label: "Performance", icon: TrendingUp },
+  { id: "analytics", label: "ROI Analytics", icon: TrendingUp },
   { id: "approvals", label: "Approvals", icon: CheckCircle },
   { id: "reports", label: "Reports", icon: FileText },
   { id: "audit", label: "Audit", icon: Shield },
@@ -85,11 +91,13 @@ const MarketingManagerDashboard = () => {
     switch (activeScreen) {
       case "overview": return <MMOverview />;
       case "campaigns": return <MMCampaigns />;
+      case "seo": return <MMSEOManagement />;
+      case "lead-sources": return <MMLeadSources />;
+      case "content": return <MMContentLibrary />;
       case "offers": return <MMOffersFestivals />;
       case "targeting": return <MMLocationTargeting />;
-      case "creatives": return <MMCreativesLibrary />;
       case "schedules": return <MMSchedules />;
-      case "performance": return <MMPerformance />;
+      case "analytics": return <MMROIAnalytics />;
       case "approvals": return <MMApprovals />;
       case "reports": return <MMReports />;
       case "audit": return <MMAudit />;
