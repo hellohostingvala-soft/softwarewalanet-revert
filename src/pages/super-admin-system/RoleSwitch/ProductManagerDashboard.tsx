@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { 
   Box, Package, Play, Eye, Plus, Edit2, Trash2, Search, Filter,
@@ -8,6 +8,7 @@ import {
   Link2, Copy, Calendar, Zap, ArrowUpRight, MoreHorizontal, Check,
   Power, ChevronRight, Timer, Repeat, Share2, Lock, Unlock
 } from "lucide-react";
+import { useSystemActions } from "@/hooks/useSystemActions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -172,6 +173,7 @@ const mockDemos = [
 ];
 
 const ProductManagerDashboard = () => {
+  const { actions, executeAction } = useSystemActions();
   const [activeTab, setActiveTab] = useState("products");
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [selectedDemos, setSelectedDemos] = useState<string[]>([]);
@@ -183,6 +185,55 @@ const ProductManagerDashboard = () => {
   const [showCreateDemo, setShowCreateDemo] = useState(false);
   const [createDemoStep, setCreateDemoStep] = useState(1);
   const [demoConfig, setDemoConfig] = useState({ product: "", type: "time_based", duration: "15" });
+
+  // ===== ACTION HANDLERS =====
+  const handleEditProduct = useCallback(() => {
+    if (!selectedProduct) return;
+    actions.update('product', 'product', selectedProduct.id, {}, selectedProduct.name);
+  }, [selectedProduct, actions]);
+
+  const handleAddDemo = useCallback(() => {
+    if (!selectedProduct) return;
+    executeAction({
+      module: 'product',
+      action: 'create',
+      entityType: 'demo',
+      entityName: `Demo for ${selectedProduct.name}`,
+      data: { productId: selectedProduct.id },
+      successMessage: 'Demo created successfully'
+    });
+    setShowCreateDemo(true);
+  }, [selectedProduct, executeAction]);
+
+  const handleUpgradeProduct = useCallback(() => {
+    if (!selectedProduct) return;
+    executeAction({
+      module: 'product',
+      action: 'update',
+      entityType: 'product_version',
+      entityId: selectedProduct.id,
+      entityName: selectedProduct.name,
+      data: { action: 'upgrade' },
+      successMessage: 'Product upgrade initiated'
+    });
+  }, [selectedProduct, executeAction]);
+
+  const handleDeleteProduct = useCallback(() => {
+    if (!selectedProduct) return;
+    actions.delete('product', 'product', selectedProduct.id, selectedProduct.name);
+  }, [selectedProduct, actions]);
+
+  const handleRefreshProducts = useCallback(() => {
+    actions.refresh('product', 'products');
+  }, [actions]);
+
+  const handleExportProducts = useCallback(() => {
+    actions.export('product', 'products', 'csv');
+  }, [actions]);
+
+  const handleImportProducts = useCallback(() => {
+    actions.import('product', 'products');
+  }, [actions]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -208,7 +259,14 @@ const ProductManagerDashboard = () => {
       toast.error(`Select ${type}s first`);
       return;
     }
-    toast.success(`${action} applied to ${count} ${type}(s)`);
+    // Execute bulk action with audit logging
+    executeAction({
+      module: 'product',
+      action: 'update',
+      entityType: type,
+      data: { bulkAction: action, count, ids: type === 'product' ? selectedProducts : selectedDemos },
+      successMessage: `${action} applied to ${count} ${type}(s)`
+    });
     type === "product" ? setSelectedProducts([]) : setSelectedDemos([]);
   };
 
@@ -514,18 +572,17 @@ const ProductManagerDashboard = () => {
                       </div>
                     </div>
 
-                    {/* Actions */}
                     <div className="grid grid-cols-2 gap-2 pt-2">
-                      <Button size="sm" variant="outline" className="border-indigo-500/30 text-indigo-400 gap-1">
+                      <Button size="sm" variant="outline" className="border-indigo-500/30 text-indigo-400 gap-1" onClick={handleEditProduct}>
                         <Edit2 className="w-3 h-3" /> Edit
                       </Button>
-                      <Button size="sm" variant="outline" className="border-emerald-500/30 text-emerald-400 gap-1">
+                      <Button size="sm" variant="outline" className="border-emerald-500/30 text-emerald-400 gap-1" onClick={handleAddDemo}>
                         <Play className="w-3 h-3" /> Add Demo
                       </Button>
-                      <Button size="sm" variant="outline" className="border-amber-500/30 text-amber-400 gap-1">
+                      <Button size="sm" variant="outline" className="border-amber-500/30 text-amber-400 gap-1" onClick={handleUpgradeProduct}>
                         <ArrowUpRight className="w-3 h-3" /> Upgrade
                       </Button>
-                      <Button size="sm" variant="outline" className="border-red-500/30 text-red-400 gap-1">
+                      <Button size="sm" variant="outline" className="border-red-500/30 text-red-400 gap-1" onClick={handleDeleteProduct}>
                         <Trash2 className="w-3 h-3" /> Delete
                       </Button>
                     </div>
