@@ -12,6 +12,8 @@ import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { RouteNotFoundScreen, LoadingSkeleton } from "@/components/shared/RouteLoadingFallback";
 import GlobalHeaderActions from "@/components/shared/GlobalHeaderActions";
 import ModuleBreadcrumb from "@/components/shared/ModuleBreadcrumb";
+// Sidebar visibility store for single-sidebar enforcement
+import { useSidebarStore } from "@/stores/sidebarStore";
 
 import RoleSwitchSidebar, { ActiveRole, roleConfigs } from "@/components/super-admin-wireframe/RoleSwitchSidebar";
 import ContinentSuperAdminView from "./ContinentSuperAdminView";
@@ -97,6 +99,32 @@ const RoleSwitchDashboard = () => {
   // STEP 9: Module view detection - determines if we're inside a full-screen module
   const moduleViewIds = useMemo(() => ['server-control', 'dev-control', 'product-demo', 'leads', 'marketing'], []);
   const isInModuleView = activeRole === 'boss_owner' && moduleViewIds.includes(activeNav);
+  
+  // SINGLE SIDEBAR ENFORCEMENT: Use sidebar store for visibility control
+  const { showGlobalSidebar, enterCategory, activeSidebar, exitToGlobal } = useSidebarStore();
+  
+  // Sync sidebar visibility with module view state
+  useEffect(() => {
+    if (isInModuleView) {
+      // Map activeNav to category sidebar ID
+      const categoryMap: Record<string, 'server-manager' | 'dev-control' | 'product-demo' | 'lead-manager' | 'marketing'> = {
+        'server-control': 'server-manager',
+        'dev-control': 'dev-control',
+        'product-demo': 'product-demo',
+        'leads': 'lead-manager',
+        'marketing': 'marketing',
+      };
+      const categoryId = categoryMap[activeNav];
+      if (categoryId) {
+        enterCategory(categoryId);
+      }
+    } else {
+      showGlobalSidebar();
+    }
+  }, [isInModuleView, activeNav, showGlobalSidebar, enterCategory]);
+  
+  // Check if global sidebar should be visible (from store)
+  const shouldShowGlobalSidebar = activeSidebar === 'global' && !isInModuleView;
 
   // STEP 9: Navigation labels for breadcrumb
   const navLabels: Record<string, string> = useMemo(() => ({
@@ -528,19 +556,29 @@ const RoleSwitchDashboard = () => {
       
       {/* STEP 9: Main Content Area - Single Active View Only */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Role Switch Sidebar - HIDDEN when inside module view to prevent double sidebar */}
-        {!isInModuleView && (
-          <RoleSwitchSidebar
-            activeRole={activeRole}
-            onRoleChange={handleRoleChange}
-            collapsed={collapsed}
-            onToggleCollapse={() => setCollapsed(!collapsed)}
-            onLogout={handleLogout}
-            activeNav={activeNav}
-            onNavChange={handleNavChange}
-            onSubItemClick={(subItemId) => setSelectedSubItem(subItemId)}
-          />
-        )}
+        {/* Role Switch Sidebar - SINGLE SIDEBAR ENFORCEMENT: Only show when not in module view */}
+        <AnimatePresence mode="wait">
+          {shouldShowGlobalSidebar && (
+            <motion.div
+              key="global-sidebar"
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -20, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <RoleSwitchSidebar
+                activeRole={activeRole}
+                onRoleChange={handleRoleChange}
+                collapsed={collapsed}
+                onToggleCollapse={() => setCollapsed(!collapsed)}
+                onLogout={handleLogout}
+                activeNav={activeNav}
+                onNavChange={handleNavChange}
+                onSubItemClick={(subItemId) => setSelectedSubItem(subItemId)}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Dynamic Role View - STEP 9: Content area = 100% width of active module */}
         <main className={cn(

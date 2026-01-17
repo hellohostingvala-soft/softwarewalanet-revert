@@ -2,6 +2,7 @@
  * DEVELOPMENT MODULE SIDEBAR
  * Strict sidebar for Development Management
  * 10 items with Back to Boss button
+ * SINGLE SIDEBAR ENFORCEMENT: Uses sidebar store
  */
 
 import React from 'react';
@@ -20,6 +21,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSidebarStore } from '@/stores/sidebarStore';
 
 export type DevSection = 
   | 'overview' 
@@ -57,22 +59,37 @@ export const DevModuleSidebar: React.FC<DevModuleSidebarProps> = ({
   onSectionChange,
   onBack,
 }) => {
+  // SINGLE SIDEBAR ENFORCEMENT: Use store for navigation
+  const { exitToGlobal, activeSidebar, activeCategorySidebar } = useSidebarStore();
+  
+  // Handle back navigation - updates store AND calls prop callback
+  const handleBack = () => {
+    exitToGlobal();
+    onBack?.();
+  };
+  
+  // Only render if this is the active category sidebar
+  const isActive = activeSidebar === 'category' && activeCategorySidebar === 'dev-control';
+  const shouldRender = isActive || activeSidebar === 'global';
+  
+  if (!shouldRender && activeSidebar === 'category' && activeCategorySidebar !== 'dev-control') {
+    return null;
+  }
+  
   return (
     <div className="w-56 bg-card/50 border-r border-border/50 h-full flex flex-col">
       {/* Back Button */}
-      {onBack && (
-        <div className="p-2 border-b border-border/50">
-          <motion.button
-            onClick={onBack}
-            whileHover={{ x: -2 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Boss</span>
-          </motion.button>
-        </div>
-      )}
+      <div className="p-2 border-b border-border/50">
+        <motion.button
+          onClick={handleBack}
+          whileHover={{ x: -2 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Boss</span>
+        </motion.button>
+      </div>
       
       <div className="p-4 border-b border-border/50">
         <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
