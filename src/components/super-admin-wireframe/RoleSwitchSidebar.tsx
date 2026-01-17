@@ -239,208 +239,415 @@ export const roleConfigs = {
   },
 } as const;
 
-// Extended navigation items per role - role-specific features
-const roleNavItems: Record<ActiveRole, Array<{ id: string; label: string; icon: any; subItems?: Array<{ id: string; label: string; status: string }> }>> = {
+// STEP 7: 3-Level Navigation Structure
+// Level 1 = Module (expands to show Level 2)
+// Level 2 = Category (expands to show Level 3)
+// Level 3 = Subcategory (LOADS SCREEN - only this level loads content)
+
+interface SubCategory {
+  id: string;
+  label: string;
+  status?: 'active' | 'locked' | 'coming-soon';
+}
+
+interface Category {
+  id: string;
+  label: string;
+  icon: any;
+  subCategories?: SubCategory[];
+}
+
+interface Module {
+  id: string;
+  label: string;
+  icon: any;
+  categories: Category[];
+}
+
+// STEP 7: Full 3-level navigation structure per role
+const roleNavStructure: Record<ActiveRole, Module[]> = {
   boss_owner: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "approvals", label: "Approvals", icon: CheckCircle },
-    { id: "server-control", label: "Server Control", icon: Server },
-    { id: "dev-control", label: "Development Control", icon: Code2 },
-    { id: "franchise-control", label: "Franchise Control", icon: Building2 },
-    { id: "reseller-control", label: "Reseller Control", icon: Handshake },
-    { id: "finance", label: "Finance & Wallet", icon: Wallet },
-    { id: "marketing", label: "Marketing / Leads", icon: Target },
-    { id: "product-demo", label: "Product & Demo", icon: Box },
-    { id: "support-overview", label: "Support Overview", icon: Headphones },
-    { id: "security", label: "Security / Black Box", icon: Shield },
-    { id: "settings", label: "Settings", icon: Settings },
+    {
+      id: "operations",
+      label: "Operations",
+      icon: LayoutDashboard,
+      categories: [
+        { 
+          id: "dashboard", 
+          label: "Dashboard", 
+          icon: LayoutDashboard,
+          subCategories: [
+            { id: "overview", label: "Overview", status: "active" },
+            { id: "metrics", label: "Key Metrics", status: "active" },
+            { id: "alerts", label: "Critical Alerts", status: "active" },
+          ]
+        },
+        { 
+          id: "approvals", 
+          label: "Approvals", 
+          icon: CheckCircle,
+          subCategories: [
+            { id: "pending-approvals", label: "Pending", status: "active" },
+            { id: "approved-list", label: "Approved", status: "active" },
+            { id: "rejected-list", label: "Rejected", status: "active" },
+          ]
+        },
+      ]
+    },
+    {
+      id: "infrastructure",
+      label: "Infrastructure",
+      icon: Server,
+      categories: [
+        { 
+          id: "server-control", 
+          label: "Server Control", 
+          icon: Server,
+          subCategories: [
+            { id: "server-overview", label: "Overview", status: "active" },
+            { id: "server-add", label: "Add Server", status: "active" },
+            { id: "server-active", label: "Active Servers", status: "active" },
+            { id: "server-health", label: "Health & Load", status: "active" },
+            { id: "server-security", label: "Security", status: "active" },
+          ]
+        },
+        { 
+          id: "dev-control", 
+          label: "Development", 
+          icon: Code2,
+          subCategories: [
+            { id: "dev-overview", label: "Overview", status: "active" },
+            { id: "dev-tasks", label: "Tasks", status: "active" },
+            { id: "dev-bugs", label: "Bug Tracker", status: "active" },
+            { id: "dev-releases", label: "Releases", status: "active" },
+          ]
+        },
+      ]
+    },
+    {
+      id: "business",
+      label: "Business",
+      icon: Building2,
+      categories: [
+        { 
+          id: "franchise-control", 
+          label: "Franchise Control", 
+          icon: Building2,
+          subCategories: [
+            { id: "franchise-list", label: "All Franchises", status: "active" },
+            { id: "franchise-performance", label: "Performance", status: "active" },
+            { id: "franchise-issues", label: "Issues", status: "active" },
+          ]
+        },
+        { 
+          id: "reseller-control", 
+          label: "Reseller Control", 
+          icon: Handshake,
+          subCategories: [
+            { id: "reseller-list", label: "All Resellers", status: "active" },
+            { id: "reseller-tiers", label: "Tiers", status: "active" },
+            { id: "reseller-commissions", label: "Commissions", status: "active" },
+          ]
+        },
+        { 
+          id: "finance", 
+          label: "Finance & Wallet", 
+          icon: Wallet,
+          subCategories: [
+            { id: "finance-overview", label: "Overview", status: "active" },
+            { id: "finance-transactions", label: "Transactions", status: "active" },
+            { id: "finance-payouts", label: "Payouts", status: "active" },
+          ]
+        },
+      ]
+    },
+    {
+      id: "growth",
+      label: "Growth",
+      icon: TrendingUp,
+      categories: [
+        { 
+          id: "marketing", 
+          label: "Marketing / Leads", 
+          icon: Target,
+          subCategories: [
+            { id: "marketing-dashboard", label: "Dashboard", status: "active" },
+            { id: "marketing-campaigns", label: "Campaigns", status: "active" },
+            { id: "marketing-leads", label: "All Leads", status: "active" },
+          ]
+        },
+        { 
+          id: "product-demo", 
+          label: "Product & Demo", 
+          icon: Box,
+          subCategories: [
+            { id: "product-catalog", label: "Catalog", status: "active" },
+            { id: "product-demos", label: "Demo Manager", status: "active" },
+            { id: "product-pricing", label: "Pricing", status: "active" },
+          ]
+        },
+      ]
+    },
+    {
+      id: "support-security",
+      label: "Support & Security",
+      icon: Shield,
+      categories: [
+        { 
+          id: "support-overview", 
+          label: "Support Overview", 
+          icon: Headphones,
+          subCategories: [
+            { id: "support-tickets", label: "Tickets", status: "active" },
+            { id: "support-team", label: "Team", status: "active" },
+            { id: "support-sla", label: "SLA", status: "active" },
+          ]
+        },
+        { 
+          id: "security", 
+          label: "Security / Black Box", 
+          icon: Shield,
+          subCategories: [
+            { id: "security-overview", label: "Overview", status: "active" },
+            { id: "security-audit", label: "Audit Log", status: "active" },
+            { id: "security-alerts", label: "Alerts", status: "active" },
+          ]
+        },
+      ]
+    },
+    {
+      id: "system",
+      label: "System",
+      icon: Settings,
+      categories: [
+        { 
+          id: "settings", 
+          label: "Settings", 
+          icon: Settings,
+          subCategories: [
+            { id: "settings-general", label: "General", status: "active" },
+            { id: "settings-users", label: "Users", status: "active" },
+            { id: "settings-permissions", label: "Permissions", status: "active" },
+          ]
+        },
+      ]
+    },
   ],
   ceo: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "overview", label: "Business Overview", icon: Eye },
-    { id: "revenue", label: "Revenue Insights", icon: TrendingUp },
-    { id: "analytics", label: "Analytics", icon: BarChart3 },
-    { id: "reports", label: "Reports", icon: FileText },
-    { id: "settings", label: "Settings", icon: Settings },
+    {
+      id: "overview",
+      label: "Overview",
+      icon: Eye,
+      categories: [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, subCategories: [{ id: "ceo-overview", label: "Business Overview", status: "active" }] },
+        { id: "revenue", label: "Revenue", icon: TrendingUp, subCategories: [{ id: "ceo-revenue", label: "Revenue Insights", status: "active" }] },
+        { id: "analytics", label: "Analytics", icon: BarChart3, subCategories: [{ id: "ceo-analytics", label: "Analytics Dashboard", status: "active" }] },
+        { id: "reports", label: "Reports", icon: FileText, subCategories: [{ id: "ceo-reports", label: "View Reports", status: "active" }] },
+      ]
+    },
   ],
   continent_super_admin: [
     {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: LayoutDashboard,
-      subItems: [
-        { id: "csa-asia", label: "Asia Super Admin", status: "active" },
-        { id: "csa-africa", label: "Africa Super Admin", status: "active" },
-        { id: "csa-europe", label: "Europe Super Admin", status: "active" },
-        { id: "csa-north-america", label: "North America Super Admin", status: "active" },
-        { id: "csa-south-america", label: "South America Super Admin", status: "active" },
-        { id: "csa-australia", label: "Australia Super Admin", status: "active" },
-        { id: "csa-antarctica", label: "Antarctica Super Admin", status: "locked" },
-      ],
+      id: "continents",
+      label: "Continents",
+      icon: Globe2,
+      categories: [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, subCategories: [
+          { id: "csa-asia", label: "Asia Super Admin", status: "active" },
+          { id: "csa-africa", label: "Africa Super Admin", status: "active" },
+          { id: "csa-europe", label: "Europe Super Admin", status: "active" },
+          { id: "csa-north-america", label: "North America", status: "active" },
+          { id: "csa-south-america", label: "South America", status: "active" },
+          { id: "csa-australia", label: "Australia", status: "active" },
+        ]},
+        { id: "admins", label: "Admins", icon: Users, subCategories: [{ id: "continent-admins", label: "All Admins", status: "active" }] },
+        { id: "countries", label: "Countries", icon: Map, subCategories: [{ id: "country-overview", label: "Country Overview", status: "active" }] },
+      ]
     },
-    { id: "continents", label: "All Continents", icon: Globe2 },
-    { id: "admins", label: "Continent Admins", icon: Users },
-    { id: "countries", label: "Country Overview", icon: Map },
-    { id: "activity", label: "Live Activity", icon: Activity },
-    { id: "reports", label: "Global Reports", icon: BarChart3 },
-    { id: "settings", label: "Settings", icon: Settings },
   ],
   server_manager: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "servers", label: "All Servers", icon: Server },
-    { id: "databases", label: "Databases", icon: Database },
-    { id: "storage", label: "Storage", icon: HardDrive },
-    { id: "monitoring", label: "Monitoring", icon: Monitor },
-    { id: "performance", label: "Performance", icon: Cpu },
-    { id: "security", label: "Security", icon: Shield },
-    { id: "activity", label: "Tech Activity", icon: Activity },
-    { id: "settings", label: "Settings", icon: Settings },
+    {
+      id: "servers",
+      label: "Servers",
+      icon: Server,
+      categories: [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, subCategories: [{ id: "server-dash", label: "Server Dashboard", status: "active" }] },
+        { id: "servers", label: "All Servers", icon: Server, subCategories: [{ id: "server-list", label: "Server List", status: "active" }] },
+        { id: "databases", label: "Databases", icon: Database, subCategories: [{ id: "db-list", label: "All Databases", status: "active" }] },
+        { id: "monitoring", label: "Monitoring", icon: Monitor, subCategories: [{ id: "server-monitoring", label: "Live Monitoring", status: "active" }] },
+        { id: "security", label: "Security", icon: Shield, subCategories: [{ id: "server-security", label: "Security Config", status: "active" }] },
+      ]
+    },
   ],
   franchise_manager: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "franchises", label: "All Franchises", icon: Building2 },
-    { id: "branches", label: "Branch Network", icon: Store },
-    { id: "operations", label: "Operations", icon: Briefcase },
-    { id: "performance", label: "Performance", icon: TrendingUp },
-    { id: "activity", label: "Franchise Activity", icon: Activity },
-    { id: "settings", label: "Settings", icon: Settings },
+    {
+      id: "franchises",
+      label: "Franchises",
+      icon: Building2,
+      categories: [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, subCategories: [{ id: "franchise-dash", label: "Franchise Dashboard", status: "active" }] },
+        { id: "franchises", label: "All Franchises", icon: Building2, subCategories: [{ id: "franchise-list", label: "Franchise List", status: "active" }] },
+        { id: "branches", label: "Branches", icon: Store, subCategories: [{ id: "branch-network", label: "Branch Network", status: "active" }] },
+        { id: "performance", label: "Performance", icon: TrendingUp, subCategories: [{ id: "franchise-perf", label: "Performance Metrics", status: "active" }] },
+      ]
+    },
   ],
   sales_support_manager: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "team", label: "Support Team", icon: Users },
-    { id: "tickets", label: "Support Tickets", icon: MessageSquare },
-    { id: "calls", label: "Call Center", icon: Phone },
-    { id: "emails", label: "Email Queue", icon: Mail },
-    { id: "performance", label: "Performance", icon: TrendingUp },
-    { id: "activity", label: "Support Activity", icon: Activity },
-    { id: "settings", label: "Settings", icon: Settings },
+    {
+      id: "support",
+      label: "Support",
+      icon: Headphones,
+      categories: [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, subCategories: [{ id: "support-dash", label: "Support Dashboard", status: "active" }] },
+        { id: "tickets", label: "Tickets", icon: MessageSquare, subCategories: [{ id: "ticket-list", label: "All Tickets", status: "active" }] },
+        { id: "team", label: "Team", icon: Users, subCategories: [{ id: "support-team", label: "Support Team", status: "active" }] },
+      ]
+    },
   ],
   reseller_manager: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "resellers", label: "All Resellers", icon: Handshake },
-    { id: "tiers", label: "Reseller Tiers", icon: Award },
-    { id: "commissions", label: "Commissions", icon: CreditCard },
-    { id: "performance", label: "Performance", icon: TrendingUp },
-    { id: "payouts", label: "Payouts", icon: Wallet },
-    { id: "activity", label: "Partner Activity", icon: Activity },
-    { id: "settings", label: "Settings", icon: Settings },
+    {
+      id: "resellers",
+      label: "Resellers",
+      icon: Handshake,
+      categories: [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, subCategories: [{ id: "reseller-dash", label: "Reseller Dashboard", status: "active" }] },
+        { id: "resellers", label: "All Resellers", icon: Handshake, subCategories: [{ id: "reseller-list", label: "Reseller List", status: "active" }] },
+        { id: "commissions", label: "Commissions", icon: CreditCard, subCategories: [{ id: "commission-list", label: "Commission Tracking", status: "active" }] },
+      ]
+    },
   ],
   lead_manager: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "leads", label: "All Leads", icon: Target },
-    { id: "pipeline", label: "Sales Pipeline", icon: TrendingUp },
-    { id: "sources", label: "Lead Sources", icon: Zap },
-    { id: "assignments", label: "Assignments", icon: UserCheck },
-    { id: "activity", label: "Lead Activity", icon: Activity },
-    { id: "settings", label: "Settings", icon: Settings },
+    {
+      id: "leads",
+      label: "Leads",
+      icon: Target,
+      categories: [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, subCategories: [{ id: "lead-dash", label: "Lead Dashboard", status: "active" }] },
+        { id: "leads", label: "All Leads", icon: Target, subCategories: [{ id: "lead-list", label: "Lead List", status: "active" }] },
+        { id: "pipeline", label: "Pipeline", icon: TrendingUp, subCategories: [{ id: "sales-pipeline", label: "Sales Pipeline", status: "active" }] },
+      ]
+    },
   ],
   pro_manager: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "pros", label: "All Pro Users", icon: Crown },
-    { id: "subscriptions", label: "Subscriptions", icon: CreditCard },
-    { id: "benefits", label: "Pro Benefits", icon: Award },
-    { id: "upgrades", label: "Upgrades", icon: TrendingUp },
-    { id: "activity", label: "Pro Activity", icon: Activity },
-    { id: "settings", label: "Settings", icon: Settings },
+    {
+      id: "pros",
+      label: "Pro Users",
+      icon: Crown,
+      categories: [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, subCategories: [{ id: "pro-dash", label: "Pro Dashboard", status: "active" }] },
+        { id: "pros", label: "All Pro Users", icon: Crown, subCategories: [{ id: "pro-list", label: "Pro User List", status: "active" }] },
+        { id: "subscriptions", label: "Subscriptions", icon: CreditCard, subCategories: [{ id: "pro-subs", label: "Subscription Management", status: "active" }] },
+      ]
+    },
   ],
   legal_manager: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "cases", label: "Legal Cases", icon: Gavel },
-    { id: "contracts", label: "Contracts", icon: FileCheck },
-    { id: "compliance", label: "Compliance", icon: Shield },
-    { id: "documents", label: "Documents", icon: BookOpen },
-    { id: "activity", label: "Legal Activity", icon: Activity },
-    { id: "settings", label: "Settings", icon: Settings },
+    {
+      id: "legal",
+      label: "Legal",
+      icon: Scale,
+      categories: [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, subCategories: [{ id: "legal-dash", label: "Legal Dashboard", status: "active" }] },
+        { id: "cases", label: "Cases", icon: Gavel, subCategories: [{ id: "case-list", label: "All Cases", status: "active" }] },
+        { id: "compliance", label: "Compliance", icon: Shield, subCategories: [{ id: "compliance-check", label: "Compliance Check", status: "active" }] },
+      ]
+    },
   ],
   task_management: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "tasks", label: "All Tasks", icon: ListTodo },
-    { id: "developers", label: "Developers", icon: Code2 },
-    { id: "projects", label: "Projects", icon: Package },
-    { id: "sprints", label: "Sprints", icon: Zap },
-    { id: "activity", label: "Task Activity", icon: Activity },
-    { id: "settings", label: "Settings", icon: Settings },
+    {
+      id: "tasks",
+      label: "Tasks",
+      icon: ListTodo,
+      categories: [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, subCategories: [{ id: "task-dash", label: "Task Dashboard", status: "active" }] },
+        { id: "tasks", label: "All Tasks", icon: ListTodo, subCategories: [{ id: "task-list", label: "Task List", status: "active" }] },
+        { id: "developers", label: "Developers", icon: Code2, subCategories: [{ id: "dev-list", label: "Developer List", status: "active" }] },
+      ]
+    },
   ],
   finance_manager: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "managers", label: "All Finance Managers", icon: Users },
-    { id: "transactions", label: "Transactions", icon: Receipt },
-    { id: "revenue", label: "Revenue", icon: TrendingUp },
-    { id: "expenses", label: "Expenses", icon: CreditCard },
-    { id: "commissions", label: "Commissions", icon: PieChart },
-    { id: "payouts", label: "Payouts", icon: Wallet },
-    { id: "invoices", label: "Invoices", icon: FileText },
-    { id: "tax", label: "Tax & Compliance", icon: Scale },
-    { id: "activity", label: "Finance Activity", icon: Activity },
-    { id: "settings", label: "Settings", icon: Settings },
+    {
+      id: "finance",
+      label: "Finance",
+      icon: Wallet,
+      categories: [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, subCategories: [{ id: "finance-dash", label: "Finance Dashboard", status: "active" }] },
+        { id: "transactions", label: "Transactions", icon: Receipt, subCategories: [{ id: "tx-list", label: "All Transactions", status: "active" }] },
+        { id: "payouts", label: "Payouts", icon: Wallet, subCategories: [{ id: "payout-list", label: "Payout Management", status: "active" }] },
+      ]
+    },
   ],
   developer_management: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "managers", label: "All Dev Managers", icon: Users },
-    { id: "developers", label: "Developers", icon: Code2 },
-    { id: "tasks", label: "Tasks & Sprints", icon: ListTodo },
-    { id: "bugs", label: "Bug Tracker", icon: Bug },
-    { id: "apis", label: "API Management", icon: Radio },
-    { id: "releases", label: "Releases", icon: Rocket },
-    { id: "monitoring", label: "System Monitoring", icon: Monitor },
-    { id: "security", label: "Security & Access", icon: Key },
-    { id: "activity", label: "Tech Activity", icon: Activity },
-    { id: "settings", label: "Settings", icon: Settings },
+    {
+      id: "development",
+      label: "Development",
+      icon: Terminal,
+      categories: [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, subCategories: [{ id: "dev-mgmt-dash", label: "Dev Dashboard", status: "active" }] },
+        { id: "developers", label: "Developers", icon: Code2, subCategories: [{ id: "dev-team", label: "Dev Team", status: "active" }] },
+        { id: "bugs", label: "Bugs", icon: Bug, subCategories: [{ id: "bug-tracker", label: "Bug Tracker", status: "active" }] },
+      ]
+    },
   ],
   marketing_management: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "managers", label: "All Marketing Managers", icon: Users },
-    { id: "campaigns", label: "Campaigns", icon: Megaphone },
-    { id: "leads", label: "Lead Sources", icon: Target },
-    { id: "content", label: "Content Library", icon: Image },
-    { id: "ads", label: "Ad Accounts", icon: Share2 },
-    { id: "analytics", label: "Analytics & Insights", icon: LineChart },
-    { id: "brand", label: "Brand & Compliance", icon: Palette },
-    { id: "activity", label: "Marketing Activity", icon: Activity },
-    { id: "settings", label: "Settings", icon: Settings },
+    {
+      id: "marketing",
+      label: "Marketing",
+      icon: Megaphone,
+      categories: [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, subCategories: [{ id: "mkt-dash", label: "Marketing Dashboard", status: "active" }] },
+        { id: "campaigns", label: "Campaigns", icon: Megaphone, subCategories: [{ id: "campaign-list", label: "All Campaigns", status: "active" }] },
+        { id: "analytics", label: "Analytics", icon: LineChart, subCategories: [{ id: "mkt-analytics", label: "Marketing Analytics", status: "active" }] },
+      ]
+    },
   ],
   customer_support_management: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "managers", label: "All Support Managers", icon: Users },
-    { id: "tickets", label: "Tickets", icon: MessageSquare },
-    { id: "users", label: "Users & Partners", icon: UserCheck },
-    { id: "sla", label: "SLA Management", icon: Clock },
-    { id: "communication", label: "Communication", icon: Mail },
-    { id: "escalations", label: "Escalations", icon: AlertCircle },
-    { id: "knowledge", label: "Knowledge Base", icon: BookOpen },
-    { id: "activity", label: "Support Activity", icon: Activity },
-    { id: "settings", label: "Settings", icon: Settings },
+    {
+      id: "support",
+      label: "Support",
+      icon: Headphones,
+      categories: [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, subCategories: [{ id: "csm-dash", label: "Support Dashboard", status: "active" }] },
+        { id: "tickets", label: "Tickets", icon: MessageSquare, subCategories: [{ id: "csm-tickets", label: "All Tickets", status: "active" }] },
+        { id: "escalations", label: "Escalations", icon: AlertCircle, subCategories: [{ id: "escalation-list", label: "Escalation Queue", status: "active" }] },
+      ]
+    },
   ],
   role_manager: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "roles", label: "All Roles", icon: Shield },
-    { id: "approvals", label: "Pending Approvals", icon: Clock },
-    { id: "matrix", label: "Permission Matrix", icon: Key },
-    { id: "assignments", label: "Role Assignments", icon: UserCheck },
-    { id: "versions", label: "Role Versions", icon: FileText },
-    { id: "audit", label: "Audit Log", icon: Activity },
-    { id: "settings", label: "Settings", icon: Settings },
+    {
+      id: "roles",
+      label: "Roles",
+      icon: Shield,
+      categories: [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, subCategories: [{ id: "role-dash", label: "Role Dashboard", status: "active" }] },
+        { id: "roles", label: "All Roles", icon: Shield, subCategories: [{ id: "role-list", label: "Role List", status: "active" }] },
+        { id: "matrix", label: "Permission Matrix", icon: Key, subCategories: [{ id: "perm-matrix", label: "View Matrix", status: "active" }] },
+      ]
+    },
   ],
   country_head: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "areas", label: "Regions & Areas", icon: Map },
-    { id: "managers", label: "Area Managers", icon: Users },
-    { id: "users", label: "Country Users", icon: UserCheck },
-    { id: "analytics", label: "Analytics", icon: BarChart3 },
-    { id: "escalations", label: "Escalations", icon: AlertTriangle },
-    { id: "settings", label: "Settings", icon: Settings },
+    {
+      id: "country",
+      label: "Country",
+      icon: Flag,
+      categories: [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, subCategories: [{ id: "country-dash", label: "Country Dashboard", status: "active" }] },
+        { id: "areas", label: "Regions", icon: Map, subCategories: [{ id: "region-list", label: "All Regions", status: "active" }] },
+        { id: "managers", label: "Managers", icon: Users, subCategories: [{ id: "area-managers", label: "Area Managers", status: "active" }] },
+      ]
+    },
   ],
   product_manager: [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "products", label: "All Products", icon: Box },
-    { id: "demos", label: "Demo Management", icon: Play },
-    { id: "catalog", label: "Product Catalog", icon: Layers },
-    { id: "pricing", label: "Pricing & Plans", icon: CreditCard },
-    { id: "inventory", label: "Inventory", icon: Package },
-    { id: "orders", label: "Orders", icon: ShoppingCart },
-    { id: "analytics", label: "Product Analytics", icon: BarChart3 },
-    { id: "activity", label: "Product Activity", icon: Activity },
-    { id: "settings", label: "Settings", icon: Settings },
+    {
+      id: "products",
+      label: "Products",
+      icon: Box,
+      categories: [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, subCategories: [{ id: "product-dash", label: "Product Dashboard", status: "active" }] },
+        { id: "products", label: "All Products", icon: Box, subCategories: [{ id: "product-list", label: "Product Catalog", status: "active" }] },
+        { id: "demos", label: "Demos", icon: Play, subCategories: [{ id: "demo-manager", label: "Demo Manager", status: "active" }] },
+        { id: "pricing", label: "Pricing", icon: CreditCard, subCategories: [{ id: "pricing-plans", label: "Pricing & Plans", status: "active" }] },
+      ]
+    },
   ],
 };
 
@@ -586,30 +793,57 @@ const RoleSwitchSidebar = ({
   onSubItemClick,
 }: RoleSwitchSidebarProps) => {
   const currentConfig = roleConfigs[activeRole] ?? roleConfigs.boss_owner;
-  const currentNavItems = roleNavItems[activeRole] ?? [];
-  const [internalActiveNav, setInternalActiveNav] = useState("dashboard");
+  // STEP 7: Use new 3-level navigation structure
+  const currentNavStructure = roleNavStructure[activeRole] ?? [];
+  const [internalActiveNav, setInternalActiveNav] = useState("overview");
   
   // STEP 2 FIX: Auto drill-down when a role is active (Boss should start drilled in)
   const [isDrilledDown, setIsDrilledDown] = useState(true);
   
-  // STEP 5: Track which categories are expanded (for subcategory expansion)
+  // STEP 7: Track expanded modules (Level 1) and categories (Level 2)
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set(['operations']));
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['dashboard']));
+  // Track the active subcategory (Level 3) - the one that loads content
+  const [activeSubCategory, setActiveSubCategory] = useState<string>("overview");
   
   // Use external activeNav if provided, otherwise use internal state
   const activeNav = externalActiveNav ?? internalActiveNav;
   
-  // STEP 2 FIX: When role changes, auto drill-down to show that role's features
+  // STEP 7: When role changes, reset all expansion states
   useEffect(() => {
     setIsDrilledDown(true);
-    // Reset expanded categories when role changes
-    setExpandedCategories(new Set(['dashboard']));
+    // Reset to first module/category expanded
+    const firstModule = currentNavStructure[0];
+    if (firstModule) {
+      setExpandedModules(new Set([firstModule.id]));
+      const firstCategory = firstModule.categories[0];
+      if (firstCategory) {
+        setExpandedCategories(new Set([firstCategory.id]));
+        const firstSubCategory = firstCategory.subCategories?.[0];
+        if (firstSubCategory) {
+          setActiveSubCategory(firstSubCategory.id);
+        }
+      }
+    }
   }, [activeRole]);
 
-  // STEP 5: Toggle category expansion
+  // STEP 7: Toggle module expansion (Level 1) - only expands, no content load
+  const toggleModuleExpansion = useCallback((moduleId: string) => {
+    setExpandedModules(prev => {
+      const newSet = new Set<string>();
+      if (!prev.has(moduleId)) {
+        newSet.add(moduleId);
+      }
+      return newSet;
+    });
+    // Reset category expansion when switching modules
+    setExpandedCategories(new Set());
+  }, []);
+
+  // STEP 7: Toggle category expansion (Level 2) - only expands, no content load
   const toggleCategoryExpansion = useCallback((categoryId: string) => {
     setExpandedCategories(prev => {
       const newSet = new Set<string>();
-      // Only allow ONE category expanded at a time
       if (!prev.has(categoryId)) {
         newSet.add(categoryId);
       }
@@ -617,30 +851,44 @@ const RoleSwitchSidebar = ({
     });
   }, []);
 
-  const handleNavClick = useCallback((navId: string, hasSubItems: boolean = false) => {
-    // If item has sub-items, toggle expansion instead of navigating
-    if (hasSubItems) {
-      toggleCategoryExpansion(navId);
-      return;
-    }
+  // STEP 7: Handle subcategory click (Level 3) - THIS LOADS THE SCREEN
+  const handleSubCategoryClick = useCallback((subCategoryId: string, subCategoryLabel: string) => {
+    setActiveSubCategory(subCategoryId);
     
     if (onNavChange) {
-      onNavChange(navId);
+      onNavChange(subCategoryId);
     } else {
-      setInternalActiveNav(navId);
+      setInternalActiveNav(subCategoryId);
     }
     
+    // Also call the sub-item click handler
+    onSubItemClick?.(subCategoryId);
+    
     // Show toast for navigation feedback
-    toast.success(`Navigating to ${navId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}`);
-  }, [onNavChange, toggleCategoryExpansion]);
+    toast.success(`Loading: ${subCategoryLabel}`, { description: 'Screen loading...' });
+  }, [onNavChange, onSubItemClick]);
 
   const handleRoleSelect = useCallback((roleId: ActiveRole) => {
     onRoleChange(roleId);
     setIsDrilledDown(true);
-    if (onNavChange) {
-      onNavChange("dashboard");
-    } else {
-      setInternalActiveNav("dashboard");
+    
+    // Reset to first module/category
+    const firstModule = roleNavStructure[roleId]?.[0];
+    if (firstModule) {
+      setExpandedModules(new Set([firstModule.id]));
+      const firstCategory = firstModule.categories[0];
+      if (firstCategory) {
+        setExpandedCategories(new Set([firstCategory.id]));
+        const firstSubCategory = firstCategory.subCategories?.[0];
+        if (firstSubCategory) {
+          setActiveSubCategory(firstSubCategory.id);
+          if (onNavChange) {
+            onNavChange(firstSubCategory.id);
+          } else {
+            setInternalActiveNav(firstSubCategory.id);
+          }
+        }
+      }
     }
   }, [onRoleChange, onNavChange]);
 
@@ -832,8 +1080,8 @@ const RoleSwitchSidebar = ({
               </div>
             </div>
 
-            {/* Role-specific Navigation */}
-            <ScrollArea className="flex-1 py-4">
+            {/* STEP 7: 3-Level Navigation Structure */}
+            <ScrollArea className="flex-1 py-2">
               <AnimatePresence>
                 {!collapsed && (
                   <motion.p
@@ -847,61 +1095,66 @@ const RoleSwitchSidebar = ({
                 )}
               </AnimatePresence>
               
-              <nav className="space-y-1 px-3">
-                {currentNavItems.map((item, idx) => {
-                  const Icon = item.icon;
-                  const isActive = activeNav === item.id;
-                  const hasSubItems = 'subItems' in item && Array.isArray(item.subItems);
-                  const isExpanded = expandedCategories.has(item.id);
+              <nav className="space-y-1 px-2">
+                {/* LEVEL 1: Modules */}
+                {currentNavStructure.map((module, moduleIdx) => {
+                  const ModuleIcon = module.icon;
+                  const isModuleExpanded = expandedModules.has(module.id);
+                  const hasCategories = module.categories && module.categories.length > 0;
+                  
+                  // Check if any subcategory under this module is active
+                  const isModuleActive = module.categories.some(cat => 
+                    cat.subCategories?.some(sub => sub.id === activeSubCategory)
+                  );
 
                   return (
                     <motion.div
-                      key={item.id}
+                      key={module.id}
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.03 }}
+                      transition={{ delay: moduleIdx * 0.03 }}
                     >
+                      {/* Level 1: Module Button - ONLY EXPANDS, NO CONTENT LOAD */}
                       <Tooltip delayDuration={0}>
                         <TooltipTrigger asChild>
                           <button
                             type="button"
                             onClick={(e) => {
                               e.preventDefault();
-                              handleNavClick(item.id, hasSubItems);
+                              toggleModuleExpansion(module.id);
                             }}
                             className={cn(
-                              "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 relative",
-                              // STEP 5 FIX: Active state with left indicator bar + bold text
-                              isActive
-                                ? "text-white font-semibold bg-white/15"
+                              "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 relative",
+                              isModuleExpanded || isModuleActive
+                                ? "text-white font-semibold bg-white/20"
                                 : "text-white/90 hover:text-white hover:bg-white/10",
                               collapsed ? "justify-center" : ""
                             )}
                           >
-                            {/* STEP 5: Left indicator bar for active state */}
-                            {isActive && (
+                            {/* Left indicator for active module */}
+                            {isModuleActive && (
                               <motion.div 
-                                layoutId="sidebar-active-indicator"
-                                className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-white rounded-r-full"
+                                layoutId="module-active-indicator"
+                                className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-amber-400 rounded-r-full"
                               />
                             )}
-                            <Icon className={cn("w-5 h-5 flex-shrink-0", isActive ? "text-white" : "text-white/80")} />
+                            <ModuleIcon className={cn("w-5 h-5 flex-shrink-0", isModuleActive ? "text-amber-300" : "text-white/80")} />
                             <AnimatePresence>
                               {!collapsed && (
                                 <motion.span
                                   initial={{ opacity: 0 }}
                                   animate={{ opacity: 1 }}
                                   exit={{ opacity: 0 }}
-                                  className={cn("text-sm truncate flex-1 text-left", isActive ? "font-semibold" : "font-medium")}
+                                  className={cn("text-sm truncate flex-1 text-left", isModuleActive ? "font-semibold" : "font-medium")}
                                 >
-                                  {item.label}
+                                  {module.label}
                                 </motion.span>
                               )}
                             </AnimatePresence>
-                            {/* STEP 5: Chevron for items with sub-items */}
-                            {hasSubItems && !collapsed && (
+                            {/* Chevron for modules */}
+                            {hasCategories && !collapsed && (
                               <motion.div
-                                animate={{ rotate: isExpanded ? 90 : 0 }}
+                                animate={{ rotate: isModuleExpanded ? 90 : 0 }}
                                 transition={{ duration: 0.2 }}
                               >
                                 <ChevronRight className="w-4 h-4 text-white/70" />
@@ -911,60 +1164,144 @@ const RoleSwitchSidebar = ({
                         </TooltipTrigger>
                         {collapsed && (
                           <TooltipContent side="right" sideOffset={10}>
-                            {item.label}
+                            {module.label}
                           </TooltipContent>
                         )}
                       </Tooltip>
                       
-                      {/* STEP 5: Sub-items - expand when category is expanded OR when active */}
+                      {/* LEVEL 2: Categories - Show when module is expanded */}
                       <AnimatePresence>
-                        {hasSubItems && (isExpanded || isActive) && !collapsed && (
+                        {isModuleExpanded && hasCategories && !collapsed && (
                           <motion.div
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
                             transition={{ duration: 0.2 }}
-                            className="mt-1 ml-3 pl-3 border-l border-white/20 space-y-1"
+                            className="mt-1 ml-4 border-l border-white/20 space-y-0.5"
                           >
-                            {(item as any).subItems.map((subItem: { id: string; label: string; status: string }, subIdx: number) => (
-                              <motion.button
-                                key={subItem.id}
-                                initial={{ opacity: 0, x: -5 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: subIdx * 0.02 }}
-                                onClick={() => {
-                                  onSubItemClick?.(subItem.id);
-                                  toast.success(`Selected: ${subItem.label}`);
-                                }}
-                                className={cn(
-                                  "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all group",
-                                  "bg-white/5 hover:bg-white/15 border border-white/10 hover:border-white/20"
-                                )}
-                              >
-                                {/* Status indicator */}
-                                <div className="relative flex-shrink-0">
-                                  <div
+                            {module.categories.map((category, catIdx) => {
+                              const CategoryIcon = category.icon;
+                              const isCategoryExpanded = expandedCategories.has(category.id);
+                              const hasSubCategories = category.subCategories && category.subCategories.length > 0;
+                              
+                              // Check if any subcategory under this category is active
+                              const isCategoryActive = category.subCategories?.some(sub => sub.id === activeSubCategory);
+
+                              return (
+                                <motion.div
+                                  key={category.id}
+                                  initial={{ opacity: 0, x: -5 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: catIdx * 0.02 }}
+                                >
+                                  {/* Level 2: Category Button - ONLY EXPANDS, NO CONTENT LOAD */}
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      toggleCategoryExpansion(category.id);
+                                    }}
                                     className={cn(
-                                      "w-2.5 h-2.5 rounded-full",
-                                      subItem.status === "active" ? "bg-emerald-400" : "bg-white/40"
+                                      "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all relative ml-1",
+                                      isCategoryExpanded || isCategoryActive
+                                        ? "text-white font-medium bg-white/15"
+                                        : "text-white/80 hover:text-white hover:bg-white/10"
                                     )}
-                                  />
-                                  {subItem.status === "active" && (
-                                    <div className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping opacity-40" />
-                                  )}
-                                </div>
+                                  >
+                                    {/* Left indicator for active category */}
+                                    {isCategoryActive && (
+                                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-emerald-400 rounded-r-full" />
+                                    )}
+                                    <CategoryIcon className={cn("w-4 h-4 flex-shrink-0", isCategoryActive ? "text-emerald-300" : "text-white/70")} />
+                                    <span className={cn("text-xs truncate flex-1 text-left", isCategoryActive ? "font-semibold" : "font-medium")}>
+                                      {category.label}
+                                    </span>
+                                    {/* Chevron for categories with subcategories */}
+                                    {hasSubCategories && (
+                                      <motion.div
+                                        animate={{ rotate: isCategoryExpanded ? 90 : 0 }}
+                                        transition={{ duration: 0.15 }}
+                                      >
+                                        <ChevronRight className="w-3 h-3 text-white/60" />
+                                      </motion.div>
+                                    )}
+                                  </button>
+                                  
+                                  {/* LEVEL 3: SubCategories - THESE LOAD SCREENS */}
+                                  <AnimatePresence>
+                                    {isCategoryExpanded && hasSubCategories && (
+                                      <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: "auto" }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        transition={{ duration: 0.15 }}
+                                        className="mt-0.5 ml-4 border-l border-white/15 space-y-0.5"
+                                      >
+                                        {category.subCategories!.map((subCategory, subIdx) => {
+                                          const isSubCategoryActive = activeSubCategory === subCategory.id;
+                                          const isLocked = subCategory.status === 'locked';
 
-                                {/* Name */}
-                                <div className="flex-1 text-left min-w-0">
-                                  <span className="text-xs text-white/90 font-medium truncate block">
-                                    {subItem.label}
-                                  </span>
-                                </div>
-
-                                {/* Arrow */}
-                                <ChevronRight className="w-3 h-3 text-white/50 group-hover:text-white/80 transition-colors flex-shrink-0" />
-                              </motion.button>
-                            ))}
+                                          return (
+                                            <motion.button
+                                              key={subCategory.id}
+                                              initial={{ opacity: 0, x: -5 }}
+                                              animate={{ opacity: 1, x: 0 }}
+                                              transition={{ delay: subIdx * 0.015 }}
+                                              onClick={(e) => {
+                                                e.preventDefault();
+                                                if (!isLocked) {
+                                                  handleSubCategoryClick(subCategory.id, subCategory.label);
+                                                } else {
+                                                  toast.error('This feature is locked');
+                                                }
+                                              }}
+                                              disabled={isLocked}
+                                              className={cn(
+                                                "w-full flex items-center gap-2 px-3 py-1.5 rounded-md transition-all relative ml-1 group",
+                                                isSubCategoryActive
+                                                  ? "bg-white/25 text-white font-semibold"
+                                                  : isLocked
+                                                    ? "text-white/40 cursor-not-allowed"
+                                                    : "text-white/70 hover:text-white hover:bg-white/10"
+                                              )}
+                                            >
+                                              {/* Active indicator */}
+                                              {isSubCategoryActive && (
+                                                <motion.div 
+                                                  layoutId="subcategory-active"
+                                                  className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-3 bg-white rounded-r-full"
+                                                />
+                                              )}
+                                              {/* Status dot */}
+                                              <div className="relative flex-shrink-0">
+                                                <div
+                                                  className={cn(
+                                                    "w-2 h-2 rounded-full",
+                                                    isSubCategoryActive ? "bg-white" : 
+                                                    isLocked ? "bg-white/30" : "bg-emerald-400"
+                                                  )}
+                                                />
+                                                {!isLocked && !isSubCategoryActive && (
+                                                  <div className="absolute inset-0 w-2 h-2 rounded-full bg-emerald-400 animate-ping opacity-30" />
+                                                )}
+                                              </div>
+                                              <span className={cn("text-[11px] truncate flex-1 text-left", isSubCategoryActive ? "font-semibold" : "")}>
+                                                {subCategory.label}
+                                              </span>
+                                              {/* Arrow on hover */}
+                                              <ChevronRight className={cn(
+                                                "w-3 h-3 transition-opacity flex-shrink-0",
+                                                isSubCategoryActive ? "opacity-100 text-white" : "opacity-0 group-hover:opacity-100 text-white/50"
+                                              )} />
+                                            </motion.button>
+                                          );
+                                        })}
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
+                                </motion.div>
+                              );
+                            })}
                           </motion.div>
                         )}
                       </AnimatePresence>
