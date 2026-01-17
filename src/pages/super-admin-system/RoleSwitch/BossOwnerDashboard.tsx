@@ -7,7 +7,7 @@ import {
   Fingerprint, ShieldCheck, Ban, History, Download, Upload,
   Play, Pause, Square, RefreshCw, AlertOctagon, CreditCard,
   CalendarClock, Zap, Bug, Rocket, ShieldAlert, Scale,
-  Cpu, Radio, MoreHorizontal, Send, Brain, Lightbulb
+  Cpu, Radio, MoreHorizontal, Send, Brain, Lightbulb, Building2
 } from "lucide-react";
 import { PendingRequestsBanner } from "@/components/shared/PendingRequestsBanner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +23,7 @@ import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useCEOSuggestions } from "@/hooks/useCEOSuggestions";
+import { FranchiseIntelligenceCenter } from "@/components/franchise-intelligence";
 // LOCKED: Color System
 const COLORS = {
   background: '#0B0F1A',
@@ -98,6 +99,7 @@ const BossOwnerDashboard = ({ activeNav }: BossOwnerDashboardProps) => {
     const navToTabMap: Record<string, string> = {
       'dashboard': 'overview',
       'super-admins': 'super-admins',
+      'franchise-intel': 'franchise-intel',
       'roles': 'permissions',
       'modules': 'modules',
       'audit': 'blackbox',
@@ -551,6 +553,7 @@ const BossOwnerDashboard = ({ activeNav }: BossOwnerDashboardProps) => {
             {[
               { value: 'overview', label: 'Dashboard' },
               { value: 'super-admins', label: 'Super Admins' },
+              { value: 'franchise-intel', label: 'Franchise Intelligence' },
               { value: 'permissions', label: 'Roles & Permission Lock' },
               { value: 'modules', label: 'System Modules' },
               { value: 'blackbox', label: 'Audit & Blackbox' },
@@ -892,6 +895,11 @@ const BossOwnerDashboard = ({ activeNav }: BossOwnerDashboardProps) => {
                 </div>
               </ScrollArea>
             </div>
+          </TabsContent>
+
+          {/* Franchise Intelligence Tab */}
+          <TabsContent value="franchise-intel" className="h-[calc(100vh-280px)]">
+            <FranchiseIntelligenceCenter />
           </TabsContent>
 
           {/* Modules Tab */}
