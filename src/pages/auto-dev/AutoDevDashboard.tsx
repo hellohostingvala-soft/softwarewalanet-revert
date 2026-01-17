@@ -3,19 +3,24 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Mic, MicOff, Upload, FileText, Image, Video, Send, 
   Sparkles, Bot, Loader2, CheckCircle2, AlertCircle,
-  HelpCircle, Lightbulb, Play, Pause, RotateCcw
+  HelpCircle, Lightbulb, Play, Pause, RotateCcw, Layers
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { UniversalInputBox } from "@/components/auto-dev/UniversalInputBox";
 import { AIConversation } from "@/components/auto-dev/AIConversation";
 import { BuildProgress } from "@/components/auto-dev/BuildProgress";
 import { QuickActions } from "@/components/auto-dev/QuickActions";
 import { AutoDevHelp } from "@/components/auto-dev/AutoDevHelp";
+import { AIModelsPanel } from "@/components/auto-dev/AIModelsPanel";
+import { APIsPanel } from "@/components/auto-dev/APIsPanel";
+import { APKGeneratorPanel } from "@/components/auto-dev/APKGeneratorPanel";
+import { PlatformOutputPanel } from "@/components/auto-dev/PlatformOutputPanel";
 import { useEnterpriseAudit } from "@/hooks/useEnterpriseAudit";
 
 export type BuildStatus = 'idle' | 'understanding' | 'clarifying' | 'building' | 'testing' | 'deploying' | 'complete' | 'paused' | 'error';
@@ -238,7 +243,7 @@ const AutoDevDashboard = () => {
           />
         </div>
 
-        {/* Right Column - Build Progress & Help */}
+        {/* Right Column - Build Progress, AI Models, APIs, APK */}
         <div className="space-y-6">
           {/* Build Progress */}
           <BuildProgress 
@@ -248,6 +253,37 @@ const AutoDevDashboard = () => {
             onPause={handlePauseBuild}
             onResume={handleResumeBuild}
           />
+
+          {/* Extended Panels - Tabbed */}
+          <Tabs defaultValue="ai-models" className="w-full">
+            <TabsList className="grid w-full grid-cols-4 bg-slate-900/50">
+              <TabsTrigger value="ai-models" className="text-xs">AI Models</TabsTrigger>
+              <TabsTrigger value="apis" className="text-xs">APIs</TabsTrigger>
+              <TabsTrigger value="apk" className="text-xs">Mobile</TabsTrigger>
+              <TabsTrigger value="platforms" className="text-xs">Platforms</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="ai-models" className="mt-3">
+              <AIModelsPanel />
+            </TabsContent>
+            
+            <TabsContent value="apis" className="mt-3">
+              <APIsPanel />
+            </TabsContent>
+            
+            <TabsContent value="apk" className="mt-3">
+              <APKGeneratorPanel 
+                projectName={currentProject?.name}
+                onApprovalRequest={() => {
+                  toast.info('APK generation requires Boss approval');
+                }}
+              />
+            </TabsContent>
+            
+            <TabsContent value="platforms" className="mt-3">
+              <PlatformOutputPanel />
+            </TabsContent>
+          </Tabs>
 
           {/* Contextual Help */}
           <AnimatePresence>
@@ -273,20 +309,22 @@ const AutoDevDashboard = () => {
             <CardContent className="space-y-2">
               <p className="text-xs text-muted-foreground">
                 {buildStatus === 'idle' 
-                  ? 'Try saying: "Create a school management system"'
+                  ? 'Try: "Create school app" or "Make Android APK"'
                   : buildStatus === 'complete'
-                  ? 'Your software is live! Want to add more features?'
+                  ? 'Your software is live! Want to add more features or generate APK?'
                   : 'I\'m working on your request...'}
               </p>
               {buildStatus === 'idle' && (
                 <div className="flex flex-wrap gap-2 mt-3">
-                  {['Restaurant POS', 'CRM System', 'E-commerce', 'HR Portal'].map((suggestion) => (
+                  {['School System', 'E-commerce', 'Generate APK', 'Deploy Server'].map((suggestion) => (
                     <Button
                       key={suggestion}
                       variant="ghost"
                       size="sm"
                       className="text-xs bg-violet-500/10 hover:bg-violet-500/20 text-violet-300"
-                      onClick={() => handleUserInput(`Create a ${suggestion}`, 'text')}
+                      onClick={() => handleUserInput(suggestion.startsWith('Generate') || suggestion.startsWith('Deploy') 
+                        ? suggestion 
+                        : `Create a ${suggestion}`, 'text')}
                     >
                       {suggestion}
                     </Button>
