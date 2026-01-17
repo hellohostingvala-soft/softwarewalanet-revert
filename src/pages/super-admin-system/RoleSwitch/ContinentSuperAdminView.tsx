@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ContinentDashboard from "@/components/super-admin-wireframe/ContinentDashboard";
-import { AsiaSuperAdminDashboard } from "@/components/continent-dashboard";
+import { ContinentSuperAdminDashboard, getContinentConfig, CONTINENT_CONFIGS } from "@/components/continent-dashboard";
 
 // Country data for each continent
 const continentCountries: Record<string, { name: string; admin: string; status: string }[]> = {
@@ -344,34 +344,36 @@ const ContinentSuperAdminView = ({ activeNav = "dashboard", selectedSubItem }: C
   const [detailTab, setDetailTab] = useState("profile");
   const [showContinentDashboard, setShowContinentDashboard] = useState<string | null>(null);
 
-  // Map sub-item id to continent
-  const continentMap: Record<string, string> = {
-    "csa-asia": "Asia",
-    "csa-africa": "Africa",
-    "csa-europe": "Europe",
-    "csa-north-america": "North America",
-    "csa-south-america": "South America",
-    "csa-australia": "Australia/Oceania",
-    "csa-antarctica": "Antarctica"
+  // Map sub-item id to continent config key
+  const continentIdMap: Record<string, string> = {
+    "csa-asia": "asia",
+    "csa-africa": "africa",
+    "csa-europe": "europe",
+    "csa-north-america": "north_america",
+    "csa-south-america": "south_america",
+    "csa-australia": "oceania",
+    "csa-antarctica": "antarctica"
   };
 
   // Handle sub-item selection from sidebar - always update when selectedSubItem changes
   useEffect(() => {
     if (selectedSubItem) {
-      const continent = continentMap[selectedSubItem];
-      if (continent) {
-        setShowContinentDashboard(continent);
+      const continentId = continentIdMap[selectedSubItem];
+      if (continentId) {
+        setShowContinentDashboard(continentId);
       }
     }
   }, [selectedSubItem]);
 
   // Directly compute continent from selectedSubItem for immediate response
-  const currentContinent = selectedSubItem ? continentMap[selectedSubItem] : showContinentDashboard;
+  const currentContinentId = selectedSubItem ? continentIdMap[selectedSubItem] : showContinentDashboard;
 
-  // If Asia is selected, render the enhanced Asia dashboard
-  if (currentContinent === "Asia") {
+  // If any continent is selected (except Antarctica), render the unified continent dashboard
+  if (currentContinentId && currentContinentId !== "antarctica" && CONTINENT_CONFIGS[currentContinentId]) {
+    const config = getContinentConfig(currentContinentId);
     return (
-      <AsiaSuperAdminDashboard 
+      <ContinentSuperAdminDashboard 
+        config={config}
         onBack={() => {
           setShowContinentDashboard(null);
         }} 
@@ -786,9 +788,10 @@ const ContinentSuperAdminView = ({ activeNav = "dashboard", selectedSubItem }: C
     </div>
   );
 
-  // If a continent dashboard is selected from sidebar - use currentContinent for immediate response
-  if (currentContinent) {
-    return <ContinentDashboard continent={currentContinent} onBack={() => setShowContinentDashboard(null)} />;
+  // If a continent dashboard is selected from sidebar - use currentContinentId for immediate response
+  if (currentContinentId && currentContinentId !== "antarctica" && CONTINENT_CONFIGS[currentContinentId]) {
+    const config = getContinentConfig(currentContinentId);
+    return <ContinentSuperAdminDashboard config={config} onBack={() => setShowContinentDashboard(null)} />;
   }
 
   // If activeNav is "admins", show the registry view with the list
