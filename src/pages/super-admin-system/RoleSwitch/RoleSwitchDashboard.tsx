@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { SafeAssistTrigger } from "@/components/support/SafeAssistTrigger";
 import { useAuth } from "@/hooks/useAuth";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
+import { RouteNotFoundScreen, LoadingSkeleton } from "@/components/shared/RouteLoadingFallback";
 import promiseIcon from "@/assets/promise-icon.jpg";
 
 import RoleSwitchSidebar, { ActiveRole, roleConfigs } from "@/components/super-admin-wireframe/RoleSwitchSidebar";
@@ -169,17 +170,27 @@ const RoleSwitchDashboard = () => {
     }
   };
 
-  const handleRoleChange = (role: ActiveRole) => {
+  // STEP 6: Enhanced role change with full state reset
+  const handleRoleChange = useCallback((role: ActiveRole) => {
     // Check if user can access this view
     if (!canAccessView(role)) {
       toast.error("Access denied to this view");
       return;
     }
-    // NO REDIRECT - just switch the view in place
+    // Full state reset on role switch to prevent data bleed
     setActiveRole(role);
-    setActiveNav("dashboard"); // Reset nav when role changes
+    setActiveNav("dashboard");
+    setSelectedSubItem(undefined);
+    
+    // Clear URL nav param if any
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('nav')) {
+      url.searchParams.delete('nav');
+      window.history.replaceState({}, '', url.toString());
+    }
+    
     toast.success(`Switched to ${roleConfigs[role].label} view`);
-  };
+  }, [canAccessView]);
 
   const handleNavChange = useCallback((navId: string) => {
     setActiveNav(navId);
@@ -205,6 +216,15 @@ const RoleSwitchDashboard = () => {
   }, []);
 
   const currentConfig = roleConfigs[activeRole];
+
+  // STEP 6: Show loading screen while initializing to prevent blank page
+  if (loading || !initialized) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <LoadingSkeleton message="Initializing dashboard..." />
+      </div>
+    );
+  }
 
   const riskColors = {
     low: "bg-emerald-500/20 text-emerald-400 border-emerald-500/50",
@@ -252,16 +272,15 @@ const RoleSwitchDashboard = () => {
       case "product_manager":
         return <ProductManagerDashboard />;
       default:
-        // Fallback to prevent blank screen - use proper error UI
+        // STEP 6: Use shared fallback component to prevent blank screens
         return (
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="text-center p-8 bg-card/50 rounded-xl border border-border/50">
-              <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Dashboard Unavailable</h2>
-              <p className="text-muted-foreground mb-4">This role view is not configured or not available.</p>
-              <p className="text-xs text-muted-foreground">Error Code: 404-ROLE-VIEW-NOT-FOUND</p>
-            </div>
-          </div>
+          <RouteNotFoundScreen 
+            attemptedRoute={`Role: ${activeRole}`}
+            onGoBack={() => {
+              setActiveRole('boss_owner');
+              setActiveNav('dashboard');
+            }}
+          />
         );
     }
   };
