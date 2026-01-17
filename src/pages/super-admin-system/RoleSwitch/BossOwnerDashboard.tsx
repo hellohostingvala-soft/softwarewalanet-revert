@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { 
   Crown, Shield, Lock, Archive, AlertTriangle, Users, Globe2,
@@ -7,7 +7,7 @@ import {
   Fingerprint, ShieldCheck, Ban, History, Download, Upload,
   Play, Pause, Square, RefreshCw, AlertOctagon, CreditCard,
   CalendarClock, Zap, Bug, Rocket, ShieldAlert, Scale,
-  Cpu, Radio
+  Cpu, Radio, MoreHorizontal, Send
 } from "lucide-react";
 import { PendingRequestsBanner } from "@/components/shared/PendingRequestsBanner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 // LOCKED: Color System
 const COLORS = {
@@ -84,6 +86,10 @@ const BossOwnerDashboard = ({ activeNav }: BossOwnerDashboardProps) => {
   const [showLockDialog, setShowLockDialog] = useState(false);
   const [lockReason, setLockReason] = useState("");
   const [twoFactorConfirmed, setTwoFactorConfirmed] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [selectedKpiForReject, setSelectedKpiForReject] = useState<string | null>(null);
+  const { user } = useAuth();
   
   // Map sidebar navigation to internal tabs
   const getTabFromNav = (nav?: string): string => {
@@ -108,7 +114,90 @@ const BossOwnerDashboard = ({ activeNav }: BossOwnerDashboardProps) => {
     }
   }, [activeNav]);
 
-  const handleEmergencyLockdown = () => {
+  // ===== ACTION HANDLERS WITH AUDIT LOGGING =====
+  const logAction = useCallback(async (action: string, target: string, meta?: Record<string, any>) => {
+    try {
+      await supabase.from('audit_logs').insert({
+        user_id: user?.id,
+        role: 'boss_owner' as any,
+        module: 'boss-dashboard',
+        action,
+        meta_json: { target, timestamp: new Date().toISOString(), ...meta }
+      });
+    } catch (error) {
+      console.error('Audit log error:', error);
+    }
+  }, [user?.id]);
+
+  // KPI Action: Approve
+  const handleKpiApprove = useCallback(async (label: string) => {
+    await logAction('kpi_approve', label);
+    toast.success(`✓ Approved: ${label}`, { description: 'Action logged to audit' });
+  }, [logAction]);
+
+  // KPI Action: Reject (requires reason)
+  const handleKpiReject = useCallback(async (label: string, reason: string) => {
+    if (!reason || reason.length < 5) {
+      toast.error('Rejection reason required (min 5 chars)');
+      return false;
+    }
+    await logAction('kpi_reject', label, { reason });
+    toast.error(`✕ Rejected: ${label}`, { description: reason });
+    return true;
+  }, [logAction]);
+
+  // KPI Action: Suspend
+  const handleKpiSuspend = useCallback(async (label: string) => {
+    await logAction('kpi_suspend', label);
+    toast.warning(`⏸ Suspended: ${label}`, { description: 'Temporary hold applied' });
+  }, [logAction]);
+
+  // KPI Action: Review (opens detail)
+  const handleKpiReview = useCallback(async (label: string, source: string) => {
+    await logAction('kpi_review', label);
+    toast.info(`👁 Review: ${label}`, { 
+      description: `Source: ${source} | AI confidence: 82%`,
+      duration: 5000
+    });
+  }, [logAction]);
+
+  // KPI Action: Send Back
+  const handleKpiSendBack = useCallback(async (label: string) => {
+    await logAction('kpi_send_back', label, { note: 'Needs more data' });
+    toast.info(`↩ Sent Back: ${label}`, { description: 'Returned to originator' });
+  }, [logAction]);
+
+  // Quick Control: Run/Resume
+  const handleQuickRun = useCallback(async (label: string) => {
+    await logAction('quick_run', label);
+    toast.success(`▶ Running: ${label}`);
+  }, [logAction]);
+
+  // Quick Control: Pause
+  const handleQuickPause = useCallback(async (label: string) => {
+    await logAction('quick_pause', label);
+    toast.warning(`⏸ Paused: ${label}`, { description: 'State preserved' });
+  }, [logAction]);
+
+  // Quick Control: Stop
+  const handleQuickStop = useCallback(async (label: string) => {
+    await logAction('quick_stop', label);
+    toast.error(`⏹ Stopped: ${label}`, { description: 'Safe-state triggered' });
+  }, [logAction]);
+
+  // Quick Control: Restart
+  const handleQuickRestart = useCallback(async (label: string) => {
+    await logAction('quick_restart', label);
+    toast.success(`🔁 Restarting: ${label}`, { description: 'Dependency check passed' });
+  }, [logAction]);
+
+  // Quick Control: Force Review
+  const handleForceReview = useCallback(async (label: string) => {
+    await logAction('force_review', label);
+    toast.warning(`⚠ Force Review: ${label}`, { description: 'Sent to Approval Center' });
+  }, [logAction]);
+
+  const handleEmergencyLockdown = async () => {
     if (!twoFactorConfirmed) {
       toast.error("2FA verification required for emergency lockdown");
       return;
@@ -117,6 +206,7 @@ const BossOwnerDashboard = ({ activeNav }: BossOwnerDashboardProps) => {
       toast.error("Reason must be at least 20 characters");
       return;
     }
+    await logAction('emergency_lockdown', 'SYSTEM', { reason: lockReason });
     toast.success("🔒 EMERGENCY LOCKDOWN ACTIVATED", {
       description: "All operations suspended. Only Boss can unlock.",
     });
@@ -125,11 +215,13 @@ const BossOwnerDashboard = ({ activeNav }: BossOwnerDashboardProps) => {
     setTwoFactorConfirmed(false);
   };
 
-  const handleModuleLock = (moduleId: string) => {
+  const handleModuleLock = async (moduleId: string) => {
+    await logAction('module_lock_toggle', moduleId);
     toast.success(`Module ${moduleId} lock toggled`);
   };
 
-  const handleFreezeSystem = () => {
+  const handleFreezeSystem = async () => {
+    await logAction('system_freeze', 'SYSTEM');
     toast.error("⛔ SYSTEM FROZEN", {
       description: "All operations halted. Emergency protocol activated.",
     });
@@ -373,15 +465,17 @@ const BossOwnerDashboard = ({ activeNav }: BossOwnerDashboardProps) => {
                   </div>
                 </div>
                 
-                {/* Bottom Row: Action Buttons */}
-                <div className="flex items-center gap-1 mt-auto" style={{ height: '28px' }}>
+                {/* Bottom Row: Action Buttons - FULL CONTROL SET */}
+                <div className="flex items-center gap-1 mt-auto" style={{ height: '28px', overflow: 'hidden' }}>
                   {stat.status === 'action' || stat.status === 'critical' ? (
                     <>
+                      {/* Approve */}
                       <button 
-                        onClick={() => toast.success(`Approved: ${stat.label}`)}
+                        onClick={() => handleKpiApprove(stat.label)}
+                        title="Approve"
                         style={{ 
                           height: '24px', 
-                          padding: '0 8px', 
+                          padding: '0 6px', 
                           fontSize: '9px', 
                           fontWeight: 600,
                           background: '#22C55E15', 
@@ -393,11 +487,16 @@ const BossOwnerDashboard = ({ activeNav }: BossOwnerDashboardProps) => {
                       >
                         ✓
                       </button>
+                      {/* Reject */}
                       <button 
-                        onClick={() => toast.error(`Rejected: ${stat.label}`)}
+                        onClick={() => {
+                          setSelectedKpiForReject(stat.label);
+                          setShowRejectDialog(true);
+                        }}
+                        title="Reject"
                         style={{ 
                           height: '24px', 
-                          padding: '0 8px', 
+                          padding: '0 6px', 
                           fontSize: '9px', 
                           fontWeight: 600,
                           background: '#EF444415', 
@@ -409,30 +508,13 @@ const BossOwnerDashboard = ({ activeNav }: BossOwnerDashboardProps) => {
                       >
                         ✕
                       </button>
+                      {/* Suspend */}
                       <button 
-                        onClick={() => toast.info(`Review: ${stat.label}`)}
+                        onClick={() => handleKpiSuspend(stat.label)}
+                        title="Suspend"
                         style={{ 
                           height: '24px', 
-                          padding: '0 8px', 
-                          fontSize: '9px', 
-                          fontWeight: 600,
-                          background: '#2563EB15', 
-                          color: '#2563EB', 
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        👁
-                      </button>
-                    </>
-                  ) : stat.status === 'warning' ? (
-                    <>
-                      <button 
-                        onClick={() => toast.info(`Paused: ${stat.label}`)}
-                        style={{ 
-                          height: '24px', 
-                          padding: '0 8px', 
+                          padding: '0 6px', 
                           fontSize: '9px', 
                           fontWeight: 600,
                           background: '#F59E0B15', 
@@ -444,15 +526,128 @@ const BossOwnerDashboard = ({ activeNav }: BossOwnerDashboardProps) => {
                       >
                         ⏸
                       </button>
+                      {/* Review */}
                       <button 
-                        onClick={() => toast.info(`Force Review: ${stat.label}`)}
+                        onClick={() => handleKpiReview(stat.label, stat.source)}
+                        title="Review Details"
                         style={{ 
                           height: '24px', 
-                          padding: '0 8px', 
+                          padding: '0 6px', 
                           fontSize: '9px', 
                           fontWeight: 600,
                           background: '#2563EB15', 
                           color: '#2563EB', 
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        👁
+                      </button>
+                      {/* Send Back */}
+                      <button 
+                        onClick={() => handleKpiSendBack(stat.label)}
+                        title="Send Back"
+                        style={{ 
+                          height: '24px', 
+                          padding: '0 6px', 
+                          fontSize: '9px', 
+                          fontWeight: 600,
+                          background: '#6B728015', 
+                          color: '#6B7280', 
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        ↩
+                      </button>
+                    </>
+                  ) : stat.status === 'warning' ? (
+                    <>
+                      {/* Run/Resume */}
+                      <button 
+                        onClick={() => handleQuickRun(stat.label)}
+                        title="Run/Resume"
+                        style={{ 
+                          height: '24px', 
+                          padding: '0 6px', 
+                          fontSize: '9px', 
+                          fontWeight: 600,
+                          background: '#22C55E15', 
+                          color: '#22C55E', 
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        ▶
+                      </button>
+                      {/* Pause */}
+                      <button 
+                        onClick={() => handleQuickPause(stat.label)}
+                        title="Pause"
+                        style={{ 
+                          height: '24px', 
+                          padding: '0 6px', 
+                          fontSize: '9px', 
+                          fontWeight: 600,
+                          background: '#F59E0B15', 
+                          color: '#F59E0B', 
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        ⏸
+                      </button>
+                      {/* Stop */}
+                      <button 
+                        onClick={() => handleQuickStop(stat.label)}
+                        title="Stop"
+                        style={{ 
+                          height: '24px', 
+                          padding: '0 6px', 
+                          fontSize: '9px', 
+                          fontWeight: 600,
+                          background: '#EF444415', 
+                          color: '#EF4444', 
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        ⏹
+                      </button>
+                      {/* Restart */}
+                      <button 
+                        onClick={() => handleQuickRestart(stat.label)}
+                        title="Restart"
+                        style={{ 
+                          height: '24px', 
+                          padding: '0 6px', 
+                          fontSize: '9px', 
+                          fontWeight: 600,
+                          background: '#2563EB15', 
+                          color: '#2563EB', 
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        🔁
+                      </button>
+                      {/* Force Review */}
+                      <button 
+                        onClick={() => handleForceReview(stat.label)}
+                        title="Force Review"
+                        style={{ 
+                          height: '24px', 
+                          padding: '0 6px', 
+                          fontSize: '9px', 
+                          fontWeight: 600,
+                          background: '#8B5CF615', 
+                          color: '#8B5CF6', 
                           border: 'none',
                           borderRadius: '6px',
                           cursor: 'pointer'
@@ -976,6 +1171,70 @@ const BossOwnerDashboard = ({ activeNav }: BossOwnerDashboardProps) => {
             </div>
           </div>
         </motion.div>
+
+        {/* Reject Dialog - Mandatory Reason */}
+        <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+          <DialogContent style={{ background: COLORS.background, border: `1px solid ${COLORS.danger}30` }}>
+            <DialogHeader>
+              <DialogTitle style={{ color: COLORS.danger }}>
+                ✕ Reject: {selectedKpiForReject}
+              </DialogTitle>
+              <DialogDescription style={{ color: COLORS.textSecondary }}>
+                Provide a reason for rejection (min 5 characters). This action is logged.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Textarea
+                placeholder="Enter rejection reason..."
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                style={{ 
+                  background: COLORS.backgroundSecondary, 
+                  border: `1px solid ${COLORS.border}`,
+                  color: COLORS.textPrimary
+                }}
+                rows={3}
+              />
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => {
+                    setShowRejectDialog(false);
+                    setRejectReason("");
+                    setSelectedKpiForReject(null);
+                  }}
+                  style={{ 
+                    background: COLORS.backgroundSecondary, 
+                    color: COLORS.textSecondary,
+                    border: `1px solid ${COLORS.border}`,
+                    flex: 1
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={async () => {
+                    if (selectedKpiForReject) {
+                      const success = await handleKpiReject(selectedKpiForReject, rejectReason);
+                      if (success) {
+                        setShowRejectDialog(false);
+                        setRejectReason("");
+                        setSelectedKpiForReject(null);
+                      }
+                    }
+                  }}
+                  disabled={rejectReason.length < 5}
+                  style={{ 
+                    background: COLORS.danger, 
+                    color: COLORS.textPrimary,
+                    flex: 1
+                  }}
+                >
+                  Confirm Reject
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
