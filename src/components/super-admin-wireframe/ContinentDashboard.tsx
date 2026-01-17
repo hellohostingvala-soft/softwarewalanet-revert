@@ -37,6 +37,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import CountryAdminDashboard from "./CountryAdminDashboard";
+import { CountryLiveMapDashboard } from "@/components/country-dashboard";
 
 export interface CountryData {
   id: string;
@@ -253,21 +254,19 @@ const ContinentDashboard = ({ continent, onBack }: ContinentDashboardProps) => {
     );
   }
 
-  // If viewing a country admin dashboard, render it
+  // If viewing a country admin dashboard, render the live map
   if (viewingCountryAdmin) {
     return (
-      <CountryAdminDashboard 
-        country={viewingCountryAdmin} 
+      <CountryLiveMapDashboard 
+        countryCode={viewingCountryAdmin.id}
+        countryName={viewingCountryAdmin.name}
         continent={continent} 
         onBack={() => setViewingCountryAdmin(null)} 
       />
     );
   }
 
-  const filteredCountries = useMemo(() => {
-    if (statusFilter === "all") return config.countries;
-    return config.countries.filter(c => c.status === statusFilter);
-  }, [statusFilter, config.countries]);
+  const filteredCountries = config ? (statusFilter === "all" ? config.countries : config.countries.filter(c => c.status === statusFilter)) : [];
 
   const countriesWithFranchise = config.countries.filter(c => c.hasFranchise).length;
   const totalFranchises = config.countries.reduce((sum, c) => sum + c.franchises, 0);
