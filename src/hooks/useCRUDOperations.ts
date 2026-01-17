@@ -23,7 +23,7 @@ interface QueryOptions {
 }
 
 export function useCRUDOperations({ table, entityType, primaryKey = 'id', softDeleteField = 'status' }: CRUDOptions) {
-  const { logToAudit, userId, userRole } = useGlobalActions();
+  const { logToAudit } = useGlobalActions();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,16 +36,17 @@ export function useCRUDOperations({ table, entityType, primaryKey = 'id', softDe
     try {
       toast.loading(`Creating ${entityType}...`, { id: toastId });
       
-      const { data: result, error: dbError } = await supabase
-        .from(table)
+      // Use type assertion to bypass strict table typing for generic CRUD
+      const { data: result, error: dbError } = await (supabase
+        .from(table as any)
         .insert(data)
         .select()
-        .single();
+        .single() as any);
 
       if (dbError) throw dbError;
 
       await logToAudit('create_success', entityType, {
-        recordId: result[primaryKey],
+        recordId: result?.[primaryKey],
         data: Object.keys(data),
       });
 
@@ -68,11 +69,11 @@ export function useCRUDOperations({ table, entityType, primaryKey = 'id', softDe
     setError(null);
     
     try {
-      const { data: result, error: dbError } = await supabase
-        .from(table)
+      const { data: result, error: dbError } = await (supabase
+        .from(table as any)
         .select('*')
         .eq(primaryKey, id)
-        .single();
+        .single() as any);
 
       if (dbError) throw dbError;
 
@@ -93,7 +94,7 @@ export function useCRUDOperations({ table, entityType, primaryKey = 'id', softDe
     setError(null);
     
     try {
-      let query = supabase.from(table).select('*');
+      let query = supabase.from(table as any).select('*') as any;
 
       // Apply filters
       if (options?.filters) {
@@ -148,18 +149,18 @@ export function useCRUDOperations({ table, entityType, primaryKey = 'id', softDe
       toast.loading(`Updating ${entityType}...`, { id: toastId });
 
       // Get current state for audit
-      const { data: oldData } = await supabase
-        .from(table)
+      const { data: oldData } = await (supabase
+        .from(table as any)
         .select('*')
         .eq(primaryKey, id)
-        .single();
+        .single() as any);
 
-      const { data: result, error: dbError } = await supabase
-        .from(table)
+      const { data: result, error: dbError } = await (supabase
+        .from(table as any)
         .update({ ...data, updated_at: new Date().toISOString() })
         .eq(primaryKey, id)
         .select()
-        .single();
+        .single() as any);
 
       if (dbError) throw dbError;
 
@@ -194,18 +195,18 @@ export function useCRUDOperations({ table, entityType, primaryKey = 'id', softDe
 
       if (hard) {
         // Hard delete
-        const { error: dbError } = await supabase
-          .from(table)
+        const { error: dbError } = await (supabase
+          .from(table as any)
           .delete()
-          .eq(primaryKey, id);
+          .eq(primaryKey, id) as any);
 
         if (dbError) throw dbError;
       } else {
-        // Soft delete
-        const { error: dbError } = await supabase
-          .from(table)
-          .update({ [softDeleteField]: 'archived', deleted_at: new Date().toISOString() })
-          .eq(primaryKey, id);
+        // Soft delete - update status field only
+        const { error: dbError } = await (supabase
+          .from(table as any)
+          .update({ [softDeleteField]: 'archived' })
+          .eq(primaryKey, id) as any);
 
         if (dbError) throw dbError;
       }
