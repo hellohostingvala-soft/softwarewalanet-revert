@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
@@ -9,6 +9,8 @@ import {
   ArrowUpRight, ArrowDownRight, Flame, Snowflake,
   UserPlus, GitMerge, BarChart3, Zap, Inbox, Filter, Share2
 } from "lucide-react";
+import { toast } from "sonner";
+import { useSystemActions } from "@/hooks/useSystemActions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -163,6 +165,7 @@ const activityLogs = [
 ];
 
 const LeadManagerView = () => {
+  const { actions, executeAction } = useSystemActions();
   const [selectedManager, setSelectedManager] = useState<typeof leadManagersData[0] | null>(null);
   const [detailPanelOpen, setDetailPanelOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -176,6 +179,93 @@ const LeadManagerView = () => {
     const micro = sub?.micros?.[0];
     return sub && micro ? [`${sub.name}-${micro.name}`] : [];
   });
+
+  // ===== ACTION HANDLERS =====
+  const handleViewAllLeads = useCallback(() => {
+    if (!selectedManager) return;
+    actions.read('lead', 'leads', selectedManager.id, selectedManager.name);
+  }, [selectedManager, actions]);
+
+  const handleAssignLead = useCallback(() => {
+    if (!selectedManager) return;
+    executeAction({
+      module: 'lead',
+      action: 'assign',
+      entityType: 'lead',
+      entityId: selectedManager.id,
+      entityName: selectedManager.name,
+      successMessage: 'Lead assigned successfully'
+    });
+  }, [selectedManager, executeAction]);
+
+  const handleReassignLead = useCallback(() => {
+    if (!selectedManager) return;
+    executeAction({
+      module: 'lead',
+      action: 'reassign',
+      entityType: 'lead',
+      entityId: selectedManager.id,
+      entityName: selectedManager.name,
+      successMessage: 'Lead reassigned successfully'
+    });
+  }, [selectedManager, executeAction]);
+
+  const handleUpdateStatus = useCallback(() => {
+    if (!selectedManager) return;
+    actions.update('lead', 'manager_status', selectedManager.id, {}, selectedManager.name);
+  }, [selectedManager, actions]);
+
+  const handleMarkHot = useCallback(() => {
+    if (!selectedManager) return;
+    executeAction({
+      module: 'lead',
+      action: 'update',
+      entityType: 'lead_priority',
+      entityId: selectedManager.id,
+      entityName: selectedManager.name,
+      data: { priority: 'hot' },
+      successMessage: 'Lead marked as HOT'
+    });
+  }, [selectedManager, executeAction]);
+
+  const handleMarkCold = useCallback(() => {
+    if (!selectedManager) return;
+    executeAction({
+      module: 'lead',
+      action: 'update',
+      entityType: 'lead_priority',
+      entityId: selectedManager.id,
+      entityName: selectedManager.name,
+      data: { priority: 'cold' },
+      successMessage: 'Lead marked as COLD'
+    });
+  }, [selectedManager, executeAction]);
+
+  const handleCloseLead = useCallback(() => {
+    if (!selectedManager) return;
+    executeAction({
+      module: 'lead',
+      action: 'update',
+      entityType: 'lead_status',
+      entityId: selectedManager.id,
+      entityName: selectedManager.name,
+      data: { status: 'closed' },
+      successMessage: 'Lead closed successfully'
+    });
+  }, [selectedManager, executeAction]);
+
+  const handleSuspend = useCallback(() => {
+    if (!selectedManager) return;
+    actions.suspend('lead', 'lead_manager', selectedManager.id, selectedManager.name);
+  }, [selectedManager, actions]);
+
+  const handleRefresh = useCallback(() => {
+    actions.refresh('lead', 'lead_managers');
+  }, [actions]);
+
+  const handleLiveMode = useCallback(() => {
+    toast.success('Live Mode activated', { description: 'Real-time updates enabled' });
+  }, []);
 
   const toggleSub = (subName: string) => {
     setExpandedSubs(prev => 
@@ -240,11 +330,11 @@ const LeadManagerView = () => {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Button variant="outline" size="sm" className="gap-2">
+                <Button variant="outline" size="sm" className="gap-2" onClick={handleRefresh}>
                   <RefreshCw className="w-4 h-4" />
                   Refresh
                 </Button>
-                <Button size="sm" className="gap-2 bg-gradient-to-r from-violet-500 to-purple-600">
+                <Button size="sm" className="gap-2 bg-gradient-to-r from-violet-500 to-purple-600" onClick={handleLiveMode}>
                   <Activity className="w-4 h-4" />
                   Live Mode
                 </Button>
@@ -649,35 +739,35 @@ const LeadManagerView = () => {
                     Actions
                   </h3>
                   <div className="grid grid-cols-2 gap-2">
-                    <Button variant="outline" size="sm" className="gap-2 justify-start">
+                    <Button variant="outline" size="sm" className="gap-2 justify-start" onClick={handleViewAllLeads}>
                       <Eye className="w-4 h-4" />
                       View All Leads
                     </Button>
-                    <Button variant="outline" size="sm" className="gap-2 justify-start">
+                    <Button variant="outline" size="sm" className="gap-2 justify-start" onClick={handleAssignLead}>
                       <UserPlus className="w-4 h-4" />
                       Assign Lead
                     </Button>
-                    <Button variant="outline" size="sm" className="gap-2 justify-start">
+                    <Button variant="outline" size="sm" className="gap-2 justify-start" onClick={handleReassignLead}>
                       <ArrowUpRight className="w-4 h-4" />
                       Reassign Lead
                     </Button>
-                    <Button variant="outline" size="sm" className="gap-2 justify-start">
+                    <Button variant="outline" size="sm" className="gap-2 justify-start" onClick={handleUpdateStatus}>
                       <Activity className="w-4 h-4" />
                       Update Status
                     </Button>
-                    <Button variant="outline" size="sm" className="gap-2 justify-start text-orange-400">
+                    <Button variant="outline" size="sm" className="gap-2 justify-start text-orange-400" onClick={handleMarkHot}>
                       <Flame className="w-4 h-4" />
                       Mark Hot
                     </Button>
-                    <Button variant="outline" size="sm" className="gap-2 justify-start text-blue-400">
+                    <Button variant="outline" size="sm" className="gap-2 justify-start text-blue-400" onClick={handleMarkCold}>
                       <Snowflake className="w-4 h-4" />
                       Mark Cold
                     </Button>
-                    <Button variant="outline" size="sm" className="gap-2 justify-start text-emerald-400">
+                    <Button variant="outline" size="sm" className="gap-2 justify-start text-emerald-400" onClick={handleCloseLead}>
                       <CheckCircle className="w-4 h-4" />
                       Close Lead
                     </Button>
-                    <Button variant="outline" size="sm" className="gap-2 justify-start text-red-400">
+                    <Button variant="outline" size="sm" className="gap-2 justify-start text-red-400" onClick={handleSuspend}>
                       <Ban className="w-4 h-4" />
                       Suspend
                     </Button>
