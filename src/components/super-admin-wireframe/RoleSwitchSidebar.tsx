@@ -241,6 +241,7 @@ const roleNavItems: Record<ActiveRole, Array<{ id: string; label: string; icon: 
   boss_owner: [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "super-admins", label: "Super Admins", icon: Users },
+    { id: "franchise-intel", label: "Franchise Intelligence", icon: Building2 },
     { id: "roles", label: "Roles & Permissions", icon: Key },
     { id: "modules", label: "System Modules", icon: Cpu },
     { id: "audit", label: "Audit & Blackbox", icon: Database },

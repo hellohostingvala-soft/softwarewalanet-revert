@@ -29,10 +29,10 @@ const menuItems = [
   { id: "performance", label: "Performance Manager", icon: BarChart3, path: "/performance", active: true },
   { id: "client-success", label: "Client Success", icon: Heart, path: "/client-success" },
   { id: "rnd", label: "R&D", icon: Lightbulb, path: "/rnd-dashboard" },
-  { id: "finance", label: "Finance", icon: DollarSign, path: "#" },
-  { id: "wallet", label: "Wallet", icon: Wallet, path: "#" },
-  { id: "notifications", label: "Notifications", icon: Bell, path: "#", badge: 4 },
-  { id: "profile", label: "Profile", icon: User, path: "#" },
+  { id: "finance", label: "Finance", icon: DollarSign, path: "/finance" },
+  { id: "wallet", label: "Wallet", icon: Wallet, path: "/wallet" },
+  { id: "notifications", label: "Notifications", icon: Bell, path: "/notifications", badge: 4 },
+  { id: "profile", label: "Profile", icon: User, path: "/profile" },
 ];
 
 export const PerformanceSidebar = () => {
@@ -84,7 +84,14 @@ export const PerformanceSidebar = () => {
           return (
             <motion.button
               key={item.id}
-              onClick={() => item.path !== "#" && navigate(item.path)}
+              onClick={() => {
+                if (item.path && item.path !== "#") {
+                  navigate(item.path);
+                } else {
+                  toast.info(`${item.label} module`, { description: 'Navigating to module...' });
+                  navigate(`/${item.id}`);
+                }
+              }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all ${
                 isActive 
                   ? "bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 text-white border border-cyan-500/50" 
