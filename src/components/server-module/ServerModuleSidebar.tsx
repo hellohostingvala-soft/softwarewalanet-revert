@@ -1,13 +1,14 @@
 /**
  * SERVER MODULE SIDEBAR
  * Ultra-simple sidebar with exactly 9 items as specified
+ * Includes Back to Boss button for navigation
  */
 
 import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, Plus, Server, Activity, Shield, 
-  Database, FileText, Brain, Settings 
+  Database, FileText, Brain, Settings, ArrowLeft 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -25,6 +26,7 @@ export type ServerModuleSection =
 interface ServerModuleSidebarProps {
   activeSection: ServerModuleSection;
   onSectionChange: (section: ServerModuleSection) => void;
+  onBack?: () => void;
 }
 
 const sidebarItems: { id: ServerModuleSection; label: string; icon: React.ElementType }[] = [
@@ -42,9 +44,25 @@ const sidebarItems: { id: ServerModuleSection; label: string; icon: React.Elemen
 export const ServerModuleSidebar: React.FC<ServerModuleSidebarProps> = ({
   activeSection,
   onSectionChange,
+  onBack,
 }) => {
   return (
     <div className="w-56 bg-card/50 border-r border-border/50 flex flex-col">
+      {/* Back Button */}
+      {onBack && (
+        <div className="p-2 border-b border-border/50">
+          <motion.button
+            onClick={onBack}
+            whileHover={{ x: -2 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Boss</span>
+          </motion.button>
+        </div>
+      )}
+      
       {/* Header */}
       <div className="p-4 border-b border-border/50">
         <div className="flex items-center gap-2">

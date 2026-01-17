@@ -1,12 +1,12 @@
 /**
  * LEAD MODULE SIDEBAR (Step 9)
- * 10-item sidebar: Dashboard, All Leads, Lead Sources, Country View, Lead Scoring, Assignments, Follow-ups, Conversions, Reports, Settings
+ * 10-item sidebar with Back to Boss button
  */
 import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, Users, Radio, Globe, Target,
-  UserCheck, PhoneCall, TrendingUp, BarChart3, Settings
+  UserCheck, PhoneCall, TrendingUp, BarChart3, Settings, ArrowLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -26,6 +26,7 @@ export type LeadSection =
 interface LeadModuleSidebarProps {
   activeSection: LeadSection;
   onSectionChange: (section: LeadSection) => void;
+  onBack?: () => void;
 }
 
 const menuItems: { id: LeadSection; label: string; icon: React.ElementType }[] = [
@@ -44,9 +45,25 @@ const menuItems: { id: LeadSection; label: string; icon: React.ElementType }[] =
 export const LeadModuleSidebar: React.FC<LeadModuleSidebarProps> = ({
   activeSection,
   onSectionChange,
+  onBack,
 }) => {
   return (
     <div className="w-56 bg-card/50 border-r border-border/50 flex flex-col h-full">
+      {/* Back Button */}
+      {onBack && (
+        <div className="p-2 border-b border-border/50">
+          <motion.button
+            onClick={onBack}
+            whileHover={{ x: -2 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Boss</span>
+          </motion.button>
+        </div>
+      )}
+      
       <div className="p-4 border-b border-border/50">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">

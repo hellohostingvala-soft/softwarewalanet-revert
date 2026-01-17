@@ -1,7 +1,7 @@
 /**
  * DEVELOPMENT MODULE SIDEBAR
  * Strict sidebar for Development Management
- * 10 items only as per specification
+ * 10 items with Back to Boss button
  */
 
 import React from 'react';
@@ -16,7 +16,8 @@ import {
   CloudUpload, 
   GitBranch, 
   FileText, 
-  Settings 
+  Settings,
+  ArrowLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -35,6 +36,7 @@ export type DevSection =
 interface DevModuleSidebarProps {
   activeSection: DevSection;
   onSectionChange: (section: DevSection) => void;
+  onBack?: () => void;
 }
 
 const sidebarItems: { id: DevSection; label: string; icon: React.ElementType }[] = [
@@ -53,9 +55,25 @@ const sidebarItems: { id: DevSection; label: string; icon: React.ElementType }[]
 export const DevModuleSidebar: React.FC<DevModuleSidebarProps> = ({
   activeSection,
   onSectionChange,
+  onBack,
 }) => {
   return (
     <div className="w-56 bg-card/50 border-r border-border/50 h-full flex flex-col">
+      {/* Back Button */}
+      {onBack && (
+        <div className="p-2 border-b border-border/50">
+          <motion.button
+            onClick={onBack}
+            whileHover={{ x: -2 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Boss</span>
+          </motion.button>
+        </div>
+      )}
+      
       <div className="p-4 border-b border-border/50">
         <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <Code className="w-4 h-4 text-primary" />

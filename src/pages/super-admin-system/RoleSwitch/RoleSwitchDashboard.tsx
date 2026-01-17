@@ -437,65 +437,73 @@ const RoleSwitchDashboard = () => {
           </motion.div>
         </div>
       </header>
-
       {/* Main Content Area */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Role Switch Sidebar */}
-        <RoleSwitchSidebar
-          activeRole={activeRole}
-          onRoleChange={handleRoleChange}
-          collapsed={collapsed}
-          onToggleCollapse={() => setCollapsed(!collapsed)}
-          onLogout={handleLogout}
-          activeNav={activeNav}
-          onNavChange={handleNavChange}
-          onSubItemClick={(subItemId) => setSelectedSubItem(subItemId)}
-        />
+      {(() => {
+        // STEP 1 FIX: Detect module views that have their own sidebar
+        const moduleViewIds = ['server-control', 'dev-control', 'product-demo', 'leads', 'marketing'];
+        const isModuleView = activeRole === 'boss_owner' && moduleViewIds.includes(activeNav);
+        
+        return (
+          <div className="flex-1 flex overflow-hidden">
+            {/* Role Switch Sidebar - HIDDEN when inside module view to prevent double sidebar */}
+            {!isModuleView && (
+              <RoleSwitchSidebar
+                activeRole={activeRole}
+                onRoleChange={handleRoleChange}
+                collapsed={collapsed}
+                onToggleCollapse={() => setCollapsed(!collapsed)}
+                onLogout={handleLogout}
+                activeNav={activeNav}
+                onNavChange={handleNavChange}
+                onSubItemClick={(subItemId) => setSelectedSubItem(subItemId)}
+              />
+            )}
 
-        {/* Dynamic Role View - FORCE FIX: height 100%, overflow auto, no blank areas */}
-        <main className="flex-1 overflow-auto" style={{ minHeight: 0, height: '100%' }}>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeRole}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-              className="h-full min-h-full"
-              style={{ height: '100%', minHeight: '100%' }}
-            >
-              <ErrorBoundary
-                onError={(error) => {
-                  // Never allow a crash to become a blank screen
-                  console.error("Role dashboard crashed", { role: activeRole, error });
-                  toast.error("Dashboard failed to load", {
-                    description: "Something went wrong while opening this role.",
-                  });
-                }}
-                fallback={
-                  <div className="flex items-center justify-center min-h-[60vh]">
-                    <div className="text-center p-8 bg-card/50 rounded-xl border border-border/50 max-w-md">
-                      <Shield className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
-                      <p className="text-muted-foreground mb-6">This dashboard failed to render. You can retry or switch roles.</p>
-                      <div className="flex items-center justify-center gap-3">
-                        <Button variant="outline" onClick={() => window.location.reload()}>
-                          Reload dashboard
-                        </Button>
-                        <Button onClick={() => navigate("/super-admin-system/role-switch", { replace: true })}>
-                          Back to Role Switch
-                        </Button>
+            {/* Dynamic Role View */}
+            <main className="flex-1 overflow-auto" style={{ minHeight: 0, height: '100%' }}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`${activeRole}-${activeNav}`}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.2 }}
+                  className="h-full min-h-full"
+                  style={{ height: '100%', minHeight: '100%' }}
+                >
+                  <ErrorBoundary
+                    onError={(error) => {
+                      console.error("Role dashboard crashed", { role: activeRole, error });
+                      toast.error("Dashboard failed to load", {
+                        description: "Something went wrong while opening this role.",
+                      });
+                    }}
+                    fallback={
+                      <div className="flex items-center justify-center min-h-[60vh]">
+                        <div className="text-center p-8 bg-card/50 rounded-xl border border-border/50 max-w-md">
+                          <Shield className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                          <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
+                          <p className="text-muted-foreground mb-6">This dashboard failed to render. You can retry or switch roles.</p>
+                          <div className="flex items-center justify-center gap-3">
+                            <Button variant="outline" onClick={() => window.location.reload()}>
+                              Reload dashboard
+                            </Button>
+                            <Button onClick={() => navigate("/super-admin-system/role-switch", { replace: true })}>
+                              Back to Role Switch
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                }
-              >
-                {renderRoleView()}
-              </ErrorBoundary>
-            </motion.div>
-          </AnimatePresence>
-        </main>
-      </div>
+                    }
+                  >
+                    {renderRoleView()}
+                  </ErrorBoundary>
+                </motion.div>
+              </AnimatePresence>
+            </main>
+          </div>
+        );
+      })()}
 
       {/* FOOTER */}
       <footer className={cn(
