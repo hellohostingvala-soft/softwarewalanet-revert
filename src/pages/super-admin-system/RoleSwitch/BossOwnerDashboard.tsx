@@ -33,6 +33,8 @@ import { DevModuleContainer } from "@/components/development-module/DevModuleCon
 import { ProductDemoModuleContainer } from "@/components/product-demo-module/ProductDemoModuleContainer";
 import { LeadModuleContainer } from "@/components/lead-module/LeadModuleContainer";
 import { MarketingModuleContainer } from "@/components/marketing-module/MarketingModuleContainer";
+// Route fallback components
+import { ComingSoonScreen, ContentSkeleton } from "@/components/shared/RouteLoadingFallback";
 // BRAND THEME: Blue Primary + Red Accent (from Software Vala Logo)
 // All colors use CSS variables for consistency across the app
 const COLORS = {
@@ -119,29 +121,43 @@ const BossOwnerDashboard = ({ activeNav }: BossOwnerDashboardProps) => {
   const isModuleView = activeNav && activeNav in moduleRoutes;
   
   // Map sidebar navigation to internal tabs (for non-module views)
-  // STEP 5: Extended mapping to handle all boss sidebar items
+  // STEP 6: Comprehensive mapping - ALL boss_owner nav items mapped
   const getTabFromNav = (nav?: string): string => {
     const navToTabMap: Record<string, string> = {
+      // Primary dashboard
       'dashboard': 'overview',
-      'super-admins': 'super-admins',
-      'franchise-intel': 'franchise-intel',
-      'roles': 'permissions',
-      'modules': 'modules',
-      'audit': 'blackbox',
-      'security': 'security',
-      'settings': 'overview',
-      // Additional mappings for boss sidebar items
+      
+      // Boss control items (mapped to tab names)
       'approvals': 'approvals',
       'franchise-control': 'franchise-control',
       'reseller-control': 'reseller-control',
       'finance': 'finance',
       'support-overview': 'support-overview',
+      'security': 'security',
+      'settings': 'settings',
+      
+      // Legacy mappings
+      'super-admins': 'super-admins',
+      'franchise-intel': 'franchise-intel',
+      'roles': 'permissions',
+      'modules': 'modules',
+      'audit': 'blackbox',
     };
-    return navToTabMap[nav || 'dashboard'] || 'coming-soon';
+    return navToTabMap[nav || 'dashboard'] || nav || 'overview';
   };
   
-  // Check if current nav item has a "coming soon" placeholder
-  const isComingSoon = activeNav && !['dashboard', 'super-admins', 'franchise-intel', 'roles', 'modules', 'audit', 'security', 'settings', 'approvals', 'franchise-control', 'reseller-control', 'finance', 'support-overview'].includes(activeNav) && !isModuleView;
+  // STEP 6: Define which nav items are implemented vs coming soon
+  const implementedNavItems = [
+    'dashboard', 'approvals', 'security', 'settings',
+    // Module views (handled separately)
+    'server-control', 'dev-control', 'product-demo', 'leads', 'marketing',
+    // Tab-based views
+    'franchise-control', 'reseller-control', 'finance', 'support-overview',
+    'super-admins', 'franchise-intel', 'roles', 'modules', 'audit'
+  ];
+  
+  // Check if current nav item is "coming soon"
+  const isComingSoon = activeNav && !implementedNavItems.includes(activeNav) && !isModuleView;
   
   const [activeTab, setActiveTab] = useState(getTabFromNav(activeNav));
   
@@ -306,47 +322,14 @@ const BossOwnerDashboard = ({ activeNav }: BossOwnerDashboardProps) => {
     }
   };
 
-  // STEP 5: Coming Soon placeholder for unimplemented routes
-  if (isComingSoon) {
+  // STEP 6: Use shared Coming Soon component for unimplemented routes
+  if (isComingSoon && activeNav) {
+    const formattedName = activeNav.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     return (
-      <div 
-        className="min-h-full w-full flex items-center justify-center"
-        style={{ background: COLORS.background }}
-      >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center p-12 max-w-md"
-        >
-          <div 
-            className="w-24 h-24 mx-auto mb-6 rounded-2xl flex items-center justify-center"
-            style={{ 
-              background: `linear-gradient(135deg, ${COLORS.brand}30, ${COLORS.brand}10)`,
-              border: `1px solid ${COLORS.brand}40`
-            }}
-          >
-            <Rocket className="w-12 h-12" style={{ color: COLORS.brand }} />
-          </div>
-          <h2 className="text-2xl font-bold mb-2" style={{ color: COLORS.textPrimary }}>
-            Coming Soon
-          </h2>
-          <p className="text-base mb-6" style={{ color: COLORS.textSecondary }}>
-            The <span className="font-semibold" style={{ color: COLORS.brand }}>{activeNav?.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span> feature is currently under development.
-          </p>
-          <div 
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg"
-            style={{ 
-              background: 'rgba(37, 99, 235, 0.15)', 
-              border: `1px solid rgba(37, 99, 235, 0.3)` 
-            }}
-          >
-            <Activity className="w-4 h-4" style={{ color: COLORS.brand }} />
-            <span className="text-sm font-medium" style={{ color: COLORS.brand }}>
-              Development in Progress
-            </span>
-          </div>
-        </motion.div>
-      </div>
+      <ComingSoonScreen 
+        featureName={formattedName}
+        description="feature is currently under development."
+      />
     );
   }
 
