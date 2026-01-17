@@ -19,7 +19,8 @@ export type AuditModule =
   | 'data_protection'
   | 'system'
   | 'vala_builder'
-  | 'server_orchestration';
+  | 'server_orchestration'
+  | 'validation';
 
 export interface AuditEntry {
   action: string;
