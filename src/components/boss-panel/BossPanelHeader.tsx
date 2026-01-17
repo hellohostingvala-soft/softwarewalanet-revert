@@ -35,6 +35,14 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
+import {
+  NotificationsModal,
+  AssistModal,
+  PromiseTrackerModal,
+  InternalChatModal,
+  LanguageModal,
+  CurrencyModal,
+} from './BossActionModals';
 
 interface BossPanelHeaderProps {
   streamingOn: boolean;
@@ -45,6 +53,12 @@ interface BossPanelHeaderProps {
 export function BossPanelHeader({ streamingOn, onStreamingToggle }: BossPanelHeaderProps) {
   const [isLocking, setIsLocking] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showAssist, setShowAssist] = useState(false);
+  const [showPromise, setShowPromise] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  const [showLanguage, setShowLanguage] = useState(false);
+  const [showCurrency, setShowCurrency] = useState(false);
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
 
@@ -88,30 +102,6 @@ export function BossPanelHeader({ streamingOn, onStreamingToggle }: BossPanelHea
     } finally {
       setIsLoggingOut(false);
     }
-  };
-
-  const handleNotificationsClick = () => {
-    toast.info('Notifications', { description: '3 critical alerts pending' });
-  };
-
-  const handleAssistClick = () => {
-    toast.info('Assist Mode', { description: 'UltraViewer assist ready' });
-  };
-
-  const handlePromiseClick = () => {
-    toast.info('Promise Tracker', { description: '12 active promises' });
-  };
-
-  const handleChatClick = () => {
-    toast.info('Internal Chat', { description: 'Opening chat bot...' });
-  };
-
-  const handleLanguageClick = () => {
-    toast.info('Language', { description: 'English (US)' });
-  };
-
-  const handleCurrencyClick = () => {
-    toast.info('Currency', { description: 'USD ($)' });
   };
 
   return (
@@ -163,7 +153,7 @@ export function BossPanelHeader({ streamingOn, onStreamingToggle }: BossPanelHea
         <Button 
           variant="ghost" 
           size="icon"
-          onClick={handleAssistClick}
+          onClick={() => setShowAssist(true)}
           className="hover:bg-white/5"
           style={{ width: '40px', height: '40px' }}
         >
@@ -174,7 +164,7 @@ export function BossPanelHeader({ streamingOn, onStreamingToggle }: BossPanelHea
         <Button 
           variant="ghost" 
           size="icon"
-          onClick={handlePromiseClick}
+          onClick={() => setShowPromise(true)}
           className="hover:bg-white/5"
           style={{ width: '40px', height: '40px' }}
         >
@@ -185,7 +175,7 @@ export function BossPanelHeader({ streamingOn, onStreamingToggle }: BossPanelHea
         <Button 
           variant="ghost" 
           size="icon"
-          onClick={handleChatClick}
+          onClick={() => setShowChat(true)}
           className="hover:bg-white/5"
           style={{ width: '40px', height: '40px' }}
         >
@@ -196,7 +186,7 @@ export function BossPanelHeader({ streamingOn, onStreamingToggle }: BossPanelHea
         <Button 
           variant="ghost" 
           size="icon"
-          onClick={handleNotificationsClick}
+          onClick={() => setShowNotifications(true)}
           className="relative hover:bg-white/5"
           style={{ width: '40px', height: '40px' }}
         >
@@ -222,7 +212,7 @@ export function BossPanelHeader({ streamingOn, onStreamingToggle }: BossPanelHea
         <Button 
           variant="ghost" 
           size="icon"
-          onClick={handleLanguageClick}
+          onClick={() => setShowLanguage(true)}
           className="hover:bg-white/5"
           style={{ width: '40px', height: '40px' }}
         >
@@ -233,7 +223,7 @@ export function BossPanelHeader({ streamingOn, onStreamingToggle }: BossPanelHea
         <Button 
           variant="ghost" 
           size="icon"
-          onClick={handleCurrencyClick}
+          onClick={() => setShowCurrency(true)}
           className="hover:bg-white/5"
           style={{ width: '40px', height: '40px' }}
         >
@@ -337,6 +327,14 @@ export function BossPanelHeader({ streamingOn, onStreamingToggle }: BossPanelHea
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Modals */}
+      <NotificationsModal open={showNotifications} onClose={() => setShowNotifications(false)} />
+      <AssistModal open={showAssist} onClose={() => setShowAssist(false)} />
+      <PromiseTrackerModal open={showPromise} onClose={() => setShowPromise(false)} />
+      <InternalChatModal open={showChat} onClose={() => setShowChat(false)} />
+      <LanguageModal open={showLanguage} onClose={() => setShowLanguage(false)} />
+      <CurrencyModal open={showCurrency} onClose={() => setShowCurrency(false)} />
     </header>
   );
 }
