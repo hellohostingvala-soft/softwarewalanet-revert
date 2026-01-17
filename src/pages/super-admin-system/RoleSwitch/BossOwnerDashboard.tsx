@@ -24,6 +24,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useCEOSuggestions } from "@/hooks/useCEOSuggestions";
 import { FranchiseIntelligenceCenter } from "@/components/franchise-intelligence";
+import { GlobalNetworkMap } from "@/components/boss-panel/sections/GlobalNetworkMap";
 // LOCKED: Color System
 const COLORS = {
   background: '#0B0F1A',
@@ -574,6 +575,9 @@ const BossOwnerDashboard = ({ activeNav }: BossOwnerDashboardProps) => {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
+            {/* Global Operations Map */}
+            <GlobalNetworkMap className="w-full" />
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Pending Overrides */}
               <div style={boxStyle}>
