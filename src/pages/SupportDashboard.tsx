@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Inbox, AlertCircle, MessageCircle, 
   ArrowUpRight, BookOpen, BarChart3, Heart, FileText, Settings, LogOut, Lock,
   ArrowLeft, KeyRound, Hash, Users, Clock, Zap, MessageSquare, Shield, Activity,
-  Calendar, Brain, Target
+  Calendar, Brain, Target, Layers, CheckSquare, Database
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -26,22 +26,29 @@ import ShiftAvailability from '@/components/support/ShiftAvailability';
 import FraudDetection from '@/components/support/FraudDetection';
 import SupportAnalytics from '@/components/support/SupportAnalytics';
 import CannedResponses from '@/components/support/CannedResponses';
+import TokenCommandCenter from '@/components/support/TokenCommandCenter';
+import QualityAudit from '@/components/support/QualityAudit';
+import ApprovalWorkflow from '@/components/support/ApprovalWorkflow';
+import SystemLogs from '@/components/support/SystemLogs';
 
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'command', label: 'Token Command', icon: Layers, badge: 'LIVE' },
   { id: 'inbox', label: 'Ticket Inbox', icon: Inbox, badge: '12' },
   { id: 'tokens', label: 'Token System', icon: Hash, badge: '5' },
   { id: 'priority', label: 'Priority Queue', icon: AlertCircle, badge: '3' },
   { id: 'omnichannel', label: 'Omni-Channel', icon: MessageSquare, badge: '6' },
   { id: 'sla', label: 'SLA Management', icon: Clock },
+  { id: 'approvals', label: 'Approvals', icon: CheckSquare, badge: '4' },
   { id: 'escalation', label: 'Escalations', icon: ArrowUpRight },
   { id: 'canned', label: 'Canned Responses', icon: MessageCircle },
   { id: 'wiki', label: 'Knowledge Base', icon: BookOpen },
   { id: 'ai', label: 'AI Automation', icon: Brain },
   { id: 'shifts', label: 'Shift & Availability', icon: Calendar },
   { id: 'fraud', label: 'Fraud Detection', icon: Shield },
+  { id: 'quality', label: 'Quality & Audit', icon: Target },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-  { id: 'activity', label: 'Support Activity', icon: Activity },
+  { id: 'logs', label: 'System Logs', icon: Database },
 ];
 
 const SupportDashboard = () => {
@@ -62,6 +69,8 @@ const SupportDashboard = () => {
     switch (activeSection) {
       case 'dashboard':
         return <SupportMetrics />;
+      case 'command':
+        return <TokenCommandCenter />;
       case 'inbox':
         return <TicketInbox />;
       case 'tokens':
@@ -73,6 +82,8 @@ const SupportDashboard = () => {
         return <OmniChannelInbox />;
       case 'sla':
         return <SLAManagement />;
+      case 'approvals':
+        return <ApprovalWorkflow />;
       case 'canned':
         return <CannedResponses />;
       case 'wiki':
@@ -83,8 +94,12 @@ const SupportDashboard = () => {
         return <ShiftAvailability />;
       case 'fraud':
         return <FraudDetection />;
+      case 'quality':
+        return <QualityAudit />;
       case 'analytics':
         return <SupportAnalytics />;
+      case 'logs':
+        return <SystemLogs />;
       case 'activity':
         return <PerformancePanel />;
       default:
