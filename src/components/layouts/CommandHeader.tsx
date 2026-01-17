@@ -112,24 +112,24 @@ const CommandHeader = memo(() => {
   };
 
   return (
-    <header className="h-16 border-b border-border/50 bg-card/80 backdrop-blur-xl flex items-center justify-between px-4 sticky top-0 z-50">
+    <header className="h-16 border-b border-sidebar-border bg-sidebar flex items-center justify-between px-4 sticky top-0 z-50">
       {/* Left: Logo & Breadcrumb */}
       <div className="flex items-center gap-4">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-primary/80 to-neon-teal flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">SV</span>
+          <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center">
+            <span className="font-bold text-lg" style={{ color: 'hsl(var(--sidebar-background))' }}>SV</span>
           </div>
-          <span className="font-mono font-bold text-lg hidden md:block">Software Vala</span>
+          <span className="font-mono font-bold text-lg hidden md:block text-sidebar-foreground">Software Vala</span>
         </Link>
         
         {/* Breadcrumb */}
-        <div className="hidden lg:flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="hidden lg:flex items-center gap-2 text-sm text-sidebar-foreground/80">
           <span>/</span>
           <span className="capitalize">{location.pathname.split('/')[1] || 'Home'}</span>
           {location.pathname.split('/')[2] && (
             <>
               <span>/</span>
-              <span className="capitalize text-foreground">{location.pathname.split('/')[2].replace('-', ' ')}</span>
+              <span className="capitalize text-sidebar-foreground">{location.pathname.split('/')[2].replace('-', ' ')}</span>
             </>
           )}
         </div>
