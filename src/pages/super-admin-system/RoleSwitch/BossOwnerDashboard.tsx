@@ -142,7 +142,8 @@ const BossOwnerDashboard = ({ activeNav }: BossOwnerDashboardProps) => {
     }
   }, [activeNav, isModuleView]);
 
-  // If this is a module view, render the module container
+  // If this is a module view, render the module container with onBack callback
+  // The onBack will be handled by the parent RoleSwitchDashboard via URL change
   if (isModuleView && activeNav) {
     const moduleType = moduleRoutes[activeNav];
     switch (moduleType) {

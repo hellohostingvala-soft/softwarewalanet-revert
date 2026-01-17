@@ -1,3 +1,7 @@
+/**
+ * MARKETING MODULE SIDEBAR (Step 10)
+ * 10-item sidebar with Back to Boss button
+ */
 import { motion } from "framer-motion";
 import {
   LayoutDashboard,
@@ -10,12 +14,14 @@ import {
   TrendingUp,
   BarChart3,
   Settings,
-  Target
+  Target,
+  ArrowLeft
 } from "lucide-react";
 
 interface MarketingModuleSidebarProps {
   activeSection: string;
   setActiveSection: (section: string) => void;
+  onBack?: () => void;
 }
 
 const sidebarItems = [
@@ -31,9 +37,24 @@ const sidebarItems = [
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
-export const MarketingModuleSidebar = ({ activeSection, setActiveSection }: MarketingModuleSidebarProps) => {
+export const MarketingModuleSidebar = ({ activeSection, setActiveSection, onBack }: MarketingModuleSidebarProps) => {
   return (
-    <div className="w-64 min-h-full border-r border-border/50 bg-background/50 backdrop-blur-sm">
+    <div className="w-64 min-h-full border-r border-border/50 bg-background/50 backdrop-blur-sm flex flex-col">
+      {/* Back Button */}
+      {onBack && (
+        <div className="p-2 border-b border-border/50">
+          <motion.button
+            onClick={onBack}
+            whileHover={{ x: -2 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Boss</span>
+          </motion.button>
+        </div>
+      )}
+      
       <div className="p-4 border-b border-border/50">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
