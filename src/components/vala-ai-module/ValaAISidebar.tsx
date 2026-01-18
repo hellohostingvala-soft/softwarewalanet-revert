@@ -19,19 +19,33 @@ import {
   FileText,
   Settings,
   ArrowLeft,
-  Brain
+  Brain,
+  Cpu,
+  ListTodo,
+  Webhook,
+  Cog,
+  Wallet,
+  AlertTriangle,
+  LayoutDashboard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSidebarStore, useShouldRenderSidebar } from '@/stores/sidebarStore';
 
 export type ValaAISection = 
   | 'home' 
+  | 'dashboard'
   | 'new-project' 
   | 'live-builds' 
   | 'active-demos' 
   | 'issue-inbox' 
   | 'auto-fix-queue' 
   | 'deployment' 
+  | 'models'
+  | 'tasks'
+  | 'api'
+  | 'automation'
+  | 'credits'
+  | 'alerts'
   | 'versions'
   | 'logs'
   | 'settings';
@@ -44,12 +58,19 @@ interface ValaAISidebarProps {
 
 const sidebarItems: { id: ValaAISection; label: string; icon: React.ElementType; badge?: string }[] = [
   { id: 'home', label: 'Home', icon: Home },
+  { id: 'dashboard', label: 'AI Dashboard', icon: LayoutDashboard, badge: 'Full' },
   { id: 'new-project', label: 'New Project', icon: Plus },
   { id: 'live-builds', label: 'Live Builds', icon: PlayCircle },
   { id: 'active-demos', label: 'Active Demos', icon: Monitor },
   { id: 'issue-inbox', label: 'Issue Inbox', icon: Inbox },
   { id: 'auto-fix-queue', label: 'Auto Fix Queue', icon: Wrench },
   { id: 'deployment', label: 'Deployment', icon: Rocket },
+  { id: 'models', label: 'AI Models', icon: Cpu },
+  { id: 'tasks', label: 'AI Tasks', icon: ListTodo },
+  { id: 'api', label: 'API Calls', icon: Webhook },
+  { id: 'automation', label: 'Automation', icon: Cog },
+  { id: 'credits', label: 'Credits', icon: Wallet },
+  { id: 'alerts', label: 'Alerts', icon: AlertTriangle },
   { id: 'versions', label: 'Versions', icon: GitBranch },
   { id: 'logs', label: 'Logs', icon: FileText, badge: 'Read-only' },
   { id: 'settings', label: 'Settings', icon: Settings, badge: 'Limited' },
