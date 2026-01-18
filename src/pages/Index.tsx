@@ -2480,24 +2480,24 @@ const Index = () => {
             </div>
             <div className="flex items-center gap-3 flex-wrap justify-center">
               {/* Career Portal Buttons */}
-              <Link to="/careers?type=developer">
-                <Button size="sm" className="bg-violet-600 hover:bg-violet-700 text-white gap-1 text-xs">
+              <Button asChild size="sm" className="bg-violet-600 hover:bg-violet-700 text-white gap-1 text-xs">
+                <Link to="/careers?type=developer">
                   <Code2 className="h-3 w-3" />
                   Join as Developer
-                </Button>
-              </Link>
-              <Link to="/careers?type=influencer">
-                <Button size="sm" className="bg-pink-600 hover:bg-pink-700 text-white gap-1 text-xs">
+                </Link>
+              </Button>
+              <Button asChild size="sm" className="bg-pink-600 hover:bg-pink-700 text-white gap-1 text-xs">
+                <Link to="/careers?type=influencer">
                   <Megaphone className="h-3 w-3" />
                   Become Influencer
-                </Button>
-              </Link>
-              <Link to="/careers?type=job">
-                <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700 text-white gap-1 text-xs">
+                </Link>
+              </Button>
+              <Button asChild size="sm" className="bg-cyan-600 hover:bg-cyan-700 text-white gap-1 text-xs">
+                <Link to="/careers?type=job">
                   <Briefcase className="h-3 w-3" />
                   Apply for Job
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               {/* Pricing Badge */}
               <Badge className="bg-white text-green-600 font-bold text-sm px-3 py-1.5 animate-pulse">
                 💰 $249 Lifetime
@@ -2506,19 +2506,22 @@ const Index = () => {
                 🎉 40% OFF
               </Badge>
               {/* Login Button - For regular users */}
-              <Link to="/auth">
-                <Button className="bg-white text-orange-600 hover:bg-white/90 font-bold gap-2">
+              <Button asChild className="bg-white text-orange-600 hover:bg-white/90 font-bold gap-2">
+                <Link to="/auth">
                   <Lock className="h-4 w-4" />
                   Login
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               {/* Temporary Boss Portal Access - Remove after 2-3 days */}
-              <Link to="/boss/login">
-                <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold gap-2 shadow-lg shadow-purple-500/30">
+              <Button
+                asChild
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold gap-2 shadow-lg shadow-purple-500/30"
+              >
+                <Link to="/boss/login">
                   <Shield className="h-4 w-4" />
                   Boss Portal
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
