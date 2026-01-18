@@ -11,6 +11,10 @@ export type { EnterpriseButtonProps, ButtonState } from './EnterpriseButton';
 export { ActionButton, ActionGroup, ApprovalActions, ControlActions } from './ActionButtonFactory';
 export type { ActionType } from './ActionButtonFactory';
 
+// Action Box System (NEW - Box-Level Actions)
+export { ActionBox, QuickStatBox } from './ActionBox';
+export type { BoxType, BoxStatus, PermissionLevel } from './ActionBox';
+
 // Interactive Components
 export { InteractiveKPICard, KPIGrid } from './InteractiveKPICard';
 export type { KPICardProps, KPIAction } from './InteractiveKPICard';
