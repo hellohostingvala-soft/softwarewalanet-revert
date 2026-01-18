@@ -193,7 +193,7 @@ export const ControlPanelSidebar = memo<ControlPanelSidebarProps>(({
       {/* FORCE: guarantee scroll height by giving ScrollArea an explicit parent height */}
       <div className="flex-1 min-h-0">
         <ScrollArea className="h-full">
-          <nav className="space-y-2 px-4 py-4 pb-10">
+          <nav className="space-y-2 px-4 py-4 pb-24">
             {ROLE_CATEGORIES.map((role, index) => (
               <RoleButton
                 key={role.id}
