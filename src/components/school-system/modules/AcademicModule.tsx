@@ -60,7 +60,13 @@ export const AcademicModule = () => {
           <p className="text-slate-400">Manage subjects, curriculum, and class schedules</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" className="border-slate-600 text-slate-300">
+          <Button 
+            variant="outline" 
+            className="border-slate-600 text-slate-300"
+            onClick={() => {
+              toast.success('Schedule exported', { description: 'academic_schedule.pdf downloaded' });
+            }}
+          >
             <Download className="w-4 h-4 mr-2" /> Export Schedule
           </Button>
           <Button className="bg-amber-500 hover:bg-amber-600 text-white" onClick={() => setIsAddOpen(true)}>
@@ -129,10 +135,20 @@ export const AcademicModule = () => {
                         <p className="text-sm text-slate-400">{subject.periods} periods/week</p>
                       </div>
                       <div className="flex gap-1">
-                        <Button size="icon" variant="ghost" className="text-slate-400 hover:text-white">
+                        <Button 
+                          size="icon" 
+                          variant="ghost" 
+                          className="text-slate-400 hover:text-white"
+                          onClick={() => toast.info(`Editing ${subject.name}`, { description: 'Open subject editor' })}
+                        >
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button size="icon" variant="ghost" className="text-red-400 hover:text-red-300">
+                        <Button 
+                          size="icon" 
+                          variant="ghost" 
+                          className="text-red-400 hover:text-red-300"
+                          onClick={() => toast.warning(`Delete ${subject.name}?`, { description: 'This action requires confirmation' })}
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>

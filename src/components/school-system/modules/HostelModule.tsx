@@ -140,10 +140,20 @@ export const HostelModule = () => {
                     </div>
                     
                     <div className="flex gap-2 mt-4">
-                      <Button variant="outline" size="sm" className="flex-1 border-slate-600 text-slate-300">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1 border-slate-600 text-slate-300"
+                        onClick={() => toast.info(`Viewing ${hostel.name}`, { description: 'Opening hostel details' })}
+                      >
                         <Eye className="w-4 h-4 mr-1" /> View
                       </Button>
-                      <Button variant="outline" size="sm" className="flex-1 border-slate-600 text-slate-300">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1 border-slate-600 text-slate-300"
+                        onClick={() => toast.info(`Managing ${hostel.name}`, { description: 'Opening management panel' })}
+                      >
                         <Settings className="w-4 h-4 mr-1" /> Manage
                       </Button>
                     </div>
