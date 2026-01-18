@@ -29,6 +29,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/hooks/useAuth';
+import { useShouldRenderSidebar } from '@/stores/sidebarStore';
 
 interface SidebarProps {
   collapsed: boolean;
@@ -93,6 +94,9 @@ const rolePathMap: Record<string, string[]> = {
 const GlobalSidebar2035 = ({ collapsed, onToggle, lowDataMode }: SidebarProps) => {
   const location = useLocation();
   const { userRole } = useAuth();
+  
+  // SINGLE SIDEBAR ENFORCEMENT: Only render when in global/boss context
+  const shouldRender = useShouldRenderSidebar('global');
 
   // Get allowed paths for current user role
   const allowedPaths = userRole ? (rolePathMap[userRole] || ['/settings']) : [];
@@ -102,6 +106,11 @@ const GlobalSidebar2035 = ({ collapsed, onToggle, lowDataMode }: SidebarProps) =
     if (userRole === 'boss_owner') return true; // Boss owner sees everything
     return allowedPaths.includes(item.path);
   });
+  
+  // ISOLATION: Do not render if not in global context
+  if (!shouldRender) {
+    return null;
+  }
 
   return (
     <motion.aside
