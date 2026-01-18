@@ -11,9 +11,12 @@ export type { EnterpriseButtonProps, ButtonState } from './EnterpriseButton';
 export { ActionButton, ActionGroup, ApprovalActions, ControlActions } from './ActionButtonFactory';
 export type { ActionType } from './ActionButtonFactory';
 
-// Action Box System (NEW - Box-Level Actions)
+// Action Box System (UI-only version)
 export { ActionBox, QuickStatBox } from './ActionBox';
 export type { BoxType, BoxStatus, PermissionLevel } from './ActionBox';
+
+// Action Box with Real Backend Permissions
+export { ActionBoxWithPermissions } from './ActionBoxWithPermissions';
 
 // Interactive Components
 export { InteractiveKPICard, KPIGrid } from './InteractiveKPICard';
