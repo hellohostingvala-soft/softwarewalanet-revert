@@ -1,8 +1,8 @@
 /**
- * CONTROL PANEL DASHBOARD - 2×7 GRID LAYOUT
- * 14 boxes total, 2 columns × 7 rows
- * LOCKED STRUCTURE - NO CHANGES WITHOUT APPROVAL
- * FULLY DETAILED CONTENT PER BOX
+ * CONTROL PANEL DASHBOARD - STRUCTURAL REBUILD
+ * EXACT: 2 COLUMNS × 7 ROWS = 14 BOXES
+ * ALL BOXES SAME SIZE - NO EXCEPTIONS
+ * LOCKED STRUCTURE - BOSS APPROVAL REQUIRED FOR CHANGES
  */
 
 import { memo } from "react";
@@ -30,533 +30,345 @@ import {
   Shield,
   Wallet,
   BarChart3,
-  Play,
-  FileCheck,
-  UserCheck,
   MapPin,
   Ticket,
   Package,
   RefreshCw,
+  FileCheck,
 } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
 
-// ===== LOCKED COLORS: Same as Sidebar Theme =====
-const DASHBOARD_COLORS = {
-  bg: '#0d1b2a',
-  cardBg: 'rgba(15, 30, 50, 0.9)',
-  cardBorder: 'rgba(30, 58, 95, 0.6)',
-  cardBorderHover: 'rgba(37, 99, 235, 0.5)',
+// ===== LOCKED COLORS =====
+const COLORS = {
+  bg: '#0a1628',
+  cardBg: '#0f1d2f',
+  cardBorder: '#1e3a5f',
+  cardBorderHover: '#2563eb',
   text: '#ffffff',
-  textMuted: 'rgba(255, 255, 255, 0.7)',
-  accent: '#2563eb',
+  textMuted: 'rgba(255, 255, 255, 0.6)',
   success: '#10b981',
   warning: '#f59e0b',
   danger: '#ef4444',
   info: '#3b82f6',
+  purple: '#8b5cf6',
+  cyan: '#06b6d4',
 };
 
-// ===== STAT ITEM COMPONENT =====
-const StatItem = memo<{ label: string; value: string | number; icon?: React.ElementType; color?: string; small?: boolean }>(
-  ({ label, value, icon: Icon, color = DASHBOARD_COLORS.text, small }) => (
-    <div className={cn("flex items-center justify-between", small ? "py-1" : "py-1.5")}>
-      <div className="flex items-center gap-2">
-        {Icon && <Icon className="w-3.5 h-3.5" style={{ color }} />}
-        <span className={cn("text-white/60", small ? "text-xs" : "text-sm")}>{label}</span>
-      </div>
-      <span className={cn("font-semibold", small ? "text-sm" : "text-base")} style={{ color }}>{value}</span>
-    </div>
-  )
+// ===== BOX HEIGHT - UNIFORM FOR ALL =====
+const BOX_HEIGHT = 'h-[200px]';
+
+// ===== REUSABLE STAT ROW =====
+const StatRow = ({ label, value, color = COLORS.text }: { label: string; value: string; color?: string }) => (
+  <div className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
+    <span className="text-sm text-white/60">{label}</span>
+    <span className="text-sm font-semibold" style={{ color }}>{value}</span>
+  </div>
 );
-StatItem.displayName = 'StatItem';
 
 // ===== BOX 1: KEY STATS =====
-const KeyStatsBox = memo(() => (
-  <div className="space-y-3">
-    <div className="grid grid-cols-2 gap-3">
-      <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-        <div className="text-2xl font-bold text-emerald-400">₹42.5L</div>
-        <div className="text-xs text-white/60">Total Revenue</div>
-      </div>
-      <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-        <div className="text-2xl font-bold text-blue-400">+18%</div>
-        <div className="text-xs text-white/60">Growth</div>
-      </div>
-    </div>
-    <StatItem label="Active Users" value="2,847" icon={Users} color={DASHBOARD_COLORS.info} />
-    <StatItem label="Countries" value="12" icon={Globe2} color={DASHBOARD_COLORS.accent} />
-    <StatItem label="Franchises" value="24" icon={Building2} color={DASHBOARD_COLORS.warning} />
+const Box1KeyStats = memo(() => (
+  <div className="h-full flex flex-col">
+    <StatRow label="Total Revenue" value="₹42.5L" color={COLORS.success} />
+    <StatRow label="Growth" value="+18%" color={COLORS.success} />
+    <StatRow label="Active Users" value="2,847" color={COLORS.info} />
+    <StatRow label="Countries" value="12" color={COLORS.cyan} />
+    <StatRow label="Franchises" value="24" color={COLORS.warning} />
   </div>
 ));
-KeyStatsBox.displayName = 'KeyStatsBox';
 
 // ===== BOX 2: SYSTEM HEALTH =====
-const SystemHealthBox = memo(() => (
-  <div className="space-y-3">
-    <div className="flex items-center justify-between p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+const Box2SystemHealth = memo(() => (
+  <div className="h-full flex flex-col">
+    <div className="flex items-center justify-between py-1.5 border-b border-white/5">
       <div className="flex items-center gap-2">
         <Server className="w-4 h-4 text-emerald-400" />
-        <span className="text-sm text-white">Server Status</span>
+        <span className="text-sm text-white/60">Server</span>
       </div>
-      <div className="flex items-center gap-1.5">
-        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-        <span className="text-xs font-medium text-emerald-400">ONLINE</span>
-      </div>
+      <span className="text-xs font-semibold text-emerald-400 px-2 py-0.5 rounded bg-emerald-500/20">ONLINE</span>
     </div>
-    <div className="flex items-center justify-between p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
+    <div className="flex items-center justify-between py-1.5 border-b border-white/5">
       <div className="flex items-center gap-2">
         <Brain className="w-4 h-4 text-cyan-400" />
-        <span className="text-sm text-white">AI Status</span>
+        <span className="text-sm text-white/60">AI Status</span>
       </div>
-      <div className="flex items-center gap-1.5">
-        <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-        <span className="text-xs font-medium text-cyan-400">ACTIVE</span>
-      </div>
+      <span className="text-xs font-semibold text-cyan-400 px-2 py-0.5 rounded bg-cyan-500/20">ACTIVE</span>
     </div>
-    <StatItem label="Uptime" value="99.97%" icon={Clock} color={DASHBOARD_COLORS.success} />
-    <div className="space-y-1">
-      <div className="flex justify-between text-xs">
-        <span className="text-white/60">Load</span>
-        <span className="text-emerald-400">32%</span>
-      </div>
-      <Progress value={32} className="h-2 bg-white/10" />
-    </div>
+    <StatRow label="Uptime" value="99.97%" color={COLORS.success} />
+    <StatRow label="CPU Load" value="32%" color={COLORS.info} />
+    <StatRow label="RAM Usage" value="58%" color={COLORS.purple} />
   </div>
 ));
-SystemHealthBox.displayName = 'SystemHealthBox';
 
-// ===== BOX 3: LIVE ACTIVITY =====
-const LiveActivityBox = memo(() => {
+// ===== BOX 3: LIVE ACTIVITY (ONLY HERE) =====
+const Box3LiveActivity = memo(() => {
   const activities = [
-    { text: 'Admin John logged in', time: '2m ago', type: 'login' },
-    { text: 'Deployment #4521 started', time: '5m ago', type: 'deploy' },
-    { text: 'AI processed 45 tasks', time: '8m ago', type: 'ai' },
-    { text: 'Server backup complete', time: '12m ago', type: 'system' },
-    { text: 'New franchise registered', time: '18m ago', type: 'business' },
+    { text: 'Admin logged in', time: '2m' },
+    { text: 'Deploy #4521 started', time: '5m' },
+    { text: 'AI processed 45 tasks', time: '8m' },
+    { text: 'Server backup done', time: '12m' },
+    { text: 'New franchise added', time: '18m' },
   ];
-  
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'login': return 'text-blue-400';
-      case 'deploy': return 'text-purple-400';
-      case 'ai': return 'text-cyan-400';
-      case 'system': return 'text-emerald-400';
-      case 'business': return 'text-amber-400';
-      default: return 'text-white/60';
-    }
-  };
-
   return (
-    <div className="space-y-2 max-h-[180px] overflow-y-auto pr-1 custom-scrollbar">
-      {activities.map((item, i) => (
-        <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <Activity className={cn("w-3.5 h-3.5 flex-shrink-0", getTypeColor(item.type))} />
-            <span className="text-sm text-white/80 truncate">{item.text}</span>
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
+        {activities.map((a, i) => (
+          <div key={i} className="flex items-center justify-between py-1.5 px-2 rounded bg-white/5">
+            <span className="text-sm text-white/80 truncate">{a.text}</span>
+            <span className="text-xs text-white/40 ml-2">{a.time}</span>
           </div>
-          <span className="text-xs text-white/40 ml-2 flex-shrink-0">{item.time}</span>
-        </div>
-      ))}
-    </div>
-  );
-});
-LiveActivityBox.displayName = 'LiveActivityBox';
-
-// ===== BOX 4: APPROVALS / DEGREE BOX =====
-const ApprovalsBox = memo(() => {
-  const approvals = [
-    { type: 'Role', count: 3, priority: 'high' },
-    { type: 'Deployment', count: 2, priority: 'medium' },
-    { type: 'Legal', count: 1, priority: 'low' },
-    { type: 'Finance', count: 0, priority: 'none' },
-  ];
-  
-  const totalPending = approvals.reduce((sum, a) => sum + a.count, 0);
-
-  if (totalPending === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[180px] text-white/50">
-        <CheckCircle className="w-10 h-10 mb-2 text-emerald-400" />
-        <span className="text-sm">No Pending Approvals</span>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-lg font-bold text-white">{totalPending}</span>
-        <span className="text-xs text-amber-400 px-2 py-1 rounded bg-amber-500/10">Pending</span>
-      </div>
-      {approvals.filter(a => a.count > 0).map((item, i) => (
-        <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-white/5">
-          <div className="flex items-center gap-2">
-            <FileCheck className="w-4 h-4 text-white/60" />
-            <span className="text-sm text-white">{item.type} Approvals</span>
-          </div>
-          <span className={cn(
-            "text-sm font-semibold px-2 py-0.5 rounded",
-            item.priority === 'high' ? 'text-red-400 bg-red-500/10' :
-            item.priority === 'medium' ? 'text-amber-400 bg-amber-500/10' :
-            'text-blue-400 bg-blue-500/10'
-          )}>{item.count}</span>
-        </div>
-      ))}
-    </div>
-  );
-});
-ApprovalsBox.displayName = 'ApprovalsBox';
-
-// ===== BOX 5: CEO OVERVIEW =====
-const CEOOverviewBox = memo(() => (
-  <div className="space-y-3">
-    <div className="grid grid-cols-3 gap-2">
-      <div className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/20 text-center">
-        <div className="text-xl font-bold text-purple-400">24</div>
-        <div className="text-xs text-white/60">Tasks</div>
-      </div>
-      <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center">
-        <div className="text-xl font-bold text-amber-400">5</div>
-        <div className="text-xs text-white/60">Pending</div>
-      </div>
-      <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-center">
-        <div className="text-xl font-bold text-emerald-400">92%</div>
-        <div className="text-xs text-white/60">Done</div>
-      </div>
-    </div>
-    <div className="space-y-1">
-      <div className="flex justify-between text-xs">
-        <span className="text-white/60">Performance</span>
-        <span className="text-emerald-400">Excellent</span>
-      </div>
-      <Progress value={92} className="h-2 bg-white/10" />
-    </div>
-  </div>
-));
-CEOOverviewBox.displayName = 'CEOOverviewBox';
-
-// ===== BOX 6: VALA AI STATUS =====
-const ValaAIStatusBox = memo(() => (
-  <div className="space-y-3">
-    <div className="flex items-center justify-between p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
-      <span className="text-sm text-white">Active Jobs</span>
-      <span className="text-lg font-bold text-cyan-400">12</span>
-    </div>
-    <StatItem label="Queue Count" value="45" icon={RefreshCw} color={DASHBOARD_COLORS.warning} small />
-    <StatItem label="Last Action" value="2m ago" icon={Clock} color={DASHBOARD_COLORS.textMuted} small />
-    <div className="grid grid-cols-3 gap-1 mt-2">
-      <div className="text-center p-1.5 rounded bg-emerald-500/10">
-        <div className="text-xs text-emerald-400">Clone</div>
-        <div className="text-sm font-semibold text-white">OK</div>
-      </div>
-      <div className="text-center p-1.5 rounded bg-blue-500/10">
-        <div className="text-xs text-blue-400">Deploy</div>
-        <div className="text-sm font-semibold text-white">OK</div>
-      </div>
-      <div className="text-center p-1.5 rounded bg-purple-500/10">
-        <div className="text-xs text-purple-400">Fix</div>
-        <div className="text-sm font-semibold text-white">OK</div>
-      </div>
-    </div>
-  </div>
-));
-ValaAIStatusBox.displayName = 'ValaAIStatusBox';
-
-// ===== BOX 7: SERVER MANAGEMENT =====
-const ServerManagementBox = memo(() => (
-  <div className="space-y-3">
-    <div className="flex items-center justify-between p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-      <div className="flex items-center gap-2">
-        <Shield className="w-4 h-4 text-emerald-400" />
-        <span className="text-sm text-white">Health</span>
-      </div>
-      <span className="text-sm font-semibold text-emerald-400">Excellent</span>
-    </div>
-    <div className="space-y-2">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Cpu className="w-3.5 h-3.5 text-blue-400" />
-          <span className="text-xs text-white/60">CPU</span>
-        </div>
-        <span className="text-xs text-blue-400">45%</span>
-      </div>
-      <Progress value={45} className="h-1.5 bg-white/10" />
-    </div>
-    <div className="space-y-2">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <HardDrive className="w-3.5 h-3.5 text-purple-400" />
-          <span className="text-xs text-white/60">RAM</span>
-        </div>
-        <span className="text-xs text-purple-400">62%</span>
-      </div>
-      <Progress value={62} className="h-1.5 bg-white/10" />
-    </div>
-    <StatItem label="Alerts" value="0" icon={AlertTriangle} color={DASHBOARD_COLORS.success} small />
-  </div>
-));
-ServerManagementBox.displayName = 'ServerManagementBox';
-
-// ===== BOX 8: CONTINENT / COUNTRY CONTROL =====
-const ContinentCountryBox = memo(() => (
-  <div className="space-y-3">
-    <div className="grid grid-cols-2 gap-2">
-      <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-center">
-        <div className="text-xl font-bold text-blue-400">4</div>
-        <div className="text-xs text-white/60">Continents</div>
-      </div>
-      <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-center">
-        <div className="text-xl font-bold text-cyan-400">12</div>
-        <div className="text-xs text-white/60">Countries</div>
-      </div>
-    </div>
-    <div className="flex items-center justify-between p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-      <div className="flex items-center gap-2">
-        <MapPin className="w-4 h-4 text-emerald-400" />
-        <span className="text-sm text-white">Risk Level</span>
-      </div>
-      <span className="text-xs font-semibold text-emerald-400 px-2 py-0.5 rounded bg-emerald-500/20">LOW</span>
-    </div>
-  </div>
-));
-ContinentCountryBox.displayName = 'ContinentCountryBox';
-
-// ===== BOX 9: FRANCHISE SUMMARY =====
-const FranchiseSummaryBox = memo(() => (
-  <div className="space-y-3">
-    <div className="grid grid-cols-3 gap-2">
-      <div className="p-2 rounded-lg bg-blue-500/10 text-center">
-        <div className="text-lg font-bold text-blue-400">24</div>
-        <div className="text-xs text-white/60">Total</div>
-      </div>
-      <div className="p-2 rounded-lg bg-emerald-500/10 text-center">
-        <div className="text-lg font-bold text-emerald-400">22</div>
-        <div className="text-xs text-white/60">Active</div>
-      </div>
-      <div className="p-2 rounded-lg bg-amber-500/10 text-center">
-        <div className="text-lg font-bold text-amber-400">2</div>
-        <div className="text-xs text-white/60">Pending</div>
-      </div>
-    </div>
-    <StatItem label="Revenue Contribution" value="₹18.2L" icon={TrendingUp} color={DASHBOARD_COLORS.success} />
-  </div>
-));
-FranchiseSummaryBox.displayName = 'FranchiseSummaryBox';
-
-// ===== BOX 10: SALES & SUPPORT =====
-const SalesSupportBox = memo(() => (
-  <div className="space-y-3">
-    <div className="flex items-center justify-between p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
-      <div className="flex items-center gap-2">
-        <Ticket className="w-4 h-4 text-amber-400" />
-        <span className="text-sm text-white">Open Tickets</span>
-      </div>
-      <span className="text-lg font-bold text-amber-400">34</span>
-    </div>
-    <StatItem label="Today Revenue" value="₹2.4L" icon={DollarSign} color={DASHBOARD_COLORS.success} />
-    <div className="flex items-center justify-between p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-      <span className="text-sm text-white">SLA Status</span>
-      <span className="text-xs font-semibold text-emerald-400 px-2 py-0.5 rounded bg-emerald-500/20">ON TRACK</span>
-    </div>
-  </div>
-));
-SalesSupportBox.displayName = 'SalesSupportBox';
-
-// ===== BOX 11: PRODUCT MANAGER =====
-const ProductManagerBox = memo(() => (
-  <div className="space-y-3">
-    <div className="grid grid-cols-3 gap-2">
-      <div className="p-2 rounded-lg bg-purple-500/10 text-center">
-        <div className="text-lg font-bold text-purple-400">18</div>
-        <div className="text-xs text-white/60">Total</div>
-      </div>
-      <div className="p-2 rounded-lg bg-emerald-500/10 text-center">
-        <div className="text-lg font-bold text-emerald-400">14</div>
-        <div className="text-xs text-white/60">Live</div>
-      </div>
-      <div className="p-2 rounded-lg bg-amber-500/10 text-center">
-        <div className="text-lg font-bold text-amber-400">6</div>
-        <div className="text-xs text-white/60">Updates</div>
-      </div>
-    </div>
-    <StatItem label="Pending Requests" value="4" icon={Package} color={DASHBOARD_COLORS.warning} />
-  </div>
-));
-ProductManagerBox.displayName = 'ProductManagerBox';
-
-// ===== BOX 12: DEMO / LIVE SOFTWARE STATUS =====
-const DemoStatusBox = memo(() => (
-  <div className="space-y-3">
-    <div className="grid grid-cols-2 gap-2">
-      <div className="p-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-center">
-        <div className="text-xl font-bold text-violet-400">8</div>
-        <div className="text-xs text-white/60">Active Demos</div>
-      </div>
-      <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-center">
-        <div className="text-xl font-bold text-emerald-400">14</div>
-        <div className="text-xs text-white/60">Live Software</div>
-      </div>
-    </div>
-    <div className="flex items-center justify-between p-2 rounded-lg bg-blue-500/10">
-      <div className="flex items-center gap-2">
-        <BarChart3 className="w-4 h-4 text-blue-400" />
-        <span className="text-sm text-white">Conversion</span>
-      </div>
-      <span className="text-sm font-semibold text-blue-400">42%</span>
-    </div>
-  </div>
-));
-DemoStatusBox.displayName = 'DemoStatusBox';
-
-// ===== BOX 13: FINANCE OVERVIEW =====
-const FinanceOverviewBox = memo(() => (
-  <div className="space-y-3">
-    <div className="flex items-center justify-between p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-      <div className="flex items-center gap-2">
-        <Wallet className="w-4 h-4 text-emerald-400" />
-        <span className="text-sm text-white">Wallet Balance</span>
-      </div>
-      <span className="text-lg font-bold text-emerald-400">₹8.5L</span>
-    </div>
-    <StatItem label="Payout Status" value="Processed" icon={CheckCircle} color={DASHBOARD_COLORS.success} />
-    <div className="flex items-center justify-between p-2 rounded-lg bg-blue-500/10">
-      <span className="text-sm text-white">Monthly Flow</span>
-      <span className="text-sm font-semibold text-blue-400">+₹12.3L</span>
-    </div>
-  </div>
-));
-FinanceOverviewBox.displayName = 'FinanceOverviewBox';
-
-// ===== BOX 14: ALERT SUMMARY =====
-const AlertSummaryBox = memo(() => (
-  <div className="space-y-2">
-    <div className="flex items-center justify-between p-2.5 rounded-lg bg-red-500/10 border border-red-500/20 hover:bg-red-500/15 transition-colors cursor-pointer">
-      <div className="flex items-center gap-2">
-        <AlertTriangle className="w-4 h-4 text-red-400" />
-        <span className="text-sm text-white">Critical</span>
-      </div>
-      <span className="text-lg font-bold text-red-400">0</span>
-    </div>
-    <div className="flex items-center justify-between p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/15 transition-colors cursor-pointer">
-      <div className="flex items-center gap-2">
-        <Zap className="w-4 h-4 text-amber-400" />
-        <span className="text-sm text-white">Warning</span>
-      </div>
-      <span className="text-lg font-bold text-amber-400">3</span>
-    </div>
-    <div className="flex items-center justify-between p-2.5 rounded-lg bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/15 transition-colors cursor-pointer">
-      <div className="flex items-center gap-2">
-        <Activity className="w-4 h-4 text-blue-400" />
-        <span className="text-sm text-white">Info</span>
-      </div>
-      <span className="text-lg font-bold text-blue-400">7</span>
-    </div>
-    <div className="text-center mt-2">
-      <span className="text-xs text-white/40 hover:text-white/60 cursor-pointer">Click to view all alerts →</span>
-    </div>
-  </div>
-));
-AlertSummaryBox.displayName = 'AlertSummaryBox';
-
-// ===== GRID BOX DEFINITIONS =====
-const GRID_BOXES = [
-  { id: 'key-stats', title: 'Key Stats', subtitle: 'Revenue / Users / Growth', icon: TrendingUp, color: DASHBOARD_COLORS.success, Component: KeyStatsBox },
-  { id: 'system-health', title: 'System Health', subtitle: 'Server / AI / Uptime', icon: Server, color: DASHBOARD_COLORS.success, Component: SystemHealthBox },
-  { id: 'live-activity', title: 'Live Activity', subtitle: 'Real-time Feed', icon: Activity, color: DASHBOARD_COLORS.accent, Component: LiveActivityBox },
-  { id: 'approvals', title: 'Approvals Queue', subtitle: 'Role / Deploy / Legal / Finance', icon: CheckCircle, color: DASHBOARD_COLORS.warning, Component: ApprovalsBox },
-  { id: 'ceo-overview', title: 'CEO Overview', subtitle: 'Tasks / Performance', icon: Eye, color: '#8b5cf6', Component: CEOOverviewBox },
-  { id: 'vala-ai', title: 'VALA AI Status', subtitle: 'Jobs / Queue / Actions', icon: Brain, color: '#06b6d4', Component: ValaAIStatusBox },
-  { id: 'server-status', title: 'Server Management', subtitle: 'Health / CPU / RAM', icon: Server, color: '#64748b', Component: ServerManagementBox },
-  { id: 'continent-country', title: 'Continent / Country', subtitle: 'Regional Control', icon: Globe2, color: '#3b82f6', Component: ContinentCountryBox },
-  { id: 'franchise-summary', title: 'Franchise Summary', subtitle: 'Partners / Revenue', icon: Building2, color: '#0ea5e9', Component: FranchiseSummaryBox },
-  { id: 'sales-support', title: 'Sales & Support', subtitle: 'Tickets / Revenue / SLA', icon: Headphones, color: '#22c55e', Component: SalesSupportBox },
-  { id: 'product-manager', title: 'Product Manager', subtitle: 'Products / Updates', icon: Box, color: '#a855f7', Component: ProductManagerBox },
-  { id: 'demo-status', title: 'Demo / Live Software', subtitle: 'Demos / Conversion', icon: Terminal, color: '#6366f1', Component: DemoStatusBox },
-  { id: 'finance-revenue', title: 'Finance Overview', subtitle: 'Wallet / Payout / Flow', icon: DollarSign, color: '#10b981', Component: FinanceOverviewBox },
-  { id: 'alerts-summary', title: 'Alert Summary', subtitle: 'Critical / Warning / Info', icon: AlertTriangle, color: '#f59e0b', Component: AlertSummaryBox },
-] as const;
-
-// ===== SINGLE GRID BOX WRAPPER =====
-const GridBox = memo<{
-  box: typeof GRID_BOXES[number];
-  index: number;
-}>(({ box, index }) => {
-  const Icon = box.icon;
-  const ContentComponent = box.Component;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.03, duration: 0.2 }}
-      className="rounded-xl p-4 transition-all duration-200 hover:scale-[1.01] cursor-pointer min-h-[220px] flex flex-col"
-      style={{
-        background: DASHBOARD_COLORS.cardBg,
-        border: `1px solid ${DASHBOARD_COLORS.cardBorder}`,
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = DASHBOARD_COLORS.cardBorderHover;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = DASHBOARD_COLORS.cardBorder;
-      }}
-    >
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-3 pb-2 border-b border-white/10">
-        <div
-          className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-          style={{ background: `${box.color}20` }}
-        >
-          <Icon className="w-4.5 h-4.5" style={{ color: box.color }} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold text-white truncate">{box.title}</h3>
-          <p className="text-xs text-white/50 truncate">{box.subtitle}</p>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="flex-1">
-        <ContentComponent />
-      </div>
-    </motion.div>
-  );
-});
-
-GridBox.displayName = 'GridBox';
-
-// ===== MAIN DASHBOARD COMPONENT =====
-export const ControlPanelDashboard = memo(() => {
-  return (
-    <div 
-      className="flex-1 p-6 overflow-auto"
-      style={{ background: DASHBOARD_COLORS.bg }}
-    >
-      {/* Dashboard Header */}
-      <div className="mb-5 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-white">Master Control Panel</h1>
-          <p className="text-white/60 text-sm mt-0.5">Boss / Owner Dashboard • 2×7 Grid</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs font-medium text-emerald-400">LIVE</span>
-          </div>
-          <div className="text-xs text-white/40">Last updated: Just now</div>
-        </div>
-      </div>
-
-      {/* 2×7 GRID - 14 BOXES */}
-      <div className="grid grid-cols-2 gap-4">
-        {GRID_BOXES.map((box, index) => (
-          <GridBox key={box.id} box={box} index={index} />
         ))}
       </div>
     </div>
   );
 });
 
-ControlPanelDashboard.displayName = 'ControlPanelDashboard';
+// ===== BOX 4: APPROVALS (ONLY HERE) =====
+const Box4Approvals = memo(() => {
+  const approvals = [
+    { type: 'Role Approvals', count: 3 },
+    { type: 'Deployment', count: 2 },
+    { type: 'Legal', count: 1 },
+    { type: 'Finance', count: 0 },
+  ];
+  const total = approvals.reduce((s, a) => s + a.count, 0);
+  
+  if (total === 0) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center text-white/50">
+        <CheckCircle className="w-10 h-10 mb-2 text-emerald-400" />
+        <span className="text-sm">No Pending Approvals</span>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="h-full flex flex-col">
+      {approvals.map((a, i) => (
+        <div key={i} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
+          <span className="text-sm text-white/60">{a.type}</span>
+          <span className={cn("text-sm font-semibold", a.count > 0 ? "text-amber-400" : "text-white/30")}>{a.count}</span>
+        </div>
+      ))}
+      <div className="mt-auto pt-2 border-t border-white/10">
+        <div className="text-center text-amber-400 text-sm font-semibold">{total} Pending</div>
+      </div>
+    </div>
+  );
+});
 
+// ===== BOX 5: CEO OVERVIEW =====
+const Box5CEOOverview = memo(() => (
+  <div className="h-full flex flex-col">
+    <StatRow label="Active Tasks" value="24" color={COLORS.purple} />
+    <StatRow label="Pending Approvals" value="5" color={COLORS.warning} />
+    <StatRow label="Completed Today" value="12" color={COLORS.success} />
+    <StatRow label="Performance" value="92%" color={COLORS.success} />
+    <StatRow label="Status" value="On Track" color={COLORS.success} />
+  </div>
+));
+
+// ===== BOX 6: VALA AI STATUS =====
+const Box6ValaAI = memo(() => (
+  <div className="h-full flex flex-col">
+    <StatRow label="Active Jobs" value="12" color={COLORS.cyan} />
+    <StatRow label="Queue Count" value="45" color={COLORS.warning} />
+    <StatRow label="Last Action" value="2m ago" color={COLORS.textMuted} />
+    <StatRow label="Clone Status" value="Ready" color={COLORS.success} />
+    <StatRow label="Deploy Status" value="Ready" color={COLORS.success} />
+  </div>
+));
+
+// ===== BOX 7: SERVER MANAGEMENT =====
+const Box7Server = memo(() => (
+  <div className="h-full flex flex-col">
+    <StatRow label="Health" value="Excellent" color={COLORS.success} />
+    <StatRow label="CPU" value="45%" color={COLORS.info} />
+    <StatRow label="RAM" value="62%" color={COLORS.purple} />
+    <StatRow label="Storage" value="38%" color={COLORS.cyan} />
+    <StatRow label="Alerts" value="0" color={COLORS.success} />
+  </div>
+));
+
+// ===== BOX 8: CONTINENT / COUNTRY =====
+const Box8ContinentCountry = memo(() => (
+  <div className="h-full flex flex-col">
+    <StatRow label="Active Continents" value="4" color={COLORS.info} />
+    <StatRow label="Active Countries" value="12" color={COLORS.cyan} />
+    <StatRow label="Top Region" value="Asia" color={COLORS.purple} />
+    <StatRow label="Risk Level" value="Low" color={COLORS.success} />
+    <StatRow label="Compliance" value="100%" color={COLORS.success} />
+  </div>
+));
+
+// ===== BOX 9: FRANCHISE SUMMARY =====
+const Box9Franchise = memo(() => (
+  <div className="h-full flex flex-col">
+    <StatRow label="Total Franchises" value="24" color={COLORS.info} />
+    <StatRow label="Active" value="22" color={COLORS.success} />
+    <StatRow label="Pending" value="2" color={COLORS.warning} />
+    <StatRow label="Revenue Share" value="₹18.2L" color={COLORS.success} />
+    <StatRow label="Growth" value="+15%" color={COLORS.success} />
+  </div>
+));
+
+// ===== BOX 10: SALES & SUPPORT =====
+const Box10SalesSupport = memo(() => (
+  <div className="h-full flex flex-col">
+    <StatRow label="Open Tickets" value="34" color={COLORS.warning} />
+    <StatRow label="Today Revenue" value="₹2.4L" color={COLORS.success} />
+    <StatRow label="Resolved Today" value="28" color={COLORS.success} />
+    <StatRow label="SLA Status" value="On Track" color={COLORS.success} />
+    <StatRow label="CSAT Score" value="4.7/5" color={COLORS.success} />
+  </div>
+));
+
+// ===== BOX 11: PRODUCT MANAGER =====
+const Box11Product = memo(() => (
+  <div className="h-full flex flex-col">
+    <StatRow label="Total Products" value="18" color={COLORS.purple} />
+    <StatRow label="Live Products" value="14" color={COLORS.success} />
+    <StatRow label="In Development" value="4" color={COLORS.info} />
+    <StatRow label="Update Requests" value="6" color={COLORS.warning} />
+    <StatRow label="Pending Review" value="2" color={COLORS.warning} />
+  </div>
+));
+
+// ===== BOX 12: DEMO / LIVE SOFTWARE =====
+const Box12Demo = memo(() => (
+  <div className="h-full flex flex-col">
+    <StatRow label="Active Demos" value="8" color={COLORS.purple} />
+    <StatRow label="Live Software" value="14" color={COLORS.success} />
+    <StatRow label="Conversion Rate" value="42%" color={COLORS.info} />
+    <StatRow label="Demo Requests" value="12" color={COLORS.warning} />
+    <StatRow label="Scheduled" value="5" color={COLORS.cyan} />
+  </div>
+));
+
+// ===== BOX 13: FINANCE OVERVIEW =====
+const Box13Finance = memo(() => (
+  <div className="h-full flex flex-col">
+    <StatRow label="Wallet Balance" value="₹8.5L" color={COLORS.success} />
+    <StatRow label="Payout Status" value="Processed" color={COLORS.success} />
+    <StatRow label="Monthly Inflow" value="₹24.3L" color={COLORS.success} />
+    <StatRow label="Monthly Outflow" value="₹12.1L" color={COLORS.warning} />
+    <StatRow label="Net Profit" value="+₹12.2L" color={COLORS.success} />
+  </div>
+));
+
+// ===== BOX 14: ALERT SUMMARY =====
+const Box14Alerts = memo(() => (
+  <div className="h-full flex flex-col">
+    <div className="flex items-center justify-between py-2 border-b border-white/5">
+      <div className="flex items-center gap-2">
+        <AlertTriangle className="w-4 h-4 text-red-400" />
+        <span className="text-sm text-white/60">Critical</span>
+      </div>
+      <span className="text-lg font-bold text-red-400">0</span>
+    </div>
+    <div className="flex items-center justify-between py-2 border-b border-white/5">
+      <div className="flex items-center gap-2">
+        <Zap className="w-4 h-4 text-amber-400" />
+        <span className="text-sm text-white/60">Warning</span>
+      </div>
+      <span className="text-lg font-bold text-amber-400">3</span>
+    </div>
+    <div className="flex items-center justify-between py-2 border-b border-white/5">
+      <div className="flex items-center gap-2">
+        <Activity className="w-4 h-4 text-blue-400" />
+        <span className="text-sm text-white/60">Info</span>
+      </div>
+      <span className="text-lg font-bold text-blue-400">7</span>
+    </div>
+    <div className="mt-auto pt-2 text-center">
+      <span className="text-xs text-white/40 hover:text-white/60 cursor-pointer">View All Alerts →</span>
+    </div>
+  </div>
+));
+
+// ===== GRID BOX DEFINITIONS (LOCKED ORDER) =====
+const GRID_BOXES: { id: string; title: string; icon: React.ElementType; color: string; Component: React.FC }[] = [
+  { id: 'key-stats', title: 'Key Stats', icon: TrendingUp, color: COLORS.success, Component: Box1KeyStats },
+  { id: 'system-health', title: 'System Health', icon: Server, color: COLORS.success, Component: Box2SystemHealth },
+  { id: 'live-activity', title: 'Live Activity', icon: Activity, color: COLORS.info, Component: Box3LiveActivity },
+  { id: 'approvals', title: 'Approvals / Degree', icon: FileCheck, color: COLORS.warning, Component: Box4Approvals },
+  { id: 'ceo-overview', title: 'CEO Overview', icon: Eye, color: COLORS.purple, Component: Box5CEOOverview },
+  { id: 'vala-ai', title: 'VALA AI Status', icon: Brain, color: COLORS.cyan, Component: Box6ValaAI },
+  { id: 'server-mgmt', title: 'Server Management', icon: Cpu, color: '#64748b', Component: Box7Server },
+  { id: 'continent-country', title: 'Continent / Country', icon: Globe2, color: COLORS.info, Component: Box8ContinentCountry },
+  { id: 'franchise', title: 'Franchise Summary', icon: Building2, color: '#0ea5e9', Component: Box9Franchise },
+  { id: 'sales-support', title: 'Sales & Support', icon: Headphones, color: COLORS.success, Component: Box10SalesSupport },
+  { id: 'product-mgr', title: 'Product Manager', icon: Box, color: COLORS.purple, Component: Box11Product },
+  { id: 'demo-status', title: 'Demo / Live Software', icon: Terminal, color: '#6366f1', Component: Box12Demo },
+  { id: 'finance', title: 'Finance Overview', icon: DollarSign, color: COLORS.success, Component: Box13Finance },
+  { id: 'alerts', title: 'Alert Summary', icon: AlertTriangle, color: COLORS.warning, Component: Box14Alerts },
+];
+
+// ===== SINGLE UNIFORM BOX =====
+const UniformBox = memo<{ box: typeof GRID_BOXES[number]; index: number }>(({ box, index }) => {
+  const Icon = box.icon;
+  const Content = box.Component;
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.02, duration: 0.15 }}
+      className={cn(
+        BOX_HEIGHT,
+        "rounded-xl p-4 flex flex-col transition-all duration-150 hover:scale-[1.005]"
+      )}
+      style={{
+        background: COLORS.cardBg,
+        border: `1px solid ${COLORS.cardBorder}`,
+      }}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = COLORS.cardBorderHover; }}
+      onMouseLeave={(e) => { e.currentTarget.style.borderColor = COLORS.cardBorder; }}
+    >
+      {/* Header - Fixed Height */}
+      <div className="flex items-center gap-2.5 pb-3 mb-2 border-b border-white/10 flex-shrink-0">
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${box.color}20` }}>
+          <Icon className="w-4 h-4" style={{ color: box.color }} />
+        </div>
+        <h3 className="text-sm font-semibold text-white">{box.title}</h3>
+      </div>
+      
+      {/* Content - Fills Remaining Space */}
+      <div className="flex-1 overflow-hidden">
+        <Content />
+      </div>
+    </motion.div>
+  );
+});
+UniformBox.displayName = 'UniformBox';
+
+// ===== MAIN DASHBOARD - 2×7 GRID =====
+export const ControlPanelDashboard = memo(() => {
+  return (
+    <div className="flex-1 overflow-auto" style={{ background: COLORS.bg }}>
+      {/* Header */}
+      <div className="p-5 pb-3 flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-bold text-white">Master Control Panel</h1>
+          <p className="text-xs text-white/50 mt-0.5">Boss / Owner • 2×7 Grid Dashboard</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-500/10 border border-emerald-500/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-xs font-medium text-emerald-400">LIVE</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 2×7 GRID - EXACT STRUCTURE */}
+      <div className="px-5 pb-5">
+        <div className="grid grid-cols-2 gap-4">
+          {GRID_BOXES.map((box, index) => (
+            <UniformBox key={box.id} box={box} index={index} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+ControlPanelDashboard.displayName = 'ControlPanelDashboard';
 export default ControlPanelDashboard;
