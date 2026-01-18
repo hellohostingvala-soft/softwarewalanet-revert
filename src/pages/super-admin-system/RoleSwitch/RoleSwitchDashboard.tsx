@@ -38,6 +38,7 @@ import ProductManagerDashboard from "./ProductManagerDashboard";
 import DemoManagerDashboard from "./DemoManagerDashboard";
 import CEODashboard from "./CEODashboard";
 import CEOSidebar from "@/components/ceo/CEOSidebar";
+import DeveloperManagerSidebar from "@/components/vala-ai/DeveloperManagerSidebar";
 import BossOwnerDashboard from "./BossOwnerDashboard";
 import DeveloperManagementDashboard from "./DeveloperManagementDashboard";
 // Admin role deprecated - functionality merged into Boss/Owner and Super Admin
@@ -609,8 +610,23 @@ const RoleSwitchDashboard = () => {
           </>
         )}
 
-        {/* CONTEXT B2: Role Sidebar (for ALL other role dashboards except CEO and full-screen modules) */}
-        {!isInControlPanelView && !isInModuleView && activeRole && activeRole !== "ceo" && (
+        {/* CONTEXT B1.1: Developer Manager Sidebar (dedicated sidebar for this module) */}
+        {activeRole === "developer_management" && (
+          <>
+            <DeveloperManagerSidebar
+              activeSection={activeNav}
+              onSectionChange={handleNavChange}
+              collapsed={collapsed}
+              onCollapsedChange={setCollapsed}
+              onBackToControlPanel={handleBackToControlPanel}
+            />
+            {/* Spacer to offset Developer Manager sidebar */}
+            <div className="flex-shrink-0" style={{ width: collapsed ? 80 : 260 }} />
+          </>
+        )}
+
+        {/* CONTEXT B2: Role Sidebar (for ALL other role dashboards except CEO/Developer Manager and full-screen modules) */}
+        {!isInControlPanelView && !isInModuleView && activeRole && activeRole !== "ceo" && activeRole !== "developer_management" && (
           <>
             <RoleSwitchSidebarNew
               activeRole={activeRole}
