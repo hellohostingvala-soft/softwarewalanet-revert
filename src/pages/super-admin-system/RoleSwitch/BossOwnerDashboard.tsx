@@ -18,34 +18,36 @@ import { ProductDemoModuleContainer } from "@/components/product-demo-module/Pro
 import { LeadModuleContainer } from "@/components/lead-module/LeadModuleContainer";
 import { MarketingModuleContainer } from "@/components/marketing-module/MarketingModuleContainer";
 
-// ===== THEME: Dark + Orange =====
+// ===== THEME: Dark + Software Vala Logo Colors (Blue Primary + Red Accent) =====
 const T = {
-  bg: '#0d0d0d',
-  card: '#1a1a1a',
-  border: '#2a2a2a',
-  accent: '#f7931a',
+  bg: '#0a0f1a',
+  card: '#111827',
+  border: '#1f2937',
+  primary: '#2563eb',      // Blue - from logo
+  primaryLight: '#3b82f6',
+  accent: '#dc2626',       // Red - from logo
   text: '#ffffff',
-  muted: '#888888',
-  dim: '#555555',
+  muted: '#9ca3af',
+  dim: '#6b7280',
   green: '#22c55e',
-  red: '#ef4444',
+  red: '#dc2626',
 };
 
 // ===== MINI STAT =====
 const MiniStat = memo(({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
   <div className="flex items-center gap-2 py-2 border-b" style={{ borderColor: T.border }}>
-    <span style={{ color: T.accent }}>{icon}</span>
+    <span style={{ color: T.primary }}>{icon}</span>
     <span className="flex-1 text-xs" style={{ color: T.muted }}>{label}</span>
-    <span className="text-base font-bold" style={{ color: T.accent }}>{value}</span>
+    <span className="text-base font-bold" style={{ color: T.primary }}>{value}</span>
   </div>
 ));
 
 // ===== DATA CARD =====
 const DataCard = memo(({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) => (
   <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 8, overflow: 'hidden' }}>
-    <div className="flex items-center gap-2 px-4 py-3" style={{ background: T.accent }}>
-      <span style={{ color: T.bg }}>{icon}</span>
-      <span className="text-xs font-bold uppercase tracking-wider" style={{ color: T.bg }}>{title}</span>
+    <div className="flex items-center gap-2 px-4 py-3" style={{ background: T.primary }}>
+      <span style={{ color: T.text }}>{icon}</span>
+      <span className="text-xs font-bold uppercase tracking-wider" style={{ color: T.text }}>{title}</span>
     </div>
     <div className="p-4">{children}</div>
   </div>
@@ -53,23 +55,23 @@ const DataCard = memo(({ title, icon, children }: { title: string; icon: React.R
 
 // ===== CHART =====
 const Chart = memo(({ type = 'bar' }: { type?: 'bar' | 'line' }) => (
-  <div className="flex items-end justify-around gap-1 p-3 rounded" style={{ height: 120, background: 'rgba(247,147,26,0.05)' }}>
+  <div className="flex items-end justify-around gap-1 p-3 rounded" style={{ height: 120, background: 'rgba(37,99,235,0.05)' }}>
     {type === 'bar' ? (
       [35, 60, 40, 75, 50, 65, 85, 55, 70, 80, 45, 90].map((h, i) => (
-        <div key={i} style={{ width: '100%', height: `${h}%`, background: i === 11 ? T.accent : 'rgba(247,147,26,0.25)', borderRadius: '2px 2px 0 0' }} />
+        <div key={i} style={{ width: '100%', height: `${h}%`, background: i === 11 ? T.primary : 'rgba(37,99,235,0.25)', borderRadius: '2px 2px 0 0' }} />
       ))
     ) : (
       <svg width="100%" height="100%" viewBox="0 0 200 50" preserveAspectRatio="none">
-        <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={T.accent} stopOpacity="0.3"/><stop offset="100%" stopColor={T.accent} stopOpacity="0"/></linearGradient></defs>
+        <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={T.primary} stopOpacity="0.3"/><stop offset="100%" stopColor={T.primary} stopOpacity="0"/></linearGradient></defs>
         <path d="M0,40 20,35 40,25 60,30 80,18 100,22 120,12 140,28 160,8 180,18 200,5 200,50 0,50Z" fill="url(#g)"/>
-        <polyline points="0,40 20,35 40,25 60,30 80,18 100,22 120,12 140,28 160,8 180,18 200,5" fill="none" stroke={T.accent} strokeWidth="2"/>
+        <polyline points="0,40 20,35 40,25 60,30 80,18 100,22 120,12 140,28 160,8 180,18 200,5" fill="none" stroke={T.primary} strokeWidth="2"/>
       </svg>
     )}
   </div>
 ));
 
 // ===== STAT ROW =====
-const StatRow = ({ l1, v1, l2, v2, c1 = T.accent, c2 = T.text }: { l1: string; v1: string; l2: string; v2: string; c1?: string; c2?: string }) => (
+const StatRow = ({ l1, v1, l2, v2, c1 = T.primary, c2 = T.text }: { l1: string; v1: string; l2: string; v2: string; c1?: string; c2?: string }) => (
   <div className="grid grid-cols-2 gap-3 mt-3">
     <div><span className="text-[10px] block" style={{ color: T.dim }}>{l1}</span><span className="text-lg font-bold" style={{ color: c1 }}>{v1}</span></div>
     <div><span className="text-[10px] block" style={{ color: T.dim }}>{l2}</span><span className="text-lg font-bold" style={{ color: c2 }}>{v2}</span></div>
@@ -125,22 +127,22 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
       {/* HEADER */}
       <div className="flex items-center justify-between mb-8 pb-5" style={{ borderBottom: `1px solid ${T.border}` }}>
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-xl flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${T.accent}, #ffb347)`, boxShadow: `0 8px 24px rgba(247,147,26,0.3)` }}>
-            <Crown size={28} style={{ color: T.bg }} />
+          <div className="w-14 h-14 rounded-xl flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${T.primary}, ${T.primaryLight})`, boxShadow: `0 8px 24px rgba(37,99,235,0.3)` }}>
+            <Crown size={28} style={{ color: T.text }} />
           </div>
           <div>
             <h1 className="text-2xl font-bold" style={{ color: T.text, fontFamily: "'Space Grotesk', sans-serif" }}>BOSS / OWNER DASHBOARD</h1>
-            <p className="text-xs tracking-wider" style={{ color: T.accent }}>FINAL AUTHORITY • APPROVE / LOCK / ARCHIVE</p>
+            <p className="text-xs tracking-wider" style={{ color: T.primary }}>FINAL AUTHORITY • APPROVE / LOCK / ARCHIVE</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="px-4 py-2 rounded-lg flex items-center gap-2" style={{ background: 'rgba(247,147,26,0.15)', border: `1px solid ${T.accent}` }}>
-            <Crown size={14} style={{ color: T.accent }} />
-            <span className="text-xs font-semibold" style={{ color: T.accent }}>SUPREME AUTHORITY</span>
+          <div className="px-4 py-2 rounded-lg flex items-center gap-2" style={{ background: 'rgba(37,99,235,0.15)', border: `1px solid ${T.primary}` }}>
+            <Crown size={14} style={{ color: T.primary }} />
+            <span className="text-xs font-semibold" style={{ color: T.primary }}>SUPREME AUTHORITY</span>
           </div>
           <Dialog open={showLock} onOpenChange={setShowLock}>
             <DialogTrigger asChild>
-              <button className="px-5 py-2.5 rounded-lg flex items-center gap-2 font-semibold" style={{ background: T.red, color: T.text }}>
+              <button className="px-5 py-2.5 rounded-lg flex items-center gap-2 font-semibold cursor-pointer transition-all hover:opacity-90" style={{ background: T.accent, color: T.text }}>
                 <Lock size={14} /> Emergency Lockdown
               </button>
             </DialogTrigger>
@@ -155,7 +157,7 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
                   <Switch checked={confirmed} onCheckedChange={setConfirmed} />
                   <span className="text-sm" style={{ color: T.muted }}>Confirm 2FA</span>
                 </div>
-                <Button onClick={lockdown} className="w-full" style={{ background: T.red }}>Activate Lockdown</Button>
+                <Button onClick={lockdown} className="w-full" style={{ background: T.accent }}>Activate Lockdown</Button>
               </div>
             </DialogContent>
           </Dialog>
@@ -166,8 +168,8 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
       <div className="grid gap-6" style={{ gridTemplateColumns: '260px 1fr' }}>
         {/* LEFT: Key Stats */}
         <div className="p-4 rounded-lg" style={{ background: T.card, border: `1px solid ${T.border}` }}>
-          <div className="text-center py-2 rounded mb-4" style={{ background: T.accent }}>
-            <span className="text-xs font-bold tracking-wider" style={{ color: T.bg }}>KEY STATS</span>
+          <div className="text-center py-2 rounded mb-4" style={{ background: T.primary }}>
+            <span className="text-xs font-bold tracking-wider" style={{ color: T.text }}>KEY STATS</span>
           </div>
           <MiniStat icon={<BarChart3 size={14} />} label="TOTAL REVENUE" value="$2.4M" />
           <MiniStat icon={<TrendingUp size={14} />} label="GROWTH" value="+24%" />
@@ -191,13 +193,13 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
           <DataCard title="USERS" icon={<Users size={14} />}><Chart type="line" /><StatRow l1="NEW USERS" v1="+2,847" l2="ACTIVE TODAY" v2="8,421" /></DataCard>
           <DataCard title="FRANCHISES" icon={<Building2 size={14} />}><Chart type="bar" /><StatRow l1="TOP" v1="Mumbai" l2="AVG REV" v2="$18.7K" /></DataCard>
           <DataCard title="SYSTEM" icon={<Server size={14} />}><Chart type="line" /><StatRow l1="LOAD" v1="42%" l2="RESPONSE" v2="124ms" c1={T.green} /></DataCard>
-          <DataCard title="SECURITY" icon={<ShieldAlert size={14} />}><Chart type="bar" /><StatRow l1="CRITICAL" v1="3" l2="RESOLVED" v2="47" c1={T.red} c2={T.green} /></DataCard>
-          <DataCard title="TRANSACTIONS" icon={<CreditCard size={14} />}><Chart type="line" /><StatRow l1="TODAY" v1="$1.2M" l2="PENDING" v2="$89K" c2={T.accent} /></DataCard>
+          <DataCard title="SECURITY" icon={<ShieldAlert size={14} />}><Chart type="bar" /><StatRow l1="CRITICAL" v1="3" l2="RESOLVED" v2="47" c1={T.accent} c2={T.green} /></DataCard>
+          <DataCard title="TRANSACTIONS" icon={<CreditCard size={14} />}><Chart type="line" /><StatRow l1="TODAY" v1="$1.2M" l2="PENDING" v2="$89K" c2={T.primary} /></DataCard>
           <DataCard title="AI INSIGHTS" icon={<Brain size={14} />}><Chart type="bar" /><StatRow l1="PREDICTIONS" v1="156" l2="ACCURACY" v2="94.2%" c2={T.green} /></DataCard>
           <DataCard title="MARKETING" icon={<TrendingUp size={14} />}><Chart type="line" /><StatRow l1="SPEND" v1="$45K" l2="RETURN" v2="$312K" /></DataCard>
-          <DataCard title="APPROVALS" icon={<Clock size={14} />}><Chart type="bar" /><StatRow l1="WAITING" v1="23" l2="URGENT" v2="5" c1={T.accent} c2={T.red} /></DataCard>
+          <DataCard title="APPROVALS" icon={<Clock size={14} />}><Chart type="bar" /><StatRow l1="WAITING" v1="23" l2="URGENT" v2="5" c1={T.primary} c2={T.accent} /></DataCard>
           <DataCard title="GLOBAL" icon={<Globe2 size={14} />}><Chart type="line" /><StatRow l1="COUNTRIES" v1="45" l2="NEW" v2="+7" c2={T.green} /></DataCard>
-          <DataCard title="SUPPORT" icon={<FileText size={14} />}><Chart type="bar" /><StatRow l1="OPEN" v1="89" l2="AVG TIME" v2="2.4h" c1={T.accent} /></DataCard>
+          <DataCard title="SUPPORT" icon={<FileText size={14} />}><Chart type="bar" /><StatRow l1="OPEN" v1="89" l2="AVG TIME" v2="2.4h" c1={T.primary} /></DataCard>
           <DataCard title="COMPLIANCE" icon={<Scale size={14} />}><Chart type="line" /><StatRow l1="SCORE" v1="98%" l2="AUDITS" v2="24/24" c1={T.green} /></DataCard>
           <DataCard title="DEV ACTIVITY" icon={<Cpu size={14} />}><Chart type="bar" /><StatRow l1="COMMITS" v1="47" l2="DEPLOYS" v2="12" c2={T.green} /></DataCard>
           <DataCard title="INFRA" icon={<Database size={14} />}><Chart type="line" /><StatRow l1="STORAGE" v1="2.4TB" l2="BANDWIDTH" v2="847GB" /></DataCard>
