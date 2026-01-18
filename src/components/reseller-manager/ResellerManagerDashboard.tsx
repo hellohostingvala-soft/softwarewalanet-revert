@@ -10,7 +10,11 @@ import { RMComplianceStatus } from './RMComplianceStatus';
 import { RMAIFraudFlags } from './RMAIFraudFlags';
 import { CategoryHierarchyView } from './CategoryHierarchyView';
 
-export function ResellerManagerDashboard() {
+interface ResellerManagerDashboardProps {
+  onBack?: () => void;
+}
+
+export function ResellerManagerDashboard({ onBack }: ResellerManagerDashboardProps = {}) {
   const [activeSection, setActiveSection] = useState<ResellerManagerSection>('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -64,6 +68,7 @@ export function ResellerManagerDashboard() {
           onSectionChange={setActiveSection}
           collapsed={sidebarCollapsed}
           onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+          onBack={onBack}
         />
         <main className="flex-1 overflow-auto p-6">
           {renderContent()}
