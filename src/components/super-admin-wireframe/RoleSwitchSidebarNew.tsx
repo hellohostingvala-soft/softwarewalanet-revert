@@ -488,19 +488,46 @@ export const RoleSwitchSidebarNew: React.FC<RoleSwitchSidebarProps> = ({
   // Determine sidebar width
   const sidebarWidth = collapsed ? 60 : 260;
 
+  // Neutral dark sidebar colors (overrides global blue tokens)
+  const SIDEBAR_THEME = {
+    bg: '#1a1a2e',
+    bgGradient: 'linear-gradient(180deg, #1a1a2e 0%, #16162a 100%)',
+    border: '#2a2a4a',
+    text: '#ffffff',
+    textMuted: 'rgba(255, 255, 255, 0.7)',
+    accent: 'rgba(139, 92, 246, 0.15)',
+    accentActive: 'rgba(139, 92, 246, 0.25)',
+    primary: '#8b5cf6',
+    primaryForeground: '#ffffff',
+  };
+
   return (
     <aside
       className={cn(
-        "flex flex-col h-screen border-r transition-all duration-200 ease-in-out",
-        "bg-sidebar text-sidebar-foreground border-sidebar-border"
+        "flex flex-col h-screen border-r transition-all duration-200 ease-in-out"
       )}
-      style={{ width: sidebarWidth }}
+      style={{ 
+        width: sidebarWidth, 
+        background: SIDEBAR_THEME.bgGradient,
+        borderColor: SIDEBAR_THEME.border,
+        color: SIDEBAR_THEME.text,
+        ['--sidebar-bg' as string]: SIDEBAR_THEME.bg,
+        ['--sidebar-border' as string]: SIDEBAR_THEME.border,
+        ['--sidebar-text' as string]: SIDEBAR_THEME.text,
+        ['--sidebar-text-muted' as string]: SIDEBAR_THEME.textMuted,
+        ['--sidebar-accent' as string]: SIDEBAR_THEME.accent,
+        ['--sidebar-accent-active' as string]: SIDEBAR_THEME.accentActive,
+        ['--sidebar-primary' as string]: SIDEBAR_THEME.primary,
+      }}
     >
       {/* ===== HEADER: Role Card ===== */}
-      <div className="p-3 border-b border-sidebar-border">
+      <div className="p-3" style={{ borderBottom: `1px solid ${SIDEBAR_THEME.border}` }}>
         <div className="flex items-center gap-3">
-          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-sidebar-accent flex items-center justify-center">
-            <Icon className="w-5 h-5 text-sidebar-accent-foreground" />
+          <div 
+            className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center"
+            style={{ background: SIDEBAR_THEME.accent }}
+          >
+            <Icon className="w-5 h-5" style={{ color: SIDEBAR_THEME.primary }} />
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
@@ -508,12 +535,13 @@ export const RoleSwitchSidebarNew: React.FC<RoleSwitchSidebarProps> = ({
                 <h2 className="text-sm font-bold truncate">{currentConfig.label}</h2>
                 <Badge
                   variant="secondary"
-                  className="text-[9px] px-1.5 py-0 bg-sidebar-accent/30 text-sidebar-foreground border-0"
+                  className="text-[9px] px-1.5 py-0 border-0"
+                  style={{ background: SIDEBAR_THEME.accent, color: SIDEBAR_THEME.text }}
                 >
                   {activeRole === "boss_owner" ? "AUTHORITY" : "VIEW"}
                 </Badge>
               </div>
-              <p className="text-[10px] text-sidebar-foreground/70 truncate">
+              <p className="text-[10px] truncate" style={{ color: SIDEBAR_THEME.textMuted }}>
                 {currentConfig.description}
               </p>
             </div>
@@ -526,7 +554,8 @@ export const RoleSwitchSidebarNew: React.FC<RoleSwitchSidebarProps> = ({
             <Button
               variant="ghost"
               size="sm"
-              className="flex-1 h-7 text-[10px] bg-sidebar-accent/20 hover:bg-sidebar-accent/30 text-sidebar-foreground"
+              className="flex-1 h-7 text-[10px]"
+              style={{ background: SIDEBAR_THEME.accent, color: SIDEBAR_THEME.text }}
             >
               <Lock className="w-3 h-3 mr-1" />
               Lock
@@ -534,7 +563,8 @@ export const RoleSwitchSidebarNew: React.FC<RoleSwitchSidebarProps> = ({
             <Button
               variant="ghost"
               size="sm"
-              className="flex-1 h-7 text-[10px] bg-sidebar-accent/20 hover:bg-sidebar-accent/30 text-sidebar-foreground"
+              className="flex-1 h-7 text-[10px]"
+              style={{ background: SIDEBAR_THEME.accent, color: SIDEBAR_THEME.text }}
             >
               <Zap className="w-3 h-3 mr-1" />
               Override
@@ -544,9 +574,9 @@ export const RoleSwitchSidebarNew: React.FC<RoleSwitchSidebarProps> = ({
       </div>
 
       {/* ===== ROLE SWITCHER ===== */}
-      <div className="p-2 border-b border-sidebar-border">
+      <div className="p-2" style={{ borderBottom: `1px solid ${SIDEBAR_THEME.border}` }}>
         {!collapsed && (
-          <p className="text-[9px] font-semibold text-sidebar-foreground/60 uppercase tracking-wider mb-1.5 px-1">
+          <p className="text-[9px] font-semibold uppercase tracking-wider mb-1.5 px-1" style={{ color: SIDEBAR_THEME.textMuted }}>
             Switch Role
           </p>
         )}
@@ -561,24 +591,20 @@ export const RoleSwitchSidebarNew: React.FC<RoleSwitchSidebarProps> = ({
                 <TooltipTrigger asChild>
                   <button
                     onClick={() => handleRoleSelect(roleId)}
-                    className={cn(
-                      "w-full flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors",
-                      isActive
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50"
-                    )}
+                    className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors"
+                    style={{
+                      background: isActive ? SIDEBAR_THEME.accentActive : 'transparent',
+                      color: SIDEBAR_THEME.text,
+                      fontWeight: isActive ? 500 : 400,
+                    }}
                   >
                     <div
-                      className={cn(
-                        "w-5 h-5 rounded flex items-center justify-center",
-                        isActive ? "bg-sidebar-primary" : "bg-sidebar-accent/30"
-                      )}
+                      className="w-5 h-5 rounded flex items-center justify-center"
+                      style={{ background: isActive ? SIDEBAR_THEME.primary : SIDEBAR_THEME.accent }}
                     >
                       <RoleIcon
-                        className={cn(
-                          "w-3 h-3",
-                          isActive ? "text-sidebar-primary-foreground" : "text-sidebar-foreground"
-                        )}
+                        className="w-3 h-3"
+                        style={{ color: isActive ? SIDEBAR_THEME.primaryForeground : SIDEBAR_THEME.text }}
                       />
                     </div>
                     {!collapsed && (
@@ -596,7 +622,7 @@ export const RoleSwitchSidebarNew: React.FC<RoleSwitchSidebarProps> = ({
       </div>
 
       {/* ===== STATUS BAR ===== */}
-      <div className="px-3 py-2 border-b border-sidebar-border bg-sidebar-accent/20">
+      <div className="px-3 py-2" style={{ borderBottom: `1px solid ${SIDEBAR_THEME.border}`, background: SIDEBAR_THEME.accent }}>
         <div className="flex items-center gap-2">
           {!collapsed ? (
             <>
@@ -604,7 +630,7 @@ export const RoleSwitchSidebarNew: React.FC<RoleSwitchSidebarProps> = ({
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                 <span className="text-[10px] font-medium">RUNNING</span>
               </div>
-              <span className="text-sidebar-foreground/40">|</span>
+              <span style={{ color: SIDEBAR_THEME.textMuted }}>|</span>
               <div className="flex items-center gap-1">
                 <Activity className="w-3 h-3" />
                 <span className="text-[10px]">AI: ACTIVE</span>
@@ -620,7 +646,7 @@ export const RoleSwitchSidebarNew: React.FC<RoleSwitchSidebarProps> = ({
       <ScrollArea className="flex-1">
         <div className="p-2">
           {!collapsed && (
-            <p className="text-[10px] font-semibold text-sidebar-foreground/60 uppercase tracking-wider mb-2 px-2">
+            <p className="text-[10px] font-semibold uppercase tracking-wider mb-2 px-2" style={{ color: SIDEBAR_THEME.textMuted }}>
               {currentConfig.shortLabel} Features
             </p>
           )}
@@ -643,12 +669,11 @@ export const RoleSwitchSidebarNew: React.FC<RoleSwitchSidebarProps> = ({
                     <Tooltip delayDuration={0}>
                       <TooltipTrigger asChild>
                         <button
-                          className={cn(
-                            "w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-colors",
-                            isModuleExpanded || isModuleActive
-                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                              : "hover:bg-sidebar-accent/50"
-                          )}
+                          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-colors"
+                          style={{
+                            background: isModuleExpanded || isModuleActive ? SIDEBAR_THEME.accentActive : 'transparent',
+                            color: SIDEBAR_THEME.text,
+                          }}
                         >
                           <ModuleIcon className="w-4 h-4 flex-shrink-0" />
                           {!collapsed && (
@@ -689,12 +714,11 @@ export const RoleSwitchSidebarNew: React.FC<RoleSwitchSidebarProps> = ({
                           >
                             <CollapsibleTrigger asChild>
                               <button
-                                className={cn(
-                                  "w-full flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors text-sm",
-                                  isCategoryExpanded || isCategoryActive
-                                    ? "bg-sidebar-accent/60 font-medium"
-                                    : "hover:bg-sidebar-accent/30"
-                                )}
+                                className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors text-sm"
+                                style={{
+                                  background: isCategoryExpanded || isCategoryActive ? SIDEBAR_THEME.accent : 'transparent',
+                                  fontWeight: isCategoryExpanded || isCategoryActive ? 500 : 400,
+                                }}
                               >
                                 <CategoryIcon className="w-3.5 h-3.5" />
                                 <span className="flex-1 text-left text-xs truncate">
@@ -711,7 +735,7 @@ export const RoleSwitchSidebarNew: React.FC<RoleSwitchSidebarProps> = ({
                               </button>
                             </CollapsibleTrigger>
 
-                            <CollapsibleContent className="pl-4 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 ml-2">
+                            <CollapsibleContent className="pl-4 mt-0.5 space-y-0.5 ml-2" style={{ borderLeft: `1px solid ${SIDEBAR_THEME.border}` }}>
                               {category.subCategories?.map((sub) => {
                                 const isSubActive = activeSubCategory === sub.id;
                                 const isLocked = sub.status === "locked";
@@ -723,13 +747,14 @@ export const RoleSwitchSidebarNew: React.FC<RoleSwitchSidebarProps> = ({
                                       handleSubCategoryClick(sub.id, sub.label, sub.status)
                                     }
                                     disabled={isLocked}
-                                    className={cn(
-                                      "w-full flex items-center gap-2 px-2 py-1 rounded text-[11px] transition-colors",
-                                      isSubActive
-                                        ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
-                                        : "hover:bg-sidebar-accent/40",
-                                      isLocked && "opacity-50 cursor-not-allowed"
-                                    )}
+                                    className="w-full flex items-center gap-2 px-2 py-1 rounded text-[11px] transition-colors"
+                                    style={{
+                                      background: isSubActive ? SIDEBAR_THEME.primary : 'transparent',
+                                      color: isSubActive ? SIDEBAR_THEME.primaryForeground : SIDEBAR_THEME.text,
+                                      fontWeight: isSubActive ? 500 : 400,
+                                      opacity: isLocked ? 0.5 : 1,
+                                      cursor: isLocked ? 'not-allowed' : 'pointer',
+                                    }}
                                   >
                                     <span className="truncate">{sub.label}</span>
                                     {isLocked && <Lock className="w-2.5 h-2.5 ml-auto" />}
@@ -750,13 +775,14 @@ export const RoleSwitchSidebarNew: React.FC<RoleSwitchSidebarProps> = ({
       </ScrollArea>
 
       {/* ===== FOOTER ===== */}
-      <div className="mt-auto border-t border-sidebar-border p-2">
+      <div className="mt-auto p-2" style={{ borderTop: `1px solid ${SIDEBAR_THEME.border}` }}>
         {/* Collapse toggle */}
         <Button
           variant="ghost"
           size="sm"
           onClick={onToggleCollapse}
-          className="w-full justify-center mb-1 text-sidebar-foreground/70 hover:bg-sidebar-accent/30"
+          className="w-full justify-center mb-1"
+          style={{ color: SIDEBAR_THEME.textMuted }}
         >
           {collapsed ? (
             <ChevronRight className="w-4 h-4" />
@@ -775,7 +801,8 @@ export const RoleSwitchSidebarNew: React.FC<RoleSwitchSidebarProps> = ({
               variant="ghost"
               size="sm"
               onClick={onLogout}
-              className="w-full justify-center text-sidebar-foreground/70 hover:bg-destructive/20 hover:text-destructive"
+              className="w-full justify-center hover:bg-destructive/20 hover:text-destructive"
+              style={{ color: SIDEBAR_THEME.textMuted }}
             >
               <LogOut className="w-4 h-4" />
               {!collapsed && <span className="ml-2 text-xs">Logout</span>}
