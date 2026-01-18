@@ -2,7 +2,10 @@
  * SERVER MODULE SIDEBAR
  * Ultra-simple sidebar with exactly 9 items as specified
  * Includes Back to Boss button for navigation
- * SINGLE SIDEBAR ENFORCEMENT: Uses sidebar store
+ * 
+ * SINGLE-CONTEXT ENFORCEMENT:
+ * - Only renders when activeContext === 'module' AND category matches
+ * - Back button triggers full context switch to Boss
  */
 
 import React from 'react';
@@ -12,7 +15,7 @@ import {
   Database, FileText, Brain, Settings, ArrowLeft 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useSidebarStore } from '@/stores/sidebarStore';
+import { useSidebarStore, useShouldRenderSidebar } from '@/stores/sidebarStore';
 
 export type ServerModuleSection = 
   | 'overview'
@@ -48,28 +51,29 @@ export const ServerModuleSidebar: React.FC<ServerModuleSidebarProps> = ({
   onSectionChange,
   onBack,
 }) => {
-  // SINGLE SIDEBAR ENFORCEMENT: Use store for navigation
-  const { exitToGlobal, activeSidebar, activeCategorySidebar } = useSidebarStore();
+  // SINGLE-CONTEXT ENFORCEMENT: Use store for clean context transitions
+  const { exitToGlobal } = useSidebarStore();
   
-  // Handle back navigation - updates store AND calls prop callback
+  // Use the dedicated hook to check if this sidebar should render
+  const shouldRender = useShouldRenderSidebar('category', 'server-manager');
+  
+  // Handle back navigation - triggers FULL context switch to Boss
   const handleBack = () => {
+    // 1. Update store state (Boss context)
     exitToGlobal();
+    // 2. Call parent callback to update navigation state
     onBack?.();
   };
   
-  // SINGLE SIDEBAR ENFORCEMENT: Only render when this module is active
-  // No fallback - strict isolation to prevent double sidebar
-  const isThisModuleActive = activeSidebar === 'category' && activeCategorySidebar === 'server-manager';
-  
-  // When in module view, the global sidebar is hidden and we should render
-  // When NOT in module view, don't render the module sidebar at all
-  if (!isThisModuleActive) {
+  // STRICT ISOLATION: Only render when in Module context with matching category
+  // This prevents double sidebars completely
+  if (!shouldRender) {
     return null;
   }
   
   return (
-    <div className="w-56 bg-card/50 border-r border-border/50 flex flex-col">
-      {/* Back Button */}
+    <div className="w-56 bg-card/50 border-r border-border/50 flex flex-col shrink-0">
+      {/* Back Button - Triggers context switch */}
       <div className="p-2 border-b border-border/50">
         <motion.button
           onClick={handleBack}
@@ -82,7 +86,7 @@ export const ServerModuleSidebar: React.FC<ServerModuleSidebarProps> = ({
         </motion.button>
       </div>
       
-      {/* Header */}
+      {/* Module Header */}
       <div className="p-4 border-b border-border/50">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
@@ -92,8 +96,8 @@ export const ServerModuleSidebar: React.FC<ServerModuleSidebarProps> = ({
         </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-2 space-y-1">
+      {/* Navigation Items */}
+      <nav className="flex-1 p-2 space-y-1 overflow-auto">
         {sidebarItems.map((item) => {
           const isActive = activeSection === item.id;
           const Icon = item.icon;
@@ -118,7 +122,7 @@ export const ServerModuleSidebar: React.FC<ServerModuleSidebarProps> = ({
         })}
       </nav>
 
-      {/* AI Status Footer */}
+      {/* Status Footer */}
       <div className="p-3 border-t border-border/50">
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />

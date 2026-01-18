@@ -1,7 +1,10 @@
 /**
  * MARKETING MODULE SIDEBAR (Step 10)
  * 10-item sidebar with Back to Boss button
- * SINGLE SIDEBAR ENFORCEMENT: Uses sidebar store
+ * 
+ * SINGLE-CONTEXT ENFORCEMENT:
+ * - Only renders when activeContext === 'module' AND category === 'marketing'
+ * - Back button triggers full context switch to Boss
  */
 import { motion } from "framer-motion";
 import {
@@ -18,7 +21,7 @@ import {
   Target,
   ArrowLeft
 } from "lucide-react";
-import { useSidebarStore } from '@/stores/sidebarStore';
+import { useSidebarStore, useShouldRenderSidebar } from '@/stores/sidebarStore';
 
 interface MarketingModuleSidebarProps {
   activeSection: string;
@@ -40,24 +43,25 @@ const sidebarItems = [
 ];
 
 export const MarketingModuleSidebar = ({ activeSection, setActiveSection, onBack }: MarketingModuleSidebarProps) => {
-  // SINGLE SIDEBAR ENFORCEMENT: Use store for navigation
-  const { exitToGlobal, activeSidebar, activeCategorySidebar } = useSidebarStore();
+  // SINGLE-CONTEXT ENFORCEMENT: Use store for clean context transitions
+  const { exitToGlobal } = useSidebarStore();
   
-  // Handle back navigation - updates store AND calls prop callback
+  // Use dedicated hook for strict visibility check
+  const shouldRender = useShouldRenderSidebar('category', 'marketing');
+  
+  // Handle back navigation - triggers FULL context switch to Boss
   const handleBack = () => {
     exitToGlobal();
     onBack?.();
   };
   
-  // SINGLE SIDEBAR ENFORCEMENT: Only render when this module is active
-  const isThisModuleActive = activeSidebar === 'category' && activeCategorySidebar === 'marketing';
-  
-  if (!isThisModuleActive) {
+  // STRICT ISOLATION: Only render when in Module context with matching category
+  if (!shouldRender) {
     return null;
   }
 
   return (
-    <div className="w-64 min-h-full border-r border-border/50 bg-background/50 backdrop-blur-sm flex flex-col">
+    <div className="w-64 min-h-full border-r border-border/50 bg-background/50 backdrop-blur-sm flex flex-col shrink-0">
       {/* Back Button */}
       <div className="p-2 border-b border-border/50">
         <motion.button
@@ -83,7 +87,7 @@ export const MarketingModuleSidebar = ({ activeSection, setActiveSection, onBack
         </div>
       </div>
       
-      <nav className="p-3 space-y-1">
+      <nav className="p-3 space-y-1 flex-1 overflow-auto">
         {sidebarItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeSection === item.id;

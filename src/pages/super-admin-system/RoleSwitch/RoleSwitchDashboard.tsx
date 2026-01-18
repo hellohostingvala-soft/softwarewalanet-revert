@@ -97,34 +97,49 @@ const RoleSwitchDashboard = () => {
   }, [isBossOwner, activeRole]);
 
   // STEP 9: Module view detection - determines if we're inside a full-screen module
+  // GOLDEN RULE: Only ONE context active at a time (Boss OR Module, never both)
   const moduleViewIds = useMemo(() => ['server-control', 'vala-ai', 'product-demo', 'leads', 'marketing'], []);
   const isInModuleView = activeRole === 'boss_owner' && moduleViewIds.includes(activeNav);
   
-  // SINGLE SIDEBAR ENFORCEMENT: Use sidebar store for visibility control
-  const { showGlobalSidebar, enterCategory, activeSidebar, exitToGlobal } = useSidebarStore();
+  // SINGLE-CONTEXT ENFORCEMENT: Use sidebar store for context control
+  const { 
+    showGlobalSidebar, 
+    enterCategory, 
+    exitToGlobal,
+    activeContext,
+    activeSidebar,
+    canTransition
+  } = useSidebarStore();
   
-  // Sync sidebar visibility with module view state
+  // Category mapping for module navigation
+  const categoryMap: Record<string, 'server-manager' | 'vala-ai' | 'product-demo' | 'lead-manager' | 'marketing'> = useMemo(() => ({
+    'server-control': 'server-manager',
+    'vala-ai': 'vala-ai',
+    'product-demo': 'product-demo',
+    'leads': 'lead-manager',
+    'marketing': 'marketing',
+  }), []);
+  
+  // CONTEXT SYNCHRONIZATION: Sync store state with module view state
+  // This ensures the sidebar store always reflects the current view
   useEffect(() => {
+    if (!canTransition()) return; // Prevent race conditions
+    
     if (isInModuleView) {
-      // Map activeNav to category sidebar ID
-      const categoryMap: Record<string, 'server-manager' | 'vala-ai' | 'product-demo' | 'lead-manager' | 'marketing'> = {
-        'server-control': 'server-manager',
-        'vala-ai': 'vala-ai',
-        'product-demo': 'product-demo',
-        'leads': 'lead-manager',
-        'marketing': 'marketing',
-      };
       const categoryId = categoryMap[activeNav];
       if (categoryId) {
+        // ENTER MODULE CONTEXT: Hide Boss sidebar, show Module sidebar
         enterCategory(categoryId);
       }
     } else {
+      // EXIT TO BOSS CONTEXT: Hide Module sidebar, show Boss sidebar
       showGlobalSidebar();
     }
-  }, [isInModuleView, activeNav, showGlobalSidebar, enterCategory]);
+  }, [isInModuleView, activeNav, showGlobalSidebar, enterCategory, categoryMap, canTransition]);
   
-  // Check if global sidebar should be visible (from store)
-  const shouldShowGlobalSidebar = activeSidebar === 'global' && !isInModuleView;
+  // VISIBILITY RULE: Global sidebar visible ONLY in Boss context
+  // Uses activeContext from store (not just activeSidebar) for strict enforcement
+  const shouldShowGlobalSidebar = activeContext === 'boss' && activeSidebar === 'global' && !isInModuleView;
 
   // STEP 9: Navigation labels for breadcrumb
   const navLabels: Record<string, string> = useMemo(() => ({
@@ -548,9 +563,11 @@ const RoleSwitchDashboard = () => {
         />
       </header>
       
-      {/* STEP 9: Main Content Area - SINGLE LAYOUT RULE: Only one active view at a time */}
+      {/* STEP 9: SINGLE-CONTEXT LAYOUT - Only ONE active view at a time */}
+      {/* GOLDEN RULE: Boss context OR Module context, NEVER both */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Role Switch Sidebar - SINGLE SIDEBAR ENFORCEMENT: Completely unmount when in module view */}
+        {/* CONTEXT A: Boss Sidebar - ONLY visible in Boss context */}
+        {/* Completely unmounted in Module context to prevent overlap */}
         {shouldShowGlobalSidebar && (
           <RoleSwitchSidebar
             activeRole={activeRole}
@@ -564,13 +581,20 @@ const RoleSwitchDashboard = () => {
           />
         )}
 
-        {/* Dynamic Role View - SINGLE VIEW RULE: No stacking, no overlays */}
+        {/* CONTEXT B: Module Content - Takes full width when in module view */}
+        {/* Module sidebar is rendered INSIDE the module container, not here */}
         <main 
           className={cn(
             "flex-1 overflow-auto",
-            isInModuleView ? "w-full" : ""
+            // Full width in module context - no leftover columns
+            isInModuleView && "w-full"
           )} 
-          style={{ minHeight: 0, height: '100%' }}
+          style={{ 
+            minHeight: 0, 
+            height: '100%',
+            // Ensure no fixed-width leftovers when context switches
+            width: isInModuleView ? '100%' : undefined
+          }}
         >
           <ErrorBoundary
             onError={(error) => {
@@ -597,7 +621,7 @@ const RoleSwitchDashboard = () => {
               </div>
             }
           >
-            {/* KEY FIX: No AnimatePresence wrapper - prevents ghost renders during transitions */}
+            {/* SINGLE VIEW RENDER: No AnimatePresence to prevent ghost renders */}
             {renderRoleView()}
           </ErrorBoundary>
         </main>

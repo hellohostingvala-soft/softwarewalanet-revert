@@ -1,7 +1,10 @@
 /**
  * PRODUCT & DEMO MODULE SIDEBAR
  * 10-item sidebar with Back to Boss button
- * SINGLE SIDEBAR ENFORCEMENT: Uses sidebar store
+ * 
+ * SINGLE-CONTEXT ENFORCEMENT:
+ * - Only renders when activeContext === 'module' AND category === 'product-demo'
+ * - Back button triggers full context switch to Boss
  */
 import React from 'react';
 import { motion } from 'framer-motion';
@@ -11,7 +14,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useSidebarStore } from '@/stores/sidebarStore';
+import { useSidebarStore, useShouldRenderSidebar } from '@/stores/sidebarStore';
 
 export type ProductDemoSection = 
   | 'dashboard'
@@ -49,24 +52,25 @@ export const ProductDemoModuleSidebar: React.FC<ProductDemoModuleSidebarProps> =
   onSectionChange,
   onBack,
 }) => {
-  // SINGLE SIDEBAR ENFORCEMENT: Use store for navigation
-  const { exitToGlobal, activeSidebar, activeCategorySidebar } = useSidebarStore();
+  // SINGLE-CONTEXT ENFORCEMENT: Use store for clean context transitions
+  const { exitToGlobal } = useSidebarStore();
   
-  // Handle back navigation - updates store AND calls prop callback
+  // Use dedicated hook for strict visibility check
+  const shouldRender = useShouldRenderSidebar('category', 'product-demo');
+  
+  // Handle back navigation - triggers FULL context switch to Boss
   const handleBack = () => {
     exitToGlobal();
     onBack?.();
   };
   
-  // SINGLE SIDEBAR ENFORCEMENT: Only render when this module is active
-  const isThisModuleActive = activeSidebar === 'category' && activeCategorySidebar === 'product-demo';
-  
-  if (!isThisModuleActive) {
+  // STRICT ISOLATION: Only render when in Module context with matching category
+  if (!shouldRender) {
     return null;
   }
 
   return (
-    <div className="w-56 bg-card/50 border-r border-border/50 flex flex-col h-full">
+    <div className="w-56 bg-card/50 border-r border-border/50 flex flex-col h-full shrink-0">
       {/* Back Button */}
       <div className="p-2 border-b border-border/50">
         <motion.button
