@@ -932,7 +932,7 @@ const RoleSwitchSidebar = ({
             {/* Crown Icon - Visually Dominant */}
             <div className={cn(
               "flex-shrink-0 rounded-lg flex items-center justify-center shadow-lg border-2",
-              "w-11 h-11 bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500 border-amber-300/50"
+              "w-11 h-11 bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 border-white/30"
             )}>
               <Crown className="w-5 h-5 text-white drop-shadow-md" />
             </div>
@@ -940,7 +940,7 @@ const RoleSwitchSidebar = ({
               <div className="flex-1 min-w-0 transition-opacity duration-150">
                 <div className="flex items-center gap-2">
                   <h2 className="text-sm font-bold text-white tracking-tight">Boss / Owner</h2>
-                  <Badge className="text-[9px] px-1.5 py-0 bg-amber-500/30 text-amber-200 border-amber-400/50">
+                  <Badge className="text-[9px] px-1.5 py-0 bg-white/15 text-white border-white/25">
                     FINAL AUTHORITY
                   </Badge>
                 </div>
@@ -956,11 +956,11 @@ const RoleSwitchSidebar = ({
                 <Lock className="w-3 h-3" />
                 Lock
               </button>
-              <button className="flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded-md bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/30 text-amber-300 text-[10px] font-medium transition-colors">
+              <button className="flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded-md bg-white/15 hover:bg-white/20 border border-white/20 text-white text-[10px] font-medium transition-colors">
                 <Archive className="w-3 h-3" />
                 Archive
               </button>
-              <button className="flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded-md bg-orange-500/20 hover:bg-orange-500/30 border border-orange-400/30 text-orange-300 text-[10px] font-medium transition-colors">
+              <button className="flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded-md bg-white/15 hover:bg-white/20 border border-white/20 text-white text-[10px] font-medium transition-colors">
                 <Zap className="w-3 h-3" />
                 Override
               </button>
