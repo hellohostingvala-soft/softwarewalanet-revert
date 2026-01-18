@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import SalesSupportSidebar from "@/components/sales-support/SalesSupportSidebar";
+import SalesSupportSidebar from "@/components/sales-support/SalesSupportSidebarLegacy";
 import SalesSupportTopBar from "@/components/sales-support/SalesSupportTopBar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Inbox, TrendingUp, DollarSign, Clock, AlertTriangle, Ticket, Phone, Mail } from "lucide-react";
