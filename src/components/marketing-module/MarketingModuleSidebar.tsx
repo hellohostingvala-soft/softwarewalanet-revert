@@ -60,29 +60,51 @@ export const MarketingModuleSidebar = ({ activeSection, setActiveSection, onBack
     return null;
   }
 
+  // ===== LOCKED COLORS: Dark Navy Blue Sidebar (matches Control Panel) =====
+  const SIDEBAR_COLORS = {
+    bg: '#0a1628',
+    bgGradient: 'linear-gradient(180deg, #0a1628 0%, #0d1b2a 100%)',
+    border: '#1e3a5f',
+    activeHighlight: '#2563eb',
+    hoverBg: 'rgba(37, 99, 235, 0.15)',
+    text: '#ffffff',
+    textMuted: 'rgba(255, 255, 255, 0.7)',
+    iconColor: '#60a5fa',
+  };
+  
   return (
-    <div className="w-64 min-h-full border-r border-border/50 bg-background/50 backdrop-blur-sm flex flex-col shrink-0">
+    <div 
+      className="w-64 min-h-full flex flex-col shrink-0"
+      style={{ 
+        background: SIDEBAR_COLORS.bgGradient, 
+        borderRight: `1px solid ${SIDEBAR_COLORS.border}` 
+      }}
+    >
       {/* Back Button */}
-      <div className="p-2 border-b border-border/50">
+      <div className="p-2" style={{ borderBottom: `1px solid ${SIDEBAR_COLORS.border}` }}>
         <motion.button
           onClick={handleBack}
           whileHover={{ x: -2 }}
           whileTap={{ scale: 0.98 }}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all"
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all"
+          style={{ color: SIDEBAR_COLORS.textMuted }}
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Boss</span>
+          <span>← Back to Control Panel</span>
         </motion.button>
       </div>
       
-      <div className="p-4 border-b border-border/50">
+      <div className="p-4" style={{ borderBottom: `1px solid ${SIDEBAR_COLORS.border}` }}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-            <TrendingUp className="w-5 h-5 text-white" />
+          <div 
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: SIDEBAR_COLORS.activeHighlight }}
+          >
+            <TrendingUp className="w-5 h-5" style={{ color: SIDEBAR_COLORS.text }} />
           </div>
           <div>
-            <h2 className="font-semibold text-foreground">Marketing & SEO</h2>
-            <p className="text-xs text-muted-foreground">AI-Powered Growth</p>
+            <h2 className="font-semibold" style={{ color: SIDEBAR_COLORS.text }}>Marketing & SEO</h2>
+            <p className="text-xs" style={{ color: SIDEBAR_COLORS.textMuted }}>AI-Powered Growth</p>
           </div>
         </div>
       </div>
@@ -96,22 +118,16 @@ export const MarketingModuleSidebar = ({ activeSection, setActiveSection, onBack
             <motion.button
               key={item.id}
               onClick={() => setActiveSection(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                isActive
-                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                  : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
-              }`}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all"
+              style={{
+                background: isActive ? SIDEBAR_COLORS.activeHighlight : 'transparent',
+                color: isActive ? SIDEBAR_COLORS.text : SIDEBAR_COLORS.textMuted,
+              }}
               whileHover={{ x: 4 }}
               whileTap={{ scale: 0.98 }}
             >
-              <Icon className={`w-4 h-4 ${isActive ? "text-emerald-400" : ""}`} />
+              <Icon className="w-4 h-4" style={{ color: isActive ? SIDEBAR_COLORS.text : SIDEBAR_COLORS.iconColor }} />
               <span>{item.label}</span>
-              {isActive && (
-                <motion.div
-                  layoutId="marketing-sidebar-active"
-                  className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400"
-                />
-              )}
             </motion.button>
           );
         })}

@@ -69,29 +69,51 @@ export const ProductDemoModuleSidebar: React.FC<ProductDemoModuleSidebarProps> =
     return null;
   }
 
+  // ===== LOCKED COLORS: Dark Navy Blue Sidebar (matches Control Panel) =====
+  const SIDEBAR_COLORS = {
+    bg: '#0a1628',
+    bgGradient: 'linear-gradient(180deg, #0a1628 0%, #0d1b2a 100%)',
+    border: '#1e3a5f',
+    activeHighlight: '#2563eb',
+    hoverBg: 'rgba(37, 99, 235, 0.15)',
+    text: '#ffffff',
+    textMuted: 'rgba(255, 255, 255, 0.7)',
+    iconColor: '#60a5fa',
+  };
+  
   return (
-    <div className="w-56 bg-card/50 border-r border-border/50 flex flex-col h-full shrink-0">
+    <div 
+      className="w-56 flex flex-col h-full shrink-0"
+      style={{ 
+        background: SIDEBAR_COLORS.bgGradient, 
+        borderRight: `1px solid ${SIDEBAR_COLORS.border}` 
+      }}
+    >
       {/* Back Button */}
-      <div className="p-2 border-b border-border/50">
+      <div className="p-2" style={{ borderBottom: `1px solid ${SIDEBAR_COLORS.border}` }}>
         <motion.button
           onClick={handleBack}
           whileHover={{ x: -2 }}
           whileTap={{ scale: 0.98 }}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all"
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all"
+          style={{ color: SIDEBAR_COLORS.textMuted }}
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Boss</span>
+          <span>← Back to Control Panel</span>
         </motion.button>
       </div>
       
-      <div className="p-4 border-b border-border/50">
+      <div className="p-4" style={{ borderBottom: `1px solid ${SIDEBAR_COLORS.border}` }}>
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-            <Package className="w-4 h-4 text-white" />
+          <div 
+            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ background: SIDEBAR_COLORS.activeHighlight }}
+          >
+            <Package className="w-4 h-4" style={{ color: SIDEBAR_COLORS.text }} />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-foreground">Product & Demo</h2>
-            <p className="text-[10px] text-muted-foreground">Enterprise Manager</p>
+            <h2 className="text-sm font-bold" style={{ color: SIDEBAR_COLORS.text }}>Product & Demo</h2>
+            <p className="text-[10px]" style={{ color: SIDEBAR_COLORS.textMuted }}>Enterprise Manager</p>
           </div>
         </div>
       </div>
@@ -106,22 +128,21 @@ export const ProductDemoModuleSidebar: React.FC<ProductDemoModuleSidebarProps> =
                 onClick={() => onSectionChange(item.id)}
                 whileHover={{ x: 2 }}
                 whileTap={{ scale: 0.98 }}
-                className={cn(
-                  "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all",
-                  isActive 
-                    ? "bg-violet-500/20 text-violet-400 border border-violet-500/30" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                )}
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all"
+                style={{
+                  background: isActive ? SIDEBAR_COLORS.activeHighlight : 'transparent',
+                  color: isActive ? SIDEBAR_COLORS.text : SIDEBAR_COLORS.textMuted,
+                }}
               >
-                <Icon className={cn("w-4 h-4", isActive ? "text-violet-400" : "text-muted-foreground")} />
+                <Icon className="w-4 h-4" style={{ color: isActive ? SIDEBAR_COLORS.text : SIDEBAR_COLORS.iconColor }} />
                 <span className="font-medium">{item.label}</span>
               </motion.button>
             );
           })}
         </div>
       </ScrollArea>
-      <div className="p-3 border-t border-border/50">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+      <div className="p-3" style={{ borderTop: `1px solid ${SIDEBAR_COLORS.border}` }}>
+        <div className="flex items-center gap-2 text-xs" style={{ color: SIDEBAR_COLORS.textMuted }}>
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span>System Active</span>
         </div>
