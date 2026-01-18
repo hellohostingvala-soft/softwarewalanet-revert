@@ -3,7 +3,7 @@ import {
   Crown, Shield, Lock, Users, Globe2, Activity, Server,
   Database, CreditCard, Brain, TrendingUp, Building2,
   DollarSign, Wallet, BarChart3, ShieldAlert, FileText,
-  Scale, Cpu, Clock
+  Scale, Cpu, Clock, ArrowLeft
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,24 +23,14 @@ const T = {
   bg: '#0a0f1a',
   card: '#111827',
   border: '#1f2937',
-  primary: '#2563eb',      // Blue - from logo
+  primary: '#2563eb',
   primaryLight: '#3b82f6',
-  accent: '#dc2626',       // Red - from logo
+  accent: '#dc2626',
   text: '#ffffff',
   muted: '#9ca3af',
   dim: '#6b7280',
   green: '#22c55e',
-  red: '#dc2626',
 };
-
-// ===== MINI STAT =====
-const MiniStat = memo(({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
-  <div className="flex items-center gap-2 py-2 border-b" style={{ borderColor: T.border }}>
-    <span style={{ color: T.primary }}>{icon}</span>
-    <span className="flex-1 text-xs" style={{ color: T.muted }}>{label}</span>
-    <span className="text-base font-bold" style={{ color: T.primary }}>{value}</span>
-  </div>
-));
 
 // ===== DATA CARD =====
 const DataCard = memo(({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) => (
@@ -62,8 +52,8 @@ const Chart = memo(({ type = 'bar' }: { type?: 'bar' | 'line' }) => (
       ))
     ) : (
       <svg width="100%" height="100%" viewBox="0 0 200 50" preserveAspectRatio="none">
-        <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={T.primary} stopOpacity="0.3"/><stop offset="100%" stopColor={T.primary} stopOpacity="0"/></linearGradient></defs>
-        <path d="M0,40 20,35 40,25 60,30 80,18 100,22 120,12 140,28 160,8 180,18 200,5 200,50 0,50Z" fill="url(#g)"/>
+        <defs><linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={T.primary} stopOpacity="0.3"/><stop offset="100%" stopColor={T.primary} stopOpacity="0"/></linearGradient></defs>
+        <path d="M0,40 20,35 40,25 60,30 80,18 100,22 120,12 140,28 160,8 180,18 200,5 200,50 0,50Z" fill="url(#chartGrad)"/>
         <polyline points="0,40 20,35 40,25 60,30 80,18 100,22 120,12 140,28 160,8 180,18 200,5" fill="none" stroke={T.primary} strokeWidth="2"/>
       </svg>
     )}
@@ -98,6 +88,7 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
     window.dispatchEvent(new PopStateEvent('popstate'));
   }, []);
 
+  // If module is selected, show module container with back button
   if (activeNav && activeNav in modules) {
     switch (modules[activeNav]) {
       case 'server': return <ServerModuleContainer onBack={goBack} />;
@@ -125,24 +116,24 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
   return (
     <div className="min-h-screen p-6" style={{ background: T.bg, fontFamily: "'Outfit', sans-serif" }}>
       {/* HEADER */}
-      <div className="flex items-center justify-between mb-8 pb-5" style={{ borderBottom: `1px solid ${T.border}` }}>
+      <div className="flex items-center justify-between mb-6 pb-4" style={{ borderBottom: `1px solid ${T.border}` }}>
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-xl flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${T.primary}, ${T.primaryLight})`, boxShadow: `0 8px 24px rgba(37,99,235,0.3)` }}>
-            <Crown size={28} style={{ color: T.text }} />
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${T.primary}, ${T.primaryLight})`, boxShadow: `0 8px 24px rgba(37,99,235,0.3)` }}>
+            <Crown size={24} style={{ color: T.text }} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: T.text, fontFamily: "'Space Grotesk', sans-serif" }}>BOSS / OWNER DASHBOARD</h1>
+            <h1 className="text-xl font-bold" style={{ color: T.text, fontFamily: "'Space Grotesk', sans-serif" }}>BOSS / OWNER DASHBOARD</h1>
             <p className="text-xs tracking-wider" style={{ color: T.primary }}>FINAL AUTHORITY • APPROVE / LOCK / ARCHIVE</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="px-4 py-2 rounded-lg flex items-center gap-2" style={{ background: 'rgba(37,99,235,0.15)', border: `1px solid ${T.primary}` }}>
-            <Crown size={14} style={{ color: T.primary }} />
+          <div className="px-3 py-1.5 rounded-lg flex items-center gap-2" style={{ background: 'rgba(37,99,235,0.15)', border: `1px solid ${T.primary}` }}>
+            <Crown size={12} style={{ color: T.primary }} />
             <span className="text-xs font-semibold" style={{ color: T.primary }}>SUPREME AUTHORITY</span>
           </div>
           <Dialog open={showLock} onOpenChange={setShowLock}>
             <DialogTrigger asChild>
-              <button className="px-5 py-2.5 rounded-lg flex items-center gap-2 font-semibold cursor-pointer transition-all hover:opacity-90" style={{ background: T.accent, color: T.text }}>
+              <button className="px-4 py-2 rounded-lg flex items-center gap-2 font-semibold cursor-pointer transition-all hover:opacity-90 text-sm" style={{ background: T.accent, color: T.text }}>
                 <Lock size={14} /> Emergency Lockdown
               </button>
             </DialogTrigger>
@@ -164,46 +155,22 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
         </div>
       </div>
 
-      {/* LAYOUT: Left Stats + Right Cards */}
-      <div className="grid gap-6" style={{ gridTemplateColumns: '260px 1fr' }}>
-        {/* LEFT: Key Stats */}
-        <div className="p-4 rounded-lg" style={{ background: T.card, border: `1px solid ${T.border}` }}>
-          <div className="text-center py-2 rounded mb-4" style={{ background: T.primary }}>
-            <span className="text-xs font-bold tracking-wider" style={{ color: T.text }}>KEY STATS</span>
-          </div>
-          <MiniStat icon={<BarChart3 size={14} />} label="TOTAL REVENUE" value="$2.4M" />
-          <MiniStat icon={<TrendingUp size={14} />} label="GROWTH" value="+24%" />
-          <MiniStat icon={<Users size={14} />} label="ACTIVE USERS" value="12.5K" />
-          <MiniStat icon={<Globe2 size={14} />} label="COUNTRIES" value="45" />
-          <MiniStat icon={<Building2 size={14} />} label="FRANCHISES" value="128" />
-          <MiniStat icon={<Wallet size={14} />} label="WALLET" value="$456K" />
-          <MiniStat icon={<Activity size={14} />} label="UPTIME" value="99.9%" />
-          <MiniStat icon={<Shield size={14} />} label="SECURITY" value="A+" />
-          <div className="mt-5 p-4 rounded text-center" style={{ background: T.bg }}>
-            <div className="w-20 h-20 mx-auto mb-2 rounded flex items-center justify-center" style={{ background: T.text }}>
-              <span className="text-[10px]" style={{ color: T.bg }}>QR CODE</span>
-            </div>
-            <span className="text-[10px]" style={{ color: T.dim }}>SCAN FOR MOBILE</span>
-          </div>
-        </div>
-
-        {/* RIGHT: 2-Column Cards */}
-        <div className="grid grid-cols-2 gap-5">
-          <DataCard title="REVENUE" icon={<DollarSign size={14} />}><Chart type="bar" /><StatRow l1="THIS MONTH" v1="$847K" l2="LAST MONTH" v2="$692K" /></DataCard>
-          <DataCard title="USERS" icon={<Users size={14} />}><Chart type="line" /><StatRow l1="NEW USERS" v1="+2,847" l2="ACTIVE TODAY" v2="8,421" /></DataCard>
-          <DataCard title="FRANCHISES" icon={<Building2 size={14} />}><Chart type="bar" /><StatRow l1="TOP" v1="Mumbai" l2="AVG REV" v2="$18.7K" /></DataCard>
-          <DataCard title="SYSTEM" icon={<Server size={14} />}><Chart type="line" /><StatRow l1="LOAD" v1="42%" l2="RESPONSE" v2="124ms" c1={T.green} /></DataCard>
-          <DataCard title="SECURITY" icon={<ShieldAlert size={14} />}><Chart type="bar" /><StatRow l1="CRITICAL" v1="3" l2="RESOLVED" v2="47" c1={T.accent} c2={T.green} /></DataCard>
-          <DataCard title="TRANSACTIONS" icon={<CreditCard size={14} />}><Chart type="line" /><StatRow l1="TODAY" v1="$1.2M" l2="PENDING" v2="$89K" c2={T.primary} /></DataCard>
-          <DataCard title="AI INSIGHTS" icon={<Brain size={14} />}><Chart type="bar" /><StatRow l1="PREDICTIONS" v1="156" l2="ACCURACY" v2="94.2%" c2={T.green} /></DataCard>
-          <DataCard title="MARKETING" icon={<TrendingUp size={14} />}><Chart type="line" /><StatRow l1="SPEND" v1="$45K" l2="RETURN" v2="$312K" /></DataCard>
-          <DataCard title="APPROVALS" icon={<Clock size={14} />}><Chart type="bar" /><StatRow l1="WAITING" v1="23" l2="URGENT" v2="5" c1={T.primary} c2={T.accent} /></DataCard>
-          <DataCard title="GLOBAL" icon={<Globe2 size={14} />}><Chart type="line" /><StatRow l1="COUNTRIES" v1="45" l2="NEW" v2="+7" c2={T.green} /></DataCard>
-          <DataCard title="SUPPORT" icon={<FileText size={14} />}><Chart type="bar" /><StatRow l1="OPEN" v1="89" l2="AVG TIME" v2="2.4h" c1={T.primary} /></DataCard>
-          <DataCard title="COMPLIANCE" icon={<Scale size={14} />}><Chart type="line" /><StatRow l1="SCORE" v1="98%" l2="AUDITS" v2="24/24" c1={T.green} /></DataCard>
-          <DataCard title="DEV ACTIVITY" icon={<Cpu size={14} />}><Chart type="bar" /><StatRow l1="COMMITS" v1="47" l2="DEPLOYS" v2="12" c2={T.green} /></DataCard>
-          <DataCard title="INFRA" icon={<Database size={14} />}><Chart type="line" /><StatRow l1="STORAGE" v1="2.4TB" l2="BANDWIDTH" v2="847GB" /></DataCard>
-        </div>
+      {/* FULL WIDTH: 2-Column Cards Grid */}
+      <div className="grid grid-cols-2 gap-5">
+        <DataCard title="REVENUE" icon={<DollarSign size={14} />}><Chart type="bar" /><StatRow l1="THIS MONTH" v1="$847K" l2="LAST MONTH" v2="$692K" /></DataCard>
+        <DataCard title="USERS" icon={<Users size={14} />}><Chart type="line" /><StatRow l1="NEW USERS" v1="+2,847" l2="ACTIVE TODAY" v2="8,421" /></DataCard>
+        <DataCard title="FRANCHISES" icon={<Building2 size={14} />}><Chart type="bar" /><StatRow l1="TOP" v1="Mumbai" l2="AVG REV" v2="$18.7K" /></DataCard>
+        <DataCard title="SYSTEM" icon={<Server size={14} />}><Chart type="line" /><StatRow l1="LOAD" v1="42%" l2="RESPONSE" v2="124ms" c1={T.green} /></DataCard>
+        <DataCard title="SECURITY" icon={<ShieldAlert size={14} />}><Chart type="bar" /><StatRow l1="CRITICAL" v1="3" l2="RESOLVED" v2="47" c1={T.accent} c2={T.green} /></DataCard>
+        <DataCard title="TRANSACTIONS" icon={<CreditCard size={14} />}><Chart type="line" /><StatRow l1="TODAY" v1="$1.2M" l2="PENDING" v2="$89K" c2={T.primary} /></DataCard>
+        <DataCard title="AI INSIGHTS" icon={<Brain size={14} />}><Chart type="bar" /><StatRow l1="PREDICTIONS" v1="156" l2="ACCURACY" v2="94.2%" c2={T.green} /></DataCard>
+        <DataCard title="MARKETING" icon={<TrendingUp size={14} />}><Chart type="line" /><StatRow l1="SPEND" v1="$45K" l2="RETURN" v2="$312K" /></DataCard>
+        <DataCard title="APPROVALS" icon={<Clock size={14} />}><Chart type="bar" /><StatRow l1="WAITING" v1="23" l2="URGENT" v2="5" c1={T.primary} c2={T.accent} /></DataCard>
+        <DataCard title="GLOBAL" icon={<Globe2 size={14} />}><Chart type="line" /><StatRow l1="COUNTRIES" v1="45" l2="NEW" v2="+7" c2={T.green} /></DataCard>
+        <DataCard title="SUPPORT" icon={<FileText size={14} />}><Chart type="bar" /><StatRow l1="OPEN" v1="89" l2="AVG TIME" v2="2.4h" c1={T.primary} /></DataCard>
+        <DataCard title="COMPLIANCE" icon={<Scale size={14} />}><Chart type="line" /><StatRow l1="SCORE" v1="98%" l2="AUDITS" v2="24/24" c1={T.green} /></DataCard>
+        <DataCard title="DEV ACTIVITY" icon={<Cpu size={14} />}><Chart type="bar" /><StatRow l1="COMMITS" v1="47" l2="DEPLOYS" v2="12" c2={T.green} /></DataCard>
+        <DataCard title="INFRA" icon={<Database size={14} />}><Chart type="line" /><StatRow l1="STORAGE" v1="2.4TB" l2="BANDWIDTH" v2="847GB" /></DataCard>
       </div>
     </div>
   );
