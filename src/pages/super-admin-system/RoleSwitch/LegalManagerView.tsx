@@ -133,15 +133,64 @@ const lawCategories = {
   },
 };
 
-// Powers list
+// Powers list with configuration details
 const legalPowers = [
-  { icon: Upload, text: "Can upload legal documents" },
-  { icon: FileText, text: "Can review contracts" },
-  { icon: CheckCircle, text: "Can approve / reject agreements" },
-  { icon: Gavel, text: "Can issue legal notices" },
-  { icon: Lock, text: "Can lock account for legal reasons" },
-  { icon: ExternalLink, text: "Can escalate to external counsel" },
-  { icon: Shield, text: "Can mark compliance status" },
+  { 
+    id: "upload_docs",
+    icon: Upload, 
+    text: "Can upload legal documents",
+    description: "Permission to upload and manage legal documents in the system",
+    configItems: ["Allowed file types: PDF, DOCX, DOC", "Max file size: 25MB", "Auto-scan for compliance"],
+    enabled: true
+  },
+  { 
+    id: "review_contracts",
+    icon: FileText, 
+    text: "Can review contracts",
+    description: "Permission to review and annotate contracts",
+    configItems: ["View all contracts", "Add comments", "Request changes", "Access contract history"],
+    enabled: true
+  },
+  { 
+    id: "approve_agreements",
+    icon: CheckCircle, 
+    text: "Can approve / reject agreements",
+    description: "Authority to approve or reject legal agreements",
+    configItems: ["Approval limit: $500,000", "Requires dual approval above limit", "Auto-notify stakeholders"],
+    enabled: true
+  },
+  { 
+    id: "issue_notices",
+    icon: Gavel, 
+    text: "Can issue legal notices",
+    description: "Permission to issue official legal notices",
+    configItems: ["Notice templates available", "Delivery: Email + Registered Mail", "72hr response deadline"],
+    enabled: true
+  },
+  { 
+    id: "lock_accounts",
+    icon: Lock, 
+    text: "Can lock account for legal reasons",
+    description: "Authority to lock user/entity accounts for legal compliance",
+    configItems: ["Lock duration: 24hr - Permanent", "Requires documented reason", "Auto-escalate after 7 days"],
+    enabled: false
+  },
+  { 
+    id: "escalate_counsel",
+    icon: ExternalLink, 
+    text: "Can escalate to external counsel",
+    description: "Permission to escalate matters to external legal counsel",
+    configItems: ["Pre-approved counsel list", "Budget per case: $10,000", "Requires manager approval"],
+    enabled: true
+  },
+  { 
+    id: "mark_compliance",
+    icon: Shield, 
+    text: "Can mark compliance status",
+    description: "Authority to update compliance status of entities",
+    configItems: ["Status options: Compliant, Pending, Non-Compliant", "Add compliance notes", "Set review dates"],
+    enabled: true
+  },
 ];
 
 // Activity logs
@@ -160,6 +209,25 @@ const LegalManagerView = () => {
   const [filterCountry, setFilterCountry] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [activeTab, setActiveTab] = useState("company");
+  const [selectedPower, setSelectedPower] = useState<typeof legalPowers[0] | null>(null);
+  const [powerPanelOpen, setPowerPanelOpen] = useState(false);
+  const [powerStates, setPowerStates] = useState<Record<string, boolean>>(
+    legalPowers.reduce((acc, p) => ({ ...acc, [p.id]: p.enabled }), {})
+  );
+
+  const handlePowerClick = (power: typeof legalPowers[0]) => {
+    setSelectedPower(power);
+    setPowerPanelOpen(true);
+  };
+
+  const handleClosePowerPanel = () => {
+    setPowerPanelOpen(false);
+    setSelectedPower(null);
+  };
+
+  const togglePowerState = (powerId: string) => {
+    setPowerStates(prev => ({ ...prev, [powerId]: !prev[powerId] }));
+  };
 
   const handleSelectManager = (manager: typeof legalManagersData[0]) => {
     setSelectedManager(manager);
@@ -496,10 +564,23 @@ const LegalManagerView = () => {
                     Powers
                   </h3>
                   <div className="space-y-2">
-                    {legalPowers.map((power, idx) => (
-                      <div key={idx} className="flex items-center gap-3 p-2 rounded-lg bg-rose-900/5">
+                    {legalPowers.map((power) => (
+                      <div 
+                        key={power.id} 
+                        onClick={() => handlePowerClick(power)}
+                        className={cn(
+                          "flex items-center gap-3 p-2 rounded-lg bg-rose-900/5 cursor-pointer transition-all duration-200",
+                          "hover:bg-rose-900/15 hover:scale-[1.01]",
+                          !powerStates[power.id] && "opacity-50"
+                        )}
+                      >
                         <power.icon className="w-4 h-4 text-rose-400" />
-                        <span className="text-sm text-foreground">{power.text}</span>
+                        <span className="text-sm text-foreground flex-1">{power.text}</span>
+                        <div className={cn(
+                          "w-2 h-2 rounded-full",
+                          powerStates[power.id] ? "bg-emerald-400" : "bg-muted-foreground"
+                        )} />
+                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
                       </div>
                     ))}
                   </div>
@@ -572,6 +653,127 @@ const LegalManagerView = () => {
                       </div>
                     ))}
                   </div>
+                </div>
+              </div>
+            </ScrollArea>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Power Configuration Panel */}
+      <AnimatePresence>
+        {powerPanelOpen && selectedPower && (
+          <motion.div
+            initial={{ x: 400, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 400, opacity: 0 }}
+            transition={{ type: "spring", damping: 25 }}
+            className="fixed right-0 top-0 h-full w-[420px] border-l border-border/50 bg-card/95 backdrop-blur-xl overflow-hidden flex flex-col z-50 shadow-2xl"
+          >
+            {/* Panel Header */}
+            <div className="p-4 border-b border-border/50 bg-gradient-to-r from-rose-900/10 to-slate-800/10">
+              <div className="flex items-center justify-between mb-3">
+                <Badge className="bg-rose-900/20 text-rose-400 border-rose-900/50">
+                  <Shield className="w-3 h-3 mr-1" />
+                  Power Configuration
+                </Badge>
+                <Button variant="ghost" size="icon" onClick={handleClosePowerPanel}>
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-900/30 to-slate-800/30 flex items-center justify-center">
+                  <selectedPower.icon className="w-6 h-6 text-rose-400" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-foreground">{selectedPower.text}</h3>
+                  <p className="text-xs text-muted-foreground">{selectedPower.description}</p>
+                </div>
+              </div>
+            </div>
+
+            <ScrollArea className="flex-1">
+              <div className="p-4 space-y-6">
+                {/* Status Toggle */}
+                <div className="flex items-center justify-between p-4 rounded-xl bg-background/50 border border-border/50">
+                  <div>
+                    <p className="font-medium text-foreground">Permission Status</p>
+                    <p className="text-xs text-muted-foreground">Toggle this permission on/off</p>
+                  </div>
+                  <Button
+                    variant={powerStates[selectedPower.id] ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => togglePowerState(selectedPower.id)}
+                    className={cn(
+                      "gap-2 min-w-[100px]",
+                      powerStates[selectedPower.id] 
+                        ? "bg-emerald-600 hover:bg-emerald-700" 
+                        : "text-muted-foreground"
+                    )}
+                  >
+                    {powerStates[selectedPower.id] ? (
+                      <>
+                        <CheckCircle className="w-4 h-4" />
+                        Enabled
+                      </>
+                    ) : (
+                      <>
+                        <Ban className="w-4 h-4" />
+                        Disabled
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {/* Configuration Items */}
+                <div>
+                  <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                    Configuration
+                  </h4>
+                  <div className="space-y-2">
+                    {selectedPower.configItems.map((item, idx) => (
+                      <div key={idx} className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/30">
+                        <CheckCircle className="w-4 h-4 text-emerald-400" />
+                        <span className="text-sm text-foreground">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Audit Info */}
+                <div>
+                  <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                    Audit Information
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between p-2 rounded bg-background/30">
+                      <span className="text-muted-foreground">Last Modified</span>
+                      <span className="text-foreground">2 days ago</span>
+                    </div>
+                    <div className="flex justify-between p-2 rounded bg-background/30">
+                      <span className="text-muted-foreground">Modified By</span>
+                      <span className="text-foreground">Admin-SA-01</span>
+                    </div>
+                    <div className="flex justify-between p-2 rounded bg-background/30">
+                      <span className="text-muted-foreground">Usage Count</span>
+                      <span className="text-foreground">47 times this month</span>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Actions */}
+                <div className="space-y-2">
+                  <Button className="w-full gap-2 bg-gradient-to-r from-rose-900 to-slate-800">
+                    <CheckCircle className="w-4 h-4" />
+                    Save Configuration
+                  </Button>
+                  <Button variant="outline" className="w-full gap-2" onClick={handleClosePowerPanel}>
+                    Cancel
+                  </Button>
                 </div>
               </div>
             </ScrollArea>
