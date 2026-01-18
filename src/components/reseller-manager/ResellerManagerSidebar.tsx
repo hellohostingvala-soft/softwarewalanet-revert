@@ -23,7 +23,7 @@ import {
   Store,
   ArrowLeft,
 } from 'lucide-react';
-import { useSidebarStore } from '@/stores/sidebarStore';
+import { useSidebarStore, useShouldRenderSidebar } from '@/stores/sidebarStore';
 
 export type ResellerManagerSection = 
   | 'dashboard'
@@ -65,19 +65,20 @@ export function ResellerManagerSidebar({
   onToggleCollapse,
   onBack,
 }: ResellerManagerSidebarProps) {
-  // SINGLE SIDEBAR ENFORCEMENT: Use store for navigation
-  const { exitToGlobal, activeSidebar, activeCategorySidebar } = useSidebarStore();
+  // SINGLE-CONTEXT ENFORCEMENT: Use store for clean context transitions
+  const { exitToGlobal } = useSidebarStore();
   
-  // Handle back navigation - updates store AND calls prop callback
+  // Use dedicated hook for strict visibility check
+  const shouldRender = useShouldRenderSidebar('category', 'reseller-manager');
+  
+  // Handle back navigation - triggers FULL context switch to Boss
   const handleBack = () => {
     exitToGlobal();
     onBack?.();
   };
   
-  // SINGLE SIDEBAR ENFORCEMENT: Only render when this module is active
-  const isThisModuleActive = activeSidebar === 'category' && activeCategorySidebar === 'reseller-manager';
-  
-  if (!isThisModuleActive) {
+  // STRICT ISOLATION: Only render when in Module context with matching category
+  if (!shouldRender) {
     return null;
   }
 
