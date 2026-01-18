@@ -31,13 +31,14 @@ interface SupportManager {
   skills: string[];
 }
 
+// PII MASKED: Names, emails, phones replaced with masked identifiers
 const managers: SupportManager[] = [
-  { id: 'SM001', name: 'Sarah Chen', email: 'sarah.chen@support.com', phone: '+1-555-0101', region: 'North America', country: 'USA', status: 'active', role: 'Support Manager', ticketsHandled: 1247, avgResolutionTime: '2.4h', csat: 98, activeTickets: 8, joinedAt: '2023-01-15', lastActive: '2 min ago', skills: ['POS', 'ERP', 'CRM'] },
-  { id: 'SM002', name: 'Mike Johnson', email: 'mike.johnson@support.com', phone: '+1-555-0102', region: 'North America', country: 'Canada', status: 'active', role: 'Agent', ticketsHandled: 856, avgResolutionTime: '3.1h', csat: 94, activeTickets: 5, joinedAt: '2023-03-20', lastActive: '5 min ago', skills: ['Billing', 'Dashboard'] },
-  { id: 'SM003', name: 'Lisa Park', email: 'lisa.park@support.com', phone: '+82-10-1234', region: 'Asia Pacific', country: 'South Korea', status: 'active', role: 'Country Head', ticketsHandled: 2103, avgResolutionTime: '1.8h', csat: 99, activeTickets: 3, joinedAt: '2022-08-10', lastActive: '1 min ago', skills: ['Hospital CRM', 'School ERP'] },
-  { id: 'SM004', name: 'Ahmed Hassan', email: 'ahmed.hassan@support.com', phone: '+971-50-1234', region: 'Middle East', country: 'UAE', status: 'on_leave', role: 'Support Manager', ticketsHandled: 945, avgResolutionTime: '2.9h', csat: 92, activeTickets: 0, joinedAt: '2023-02-28', lastActive: '2 days ago', skills: ['POS', 'Retail'] },
-  { id: 'SM005', name: 'Emma Davis', email: 'emma.davis@support.com', phone: '+44-20-1234', region: 'Europe', country: 'UK', status: 'active', role: 'Agent', ticketsHandled: 678, avgResolutionTime: '2.7h', csat: 96, activeTickets: 6, joinedAt: '2023-05-12', lastActive: '8 min ago', skills: ['Dashboard', 'Integration'] },
-  { id: 'SM006', name: 'James Wilson', email: 'james.wilson@support.com', phone: '+61-2-1234', region: 'Asia Pacific', country: 'Australia', status: 'inactive', role: 'Agent', ticketsHandled: 423, avgResolutionTime: '3.5h', csat: 91, activeTickets: 0, joinedAt: '2023-06-01', lastActive: '1 week ago', skills: ['CRM', 'Logistics'] },
+  { id: 'SM001', name: 'Support-A', email: '******@masked', phone: '***-***-****', region: 'North America', country: 'USA', status: 'active', role: 'Support Manager', ticketsHandled: 1247, avgResolutionTime: '2.4h', csat: 98, activeTickets: 8, joinedAt: '2023-01-15', lastActive: '2 min ago', skills: ['POS', 'ERP', 'CRM'] },
+  { id: 'SM002', name: 'Agent-01', email: '******@masked', phone: '***-***-****', region: 'North America', country: 'Canada', status: 'active', role: 'Agent', ticketsHandled: 856, avgResolutionTime: '3.1h', csat: 94, activeTickets: 5, joinedAt: '2023-03-20', lastActive: '5 min ago', skills: ['Billing', 'Dashboard'] },
+  { id: 'SM003', name: 'Support-B', email: '******@masked', phone: '***-***-****', region: 'Asia Pacific', country: 'South Korea', status: 'active', role: 'Country Head', ticketsHandled: 2103, avgResolutionTime: '1.8h', csat: 99, activeTickets: 3, joinedAt: '2022-08-10', lastActive: '1 min ago', skills: ['Hospital CRM', 'School ERP'] },
+  { id: 'SM004', name: 'Support-C', email: '******@masked', phone: '***-***-****', region: 'Middle East', country: 'UAE', status: 'on_leave', role: 'Support Manager', ticketsHandled: 945, avgResolutionTime: '2.9h', csat: 92, activeTickets: 0, joinedAt: '2023-02-28', lastActive: '2 days ago', skills: ['POS', 'Retail'] },
+  { id: 'SM005', name: 'Agent-02', email: '******@masked', phone: '***-***-****', region: 'Europe', country: 'UK', status: 'active', role: 'Agent', ticketsHandled: 678, avgResolutionTime: '2.7h', csat: 96, activeTickets: 6, joinedAt: '2023-05-12', lastActive: '8 min ago', skills: ['Dashboard', 'Integration'] },
+  { id: 'SM006', name: 'Agent-03', email: '******@masked', phone: '***-***-****', region: 'Asia Pacific', country: 'Australia', status: 'inactive', role: 'Agent', ticketsHandled: 423, avgResolutionTime: '3.5h', csat: 91, activeTickets: 0, joinedAt: '2023-06-01', lastActive: '1 week ago', skills: ['CRM', 'Logistics'] },
 ];
 
 const SupportManagersList = () => {
@@ -82,12 +83,14 @@ const SupportManagersList = () => {
     }
   };
 
+  // SECURITY: Search only matches masked labels (ID, role), not PII
   const filteredManagers = managers.filter(m => {
     if (filterRegion !== 'all' && m.region !== filterRegion) return false;
     if (filterStatus !== 'all' && m.status !== filterStatus) return false;
     if (filterRole !== 'all' && m.role !== filterRole) return false;
+    // Only search on masked name and ID - never real PII
     if (searchQuery && !m.name.toLowerCase().includes(searchQuery.toLowerCase()) && 
-        !m.email.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+        !m.id.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     return true;
   });
 
@@ -215,21 +218,22 @@ const SupportManagersList = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="relative">
-                        <Avatar className="w-12 h-12 border-2 border-slate-700">
-                          <AvatarFallback className="bg-gradient-to-br from-teal-500 to-cyan-500 text-white">
-                            {manager.name.split(' ').map(n => n[0]).join('')}
-                          </AvatarFallback>
-                        </Avatar>
+                        {/* PII MASKED: No avatar/DP - using generic icon */}
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-slate-700 to-slate-600 border-2 border-slate-700 flex items-center justify-center">
+                          <User className="w-6 h-6 text-slate-400" />
+                        </div>
                         <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-slate-900 ${statusConfig.dot}`} />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
+                          {/* PII MASKED: Show masked alias + ID */}
                           <h4 className="font-medium text-white">{manager.name}</h4>
+                          <span className="text-xs font-mono text-slate-500">{manager.id}</span>
                           <Badge className={getRoleColor(manager.role)}>{manager.role}</Badge>
                           <Badge className={statusConfig.color}>{manager.status.replace('_', ' ')}</Badge>
                         </div>
                         <div className="flex items-center gap-4 text-xs text-slate-400 mt-1">
-                          <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{manager.email}</span>
+                          {/* PII MASKED: Email removed, only region/timing shown */}
                           <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{manager.country}</span>
                           <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{manager.lastActive}</span>
                         </div>
@@ -280,11 +284,8 @@ const SupportManagersList = () => {
                       animate={{ opacity: 1, height: 'auto' }}
                       className="mt-4 pt-4 border-t border-slate-800"
                     >
-                      <div className="grid grid-cols-4 gap-4">
-                        <div className="p-3 rounded-lg bg-slate-800/50">
-                          <p className="text-xs text-slate-400 mb-1">Phone</p>
-                          <p className="text-sm text-white">{manager.phone}</p>
-                        </div>
+                      {/* PII MASKED: Phone hidden, only non-PII data shown */}
+                      <div className="grid grid-cols-3 gap-4">
                         <div className="p-3 rounded-lg bg-slate-800/50">
                           <p className="text-xs text-slate-400 mb-1">Region</p>
                           <p className="text-sm text-white">{manager.region}</p>
