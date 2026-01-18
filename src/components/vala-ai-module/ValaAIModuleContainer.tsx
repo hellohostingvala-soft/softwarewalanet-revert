@@ -2,6 +2,7 @@
  * VALA AI MODULE CONTAINER
  * Main container that combines sidebar + content
  * RENAMED: From Development Manager to VALA AI
+ * FULL FEATURES: Dashboard, Models, Tasks, API, Automation, Credits, Alerts
  */
 
 import React, { useState } from 'react';
@@ -12,7 +13,13 @@ import { ValaAILiveBuilds } from './ValaAILiveBuilds';
 import { ValaAIIssueInbox } from './ValaAIIssueInbox';
 import { ValaAIAutoFixQueue } from './ValaAIAutoFixQueue';
 import { AIClientDeployPanel } from './AIClientDeployPanel';
-import { AIDeploymentHistoryPanel } from './AIDeploymentHistoryPanel';
+import { ValaAIFullDashboard } from './ValaAIFullDashboard';
+import { AIModelsPanel } from './AIModelsPanel';
+import { AITasksPanel } from './AITasksPanel';
+import { AIAPIPanel } from './AIAPIPanel';
+import { AIAutomationPanel } from './AIAutomationPanel';
+import { AICreditsPanel } from './AICreditsPanel';
+import { AIAlertsPanel } from './AIAlertsPanel';
 import { DevVersions } from './DevVersions';
 import { DevLogs } from './DevLogs';
 import { DevSettings } from './DevSettings';
@@ -37,6 +44,8 @@ export const ValaAIModuleContainer: React.FC<ValaAIModuleContainerProps> = ({
     switch (activeSection) {
       case 'home':
         return <ValaAIHome onNavigate={handleNavigate} />;
+      case 'dashboard':
+        return <ValaAIFullDashboard />;
       case 'new-project':
         return <ValaAINewProject />;
       case 'live-builds':
@@ -49,6 +58,18 @@ export const ValaAIModuleContainer: React.FC<ValaAIModuleContainerProps> = ({
         return <ValaAIAutoFixQueue />;
       case 'deployment':
         return <AIClientDeployPanel />;
+      case 'models':
+        return <AIModelsPanel />;
+      case 'tasks':
+        return <AITasksPanel />;
+      case 'api':
+        return <AIAPIPanel />;
+      case 'automation':
+        return <AIAutomationPanel />;
+      case 'credits':
+        return <AICreditsPanel />;
+      case 'alerts':
+        return <AIAlertsPanel />;
       case 'versions':
         return <DevVersions />;
       case 'logs':
