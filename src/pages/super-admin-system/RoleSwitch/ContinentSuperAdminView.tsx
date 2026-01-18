@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
@@ -338,6 +340,8 @@ interface ContinentSuperAdminViewProps {
 }
 
 const ContinentSuperAdminView = ({ activeNav = "dashboard", selectedSubItem }: ContinentSuperAdminViewProps) => {
+  const navigate = useNavigate();
+
   const [selectedCSA, setSelectedCSA] = useState<typeof continentSuperAdmins[0] | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -765,19 +769,35 @@ const ContinentSuperAdminView = ({ activeNav = "dashboard", selectedSubItem }: C
               {/* Panel Actions */}
               <div className="p-4 border-t border-slate-700/50 space-y-2">
                 <div className="grid grid-cols-2 gap-2">
-                  <Button variant="outline" className="gap-2 border-slate-700">
+                  <Button
+                    variant="outline"
+                    className="gap-2 border-slate-700"
+                    onClick={() => navigate("/super-admin-system/audit")}
+                  >
                     <FileText className="w-4 h-4" /> Audit Logs
                   </Button>
-                  <Button variant="outline" className="gap-2 border-slate-700">
+                  <Button
+                    variant="outline"
+                    className="gap-2 border-slate-700"
+                    onClick={() => toast.info("Full report", { description: "Generating full report...", duration: 2000 })}
+                  >
                     <BarChart3 className="w-4 h-4" /> Full Report
                   </Button>
                 </div>
                 {selectedCSA.status === "active" ? (
-                  <Button variant="outline" className="w-full gap-2 border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/10">
+                  <Button
+                    variant="outline"
+                    className="w-full gap-2 border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/10"
+                    onClick={() => toast.warning("Suspend CSA", { description: "Suspension flow not wired to backend yet.", duration: 2500 })}
+                  >
                     <Pause className="w-4 h-4" /> Suspend CSA
                   </Button>
                 ) : (
-                  <Button variant="outline" className="w-full gap-2 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10">
+                  <Button
+                    variant="outline"
+                    className="w-full gap-2 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10"
+                    onClick={() => toast.success("Activate CSA", { description: "Activation flow not wired to backend yet.", duration: 2500 })}
+                  >
                     <Play className="w-4 h-4" /> Activate CSA
                   </Button>
                 )}
@@ -804,7 +824,8 @@ const ContinentSuperAdminView = ({ activeNav = "dashboard", selectedSubItem }: C
   return (
     <GlobalContinentDashboard
       onBack={() => {
-        // Return to control panel - this should be handled by parent
+        // Exit Continent Admin -> return to Control Panel
+        navigate("/super-admin-system/role-switch?role=boss_owner");
       }}
       onContinentClick={(continentId) => {
         // When clicking a continent on the map, show that continent's dashboard
