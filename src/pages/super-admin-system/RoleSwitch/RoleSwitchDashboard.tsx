@@ -25,6 +25,7 @@ import FranchiseManagerView from "./FranchiseManagerView";
 import SalesSupportManagerView from "./SalesSupportManagerView";
 import ResellerManagerFullView from "./ResellerManagerFullView";
 import LeadManagerView from "./LeadManagerView";
+import LMFullLayout from "@/components/lead-manager/LMFullLayout";
 import ProManagerView from "./ProManagerView";
 import LegalManagerView from "./LegalManagerView";
 import TaskManagementView from "./TaskManagementView";
@@ -441,7 +442,7 @@ const RoleSwitchDashboard = () => {
       case "reseller_manager":
         return <ResellerManagerFullView onBack={() => setActiveRole("boss_owner")} />;
       case "lead_manager":
-        return <LeadManagerView />;
+        return <LMFullLayout />;
       case "pro_manager":
         return <ProManagerView />;
       case "legal_manager":
