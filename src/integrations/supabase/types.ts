@@ -1685,6 +1685,123 @@ export type Database = {
           },
         ]
       }
+      box_action_logs: {
+        Row: {
+          action_result: string
+          action_type: string
+          box_entity_id: string
+          box_type: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          new_status: string | null
+          previous_status: string | null
+          user_agent: string | null
+          user_id: string
+          user_role: string
+        }
+        Insert: {
+          action_result: string
+          action_type: string
+          box_entity_id: string
+          box_type: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          new_status?: string | null
+          previous_status?: string | null
+          user_agent?: string | null
+          user_id: string
+          user_role: string
+        }
+        Update: {
+          action_result?: string
+          action_type?: string
+          box_entity_id?: string
+          box_type?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          new_status?: string | null
+          previous_status?: string | null
+          user_agent?: string | null
+          user_id?: string
+          user_role?: string
+        }
+        Relationships: []
+      }
+      box_action_permissions: {
+        Row: {
+          action_type: string
+          box_type: string
+          created_at: string
+          id: string
+          is_allowed: boolean
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          action_type: string
+          box_type: string
+          created_at?: string
+          id?: string
+          is_allowed?: boolean
+          role: string
+          updated_at?: string
+        }
+        Update: {
+          action_type?: string
+          box_type?: string
+          created_at?: string
+          id?: string
+          is_allowed?: boolean
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      box_status: {
+        Row: {
+          box_type: string
+          created_at: string
+          entity_id: string
+          id: string
+          last_action: string | null
+          last_action_at: string | null
+          last_action_by: string | null
+          metadata: Json | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          box_type: string
+          created_at?: string
+          entity_id: string
+          id?: string
+          last_action?: string | null
+          last_action_at?: string | null
+          last_action_by?: string | null
+          metadata?: Json | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          box_type?: string
+          created_at?: string
+          entity_id?: string
+          id?: string
+          last_action?: string | null
+          last_action_at?: string | null
+          last_action_by?: string | null
+          metadata?: Json | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       branch_map: {
         Row: {
           branch_code: string
@@ -23917,6 +24034,10 @@ export type Database = {
             }[]
           }
         | { Args: { p_server_id: string }; Returns: Json }
+      check_box_action_permission: {
+        Args: { _action_type: string; _box_type: string; _user_id: string }
+        Returns: boolean
+      }
       check_financial_mode: { Args: never; Returns: Json }
       check_force_logout: { Args: { check_user_id: string }; Returns: string }
       check_login_rate_limit: {
