@@ -114,8 +114,9 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
   };
 
   return (
-    <div className="min-h-screen p-6" style={{ fontFamily: "'Outfit', sans-serif" }}>
-      {/* HEADER */}
+    <div className="min-h-screen p-6" style={{ fontFamily: "'Outfit', sans-serif", background: T.bg }}>
+      
+      {/* ===== ROW 1: AUTHORITY CONTEXT (FULL WIDTH HEADER) ===== */}
       <div className="flex items-center justify-between mb-6 pb-4" style={{ borderBottom: `1px solid ${T.border}` }}>
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${T.primary}, ${T.primaryLight})`, boxShadow: `0 8px 24px rgba(37,99,235,0.3)` }}>
@@ -155,63 +156,187 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
         </div>
       </div>
 
-      {/* MAIN LAYOUT: KEY STATS Sidebar + 2-Column Cards Grid */}
-      <div className="flex gap-5">
-        {/* KEY STATS Sidebar - Dark Navy Theme */}
-        <div className="w-56 flex-shrink-0">
-          <div style={{ 
-            background: 'linear-gradient(180deg, #0a1628 0%, #0d1a2d 100%)', 
-            borderRadius: 8, 
-            overflow: 'hidden',
-            border: '1px solid rgba(37, 99, 235, 0.2)',
-            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)'
-          }}>
-            <div className="px-4 py-3 text-center font-semibold text-sm tracking-wider" style={{ 
-              background: 'linear-gradient(180deg, #0d1a2d 0%, #0a1628 100%)', 
-              color: '#60a5fa',
-              borderBottom: '1px solid rgba(37, 99, 235, 0.15)'
-            }}>KEY STATS</div>
-            <div className="p-4 space-y-1" style={{ background: 'transparent' }}>
-              <div className="flex items-center justify-between py-2.5 px-2 rounded" style={{ borderBottom: '1px solid rgba(37, 99, 235, 0.1)' }}>
-                <div className="flex items-center gap-2"><BarChart3 size={14} style={{ color: '#60a5fa' }} /><span className="text-xs font-medium" style={{ color: 'rgba(148, 163, 184, 0.9)' }}>TOTAL REVENUE</span></div>
-                <span className="font-bold text-sm" style={{ color: '#e2e8f0' }}>$2.4M</span>
-              </div>
-              <div className="flex items-center justify-between py-2.5 px-2 rounded" style={{ borderBottom: '1px solid rgba(37, 99, 235, 0.1)' }}>
-                <div className="flex items-center gap-2"><TrendingUp size={14} style={{ color: '#60a5fa' }} /><span className="text-xs font-medium" style={{ color: 'rgba(148, 163, 184, 0.9)' }}>GROWTH</span></div>
-                <span className="font-bold text-sm" style={{ color: '#22c55e' }}>+24%</span>
-              </div>
-              <div className="flex items-center justify-between py-2.5 px-2 rounded" style={{ borderBottom: '1px solid rgba(37, 99, 235, 0.1)' }}>
-                <div className="flex items-center gap-2"><Users size={14} style={{ color: '#60a5fa' }} /><span className="text-xs font-medium" style={{ color: 'rgba(148, 163, 184, 0.9)' }}>ACTIVE USERS</span></div>
-                <span className="font-bold text-sm" style={{ color: '#e2e8f0' }}>12.5K</span>
-              </div>
-              <div className="flex items-center justify-between py-2.5 px-2 rounded" style={{ borderBottom: '1px solid rgba(37, 99, 235, 0.1)' }}>
-                <div className="flex items-center gap-2"><Globe2 size={14} style={{ color: '#60a5fa' }} /><span className="text-xs font-medium" style={{ color: 'rgba(148, 163, 184, 0.9)' }}>COUNTRIES</span></div>
-                <span className="font-bold text-sm" style={{ color: '#e2e8f0' }}>45</span>
-              </div>
-              <div className="flex items-center justify-between py-2.5 px-2 rounded" style={{ borderBottom: '1px solid rgba(37, 99, 235, 0.1)' }}>
-                <div className="flex items-center gap-2"><Building2 size={14} style={{ color: '#60a5fa' }} /><span className="text-xs font-medium" style={{ color: 'rgba(148, 163, 184, 0.9)' }}>FRANCHISES</span></div>
-                <span className="font-bold text-sm" style={{ color: '#e2e8f0' }}>128</span>
-              </div>
-              <div className="flex items-center justify-between py-2.5 px-2 rounded" style={{ borderBottom: '1px solid rgba(37, 99, 235, 0.1)' }}>
-                <div className="flex items-center gap-2"><Wallet size={14} style={{ color: '#60a5fa' }} /><span className="text-xs font-medium" style={{ color: 'rgba(148, 163, 184, 0.9)' }}>WALLET</span></div>
-                <span className="font-bold text-sm" style={{ color: '#e2e8f0' }}>$456K</span>
-              </div>
-              <div className="flex items-center justify-between py-2.5 px-2 rounded">
-                <div className="flex items-center gap-2"><Activity size={14} style={{ color: '#60a5fa' }} /><span className="text-xs font-medium" style={{ color: 'rgba(148, 163, 184, 0.9)' }}>UPTIME</span></div>
-                <span className="font-bold text-sm" style={{ color: '#22c55e' }}>99.9%</span>
-              </div>
-            </div>
+      {/* ===== ROW 2: KEY STATS — 4 EQUAL LARGE CARDS ===== */}
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        {/* REVENUE */}
+        <div style={{ background: 'linear-gradient(180deg, #0d1a2d 0%, #0a1628 100%)', border: '1px solid rgba(37, 99, 235, 0.2)', borderRadius: 8, padding: '20px' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <DollarSign size={18} style={{ color: '#60a5fa' }} />
+            <span className="text-xs font-semibold tracking-wider" style={{ color: '#60a5fa' }}>REVENUE</span>
           </div>
+          <p className="text-2xl font-bold mb-1" style={{ color: '#e2e8f0' }}>$2.4M</p>
+          <p className="text-xs" style={{ color: '#22c55e' }}>+24% from last month</p>
+          <Chart type="bar" />
         </div>
 
-        {/* Cards Grid - 2 Columns */}
-        <div className="flex-1 grid grid-cols-2 gap-5">
-          <DataCard title="REVENUE" icon={<DollarSign size={14} />}><Chart type="bar" /><StatRow l1="THIS MONTH" v1="$847K" l2="LAST MONTH" v2="$692K" /></DataCard>
-          <DataCard title="USERS" icon={<Users size={14} />}><Chart type="line" /><StatRow l1="NEW USERS" v1="+2,847" l2="ACTIVE TODAY" v2="8,421" /></DataCard>
-          <DataCard title="FRANCHISES" icon={<Building2 size={14} />}><Chart type="bar" /><StatRow l1="TOP" v1="Mumbai" l2="AVG REV" v2="$18.7K" /></DataCard>
-          <DataCard title="SYSTEM" icon={<Server size={14} />}><Chart type="line" /><StatRow l1="LOAD" v1="42%" l2="RESPONSE" v2="124ms" c1={T.green} /></DataCard>
-          <DataCard title="SECURITY" icon={<ShieldAlert size={14} />}><Chart type="bar" /><StatRow l1="CRITICAL" v1="3" l2="RESOLVED" v2="47" c1={T.accent} c2={T.green} /></DataCard>
-          <DataCard title="TRANSACTIONS" icon={<CreditCard size={14} />}><Chart type="line" /><StatRow l1="TODAY" v1="$1.2M" l2="PENDING" v2="$89K" c2={T.primary} /></DataCard>
+        {/* USERS */}
+        <div style={{ background: 'linear-gradient(180deg, #0d1a2d 0%, #0a1628 100%)', border: '1px solid rgba(37, 99, 235, 0.2)', borderRadius: 8, padding: '20px' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <Users size={18} style={{ color: '#60a5fa' }} />
+            <span className="text-xs font-semibold tracking-wider" style={{ color: '#60a5fa' }}>USERS</span>
+          </div>
+          <p className="text-2xl font-bold mb-1" style={{ color: '#e2e8f0' }}>12.5K</p>
+          <p className="text-xs" style={{ color: '#22c55e' }}>+2,847 new this week</p>
+          <Chart type="line" />
+        </div>
+
+        {/* FRANCHISES */}
+        <div style={{ background: 'linear-gradient(180deg, #0d1a2d 0%, #0a1628 100%)', border: '1px solid rgba(37, 99, 235, 0.2)', borderRadius: 8, padding: '20px' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <Building2 size={18} style={{ color: '#60a5fa' }} />
+            <span className="text-xs font-semibold tracking-wider" style={{ color: '#60a5fa' }}>FRANCHISES</span>
+          </div>
+          <p className="text-2xl font-bold mb-1" style={{ color: '#e2e8f0' }}>128</p>
+          <p className="text-xs" style={{ color: '#60a5fa' }}>45 countries active</p>
+          <Chart type="bar" />
+        </div>
+
+        {/* SYSTEM */}
+        <div style={{ background: 'linear-gradient(180deg, #0d1a2d 0%, #0a1628 100%)', border: '1px solid rgba(37, 99, 235, 0.2)', borderRadius: 8, padding: '20px' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <Server size={18} style={{ color: '#60a5fa' }} />
+            <span className="text-xs font-semibold tracking-wider" style={{ color: '#60a5fa' }}>SYSTEM</span>
+          </div>
+          <p className="text-2xl font-bold mb-1" style={{ color: '#22c55e' }}>99.9%</p>
+          <p className="text-xs" style={{ color: '#e2e8f0' }}>Uptime • 124ms response</p>
+          <Chart type="line" />
+        </div>
+      </div>
+
+      {/* ===== ROW 3: OPERATIONAL AUTHORITY — 6 MEDIUM CARDS (2 ROWS × 3) ===== */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        {/* CEO */}
+        <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 8, padding: '16px' }}>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Crown size={16} style={{ color: T.primary }} />
+              <span className="text-sm font-semibold" style={{ color: T.text }}>CEO</span>
+            </div>
+            <span className="text-xs px-2 py-0.5 rounded" style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#22c55e' }}>ACTIVE</span>
+          </div>
+          <p className="text-lg font-bold" style={{ color: T.text }}>12 Tasks</p>
+          <p className="text-xs" style={{ color: T.muted }}>3 pending approval</p>
+        </div>
+
+        {/* VALA AI */}
+        <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 8, padding: '16px' }}>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Brain size={16} style={{ color: T.primary }} />
+              <span className="text-sm font-semibold" style={{ color: T.text }}>VALA AI</span>
+            </div>
+            <span className="text-xs px-2 py-0.5 rounded" style={{ background: 'rgba(37, 99, 235, 0.15)', color: T.primary }}>RUNNING</span>
+          </div>
+          <p className="text-lg font-bold" style={{ color: T.text }}>847 Requests</p>
+          <p className="text-xs" style={{ color: T.muted }}>AI processing active</p>
+        </div>
+
+        {/* SERVER */}
+        <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 8, padding: '16px' }}>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Cpu size={16} style={{ color: T.primary }} />
+              <span className="text-sm font-semibold" style={{ color: T.text }}>SERVER</span>
+            </div>
+            <span className="text-xs px-2 py-0.5 rounded" style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#22c55e' }}>HEALTHY</span>
+          </div>
+          <p className="text-lg font-bold" style={{ color: '#22c55e' }}>42%</p>
+          <p className="text-xs" style={{ color: T.muted }}>CPU Load • 8GB RAM used</p>
+        </div>
+
+        {/* SALES & SUPPORT */}
+        <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 8, padding: '16px' }}>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <CreditCard size={16} style={{ color: T.primary }} />
+              <span className="text-sm font-semibold" style={{ color: T.text }}>SALES & SUPPORT</span>
+            </div>
+            <span className="text-xs px-2 py-0.5 rounded" style={{ background: 'rgba(37, 99, 235, 0.15)', color: T.primary }}>24 OPEN</span>
+          </div>
+          <p className="text-lg font-bold" style={{ color: T.text }}>$1.2M</p>
+          <p className="text-xs" style={{ color: T.muted }}>Today's transactions</p>
+        </div>
+
+        {/* FRANCHISE OPS */}
+        <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 8, padding: '16px' }}>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Globe2 size={16} style={{ color: T.primary }} />
+              <span className="text-sm font-semibold" style={{ color: T.text }}>FRANCHISE OPS</span>
+            </div>
+            <span className="text-xs px-2 py-0.5 rounded" style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#22c55e' }}>128</span>
+          </div>
+          <p className="text-lg font-bold" style={{ color: T.text }}>Mumbai</p>
+          <p className="text-xs" style={{ color: T.muted }}>Top performer • $18.7K avg</p>
+        </div>
+
+        {/* SYSTEM HEALTH */}
+        <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 8, padding: '16px' }}>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <ShieldAlert size={16} style={{ color: T.primary }} />
+              <span className="text-sm font-semibold" style={{ color: T.text }}>SYSTEM HEALTH</span>
+            </div>
+            <span className="text-xs px-2 py-0.5 rounded" style={{ background: 'rgba(220, 38, 38, 0.15)', color: T.accent }}>3 ALERTS</span>
+          </div>
+          <p className="text-lg font-bold" style={{ color: '#22c55e' }}>47</p>
+          <p className="text-xs" style={{ color: T.muted }}>Issues resolved today</p>
+        </div>
+      </div>
+
+      {/* ===== ROW 4: ACTIVITY & ALERTS — FULL WIDTH PANEL ===== */}
+      <div style={{ background: 'linear-gradient(180deg, #0d1a2d 0%, #0a1628 100%)', border: '1px solid rgba(37, 99, 235, 0.2)', borderRadius: 8, overflow: 'hidden' }}>
+        <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(37, 99, 235, 0.15)' }}>
+          <div className="flex items-center gap-2">
+            <Activity size={16} style={{ color: '#60a5fa' }} />
+            <span className="text-sm font-semibold tracking-wider" style={{ color: '#60a5fa' }}>ACTIVITY & ALERTS</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-xs px-2 py-1 rounded" style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#22c55e' }}>AI: ONLINE</span>
+            <span className="text-xs px-2 py-1 rounded" style={{ background: 'rgba(37, 99, 235, 0.15)', color: '#60a5fa' }}>5 PENDING</span>
+            <span className="text-xs px-2 py-1 rounded" style={{ background: 'rgba(220, 38, 38, 0.15)', color: '#dc2626' }}>3 ALERTS</span>
+          </div>
+        </div>
+        <div className="p-4 grid grid-cols-4 gap-4">
+          {/* AI Status */}
+          <div className="p-3 rounded" style={{ background: 'rgba(37, 99, 235, 0.05)', border: '1px solid rgba(37, 99, 235, 0.1)' }}>
+            <div className="flex items-center gap-2 mb-2">
+              <Brain size={14} style={{ color: '#60a5fa' }} />
+              <span className="text-xs font-medium" style={{ color: '#60a5fa' }}>AI STATUS</span>
+            </div>
+            <p className="text-sm font-semibold" style={{ color: '#e2e8f0' }}>Processing 12 requests</p>
+            <p className="text-xs mt-1" style={{ color: '#94a3b8' }}>Avg response: 1.2s</p>
+          </div>
+
+          {/* Pending Actions */}
+          <div className="p-3 rounded" style={{ background: 'rgba(37, 99, 235, 0.05)', border: '1px solid rgba(37, 99, 235, 0.1)' }}>
+            <div className="flex items-center gap-2 mb-2">
+              <Clock size={14} style={{ color: '#60a5fa' }} />
+              <span className="text-xs font-medium" style={{ color: '#60a5fa' }}>PENDING ACTIONS</span>
+            </div>
+            <p className="text-sm font-semibold" style={{ color: '#e2e8f0' }}>5 items need review</p>
+            <p className="text-xs mt-1" style={{ color: '#94a3b8' }}>3 high priority</p>
+          </div>
+
+          {/* Alerts */}
+          <div className="p-3 rounded" style={{ background: 'rgba(220, 38, 38, 0.05)', border: '1px solid rgba(220, 38, 38, 0.1)' }}>
+            <div className="flex items-center gap-2 mb-2">
+              <ShieldAlert size={14} style={{ color: '#dc2626' }} />
+              <span className="text-xs font-medium" style={{ color: '#dc2626' }}>ALERTS</span>
+            </div>
+            <p className="text-sm font-semibold" style={{ color: '#e2e8f0' }}>3 security alerts</p>
+            <p className="text-xs mt-1" style={{ color: '#94a3b8' }}>1 critical • 2 warnings</p>
+          </div>
+
+          {/* Logs */}
+          <div className="p-3 rounded" style={{ background: 'rgba(37, 99, 235, 0.05)', border: '1px solid rgba(37, 99, 235, 0.1)' }}>
+            <div className="flex items-center gap-2 mb-2">
+              <FileText size={14} style={{ color: '#60a5fa' }} />
+              <span className="text-xs font-medium" style={{ color: '#60a5fa' }}>LOGS</span>
+            </div>
+            <p className="text-sm font-semibold" style={{ color: '#e2e8f0' }}>1,247 entries today</p>
+            <p className="text-xs mt-1" style={{ color: '#94a3b8' }}>Last: 2 mins ago</p>
+          </div>
         </div>
       </div>
     </div>
