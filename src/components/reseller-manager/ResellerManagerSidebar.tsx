@@ -1,4 +1,7 @@
-import { useState } from 'react';
+/**
+ * RESELLER MANAGER SIDEBAR
+ * SINGLE SIDEBAR ENFORCEMENT: Uses sidebar store
+ */
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,7 +21,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Store,
+  ArrowLeft,
 } from 'lucide-react';
+import { useSidebarStore } from '@/stores/sidebarStore';
 
 export type ResellerManagerSection = 
   | 'dashboard'
@@ -37,6 +42,7 @@ interface ResellerManagerSidebarProps {
   onSectionChange: (section: ResellerManagerSection) => void;
   collapsed: boolean;
   onToggleCollapse: () => void;
+  onBack?: () => void;
 }
 
 const menuItems: { id: ResellerManagerSection; label: string; icon: any; badge?: number }[] = [
@@ -57,13 +63,45 @@ export function ResellerManagerSidebar({
   onSectionChange,
   collapsed,
   onToggleCollapse,
+  onBack,
 }: ResellerManagerSidebarProps) {
+  // SINGLE SIDEBAR ENFORCEMENT: Use store for navigation
+  const { exitToGlobal, activeSidebar, activeCategorySidebar } = useSidebarStore();
+  
+  // Handle back navigation - updates store AND calls prop callback
+  const handleBack = () => {
+    exitToGlobal();
+    onBack?.();
+  };
+  
+  // SINGLE SIDEBAR ENFORCEMENT: Only render when this module is active
+  const isThisModuleActive = activeSidebar === 'category' && activeCategorySidebar === 'reseller-manager';
+  
+  if (!isThisModuleActive) {
+    return null;
+  }
+
   return (
     <motion.aside
       initial={false}
       animate={{ width: collapsed ? 64 : 256 }}
       className="h-full bg-slate-900/95 border-r border-slate-700/50 flex flex-col"
     >
+      {/* Back Button */}
+      {!collapsed && (
+        <div className="p-2 border-b border-slate-700/50">
+          <motion.button
+            onClick={handleBack}
+            whileHover={{ x: -2 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Boss</span>
+          </motion.button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="p-3 border-b border-slate-700/50 flex items-center justify-between">
         {!collapsed && (
