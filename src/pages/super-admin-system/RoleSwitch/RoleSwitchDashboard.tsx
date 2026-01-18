@@ -442,7 +442,7 @@ const RoleSwitchDashboard = () => {
       case "pro_manager":
         return <ProManagerView />;
       case "legal_manager":
-        return <LegalManagerView />;
+        return <LMEnterpriseLayout />;
       case "task_management":
         return <TaskManagementView />;
       case "finance_manager":
