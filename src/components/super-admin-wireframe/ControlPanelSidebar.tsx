@@ -186,20 +186,22 @@ export const ControlPanelSidebar = memo<ControlPanelSidebarProps>(({
       </div>
 
       {/* SECTION 2 - CORE ROLES (CARD-STYLE BUTTONS) */}
-      {/* IMPORTANT: min-h-0 ensures the scroll area can actually scroll inside a flex column */}
-      <ScrollArea className="flex-1 min-h-0">
-        <nav className="space-y-2 px-4 py-4 pb-8">
-          {ROLE_CATEGORIES.map((role, index) => (
-            <RoleButton
-              key={role.id}
-              role={role}
-              isActive={activeRole === role.id}
-              onClick={() => handleRoleClick(role.id)}
-              index={index}
-            />
-          ))}
-        </nav>
-      </ScrollArea>
+      {/* FORCE: guarantee scroll height by giving ScrollArea an explicit parent height */}
+      <div className="flex-1 min-h-0">
+        <ScrollArea className="h-full">
+          <nav className="space-y-2 px-4 py-4 pb-10">
+            {ROLE_CATEGORIES.map((role, index) => (
+              <RoleButton
+                key={role.id}
+                role={role}
+                isActive={activeRole === role.id}
+                onClick={() => handleRoleClick(role.id)}
+                index={index}
+              />
+            ))}
+          </nav>
+        </ScrollArea>
+      </div>
 
       {/* SECTION 3 - SYSTEM STATUS (BOTTOM FIXED) */}
       <div className="px-4 py-4 flex-shrink-0" style={{ borderTop: `1px solid ${COLORS.border}` }}>
