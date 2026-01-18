@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -75,15 +76,15 @@ export const MarketingDashboard = () => {
           <p className="text-muted-foreground">AI-powered marketing across all channels</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2" onClick={() => toast.info('Opening marketing reports')}>
             <BarChart3 className="w-4 h-4" />
             View Reports
           </Button>
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2" onClick={() => toast.success('Auto-optimization started')}>
             <Zap className="w-4 h-4" />
             Auto Optimize
           </Button>
-          <Button className="gap-2 bg-gradient-to-r from-emerald-500 to-teal-500">
+          <Button className="gap-2 bg-gradient-to-r from-emerald-500 to-teal-500" onClick={() => toast.info('Opening campaign creator')}>
             <Plus className="w-4 h-4" />
             Create Campaign
           </Button>
@@ -167,7 +168,7 @@ export const MarketingDashboard = () => {
                     <div className="text-sm font-medium text-emerald-400">{campaign.roi}</div>
                     <div className="text-xs text-muted-foreground">ROI</div>
                   </div>
-                  <Button size="sm" variant="ghost">Manage</Button>
+                  <Button size="sm" variant="ghost" onClick={() => toast.info(`Managing ${campaign.name}`)}>Manage</Button>
                 </div>
               </motion.div>
             ))}

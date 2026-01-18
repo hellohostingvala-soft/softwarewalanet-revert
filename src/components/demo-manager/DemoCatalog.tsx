@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { 
   Package, 
@@ -190,19 +191,19 @@ const DemoCatalog = () => {
 
             {/* Actions */}
             <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border/30">
-              <Button size="sm" variant="outline" className="flex-1">
+              <Button size="sm" variant="outline" className="flex-1" onClick={() => toast.info(`Viewing ${product.name} demo`)}>
                 <Eye className="w-3 h-3 mr-2" />
                 View Demo
               </Button>
-              <Button size="sm" variant="outline" className="flex-1">
+              <Button size="sm" variant="outline" className="flex-1" onClick={() => toast.info(`Opening ${product.name} documentation`)}>
                 <FileText className="w-3 h-3 mr-2" />
                 Docs
               </Button>
-              <Button size="sm" variant="outline" className="flex-1">
+              <Button size="sm" variant="outline" className="flex-1" onClick={() => toast.info(`Loading ${product.name} screenshots`)}>
                 <Image className="w-3 h-3 mr-2" />
                 Screenshots
               </Button>
-              <Button size="sm" variant="ghost">
+              <Button size="sm" variant="ghost" onClick={() => window.open('#', '_blank')}>
                 <ExternalLink className="w-4 h-4" />
               </Button>
             </div>
