@@ -98,27 +98,46 @@ export const ValaAISidebar: React.FC<ValaAISidebarProps> = ({
     return null;
   }
   
+  // ===== LOCKED COLORS: Dark Navy Blue Sidebar (matches Control Panel) =====
+  const SIDEBAR_COLORS = {
+    bg: '#0a1628',
+    bgGradient: 'linear-gradient(180deg, #0a1628 0%, #0d1b2a 100%)',
+    border: '#1e3a5f',
+    activeHighlight: '#2563eb',
+    hoverBg: 'rgba(37, 99, 235, 0.15)',
+    text: '#ffffff',
+    textMuted: 'rgba(255, 255, 255, 0.7)',
+    iconColor: '#60a5fa',
+  };
+  
   return (
-    <div className="w-56 bg-card/50 border-r border-border/50 h-full flex flex-col">
+    <div 
+      className="w-56 h-full flex flex-col"
+      style={{ 
+        background: SIDEBAR_COLORS.bgGradient, 
+        borderRight: `1px solid ${SIDEBAR_COLORS.border}` 
+      }}
+    >
       {/* Back Button */}
-      <div className="p-2 border-b border-border/50">
+      <div className="p-2" style={{ borderBottom: `1px solid ${SIDEBAR_COLORS.border}` }}>
         <motion.button
           onClick={handleBack}
           whileHover={{ x: -2 }}
           whileTap={{ scale: 0.98 }}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all"
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all"
+          style={{ color: SIDEBAR_COLORS.textMuted }}
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Boss</span>
+          <span>← Back to Control Panel</span>
         </motion.button>
       </div>
       
-      <div className="p-4 border-b border-border/50">
-        <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <Brain className="w-4 h-4 text-primary" />
+      <div className="p-4" style={{ borderBottom: `1px solid ${SIDEBAR_COLORS.border}` }}>
+        <h2 className="text-sm font-semibold flex items-center gap-2" style={{ color: SIDEBAR_COLORS.text }}>
+          <Brain className="w-4 h-4" style={{ color: SIDEBAR_COLORS.iconColor }} />
           VALA AI
         </h2>
-        <p className="text-xs text-muted-foreground mt-1">AI Command Center</p>
+        <p className="text-xs mt-1" style={{ color: SIDEBAR_COLORS.textMuted }}>AI Command Center</p>
       </div>
       
       <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
@@ -130,27 +149,23 @@ export const ValaAISidebar: React.FC<ValaAISidebarProps> = ({
             <motion.button
               key={item.id}
               onClick={() => onSectionChange(item.id)}
-              className={cn(
-                "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all",
-                isItemActive 
-                  ? "bg-primary/20 text-primary border border-primary/30" 
-                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-              )}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all"
+              style={{
+                background: isItemActive ? SIDEBAR_COLORS.activeHighlight : 'transparent',
+                color: isItemActive ? SIDEBAR_COLORS.text : SIDEBAR_COLORS.textMuted,
+              }}
               whileHover={{ x: 2 }}
               whileTap={{ scale: 0.98 }}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="w-4 h-4" style={{ color: isItemActive ? SIDEBAR_COLORS.text : SIDEBAR_COLORS.iconColor }} />
               <span className="flex-1 text-left">{item.label}</span>
               {item.badge && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                <span 
+                  className="text-[10px] px-1.5 py-0.5 rounded"
+                  style={{ background: 'rgba(37, 99, 235, 0.3)', color: SIDEBAR_COLORS.textMuted }}
+                >
                   {item.badge}
                 </span>
-              )}
-              {isItemActive && (
-                <motion.div
-                  layoutId="vala-ai-active-indicator"
-                  className="w-1.5 h-1.5 rounded-full bg-primary"
-                />
               )}
             </motion.button>
           );
