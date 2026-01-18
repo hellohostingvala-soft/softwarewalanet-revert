@@ -54,24 +54,24 @@ const COLORS = {
 };
 
 // ===== 20 ROLE CATEGORIES (EXACT ORDER - LOCKED) =====
+// IDs MUST match ActiveRole type in RoleSwitchSidebar.tsx
 const ROLE_CATEGORIES = [
   { id: 'boss_owner', label: 'Boss / Owner', icon: Crown },
   { id: 'ceo', label: 'CEO', icon: Eye },
-  { id: 'vala_ai', label: 'Vala AI', icon: Brain },
+  { id: 'vala_ai_management', label: 'Vala AI', icon: Brain },
   { id: 'server_manager', label: 'Server Manager', icon: Server },
   { id: 'continent_super_admin', label: 'Continent Admin', icon: Globe2 },
   { id: 'country_head', label: 'Country Head', icon: Flag },
   { id: 'franchise_manager', label: 'Franchise Manager', icon: Building2 },
-  { id: 'sales_support_manager', label: 'Sales & Support Manager', icon: Headphones },
+  { id: 'sales_support_manager', label: 'Sales & Support', icon: Headphones },
   { id: 'reseller_manager', label: 'Reseller Manager', icon: Handshake },
   { id: 'lead_manager', label: 'Lead Manager', icon: Target },
   { id: 'product_manager', label: 'Product Manager', icon: Box },
-  { id: 'demo_manager', label: 'Demo Manager', icon: Terminal },
+  { id: 'developer_management', label: 'Developer Management', icon: Code2 },
   { id: 'pro_manager', label: 'Pro Manager', icon: Star },
   { id: 'legal_manager', label: 'Legal Manager', icon: Scale },
   { id: 'task_management', label: 'Task Management', icon: ListTodo },
   { id: 'finance_manager', label: 'Finance Manager', icon: DollarSign },
-  { id: 'developer_management', label: 'Developer Management', icon: Code2 },
   { id: 'marketing_management', label: 'Marketing Management', icon: Megaphone },
   { id: 'customer_support_management', label: 'Customer Support', icon: HeartHandshake },
   { id: 'role_manager', label: 'Role Manager', icon: Users },
