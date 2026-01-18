@@ -23,7 +23,7 @@ import ContinentSuperAdminView from "./ContinentSuperAdminView";
 import ServerManagerView from "./ServerManagerView";
 import FranchiseManagerView from "./FranchiseManagerView";
 import SalesSupportManagerView from "./SalesSupportManagerView";
-import ResellerManagerView from "./ResellerManagerView";
+import ResellerManagerFullView from "./ResellerManagerFullView";
 import LeadManagerView from "./LeadManagerView";
 import ProManagerView from "./ProManagerView";
 import LegalManagerView from "./LegalManagerView";
@@ -436,7 +436,7 @@ const RoleSwitchDashboard = () => {
       case "sales_support_manager":
         return <SalesSupportManagerView />;
       case "reseller_manager":
-        return <ResellerManagerView />;
+        return <ResellerManagerFullView onBack={() => setActiveRole("boss_owner")} />;
       case "lead_manager":
         return <LeadManagerView />;
       case "pro_manager":
