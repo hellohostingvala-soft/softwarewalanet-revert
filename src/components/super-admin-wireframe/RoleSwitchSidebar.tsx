@@ -920,128 +920,163 @@ const RoleSwitchSidebar = ({
       )}
       style={{ background: 'linear-gradient(180deg, hsl(217 91% 50%) 0%, hsl(226 71% 45%) 100%)' }}
     >
-      {/* Header - Compact Control Panel */}
-      <div className="p-3 border-b border-white/15 bg-white/5">
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-white shadow-md flex-shrink-0">
-            <currentConfig.icon className="w-4 h-4 text-blue-600" />
+      {/* ================================================== */}
+      {/* SECTION 1: ROLE AUTHORITY - STICKY AT TOP */}
+      {/* Boss/Owner card always pinned, visually dominant */}
+      {/* ================================================== */}
+      <div className="sticky top-0 z-20 bg-gradient-to-b from-blue-600/95 to-blue-700/95 backdrop-blur-sm">
+        {/* Boss/Owner Primary Role Card - Always Visible */}
+        <div className="p-3 border-b border-white/20">
+          <div className="flex items-center gap-2">
+            {/* Crown Icon - Visually Dominant */}
+            <div className={cn(
+              "flex-shrink-0 rounded-lg flex items-center justify-center shadow-lg border-2",
+              "w-11 h-11 bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500 border-amber-300/50"
+            )}>
+              <Crown className="w-5 h-5 text-white drop-shadow-md" />
+            </div>
+            <AnimatePresence>
+              {!collapsed && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex-1 min-w-0"
+                >
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-sm font-bold text-white tracking-tight">Boss / Owner</h2>
+                    <Badge className="text-[9px] px-1.5 py-0 bg-amber-500/30 text-amber-200 border-amber-400/50">
+                      FINAL AUTHORITY
+                    </Badge>
+                  </div>
+                  <p className="text-[10px] text-white/70 font-medium">System Owner • Full Control</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
+          
+          {/* Boss Authority Actions - Lock / Archive / Override */}
+          {!collapsed && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="flex items-center gap-1.5 mt-2"
+            >
+              <button className="flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded-md bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 text-red-300 text-[10px] font-medium transition-colors">
+                <Lock className="w-3 h-3" />
+                Lock
+              </button>
+              <button className="flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded-md bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/30 text-amber-300 text-[10px] font-medium transition-colors">
+                <Archive className="w-3 h-3" />
+                Archive
+              </button>
+              <button className="flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded-md bg-orange-500/20 hover:bg-orange-500/30 border border-orange-400/30 text-orange-300 text-[10px] font-medium transition-colors">
+                <Zap className="w-3 h-3" />
+                Override
+              </button>
+            </motion.div>
+          )}
+        </div>
+        
+        {/* Role Switcher - Below Boss Card */}
+        <div className="p-2 border-b border-white/15">
           <AnimatePresence>
             {!collapsed && (
-              <motion.div
+              <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="flex-1 min-w-0"
+                className="text-[9px] font-semibold text-white/60 uppercase tracking-wider mb-1.5 px-1"
               >
-                <h2 className="text-sm font-bold text-white tracking-tight truncate">Control Panel</h2>
-                <p className="text-[10px] text-white/70 font-medium">Live Operations</p>
-              </motion.div>
+                Switch Role
+              </motion.p>
             )}
           </AnimatePresence>
+          <div className="space-y-0.5 max-h-[120px] overflow-y-auto">
+            {Object.values(roleConfigs).filter(r => r.id !== 'boss_owner').slice(0, 4).map((role) => {
+              const Icon = role.icon;
+              const isActive = activeRole === role.id;
+              return (
+                <Tooltip key={role.id} delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleRoleSelect(role.id as ActiveRole);
+                      }}
+                      className={cn(
+                        "w-full flex items-center gap-2 px-2 py-1 rounded-md transition-all duration-150 relative",
+                        isActive
+                          ? "bg-white/20 text-white font-semibold"
+                          : "text-white/80 hover:bg-white/10 hover:text-white"
+                      )}
+                    >
+                      <div className={cn(
+                        "w-5 h-5 rounded flex items-center justify-center flex-shrink-0",
+                        isActive ? "bg-white" : "bg-white/20"
+                      )}>
+                        <Icon className={cn("w-2.5 h-2.5", isActive ? "text-primary" : "text-white")} />
+                      </div>
+                      {!collapsed && (
+                        <span className="text-[11px] truncate">{role.label}</span>
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  {collapsed && (
+                    <TooltipContent side="right" sideOffset={8}>
+                      {role.label}
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Control Panel Live Content - Always visible at top */}
-      <div className="border-b border-white/10">
-        <ControlPanelContent collapsed={collapsed} />
+      {/* ================================================== */}
+      {/* SECTION 2: SYSTEM STATUS - Below Role Authority */}
+      {/* Compact status indicators */}
+      {/* ================================================== */}
+      <div className="px-3 py-2 border-b border-white/10 bg-white/5">
+        <div className="flex items-center gap-2">
+          {!collapsed ? (
+            <>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[10px] text-white/80 font-medium">RUNNING</span>
+              </div>
+              <Separator orientation="vertical" className="h-3 bg-white/20" />
+              <div className="flex items-center gap-1.5">
+                <Activity className="w-3 h-3 text-blue-400" />
+                <span className="text-[10px] text-white/80">AI: ACTIVE</span>
+              </div>
+              <Separator orientation="vertical" className="h-3 bg-white/20" />
+              <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/20">
+                <span className="text-[9px] text-emerald-400 font-medium">HEALTHY</span>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center gap-1 w-full">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            </div>
+          )}
+        </div>
       </div>
 
-      <AnimatePresence mode="wait">
-        {!isDrilledDown ? (
-          /* Role Switch Section - Show all roles */
-          <motion.div
-            key="role-list"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="flex-1 overflow-hidden"
-          >
-            <ScrollArea className="h-full">
-              <div className="p-2">
-                <AnimatePresence>
-                  {!collapsed && (
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="text-[10px] font-semibold text-white/70 uppercase tracking-wider mb-2 px-2"
-                    >
-                      Switch Role
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-                
-                <div className="space-y-0.5">
-                  {Object.values(roleConfigs).map((role) => {
-                    const Icon = role.icon;
-                    const isActive = activeRole === role.id;
+      {/* ================================================== */}
+      {/* SECTION 3: LIVE OPERATIONS - Middle (Scrollable) */}
+      {/* Live Chat, Pending Actions, Data Sync, Tasks */}
+      {/* ================================================== */}
+      <div className="flex-1 overflow-hidden flex flex-col">
+        <div className="border-b border-white/10">
+          <ControlPanelContent collapsed={collapsed} />
+        </div>
 
-                    return (
-                      <Tooltip key={role.id} delayDuration={0}>
-                        <TooltipTrigger asChild>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleRoleSelect(role.id as ActiveRole);
-                            }}
-                            className={cn(
-                              "w-full flex items-center gap-2 px-2 py-1.5 rounded-md transition-all duration-150 relative",
-                              // STEP 5: Active state with background highlight + left indicator
-                              isActive
-                                ? "bg-white/15 text-white font-semibold"
-                                : "text-white/90 hover:bg-white/15 hover:text-white"
-                            )}
-                          >
-                            {/* STEP 5: Left indicator bar for active state */}
-                            {isActive && (
-                              <motion.div 
-                                layoutId="role-active-indicator"
-                                className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-white rounded-r-full"
-                              />
-                            )}
-                            <div className={cn(
-                              "w-6 h-6 rounded-md flex items-center justify-center transition-all flex-shrink-0",
-                              isActive 
-                                ? "bg-white"
-                                : "bg-white/20"
-                            )}>
-                              <Icon className={cn("w-3 h-3", isActive ? "text-primary" : "text-white")} />
-                            </div>
-                            <AnimatePresence>
-                              {!collapsed && (
-                                <motion.div
-                                  initial={{ opacity: 0 }}
-                                  animate={{ opacity: 1 }}
-                                  exit={{ opacity: 0 }}
-                                  className="flex-1 text-left min-w-0"
-                                >
-                                  <span className={cn("text-xs block text-white truncate", isActive ? "font-semibold" : "font-medium")}>{role.label}</span>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                            {!collapsed && (
-                              <ChevronRight className="w-3 h-3 text-white/70 flex-shrink-0" />
-                            )}
-                          </button>
-                        </TooltipTrigger>
-                        {collapsed && (
-                          <TooltipContent side="right" sideOffset={8}>
-                            <div>
-                              <p className="font-medium text-sm">{role.label}</p>
-                            </div>
-                          </TooltipContent>
-                        )}
-                      </Tooltip>
-                    );
-                  })}
-                </div>
-              </div>
-            </ScrollArea>
-          </motion.div>
-        ) : (
-          /* Drilled-down view - Show only active role's features */
+      <AnimatePresence mode="wait">
+        {/* Features Navigation - Always visible (Role Authority is sticky at top) */}
+        {(
           <motion.div
             key="role-detail"
             initial={{ opacity: 0, x: 20 }}
@@ -1049,54 +1084,6 @@ const RoleSwitchSidebar = ({
             exit={{ opacity: 0, x: 20 }}
             className="flex-1 overflow-hidden flex flex-col"
           >
-            {/* Back button and active role header */}
-            <div className="p-3 border-b border-white/20">
-              <Tooltip delayDuration={0}>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleBackToRoles}
-                    className={cn(
-                      "w-full gap-2 mb-3 text-white hover:bg-white/20 hover:text-white",
-                      collapsed ? "justify-center px-0" : "justify-start"
-                    )}
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                    {!collapsed && <span>Back to Roles</span>}
-                  </Button>
-                </TooltipTrigger>
-                {collapsed && (
-                  <TooltipContent side="right" sideOffset={10}>
-                    Back to Roles
-                  </TooltipContent>
-                )}
-              </Tooltip>
-
-              {/* Current Role Badge */}
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/20 border border-white/30">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-white">
-                  <currentConfig.icon className="w-5 h-5 text-primary" />
-                </div>
-                <AnimatePresence>
-                  {!collapsed && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex-1"
-                    >
-                      <span className="text-sm font-bold block text-white">
-                        {currentConfig.label}
-                      </span>
-                      <Badge variant="outline" className="text-xs mt-1 text-white border-white/50">
-                        Active
-                      </Badge>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
 
             {/* STEP 7: 3-Level Navigation Structure */}
             <ScrollArea className="flex-1 py-2">
@@ -1331,8 +1318,13 @@ const RoleSwitchSidebar = ({
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
+      {/* End of SECTION 3: LIVE OPERATIONS */}
 
-      {/* ENTERPRISE: Global Actions Panel - Context Aware */}
+      {/* ================================================== */}
+      {/* SECTION 4: SUPPORT & ACTIVITY - Bottom (Lowest Priority) */}
+      {/* Global Actions Panel - Context Aware */}
+      {/* ================================================== */}
       <GlobalActionsPanel collapsed={collapsed} />
 
       {/* Footer */}
