@@ -16,7 +16,7 @@ import ModuleBreadcrumb from "@/components/shared/ModuleBreadcrumb";
 import { useSidebarStore } from "@/stores/sidebarStore";
 
 import RoleSwitchSidebar, { ActiveRole, roleConfigs } from "@/components/super-admin-wireframe/RoleSwitchSidebar";
-import { ControlPanelSidebar, RoleId } from "@/components/super-admin-wireframe/ControlPanelSidebar";
+import { ControlPanelSidebar } from "@/components/super-admin-wireframe/ControlPanelSidebar";
 import { ControlPanelDashboard } from "@/components/super-admin-wireframe/ControlPanelDashboard";
 import ContinentSuperAdminView from "./ContinentSuperAdminView";
 // AreaManagerView removed - merged into CountryHeadDashboard
@@ -576,30 +576,8 @@ const RoleSwitchDashboard = () => {
             <ControlPanelSidebar
               activeRole={undefined}
               onRoleSelect={(roleId) => {
-                // Map RoleId to ActiveRole (extended for 20 roles)
-                const roleMap: Record<RoleId, ActiveRole> = {
-                  'boss_owner': 'boss_owner',
-                  'ceo': 'ceo',
-                  'vala_ai': 'vala_ai_management',
-                  'server_manager': 'server_manager',
-                  'continent_super_admin': 'continent_super_admin',
-                  'country_head': 'country_head',
-                  'franchise_manager': 'franchise_manager',
-                  'sales_support_manager': 'sales_support_manager',
-                  'reseller_manager': 'reseller_manager',
-                  'lead_manager': 'lead_manager',
-                  'product_manager': 'product_manager',
-                  'demo_manager': 'product_manager',
-                  'pro_manager': 'pro_manager',
-                  'legal_manager': 'legal_manager',
-                  'task_management': 'task_management',
-                  'finance_manager': 'finance_manager',
-                  'developer_management': 'developer_management' as ActiveRole,
-                  'marketing_management': 'marketing_management',
-                  'customer_support_management': 'customer_support_management',
-                  'role_manager': 'role_manager',
-                };
-                handleRoleChange(roleMap[roleId] || 'boss_owner');
+                // RoleId now matches ActiveRole directly - no mapping needed
+                handleRoleChange(roleId as ActiveRole);
               }}
               onLogout={handleLogout}
             />
