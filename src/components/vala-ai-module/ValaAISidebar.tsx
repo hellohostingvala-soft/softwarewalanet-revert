@@ -22,7 +22,7 @@ import {
   Brain
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useSidebarStore } from '@/stores/sidebarStore';
+import { useSidebarStore, useShouldRenderSidebar } from '@/stores/sidebarStore';
 
 export type ValaAISection = 
   | 'home' 
@@ -61,7 +61,10 @@ export const ValaAISidebar: React.FC<ValaAISidebarProps> = ({
   onBack,
 }) => {
   // SINGLE SIDEBAR ENFORCEMENT: Use store for navigation
-  const { exitToGlobal, activeSidebar, activeCategorySidebar } = useSidebarStore();
+  const { exitToGlobal } = useSidebarStore();
+  
+  // Use the standardized hook for visibility check
+  const shouldRender = useShouldRenderSidebar('category', 'vala-ai');
   
   // Handle back navigation - updates store AND calls prop callback
   const handleBack = () => {
@@ -70,10 +73,7 @@ export const ValaAISidebar: React.FC<ValaAISidebarProps> = ({
   };
   
   // SINGLE SIDEBAR ENFORCEMENT: Only render when this module is active
-  // No fallback - strict isolation to prevent double sidebar
-  const isThisModuleActive = activeSidebar === 'category' && activeCategorySidebar === 'vala-ai';
-  
-  if (!isThisModuleActive) {
+  if (!shouldRender) {
     return null;
   }
   

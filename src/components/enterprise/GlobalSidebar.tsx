@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useShouldRenderSidebar } from "@/stores/sidebarStore";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/enterprise/dashboard", roles: ["all"] },
@@ -71,6 +72,9 @@ export function GlobalSidebar({
 }: GlobalSidebarProps) {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(collapsed);
+  
+  // SINGLE SIDEBAR ENFORCEMENT: Only render when in global/boss context
+  const shouldRender = useShouldRenderSidebar('global');
 
   const handleToggle = () => {
     setIsCollapsed(!isCollapsed);
@@ -80,6 +84,11 @@ export function GlobalSidebar({
   const filteredItems = menuItems.filter(
     (item) => item.roles.includes("all") || item.roles.includes(userRole)
   );
+  
+  // ISOLATION: Do not render if not in global context
+  if (!shouldRender) {
+    return null;
+  }
 
   return (
     <aside

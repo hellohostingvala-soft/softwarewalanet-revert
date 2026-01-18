@@ -3,6 +3,8 @@
  * 
  * Wraps sidebar components to enforce single-sidebar rule
  * Only renders children if this sidebar type is currently active
+ * 
+ * SINGLE-CONTEXT ENFORCEMENT: Uses activeContext to prevent double sidebars
  */
 
 import React from 'react';
@@ -22,20 +24,25 @@ export function SidebarVisibilityGuard({
   children,
   className,
 }: SidebarVisibilityGuardProps) {
-  const { activeSidebar, activeCategorySidebar } = useSidebarStore();
+  const { activeSidebar, activeCategorySidebar, activeContext } = useSidebarStore();
   
   // Determine if this sidebar should be visible
+  // CRITICAL: Check both sidebar type AND active context
   const isVisible = React.useMemo(() => {
     if (type === 'global') {
-      return activeSidebar === 'global';
+      // Global sidebar only visible in Boss context
+      return activeContext === 'boss' && activeSidebar === 'global';
     }
     
     if (type === 'category' && categoryId) {
-      return activeSidebar === 'category' && activeCategorySidebar === categoryId;
+      // Category sidebar only visible in Module context AND matching category
+      return activeContext === 'module' && 
+             activeSidebar === 'category' && 
+             activeCategorySidebar === categoryId;
     }
     
     return false;
-  }, [type, categoryId, activeSidebar, activeCategorySidebar]);
+  }, [type, categoryId, activeSidebar, activeCategorySidebar, activeContext]);
   
   return (
     <AnimatePresence mode="wait">
