@@ -1,4 +1,5 @@
 import { useState } from "react";
+import softwareValaLogo from '@/assets/software-vala-logo.jpg';
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Megaphone, 
@@ -276,9 +277,11 @@ const MarketingSidebar = ({ activeSection, setActiveSection }: MarketingSidebarP
       {/* Compact Header */}
       <div className="px-3 py-2 border-b border-teal-500/20 shrink-0">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shadow-lg shadow-teal-500/30">
-            <Megaphone className="w-4 h-4 text-white" />
-          </div>
+          <img 
+            src={softwareValaLogo} 
+            alt="Software Vala Logo" 
+            className="w-8 h-8 rounded-full object-contain"
+          />
           <div className="flex-1 min-w-0">
             <h1 className="text-sm font-bold bg-gradient-to-r from-teal-200 to-cyan-400 bg-clip-text text-transparent">
               Marketing Manager

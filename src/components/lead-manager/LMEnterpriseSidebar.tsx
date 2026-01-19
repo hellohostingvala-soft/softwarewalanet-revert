@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import softwareValaLogo from '@/assets/software-vala-logo.jpg';
 import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, Users, GitBranch, Layers, UserPlus, Activity,
@@ -37,9 +38,7 @@ const LMEnterpriseSidebar = ({ activeSection, onSectionChange }: LMEnterpriseSid
       {/* Logo Section */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
-            <Target className="w-6 h-6 text-primary-foreground" />
-          </div>
+          <img src={softwareValaLogo} alt="Software Vala Logo" className="w-10 h-10 rounded-full object-contain" />
           <div>
             <h1 className="text-lg font-bold text-foreground">Lead Manager</h1>
             <p className="text-xs text-muted-foreground">Enterprise Edition</p>

@@ -6,6 +6,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
+import softwareValaLogo from '@/assets/software-vala-logo.jpg';
 import {
   LayoutDashboard,
   Inbox,
@@ -95,11 +96,11 @@ export const TMFullSidebar: React.FC<TMFullSidebarProps> = ({
       <div className="p-4 border-b border-border flex items-center justify-between">
         {!collapsed && (
           <div className="flex items-center gap-2">
-            <LayoutDashboard className="h-5 w-5 text-primary" />
+            <img src={softwareValaLogo} alt="Software Vala Logo" className="w-8 h-8 rounded-full object-contain" />
             <span className="font-semibold text-sm text-foreground">Task Manager</span>
           </div>
         )}
-        {collapsed && <LayoutDashboard className="h-5 w-5 text-primary mx-auto" />}
+        {collapsed && <img src={softwareValaLogo} alt="Software Vala Logo" className="w-8 h-8 rounded-full object-contain mx-auto" />}
         <Button
           variant="ghost"
           size="icon"

@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import softwareValaLogo from '@/assets/software-vala-logo.jpg';
 import { useNavigate, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard, 
@@ -55,19 +56,7 @@ export const PerformanceSidebar = () => {
       {/* Logo */}
       <div className="p-6 border-b border-cyan-500/20">
         <div className="flex items-center gap-3">
-          <motion.div 
-            className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center"
-            animate={{ 
-              boxShadow: [
-                "0 0 20px rgba(6, 182, 212, 0.3)",
-                "0 0 40px rgba(6, 182, 212, 0.5)",
-                "0 0 20px rgba(6, 182, 212, 0.3)"
-              ]
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <Zap className="w-5 h-5 text-white" />
-          </motion.div>
+          <img src={softwareValaLogo} alt="Software Vala Logo" className="w-10 h-10 rounded-full object-contain" />
           <div>
             <p className="font-bold text-white text-sm">SOFTWARE VALA</p>
             <p className="text-xs text-cyan-400">Performance Hub</p>
