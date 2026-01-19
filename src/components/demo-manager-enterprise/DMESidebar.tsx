@@ -33,7 +33,7 @@ export type DMESection =
   | 'demo-upgrade'
   | 'demo-issues'
   | 'marketplace-sync'
-  | 'library'
+  | 'homepage-sync'
   | 'health'
   | 'security'
   | 'settings';
@@ -47,7 +47,7 @@ const menuItems: { id: DMESection; label: string; icon: any; badge?: string }[] 
   { id: 'demo-upgrade', label: 'Demo Upgrade (Vala AI)', icon: Bot, badge: 'AI' },
   { id: 'demo-issues', label: 'Demo Issues', icon: HeartPulse },
   { id: 'marketplace-sync', label: 'Marketplace Sync', icon: Link },
-  { id: 'library', label: 'Demo Library', icon: FolderTree, badge: '5K+' },
+  { id: 'homepage-sync', label: 'Home Page Sync', icon: FolderTree },
   { id: 'health', label: 'Demo Health', icon: CheckCircle2, badge: '99.9%' },
   { id: 'security', label: 'Demo Security', icon: ShieldCheck },
   { id: 'settings', label: 'Demo Settings', icon: Settings },
