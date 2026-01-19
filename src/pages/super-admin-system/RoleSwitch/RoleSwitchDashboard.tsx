@@ -656,10 +656,10 @@ const RoleSwitchDashboard = () => {
               onRoleSelect={(roleId) => {
                 handleRoleChange(roleId as ActiveRole);
               }}
-              onLogout={handleLogout}
+            onLogout={handleLogout}
             />
-            {/* Spacer to offset fixed Control Panel sidebar */}
-            <div className="w-[260px] flex-shrink-0" />
+            {/* Spacer to offset fixed Control Panel sidebar - MUST match sidebar width (320px) */}
+            <div className="w-[320px] flex-shrink-0" />
           </>
         )}
 
