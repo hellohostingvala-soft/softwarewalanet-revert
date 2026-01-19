@@ -386,11 +386,24 @@ const RoleSwitchDashboard = () => {
       return;
     }
 
-    // CRITICAL NAV RULE: Switching module = FULL UI reload.
-    // This also guarantees we are in the correct role context (fixes "buttons not working" caused by staying on ?role=boss_owner).
+    // IMPORTANT: Use SPA navigation (iframe-safe) and sync state immediately.
+    // We still keep the role in the URL for deep-linking.
     const nextUrl = `/super-admin-system/role-switch?role=${encodeURIComponent(role)}`;
-    window.location.assign(nextUrl);
-  }, [canAccessView, userRole, isBossOwner]);
+
+    // Boss/CEO should always land on the Control Panel grid by default.
+    const shouldStartInControlPanel = role === "boss_owner" || role === "ceo";
+    if (shouldStartInControlPanel) {
+      setActiveRole(null);
+    } else {
+      setActiveRole(role);
+    }
+
+    setActiveNav("dashboard");
+    setSelectedSubItem(undefined);
+    setNavHistory(["dashboard"]);
+
+    navigate(nextUrl, { replace: true });
+  }, [canAccessView, userRole, isBossOwner, navigate]);
 
   const handleNavChange = useCallback((navId: string) => {
     setActiveNav(navId);
