@@ -64,7 +64,7 @@ import {
   CircleDollarSign
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import softwareValaLogo from '@/assets/software-vala-logo.jpg';
+import softwareValaLogo from '@/assets/software-vala-logo-transparent.png';
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
