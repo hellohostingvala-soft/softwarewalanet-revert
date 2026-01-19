@@ -225,7 +225,15 @@ const menuItems: MenuItem[] = [
     ]
   },
   
-  // 12. SETTINGS (LIMITED)
+  // 12. DEV STUDIO (LIVE)
+  {
+    id: 'dev-studio',
+    label: 'Dev Studio',
+    icon: Code,
+    badge: 'LIVE',
+  },
+  
+  // 13. SETTINGS (LIMITED)
   { 
     id: 'settings', 
     label: 'Settings', 
