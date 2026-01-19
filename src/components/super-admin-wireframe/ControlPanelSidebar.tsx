@@ -176,6 +176,7 @@ export const ControlPanelSidebar = memo<ControlPanelSidebarProps>(({
   onLogout,
 }) => {
   const handleRoleClick = useCallback((roleId: RoleId) => {
+    console.debug("[ControlPanelSidebar] role click", { roleId });
     onRoleSelect(roleId);
   }, [onRoleSelect]);
 
