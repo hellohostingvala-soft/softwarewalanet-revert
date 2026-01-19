@@ -1,60 +1,80 @@
 /**
  * FRANCHISE OWNER FULL LAYOUT
- * Combines Sidebar + Content Area
+ * 10 Module Enterprise Dashboard
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FOFullSidebar, FOSection } from './FOFullSidebar';
-import { FOOverviewScreen } from './screens/FOOverviewScreen';
-import { FOHRMScreen } from './screens/FOHRMScreen';
-import { FOCRMScreen } from './screens/FOCRMScreen';
-import { FOLeadScreen } from './screens/FOLeadScreen';
-import { FOSEOScreen } from './screens/FOSEOScreen';
-import { FOAdsScreen } from './screens/FOAdsScreen';
-import { FOWalletScreen } from './screens/FOWalletScreen';
-import { FOSalesScreen } from './screens/FOSalesScreen';
-import { FOInfluencerScreen } from './screens/FOInfluencerScreen';
-import { FOSupportScreen } from './screens/FOSupportScreen';
-import { FOReportsScreen } from './screens/FOReportsScreen';
-import { FOSettingsScreen } from './screens/FOSettingsScreen';
+import { FOMasterDashboard } from './screens/FOMasterDashboard';
+import { FOOrderManagement } from './screens/FOOrderManagement';
+import { FOCommissionScreen } from './screens/FOCommissionScreen';
+import { FOInvoiceScreen } from './screens/FOInvoiceScreen';
+import { FOWalletManagement } from './screens/FOWalletManagement';
+import { FOCRMHRMScreen } from './screens/FOCRMHRMScreen';
+import { FOTeamPerformance } from './screens/FOTeamPerformance';
+import { FODomainHosting } from './screens/FODomainHosting';
+import { FOSupportEscalation } from './screens/FOSupportEscalation';
+import { FOReportsAnalytics } from './screens/FOReportsAnalytics';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 export function FOFullLayout() {
-  const [activeSection, setActiveSection] = useState<FOSection>('franchise_overview');
+  const [activeSection, setActiveSection] = useState<FOSection>('dashboard');
+
+  // Security: Block right-click, copy, screenshot
+  useEffect(() => {
+    const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        (e.ctrlKey && (e.key === 'c' || e.key === 'C' || e.key === 'p' || e.key === 'P' || e.key === 's' || e.key === 'S')) ||
+        e.key === 'PrintScreen' ||
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && e.key === 'I')
+      ) {
+        e.preventDefault();
+      }
+    };
+    const handleCopy = (e: ClipboardEvent) => e.preventDefault();
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('copy', handleCopy);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('copy', handleCopy);
+    };
+  }, []);
 
   const renderContent = () => {
     switch (activeSection) {
-      case 'franchise_overview':
-        return <FOOverviewScreen />;
-      case 'hrm_management':
-        return <FOHRMScreen />;
-      case 'crm_management':
-        return <FOCRMScreen />;
-      case 'lead_management':
-        return <FOLeadScreen />;
-      case 'seo_marketing':
-        return <FOSEOScreen />;
-      case 'ads_manager':
-        return <FOAdsScreen />;
-      case 'wallet_billing':
-        return <FOWalletScreen />;
-      case 'sales_performance':
-        return <FOSalesScreen />;
-      case 'influencer_leads':
-        return <FOInfluencerScreen />;
-      case 'customer_support':
-        return <FOSupportScreen />;
-      case 'reports_analytics':
-        return <FOReportsScreen />;
-      case 'franchise_settings':
-        return <FOSettingsScreen />;
+      case 'dashboard':
+        return <FOMasterDashboard onNavigate={setActiveSection} />;
+      case 'order_management':
+        return <FOOrderManagement />;
+      case 'commission':
+        return <FOCommissionScreen />;
+      case 'invoices':
+        return <FOInvoiceScreen />;
+      case 'wallet':
+        return <FOWalletManagement />;
+      case 'crm_hrm':
+        return <FOCRMHRMScreen />;
+      case 'team_performance':
+        return <FOTeamPerformance />;
+      case 'domain_hosting':
+        return <FODomainHosting />;
+      case 'support':
+        return <FOSupportEscalation />;
+      case 'reports':
+        return <FOReportsAnalytics />;
       default:
-        return <FOOverviewScreen />;
+        return <FOMasterDashboard onNavigate={setActiveSection} />;
     }
   };
 
   return (
-    <div className="flex h-full w-full bg-background">
+    <div className="flex h-full w-full bg-background select-none">
       <FOFullSidebar
         activeSection={activeSection}
         onSectionChange={setActiveSection}
