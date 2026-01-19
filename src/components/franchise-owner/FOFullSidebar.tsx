@@ -1,7 +1,6 @@
 /**
  * FRANCHISE OWNER FULL SIDEBAR
- * 12 Sections - All-in-One Business Control
- * Style: Same as Core Theme
+ * 10 Modules - Enterprise-Grade Business Control
  */
 
 import React from 'react';
@@ -9,32 +8,28 @@ import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   LayoutDashboard,
-  Users,
-  UserCheck,
-  Target,
-  Search,
-  Megaphone,
+  ShoppingCart,
+  Percent,
+  FileText,
   Wallet,
+  Users,
   TrendingUp,
-  Star,
+  Globe,
   HeadphonesIcon,
   BarChart3,
-  Settings,
 } from 'lucide-react';
 
 export type FOSection =
-  | 'franchise_overview'
-  | 'hrm_management'
-  | 'crm_management'
-  | 'lead_management'
-  | 'seo_marketing'
-  | 'ads_manager'
-  | 'wallet_billing'
-  | 'sales_performance'
-  | 'influencer_leads'
-  | 'customer_support'
-  | 'reports_analytics'
-  | 'franchise_settings';
+  | 'dashboard'
+  | 'order_management'
+  | 'commission'
+  | 'invoices'
+  | 'wallet'
+  | 'crm_hrm'
+  | 'team_performance'
+  | 'domain_hosting'
+  | 'support'
+  | 'reports';
 
 interface FOFullSidebarProps {
   activeSection: FOSection;
@@ -42,18 +37,16 @@ interface FOFullSidebarProps {
 }
 
 const SIDEBAR_ITEMS: { id: FOSection; label: string; icon: React.ElementType }[] = [
-  { id: 'franchise_overview', label: 'Franchise Overview', icon: LayoutDashboard },
-  { id: 'hrm_management', label: 'HRM Management', icon: Users },
-  { id: 'crm_management', label: 'CRM Management', icon: UserCheck },
-  { id: 'lead_management', label: 'Lead Management', icon: Target },
-  { id: 'seo_marketing', label: 'SEO & Marketing', icon: Search },
-  { id: 'ads_manager', label: 'Ads Manager (AI)', icon: Megaphone },
-  { id: 'wallet_billing', label: 'Wallet & Billing', icon: Wallet },
-  { id: 'sales_performance', label: 'Sales Performance', icon: TrendingUp },
-  { id: 'influencer_leads', label: 'Influencer Leads', icon: Star },
-  { id: 'customer_support', label: 'Customer Support', icon: HeadphonesIcon },
-  { id: 'reports_analytics', label: 'Reports & Analytics', icon: BarChart3 },
-  { id: 'franchise_settings', label: 'Franchise Settings', icon: Settings },
+  { id: 'dashboard', label: 'Master Dashboard', icon: LayoutDashboard },
+  { id: 'order_management', label: 'Order Management', icon: ShoppingCart },
+  { id: 'commission', label: 'Commission & Payouts', icon: Percent },
+  { id: 'invoices', label: 'Invoices', icon: FileText },
+  { id: 'wallet', label: 'Wallet Management', icon: Wallet },
+  { id: 'crm_hrm', label: 'CRM + HRM', icon: Users },
+  { id: 'team_performance', label: 'Team Performance', icon: TrendingUp },
+  { id: 'domain_hosting', label: 'Domain & Hosting', icon: Globe },
+  { id: 'support', label: 'Support & Escalation', icon: HeadphonesIcon },
+  { id: 'reports', label: 'Reports & Analytics', icon: BarChart3 },
 ];
 
 export function FOFullSidebar({ activeSection, onSectionChange }: FOFullSidebarProps) {
@@ -67,7 +60,7 @@ export function FOFullSidebar({ activeSection, onSectionChange }: FOFullSidebarP
           </div>
           <div>
             <h2 className="font-semibold text-sm">Franchise Owner</h2>
-            <p className="text-xs text-muted-foreground">Business Control</p>
+            <p className="text-xs text-muted-foreground">Enterprise Control</p>
           </div>
         </div>
       </div>
@@ -84,7 +77,7 @@ export function FOFullSidebar({ activeSection, onSectionChange }: FOFullSidebarP
                 key={item.id}
                 onClick={() => onSectionChange(item.id)}
                 className={cn(
-                  'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
+                  'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors',
                   isActive
                     ? 'bg-primary text-primary-foreground'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
@@ -102,7 +95,7 @@ export function FOFullSidebar({ activeSection, onSectionChange }: FOFullSidebarP
       <div className="p-3 border-t border-border">
         <div className="flex items-center gap-2 text-xs">
           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-muted-foreground">System Active</span>
+          <span className="text-muted-foreground">System Active • Locked</span>
         </div>
       </div>
     </aside>
