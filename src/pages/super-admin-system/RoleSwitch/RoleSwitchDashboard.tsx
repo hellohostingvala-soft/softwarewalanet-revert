@@ -726,24 +726,32 @@ const RoleSwitchDashboard = () => {
           </>
         )}
 
-        {/* CONTEXT B2: Role Sidebar (for ALL other role dashboards except CEO/Developer Manager/VALA AI/Continent Admin and full-screen modules) */}
-        {/* NOTE: continent_super_admin has its OWN sidebar inside ContinentSuperAdminView/GlobalContinentDashboard - do NOT render a second one here */}
-        {!isInControlPanelView && !isInModuleView && activeRole && activeRole !== "ceo" && activeRole !== "developer_management" && activeRole !== "vala_ai_management" && activeRole !== "continent_super_admin" && (
-          <>
-            <RoleSwitchSidebarNew
-              activeRole={activeRole}
-              onRoleChange={handleRoleChange}
-              collapsed={collapsed}
-              onToggleCollapse={() => setCollapsed((prev) => !prev)}
-              onLogout={handleLogout}
-              activeNav={activeNav}
-              onNavChange={handleNavChange}
-              onSubItemClick={(subItemId) => setSelectedSubItem(subItemId)}
-            />
-            {/* Spacer to offset RoleSwitchSidebar (matches its internal widths) */}
-            <div className="flex-shrink-0" style={{ width: collapsed ? 60 : 260 }} />
-          </>
-        )}
+        {/* CONTEXT B2: Role Sidebar (for dashboards that DON'T render their own internal sidebar) */}
+        {/* NOTE: These roles render their OWN sidebar inside their view, so do NOT render RoleSwitchSidebarNew here */}
+        {!isInControlPanelView &&
+          !isInModuleView &&
+          activeRole &&
+          activeRole !== "ceo" &&
+          activeRole !== "developer_management" &&
+          activeRole !== "vala_ai_management" &&
+          activeRole !== "continent_super_admin" &&
+          activeRole !== "sales_support_manager" &&
+          activeRole !== "customer_support_management" && (
+            <>
+              <RoleSwitchSidebarNew
+                activeRole={activeRole}
+                onRoleChange={handleRoleChange}
+                collapsed={collapsed}
+                onToggleCollapse={() => setCollapsed((prev) => !prev)}
+                onLogout={handleLogout}
+                activeNav={activeNav}
+                onNavChange={handleNavChange}
+                onSubItemClick={(subItemId) => setSelectedSubItem(subItemId)}
+              />
+              {/* Spacer to offset RoleSwitchSidebar (matches its internal widths) */}
+              <div className="flex-shrink-0" style={{ width: collapsed ? 60 : 260 }} />
+            </>
+          )}
 
         {/* CONTEXT C: Module containers render their OWN sidebar, so NO extra spacer needed */}
 
