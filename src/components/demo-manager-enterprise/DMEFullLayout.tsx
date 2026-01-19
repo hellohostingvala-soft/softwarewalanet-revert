@@ -7,7 +7,6 @@
 import React, { useState } from 'react';
 import { DMESidebar, DMESection } from './DMESidebar';
 import { DMEOverviewScreen } from './screens/DMEOverviewScreen';
-import { DMELibraryScreen } from './screens/DMELibraryScreen';
 import { DMEHealthScreen } from './screens/DMEHealthScreen';
 import { DMESecurityScreen } from './screens/DMESecurityScreen';
 import { DMESettingsScreen } from './screens/DMESettingsScreen';
@@ -18,6 +17,7 @@ import { DMEDemoContentScreen } from './screens/DMEDemoContentScreen';
 import { DMEDemoUpgradeScreen } from './screens/DMEDemoUpgradeScreen';
 import { DMEDemoIssuesScreen } from './screens/DMEDemoIssuesScreen';
 import { DMEMarketplaceSyncScreen } from './screens/DMEMarketplaceSyncScreen';
+import { DMEHomepageSyncScreen } from './screens/DMEHomepageSyncScreen';
 
 interface DMEFullLayoutProps {
   initialSection?: DMESection;
@@ -48,8 +48,8 @@ export const DMEFullLayout: React.FC<DMEFullLayoutProps> = ({
         return <DMEDemoIssuesScreen />;
       case 'marketplace-sync':
         return <DMEMarketplaceSyncScreen />;
-      case 'library':
-        return <DMELibraryScreen />;
+      case 'homepage-sync':
+        return <DMEHomepageSyncScreen />;
       case 'health':
         return <DMEHealthScreen />;
       case 'security':
