@@ -21,6 +21,7 @@ import PMApprovalFlow from './screens/PMApprovalFlow';
 import PMSecurityLicense from './screens/PMSecurityLicense';
 import PMReports from './screens/PMReports';
 import PMSoftwareProfile from './screens/PMSoftwareProfile';
+import ValaAIDevStudio from '@/components/vala-ai-module/ValaAIDevStudio';
 
 type PMSection = 
   | 'dashboard' 
@@ -89,7 +90,8 @@ type PMSection =
   | 'analytics' 
   | 'activity'
   | 'settings'
-  | 'add-product';
+  | 'add-product'
+  | 'dev-studio';
 
 interface PMEnterpriseLayoutProps {
   viewOnly?: boolean;
@@ -218,6 +220,11 @@ const PMEnterpriseLayout: React.FC<PMEnterpriseLayoutProps> = ({ viewOnly = fals
     // Settings
     if (['notifications', 'security-settings', 'profile', 'logout'].includes(activeSection)) {
       return <PMSettings />;
+    }
+
+    // Dev Studio
+    if (activeSection === 'dev-studio') {
+      return <ValaAIDevStudio />;
     }
 
     // Legacy sections
