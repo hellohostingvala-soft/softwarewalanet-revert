@@ -12,8 +12,11 @@ import {
   User,
   Bot,
   Clock,
-  CheckCheck
+  CheckCheck,
+  Sparkles,
+  AlertCircle
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface Message {
   id: string;
@@ -28,28 +31,113 @@ const initialMessages: Message[] = [
   {
     id: '1',
     sender: 'bot',
-    content: 'Hello! Welcome to Software Vala Support. How can I help you today?',
-    timestamp: '10:00 AM',
-    status: 'read'
-  },
-  {
-    id: '2',
-    sender: 'user',
-    content: 'I have a question about my CRM Pro order',
-    timestamp: '10:01 AM',
-    status: 'read'
-  },
-  {
-    id: '3',
-    sender: 'bot',
-    content: 'Of course! I can see you have an active order for CRM Pro Suite (ORD-2024-001). It\'s currently in development with 65% progress. What would you like to know?',
-    timestamp: '10:02 AM',
+    content: 'Hello! 👋 Welcome to Software Vala Support. I\'m powered by AI and ready to help you with orders, products, wallet, and more. How can I assist you today?',
+    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     status: 'read'
   },
 ];
 
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-marketplace-support`;
+
+type ChatMsg = { role: 'user' | 'assistant'; content: string };
+
+async function streamChat({
+  messages,
+  onDelta,
+  onDone,
+  onError,
+}: {
+  messages: ChatMsg[];
+  onDelta: (deltaText: string) => void;
+  onDone: () => void;
+  onError: (error: string) => void;
+}) {
+  try {
+    const resp = await fetch(CHAT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      },
+      body: JSON.stringify({ messages }),
+    });
+
+    if (resp.status === 429) {
+      onError('Rate limit exceeded. Please wait a moment and try again.');
+      return;
+    }
+    if (resp.status === 402) {
+      onError('AI credits exhausted. Please contact support.');
+      return;
+    }
+    if (!resp.ok || !resp.body) {
+      onError('Failed to connect to AI service.');
+      return;
+    }
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let textBuffer = '';
+    let streamDone = false;
+
+    while (!streamDone) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      textBuffer += decoder.decode(value, { stream: true });
+
+      let newlineIndex: number;
+      while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
+        let line = textBuffer.slice(0, newlineIndex);
+        textBuffer = textBuffer.slice(newlineIndex + 1);
+
+        if (line.endsWith('\r')) line = line.slice(0, -1);
+        if (line.startsWith(':') || line.trim() === '') continue;
+        if (!line.startsWith('data: ')) continue;
+
+        const jsonStr = line.slice(6).trim();
+        if (jsonStr === '[DONE]') {
+          streamDone = true;
+          break;
+        }
+
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+          if (content) onDelta(content);
+        } catch {
+          textBuffer = line + '\n' + textBuffer;
+          break;
+        }
+      }
+    }
+
+    // Final flush
+    if (textBuffer.trim()) {
+      for (let raw of textBuffer.split('\n')) {
+        if (!raw) continue;
+        if (raw.endsWith('\r')) raw = raw.slice(0, -1);
+        if (raw.startsWith(':') || raw.trim() === '') continue;
+        if (!raw.startsWith('data: ')) continue;
+        const jsonStr = raw.slice(6).trim();
+        if (jsonStr === '[DONE]') continue;
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+          if (content) onDelta(content);
+        } catch { /* ignore */ }
+      }
+    }
+
+    onDone();
+  } catch (error) {
+    console.error('Stream error:', error);
+    onError('Connection error. Please try again.');
+  }
+}
+
 export function MMSupportScreen() {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const [chatHistory, setChatHistory] = useState<ChatMsg[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -62,42 +150,8 @@ export function MMSupportScreen() {
     scrollToBottom();
   }, [messages]);
 
-  const simulateBotResponse = (userMessage: string) => {
-    setIsTyping(true);
-    
-    // Simulate human-like delay (2-4 seconds)
-    const delay = 2000 + Math.random() * 2000;
-    
-    setTimeout(() => {
-      let response = '';
-      
-      if (userMessage.toLowerCase().includes('status') || userMessage.toLowerCase().includes('order')) {
-        response = 'Let me check that for you... Your order ORD-2024-001 is progressing well. The development team has completed the core modules and is now working on the custom fields you requested. Expected completion is by January 30th.';
-      } else if (userMessage.toLowerCase().includes('price') || userMessage.toLowerCase().includes('cost')) {
-        response = 'As a franchise partner, you receive an automatic 30% discount on all products. The pricing you see in the marketplace already reflects your discounted rate.';
-      } else if (userMessage.toLowerCase().includes('wallet') || userMessage.toLowerCase().includes('payment')) {
-        response = 'Your current wallet balance is ₹45,230 with ₹5,000 locked for pending orders. You can add more funds anytime through UPI or bank transfer. Would you like me to guide you through the process?';
-      } else if (userMessage.toLowerCase().includes('help') || userMessage.toLowerCase().includes('support')) {
-        response = 'I\'m here to help! I can assist you with:\n• Order status and tracking\n• Product information\n• Wallet and payments\n• Technical issues\n• Feature requests\n\nWhat would you like to know more about?';
-      } else {
-        response = 'Thank you for your message. I understand you need assistance. Could you please provide more details so I can help you better? If this is urgent, I can connect you with our support team.';
-      }
-
-      const botMessage: Message = {
-        id: Date.now().toString(),
-        sender: 'bot',
-        content: response,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        status: 'delivered'
-      };
-
-      setMessages(prev => [...prev, botMessage]);
-      setIsTyping(false);
-    }, delay);
-  };
-
-  const handleSend = () => {
-    if (!inputValue.trim()) return;
+  const handleSend = async () => {
+    if (!inputValue.trim() || isTyping) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -108,9 +162,44 @@ export function MMSupportScreen() {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const newChatHistory: ChatMsg[] = [...chatHistory, { role: 'user', content: inputValue }];
+    setChatHistory(newChatHistory);
     setInputValue('');
-    
-    simulateBotResponse(inputValue);
+    setIsTyping(true);
+
+    let assistantContent = '';
+    const botMessageId = (Date.now() + 1).toString();
+
+    // Add empty bot message that will be updated
+    setMessages(prev => [...prev, {
+      id: botMessageId,
+      sender: 'bot',
+      content: '',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      status: 'delivered'
+    }]);
+
+    await streamChat({
+      messages: newChatHistory,
+      onDelta: (chunk) => {
+        assistantContent += chunk;
+        setMessages(prev => prev.map(m => 
+          m.id === botMessageId ? { ...m, content: assistantContent } : m
+        ));
+      },
+      onDone: () => {
+        setIsTyping(false);
+        setChatHistory(prev => [...prev, { role: 'assistant', content: assistantContent }]);
+      },
+      onError: (error) => {
+        setIsTyping(false);
+        toast.error(error);
+        // Update bot message with error
+        setMessages(prev => prev.map(m => 
+          m.id === botMessageId ? { ...m, content: `⚠️ ${error}` } : m
+        ));
+      }
+    });
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -118,6 +207,10 @@ export function MMSupportScreen() {
       e.preventDefault();
       handleSend();
     }
+  };
+
+  const handleQuickAction = (action: string) => {
+    setInputValue(action);
   };
 
   return (
@@ -128,18 +221,23 @@ export function MMSupportScreen() {
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                <Bot className="h-5 w-5 text-white" />
+                <Sparkles className="h-5 w-5 text-white" />
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-slate-900" />
             </div>
             <div>
-              <h2 className="font-semibold">Support Assistant</h2>
-              <p className="text-xs text-emerald-400">Online</p>
+              <h2 className="font-semibold flex items-center gap-2">
+                AI Support Assistant
+                <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-xs">
+                  Lovable AI
+                </Badge>
+              </h2>
+              <p className="text-xs text-emerald-400">Online • Powered by Gemini</p>
             </div>
           </div>
           <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
             <Clock className="h-3 w-3 mr-1" />
-            Avg. response: 2 min
+            Instant responses
           </Badge>
         </div>
       </div>
@@ -162,7 +260,7 @@ export function MMSupportScreen() {
                 {message.sender === 'user' ? (
                   <User className="h-4 w-4 text-white" />
                 ) : (
-                  <Bot className="h-4 w-4 text-white" />
+                  <Sparkles className="h-4 w-4 text-white" />
                 )}
               </div>
               <div>
@@ -173,7 +271,13 @@ export function MMSupportScreen() {
                     : 'bg-slate-800 border border-slate-700 rounded-tl-sm'
                   }
                 `}>
-                  {message.content}
+                  {message.content || (
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                  )}
                 </div>
                 <div className={`flex items-center gap-1 mt-1 text-xs text-slate-500 ${
                   message.sender === 'user' ? 'justify-end' : ''
@@ -189,11 +293,11 @@ export function MMSupportScreen() {
         ))}
 
         {/* Typing Indicator */}
-        {isTyping && (
+        {isTyping && messages[messages.length - 1]?.content && (
           <div className="flex justify-start">
             <div className="flex gap-2 max-w-[80%]">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
-                <Bot className="h-4 w-4 text-white" />
+                <Sparkles className="h-4 w-4 text-white" />
               </div>
               <div className="p-3 rounded-2xl bg-slate-800 border border-slate-700 rounded-tl-sm">
                 <div className="flex gap-1">
@@ -212,13 +316,13 @@ export function MMSupportScreen() {
       {/* Quick Actions */}
       <div className="p-3 border-t border-slate-700 bg-slate-900">
         <div className="flex gap-2 mb-3 overflow-x-auto pb-2">
-          {['Order Status', 'Wallet Balance', 'Product Info', 'Report Issue'].map(action => (
+          {['Order Status', 'Wallet Balance', 'Product Info', 'Report Issue', 'Development Progress'].map(action => (
             <Button
               key={action}
               variant="outline"
               size="sm"
-              className="border-slate-600 whitespace-nowrap"
-              onClick={() => setInputValue(action)}
+              className="border-slate-600 whitespace-nowrap hover:bg-purple-500/20 hover:border-purple-500/50"
+              onClick={() => handleQuickAction(action)}
             >
               {action}
             </Button>
@@ -234,18 +338,19 @@ export function MMSupportScreen() {
             <ImageIcon className="h-4 w-4" />
           </Button>
           <Input
-            placeholder="Type your message..."
+            placeholder="Ask me anything..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
             className="flex-1 bg-slate-800 border-slate-700"
+            disabled={isTyping}
           />
           <Button variant="outline" size="icon" className="border-slate-600">
             <Mic className="h-4 w-4" />
           </Button>
           <Button 
             onClick={handleSend}
-            disabled={!inputValue.trim()}
+            disabled={!inputValue.trim() || isTyping}
             className="bg-purple-500 hover:bg-purple-600"
           >
             <Send className="h-4 w-4" />
