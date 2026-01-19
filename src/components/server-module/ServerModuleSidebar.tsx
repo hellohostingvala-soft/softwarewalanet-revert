@@ -8,7 +8,7 @@
  * - Back button triggers FULL context switch to Boss
  */
 
-import React, { forwardRef, memo } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, Plus, Server, Activity, Shield, 
@@ -46,11 +46,11 @@ const sidebarItems: { id: ServerModuleSection; label: string; icon: React.Elemen
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
-export const ServerModuleSidebar = memo(forwardRef<HTMLDivElement, ServerModuleSidebarProps>(({
+const ServerModuleSidebarComponent: React.FC<ServerModuleSidebarProps> = ({
   activeSection,
   onSectionChange,
   onBack,
-}, ref) => {
+}) => {
   // SINGLE-CONTEXT ENFORCEMENT: Use store for clean context transitions
   const { exitToGlobal, enterCategory } = useSidebarStore();
   
@@ -84,9 +84,8 @@ export const ServerModuleSidebar = memo(forwardRef<HTMLDivElement, ServerModuleS
   
   return (
     <div 
-      ref={ref}
       className="w-56 flex flex-col shrink-0"
-      style={{ 
+      style={{
         background: SIDEBAR_COLORS.bgGradient, 
         borderRight: `1px solid ${SIDEBAR_COLORS.border}` 
       }}
@@ -155,7 +154,7 @@ export const ServerModuleSidebar = memo(forwardRef<HTMLDivElement, ServerModuleS
       </div>
     </div>
   );
-}));
+};
 
-ServerModuleSidebar.displayName = 'ServerModuleSidebar';
+export const ServerModuleSidebar = ServerModuleSidebarComponent;
 export default ServerModuleSidebar;
