@@ -184,35 +184,29 @@ export const ErrorUI = forwardRef<HTMLDivElement, ErrorUIProps>(({
 
 ErrorUI.displayName = "ErrorUI";
 
-// Convenience exports for specific error types with forwardRef support
-export const AccessDeniedUI = forwardRef<HTMLDivElement, Omit<ErrorUIProps, "type">>((props, ref) => (
-  <ErrorUI ref={ref} type="access-denied" showSupportButton {...props} />
-));
-AccessDeniedUI.displayName = "AccessDeniedUI";
+// Convenience exports for specific error types - simple function components
+export function AccessDeniedUI(props: Omit<ErrorUIProps, "type">) {
+  return <ErrorUI type="access-denied" showSupportButton {...props} />;
+}
 
-export const PageNotFoundUI = forwardRef<HTMLDivElement, Omit<ErrorUIProps, "type">>((props, ref) => (
-  <ErrorUI ref={ref} type="page-not-found" {...props} />
-));
-PageNotFoundUI.displayName = "PageNotFoundUI";
+export function PageNotFoundUI(props: Omit<ErrorUIProps, "type">) {
+  return <ErrorUI type="page-not-found" {...props} />;
+}
 
-export const PermissionBlockedUI = forwardRef<HTMLDivElement, Omit<ErrorUIProps, "type">>((props, ref) => (
-  <ErrorUI ref={ref} type="permission-blocked" showSupportButton {...props} />
-));
-PermissionBlockedUI.displayName = "PermissionBlockedUI";
+export function PermissionBlockedUI(props: Omit<ErrorUIProps, "type">) {
+  return <ErrorUI type="permission-blocked" showSupportButton {...props} />;
+}
 
-export const DataLoadFailedUI = forwardRef<HTMLDivElement, Omit<ErrorUIProps, "type">>((props, ref) => (
-  <ErrorUI ref={ref} type="data-load-failed" showRetryButton {...props} />
-));
-DataLoadFailedUI.displayName = "DataLoadFailedUI";
+export function DataLoadFailedUI(props: Omit<ErrorUIProps, "type">) {
+  return <ErrorUI type="data-load-failed" showRetryButton {...props} />;
+}
 
-export const SystemErrorUI = forwardRef<HTMLDivElement, Omit<ErrorUIProps, "type">>((props, ref) => (
-  <ErrorUI ref={ref} type="system-error" showRetryButton {...props} />
-));
-SystemErrorUI.displayName = "SystemErrorUI";
+export function SystemErrorUI(props: Omit<ErrorUIProps, "type">) {
+  return <ErrorUI type="system-error" showRetryButton {...props} />;
+}
 
-export const SessionExpiredUI = forwardRef<HTMLDivElement, Omit<ErrorUIProps, "type">>((props, ref) => (
-  <ErrorUI ref={ref} type="session-expired" showLoginButton showHomeButton={false} showBackButton={false} {...props} />
-));
-SessionExpiredUI.displayName = "SessionExpiredUI";
+export function SessionExpiredUI(props: Omit<ErrorUIProps, "type">) {
+  return <ErrorUI type="session-expired" showLoginButton showHomeButton={false} showBackButton={false} {...props} />;
+}
 
 export default ErrorUI;
