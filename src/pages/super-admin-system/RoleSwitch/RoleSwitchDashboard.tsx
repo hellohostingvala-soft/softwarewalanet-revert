@@ -38,6 +38,7 @@ import { MMFullLayout } from "@/components/marketplace-manager/MMFullLayout";
 import FinanceManagerDashboard from "./FinanceManagerDashboard";
 import ValaAIDashboard from "./ValaAIDashboard";
 import MarketingManagementDashboard from "./MarketingManagementDashboard";
+import MarketingManager from "@/pages/MarketingManager";
 import CustomerSupportManagementDashboard from "./CustomerSupportManagementDashboard";
 import RoleManagerDashboard from "./RoleManagerDashboard";
 import RMEnterpriseLayout from "@/components/role-manager/RMEnterpriseLayout";
@@ -466,7 +467,7 @@ const RoleSwitchDashboard = () => {
       case "vala_ai_management":
         return <ValaAIDashboard />;
       case "marketing_management":
-        return <MarketingManagementDashboard />;
+        return <MarketingManager />;
       case "customer_support_management":
         return <CustomerSupportManagementDashboard />;
       case "role_manager":
