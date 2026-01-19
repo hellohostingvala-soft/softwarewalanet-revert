@@ -206,13 +206,18 @@ export const GlobalSecurityProvider = ({
   useEffect(() => {
     if (!isSecurityEnabled) return;
 
+    // Allow Lovable preview to render inside an iframe
+    const hostname = window.location.hostname;
+    const isLovablePreview = hostname.endsWith('.lovable.app') || hostname.endsWith('.lovableproject.com');
+    if (isLovablePreview) return;
+
     // Detect if running inside an iframe from a different origin
     try {
       if (window.self !== window.top) {
         // We're in an iframe - check if same origin
         try {
           // This will throw if cross-origin
-          const parentLocation = window.parent.location.href;
+          void window.parent.location.href;
           // Same origin - allowed
         } catch {
           // Cross-origin iframe detected - blank the page
