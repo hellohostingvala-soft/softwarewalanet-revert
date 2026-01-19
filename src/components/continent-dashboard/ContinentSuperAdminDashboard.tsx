@@ -273,253 +273,241 @@ const ContinentSuperAdminDashboard = ({ config, onBack }: ContinentSuperAdminDas
 
       {/* Main Content: Map + Drawer */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Live Continent Map (always visible to keep the same style) */}
-        <div className="flex-1 relative">
-          <div className="absolute inset-0">
-            <ComposableMap
-              projection="geoMercator"
-              projectionConfig={{
-                scale: config.mapScale,
-                center: config.mapCenter
-              }}
-              className="w-full h-full bg-gradient-to-br from-slate-800/50 to-slate-900/50"
-            >
-              <ZoomableGroup zoom={1} center={config.mapCenter}>
-                <Geographies geography={geoUrl}>
-                  {({ geographies }) =>
-                    geographies.map((geo) => {
-                      const country = config.countries.find(c => 
-                        geo.properties.name?.includes(c.name) || 
-                        c.name.includes(geo.properties.name || "")
-                      );
-                      return (
-                        <Geography
-                          key={geo.rsmKey}
-                          geography={geo}
-                          fill={country ? (
-                            country.status === "healthy" ? "#22c55e20" :
-                            country.status === "warning" ? "#eab30820" :
-                            "#ef444420"
-                          ) : "#1e293b"}
-                          stroke="#334155"
-                          strokeWidth={0.5}
-                          onClick={() => country && handleCountryClick(country)}
-                          style={{
-                            default: { outline: "none", cursor: country ? "pointer" : "default" },
-                            hover: { fill: country ? "#3b82f630" : "#334155", outline: "none" },
-                            pressed: { outline: "none" },
-                          }}
-                        />
-                      );
-                    })
-                  }
-                </Geographies>
-                
-                {/* Country Markers with pulse animation */}
-                {config.countries.map((country) => (
-                  <Marker 
-                    key={country.id} 
-                    coordinates={[country.lng, country.lat]}
-                    onClick={() => handleCountryClick(country)}
-                  >
-                    <motion.g className="cursor-pointer">
-                      {/* Pulse animation */}
-                      <motion.circle
-                        r={12}
-                        fill={
-                          country.status === "healthy" ? "#22c55e" :
-                          country.status === "warning" ? "#eab308" :
-                          "#ef4444"
-                        }
-                        opacity={0.3}
-                        animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0, 0.3] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      />
-                      {/* Main marker */}
-                      <circle
-                        r={8}
-                        fill={
-                          country.status === "healthy" ? "#22c55e" :
-                          country.status === "warning" ? "#eab308" :
-                          "#ef4444"
-                        }
-                        stroke="#fff"
-                        strokeWidth={2}
-                      />
-                      {/* Issue indicator */}
-                      {country.issues > 0 && (
-                        <circle
-                          r={4}
-                          cx={6}
-                          cy={-6}
-                          fill="#ef4444"
-                          stroke="#fff"
-                          strokeWidth={1}
-                        />
-                      )}
-                      {/* Pending indicator */}
-                      {country.pendingApprovals > 0 && (
-                        <circle
-                          r={4}
-                          cx={-6}
-                          cy={-6}
-                          fill="#f97316"
-                          stroke="#fff"
-                          strokeWidth={1}
-                        />
-                      )}
-                    </motion.g>
-                  </Marker>
-                ))}
-                
-                {/* Entity Markers */}
-                {markers.slice(0, 30).map((marker) => (
-                  <Marker 
-                    key={marker.id} 
-                    coordinates={[marker.lng, marker.lat]}
-                    onClick={() => setSelectedMarker(marker)}
-                  >
-                    <circle
-                      r={4}
-                      fill={getMarkerColor(marker.type)}
-                      stroke="#fff"
-                      strokeWidth={1}
-                      opacity={0.8}
-                      className="cursor-pointer"
-                    />
-                  </Marker>
-                ))}
-              </ZoomableGroup>
-            </ComposableMap>
-          </div>
-
-          {/* Map Legend */}
-          <div className="absolute bottom-4 left-4 bg-slate-900/90 rounded-lg p-3 border border-slate-700/50">
-            <p className="text-xs font-medium text-white mb-2">Legend</p>
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-blue-500" />
-                <span className="text-xs text-slate-300">Franchise</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                <span className="text-xs text-slate-300">Reseller</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                <span className="text-xs text-slate-300">Influencer</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-orange-500" />
-                <span className="text-xs text-slate-300">Pending Approval</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500" />
-                <span className="text-xs text-slate-300">Issue / Alert</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Stats Overlay */}
-          <div className="absolute top-4 right-4 bg-slate-900/90 rounded-lg p-3 border border-slate-700/50">
-            <p className="text-xs font-medium text-white mb-2">{config.name} Quick Stats</p>
-            <div className="space-y-1">
-              <p className="text-xs text-slate-300">
-                <span className="text-emerald-400 font-bold">{totals.franchises}</span> Franchises
-              </p>
-              <p className="text-xs text-slate-300">
-                <span className="text-blue-400 font-bold">{totals.resellers}</span> Resellers
-              </p>
-              <p className="text-xs text-slate-300">
-                <span className="text-purple-400 font-bold">{totals.leads}</span> Active Leads
-              </p>
-              <p className="text-xs text-slate-300">
-                <span className="text-amber-400 font-bold">${(totals.revenue / 1000000).toFixed(1)}M</span> Revenue
-              </p>
-            </div>
-          </div>
-
-          {/* Section Overlay (keeps map visible -> consistent style) */}
-          {activeSection !== "dashboard" && activeSection !== "live_map" && (
-            <div className="absolute inset-0 p-4">
-              <div className="h-full max-w-2xl bg-slate-900/85 backdrop-blur-sm border border-slate-700/50 rounded-xl overflow-hidden">
-                <div className="p-4 border-b border-slate-700/50 bg-slate-900/60">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h2 className="text-lg font-semibold text-white">
-                        {activeSection === "approvals" ? "Approvals Center" : "Section"}
-                      </h2>
-                      <p className="text-sm text-slate-400">
-                        {activeSection === "approvals"
-                          ? "Pending approvals across all countries in this continent."
-                          : "This panel will be available in the next iteration."}
-                      </p>
-                    </div>
-
-                    {activeSection === "approvals" && (
-                      <Badge className="bg-orange-500/15 text-orange-300 border-orange-500/30">
-                        {totals.pendingApprovals} pending total
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-
-                {activeSection === "approvals" ? (
-                  <ScrollArea className="h-[calc(100%-72px)]">
-                    <div className="p-4 space-y-2">
-                      {approvalsQueue.length === 0 ? (
-                        <div className="p-6 text-center text-slate-400">
-                          No pending approvals right now.
-                        </div>
-                      ) : (
-                        approvalsQueue.map((country) => (
-                          <button
-                            key={country.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedCountry(country);
-                              setDrawerOpen(true);
+        {(activeSection === "dashboard" || activeSection === "live_map") ? (
+          // Live map / overview
+          <div className="flex-1 relative">
+            <div className="absolute inset-0">
+              <ComposableMap
+                projection="geoMercator"
+                projectionConfig={{
+                  scale: config.mapScale,
+                  center: config.mapCenter
+                }}
+                className="w-full h-full bg-gradient-to-br from-slate-800/50 to-slate-900/50"
+              >
+                <ZoomableGroup zoom={1} center={config.mapCenter}>
+                  <Geographies geography={geoUrl}>
+                    {({ geographies }) =>
+                      geographies.map((geo) => {
+                        const country = config.countries.find(c => 
+                          geo.properties.name?.includes(c.name) || 
+                          c.name.includes(geo.properties.name || "")
+                        );
+                        return (
+                          <Geography
+                            key={geo.rsmKey}
+                            geography={geo}
+                            fill={country ? (
+                              country.status === "healthy" ? "#22c55e20" :
+                              country.status === "warning" ? "#eab30820" :
+                              "#ef444420"
+                            ) : "#1e293b"}
+                            stroke="#334155"
+                            strokeWidth={0.5}
+                            onClick={() => country && handleCountryClick(country)}
+                            style={{
+                              default: { outline: "none", cursor: country ? "pointer" : "default" },
+                              hover: { fill: country ? "#3b82f630" : "#334155", outline: "none" },
+                              pressed: { outline: "none" },
                             }}
-                            className="w-full text-left"
-                          >
-                            <Card className="bg-slate-900/50 border-slate-700/50 hover:border-slate-600/50 transition-colors">
-                              <CardContent className="p-4 flex items-center justify-between gap-3">
-                                <div className="min-w-0">
-                                  <p className="font-medium text-white truncate">{country.name}</p>
-                                  <p className="text-xs text-slate-400 truncate">Admin: {country.admin}</p>
-                                </div>
+                          />
+                        );
+                      })
+                    }
+                  </Geographies>
+                  
+                  {/* Country Markers with pulse animation */}
+                  {config.countries.map((country) => (
+                    <Marker 
+                      key={country.id} 
+                      coordinates={[country.lng, country.lat]}
+                      onClick={() => handleCountryClick(country)}
+                    >
+                      <motion.g className="cursor-pointer">
+                        {/* Pulse animation */}
+                        <motion.circle
+                          r={12}
+                          fill={
+                            country.status === "healthy" ? "#22c55e" :
+                            country.status === "warning" ? "#eab308" :
+                            "#ef4444"
+                          }
+                          opacity={0.3}
+                          animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0, 0.3] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        />
+                        {/* Main marker */}
+                        <circle
+                          r={8}
+                          fill={
+                            country.status === "healthy" ? "#22c55e" :
+                            country.status === "warning" ? "#eab308" :
+                            "#ef4444"
+                          }
+                          stroke="#fff"
+                          strokeWidth={2}
+                        />
+                        {/* Issue indicator */}
+                        {country.issues > 0 && (
+                          <circle
+                            r={4}
+                            cx={6}
+                            cy={-6}
+                            fill="#ef4444"
+                            stroke="#fff"
+                            strokeWidth={1}
+                          />
+                        )}
+                        {/* Pending indicator */}
+                        {country.pendingApprovals > 0 && (
+                          <circle
+                            r={4}
+                            cx={-6}
+                            cy={-6}
+                            fill="#f97316"
+                            stroke="#fff"
+                            strokeWidth={1}
+                          />
+                        )}
+                      </motion.g>
+                    </Marker>
+                  ))}
+                  
+                  {/* Entity Markers */}
+                  {markers.slice(0, 30).map((marker) => (
+                    <Marker 
+                      key={marker.id} 
+                      coordinates={[marker.lng, marker.lat]}
+                      onClick={() => setSelectedMarker(marker)}
+                    >
+                      <circle
+                        r={4}
+                        fill={getMarkerColor(marker.type)}
+                        stroke="#fff"
+                        strokeWidth={1}
+                        opacity={0.8}
+                        className="cursor-pointer"
+                      />
+                    </Marker>
+                  ))}
+                </ZoomableGroup>
+              </ComposableMap>
+            </div>
 
-                                <div className="flex items-center gap-3 flex-shrink-0">
-                                  <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/30">
-                                    {country.pendingApprovals} pending
-                                  </Badge>
-                                  <Button
-                                    size="sm"
-                                    className="bg-emerald-600 hover:bg-emerald-700"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleAction("approve_all", country.id, "country");
-                                    }}
-                                  >
-                                    Approve All
-                                  </Button>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          </button>
-                        ))
-                      )}
-                    </div>
-                  </ScrollArea>
-                ) : (
-                  <div className="h-[calc(100%-72px)] flex items-center justify-center text-slate-400">
-                    Select a section from the sidebar.
-                  </div>
-                )}
+            {/* Map Legend */}
+            <div className="absolute bottom-4 left-4 bg-slate-900/90 rounded-lg p-3 border border-slate-700/50">
+              <p className="text-xs font-medium text-white mb-2">Legend</p>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-blue-500" />
+                  <span className="text-xs text-slate-300">Franchise</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                  <span className="text-xs text-slate-300">Reseller</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                  <span className="text-xs text-slate-300">Influencer</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-orange-500" />
+                  <span className="text-xs text-slate-300">Pending Approval</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500" />
+                  <span className="text-xs text-slate-300">Issue / Alert</span>
+                </div>
               </div>
             </div>
-          )}
-        </div>
+
+            {/* Quick Stats Overlay */}
+            <div className="absolute top-4 right-4 bg-slate-900/90 rounded-lg p-3 border border-slate-700/50">
+              <p className="text-xs font-medium text-white mb-2">{config.name} Quick Stats</p>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-300">
+                  <span className="text-emerald-400 font-bold">{totals.franchises}</span> Franchises
+                </p>
+                <p className="text-xs text-slate-300">
+                  <span className="text-blue-400 font-bold">{totals.resellers}</span> Resellers
+                </p>
+                <p className="text-xs text-slate-300">
+                  <span className="text-purple-400 font-bold">{totals.leads}</span> Active Leads
+                </p>
+                <p className="text-xs text-slate-300">
+                  <span className="text-amber-400 font-bold">${(totals.revenue / 1000000).toFixed(1)}M</span> Revenue
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          // Non-map sections
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="p-4 border-b border-slate-700/50">
+              <h2 className="text-lg font-semibold text-white">
+                {activeSection === "approvals" ? "Approvals Center" : "Section"}
+              </h2>
+              <p className="text-sm text-slate-400">
+                {activeSection === "approvals"
+                  ? "Pending approvals across all countries in this continent."
+                  : "This panel will be available in the next iteration."}
+              </p>
+            </div>
+
+            {activeSection === "approvals" ? (
+              <ScrollArea className="flex-1">
+                <div className="p-4 space-y-2">
+                  {approvalsQueue.length === 0 ? (
+                    <div className="p-6 text-center text-slate-400">
+                      No pending approvals right now.
+                    </div>
+                  ) : (
+                    approvalsQueue.map((country) => (
+                      <button
+                        key={country.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedCountry(country);
+                          setDrawerOpen(true);
+                        }}
+                        className="w-full text-left"
+                      >
+                        <Card className="bg-slate-900/50 border-slate-700/50 hover:border-slate-600/50 transition-colors">
+                          <CardContent className="p-4 flex items-center justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="font-medium text-white truncate">{country.name}</p>
+                              <p className="text-xs text-slate-400 truncate">Admin: {country.admin}</p>
+                            </div>
+
+                            <div className="flex items-center gap-3 flex-shrink-0">
+                              <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/30">
+                                {country.pendingApprovals} pending
+                              </Badge>
+                              <Button
+                                size="sm"
+                                className="bg-emerald-600 hover:bg-emerald-700"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAction("approve_all", country.id, "country");
+                                }}
+                              >
+                                Approve All
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </ScrollArea>
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-slate-400">
+                Select a section from the sidebar.
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Country Drill-Down Drawer */}
         <AnimatePresence>
