@@ -56,15 +56,17 @@ export const DMEFullLayout: React.FC<DMEFullLayoutProps> = ({
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-background">
+    <div className="flex h-full w-full bg-background">
       <DMESidebar
         activeSection={activeSection}
         onSectionChange={setActiveSection}
         onBack={onBack}
       />
-      <div className="flex-1 ml-64 p-6 overflow-y-auto">
-        {renderContent()}
-      </div>
+      <main className="flex-1 overflow-auto">
+        <div className="p-6">
+          {renderContent()}
+        </div>
+      </main>
     </div>
   );
 };
