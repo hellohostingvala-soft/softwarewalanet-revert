@@ -387,7 +387,6 @@ const RoleSwitchDashboard = () => {
     }
 
     // IMPORTANT: Use SPA navigation (iframe-safe) and sync state immediately.
-    // We still keep the role in the URL for deep-linking.
     const nextUrl = `/super-admin-system/role-switch?role=${encodeURIComponent(role)}`;
 
     // Boss/CEO should always land on the Control Panel grid by default.
@@ -402,7 +401,11 @@ const RoleSwitchDashboard = () => {
     setSelectedSubItem(undefined);
     setNavHistory(["dashboard"]);
 
-    navigate(nextUrl, { replace: true });
+    // Push (not replace) so browser history reflects the navigation.
+    navigate(nextUrl);
+
+    // Diagnostic (no UI change): confirm role switch fired.
+    console.debug("[RoleSwitchDashboard] navigated", { nextUrl });
   }, [canAccessView, userRole, isBossOwner, navigate]);
 
   const handleNavChange = useCallback((navId: string) => {
