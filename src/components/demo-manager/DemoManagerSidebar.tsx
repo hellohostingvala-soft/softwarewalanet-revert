@@ -1,5 +1,5 @@
 import { useState } from "react";
-import softwareValaLogo from '@/assets/software-vala-logo.jpg';
+import softwareValaLogo from '@/assets/software-vala-logo-transparent.png';
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { 

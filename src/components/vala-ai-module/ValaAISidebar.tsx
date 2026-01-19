@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSidebarStore } from '@/stores/sidebarStore';
-import softwareValaLogo from '@/assets/software-vala-logo.jpg';
+import softwareValaLogo from '@/assets/software-vala-logo-transparent.png';
 
 export type ValaAISection = 
   | 'command-center'

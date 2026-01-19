@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import softwareValaLogo from '@/assets/software-vala-logo.jpg';
+import softwareValaLogo from '@/assets/software-vala-logo-transparent.png';
 import { 
   LayoutDashboard, Users, UserPlus, GraduationCap, ClipboardCheck,
   FileText, Award, Calendar, Settings, ChevronLeft, ChevronRight,
