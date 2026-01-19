@@ -24,6 +24,7 @@ import {
   AlertOctagon,
   Settings,
 } from 'lucide-react';
+import assistManagerLogo from '@/assets/assist-manager-logo.jpg';
 
 export type AMSection =
   | 'assist_dashboard'
@@ -70,10 +71,12 @@ export function AMFullSidebar({ activeSection, onSectionChange }: AMFullSidebarP
     <aside className="w-64 bg-card border-r border-border h-full flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-border">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-            <MonitorPlay className="h-4 w-4 text-primary" />
-          </div>
+        <div className="flex items-center gap-3">
+          <img 
+            src={assistManagerLogo} 
+            alt="Assist Manager Logo" 
+            className="w-10 h-10 rounded-lg object-contain"
+          />
           <div>
             <h2 className="font-semibold text-sm">Assist Manager</h2>
             <p className="text-xs text-muted-foreground">VALA Connect</p>
