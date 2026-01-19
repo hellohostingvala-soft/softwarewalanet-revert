@@ -34,6 +34,7 @@ import { useSidebarStore } from '@/stores/sidebarStore';
 export type ValaAISection = 
   | 'home' 
   | 'dashboard'
+  | 'dev-studio'
   | 'new-project' 
   | 'live-builds' 
   | 'active-demos' 
@@ -56,9 +57,12 @@ interface ValaAISidebarProps {
   onBack?: () => void;
 }
 
+import { Code2 } from 'lucide-react';
+
 const sidebarItems: { id: ValaAISection; label: string; icon: React.ElementType; badge?: string }[] = [
   { id: 'home', label: 'Home', icon: Home },
   { id: 'dashboard', label: 'AI Dashboard', icon: LayoutDashboard, badge: 'Full' },
+  { id: 'dev-studio', label: 'Dev Studio', icon: Code2, badge: 'LIVE' },
   { id: 'new-project', label: 'New Project', icon: Plus },
   { id: 'live-builds', label: 'Live Builds', icon: PlayCircle },
   { id: 'active-demos', label: 'Active Demos', icon: Monitor },

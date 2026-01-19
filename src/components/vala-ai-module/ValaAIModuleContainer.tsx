@@ -2,7 +2,7 @@
  * VALA AI MODULE CONTAINER
  * Main container that combines sidebar + content
  * RENAMED: From Development Manager to VALA AI
- * FULL FEATURES: Dashboard, Models, Tasks, API, Automation, Credits, Alerts
+ * FULL FEATURES: Dashboard, Models, Tasks, API, Automation, Credits, Alerts, Dev Studio
  */
 
 import React, { useState } from 'react';
@@ -24,6 +24,7 @@ import { DevVersions } from './DevVersions';
 import { DevLogs } from './DevLogs';
 import { DevSettings } from './DevSettings';
 import { DemoFactory } from './DemoFactory';
+import { ValaAIDevStudio } from './ValaAIDevStudio';
 
 interface ValaAIModuleContainerProps {
   initialSection?: ValaAISection;
@@ -46,6 +47,8 @@ export const ValaAIModuleContainer: React.FC<ValaAIModuleContainerProps> = ({
         return <ValaAIHome onNavigate={handleNavigate} />;
       case 'dashboard':
         return <ValaAIFullDashboard />;
+      case 'dev-studio':
+        return <ValaAIDevStudio />;
       case 'new-project':
         return <ValaAINewProject />;
       case 'live-builds':
