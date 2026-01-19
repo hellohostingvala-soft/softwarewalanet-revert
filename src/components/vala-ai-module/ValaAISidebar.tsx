@@ -9,7 +9,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   ArrowLeft,
-  Brain,
   Terminal, 
   FolderOpen, 
   History, 
@@ -23,6 +22,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSidebarStore } from '@/stores/sidebarStore';
+import softwareValaLogo from '@/assets/software-vala-logo.jpg';
 
 export type ValaAISection = 
   | 'command-center'
@@ -112,11 +112,17 @@ export const ValaAISidebar: React.FC<ValaAISidebarProps> = ({
       </div>
       
       <div className="p-4" style={{ borderBottom: `1px solid ${SIDEBAR_COLORS.border}` }}>
-        <h2 className="text-sm font-semibold flex items-center gap-2" style={{ color: SIDEBAR_COLORS.text }}>
-          <Brain className="w-4 h-4" style={{ color: SIDEBAR_COLORS.iconColor }} />
-          VALA AI
-        </h2>
-        <p className="text-xs mt-1" style={{ color: SIDEBAR_COLORS.textMuted }}>AI Command Center</p>
+        <div className="flex items-center gap-3">
+          <img 
+            src={softwareValaLogo} 
+            alt="Software Vala Logo" 
+            className="w-10 h-10 rounded-full object-contain"
+          />
+          <div>
+            <h2 className="text-sm font-semibold" style={{ color: SIDEBAR_COLORS.text }}>VALA AI</h2>
+            <p className="text-xs" style={{ color: SIDEBAR_COLORS.textMuted }}>AI Command Center</p>
+          </div>
+        </div>
       </div>
       
       <nav className="flex-1 p-2 space-y-1 overflow-y-auto">

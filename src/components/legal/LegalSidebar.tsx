@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import softwareValaLogo from '@/assets/software-vala-logo.jpg';
 import { 
   Scale, 
   LayoutDashboard, 

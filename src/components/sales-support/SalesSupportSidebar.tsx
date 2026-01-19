@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import softwareValaLogo from '@/assets/software-vala-logo.jpg';
 import { motion } from "framer-motion";
 import {
   LayoutDashboard, Ticket, Users, Inbox, MessageCircle,
@@ -56,9 +57,7 @@ const SalesSupportSidebar = ({
       <div className="p-3 border-b border-slate-700/50 flex items-center justify-between">
         {!collapsed && (
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center">
-              <Headset className="w-5 h-5 text-white" />
-            </div>
+            <img src={softwareValaLogo} alt="Software Vala Logo" className="w-10 h-10 rounded-full object-contain" />
             <div className="truncate">
               <p className="text-sm font-medium text-white truncate">Sales & Support</p>
               <p className="text-[10px] text-slate-400 truncate">Global Team Management</p>
@@ -66,9 +65,7 @@ const SalesSupportSidebar = ({
           </div>
         )}
         {collapsed && (
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center mx-auto">
-            <Headset className="w-5 h-5 text-white" />
-          </div>
+          <img src={softwareValaLogo} alt="Software Vala Logo" className="w-10 h-10 rounded-full object-contain mx-auto" />
         )}
         {!collapsed && (
           <Button

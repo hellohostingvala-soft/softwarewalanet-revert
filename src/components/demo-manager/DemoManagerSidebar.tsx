@@ -1,4 +1,5 @@
 import { useState } from "react";
+import softwareValaLogo from '@/assets/software-vala-logo.jpg';
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -298,13 +299,13 @@ const DemoManagerSidebar = ({ activeView, onViewChange }: DemoManagerSidebarProp
       animate={{ x: 0, opacity: 1 }}
       className="h-screen w-64 bg-card border-r border-border/30 flex flex-col sticky top-0"
     >
-      {/* Logo Section */}
       <div className="p-4 border-b border-border/30">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-neon-teal via-primary to-neon-green flex items-center justify-center relative">
-            <Monitor className="w-6 h-6 text-primary-foreground" />
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-neon-teal/50 to-transparent animate-pulse" />
-          </div>
+          <img 
+            src={softwareValaLogo} 
+            alt="Software Vala Logo" 
+            className="w-12 h-12 rounded-full object-contain"
+          />
           <div>
             <div className="font-mono font-bold text-sm text-foreground">SOFTWARE VALA</div>
             <div className="flex items-center gap-1.5">

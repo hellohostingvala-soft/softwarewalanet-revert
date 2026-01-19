@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import softwareValaLogo from '@/assets/software-vala-logo.jpg';
 import { 
   LayoutDashboard, Users, UserPlus, GraduationCap, ClipboardCheck,
   FileText, Award, Calendar, Settings, ChevronLeft, ChevronRight,
@@ -52,9 +53,7 @@ const HRSidebar = ({ activeSection, setActiveSection }: HRSidebarProps) => {
       {/* Header */}
       <div className="h-16 flex items-center px-4 border-b border-violet-500/20">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
-            <Users className="w-5 h-5 text-white" />
-          </div>
+          <img src={softwareValaLogo} alt="Software Vala Logo" className="w-10 h-10 rounded-full object-contain" />
           {!collapsed && (
             <div>
               <h1 className="font-bold text-white">HR & Training</h1>
