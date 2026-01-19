@@ -35,7 +35,7 @@ import {
   Crown, Eye, Brain, Server, Globe2, Flag, Building2, 
   Headphones, Handshake, Target, Box, Terminal, 
   Star, Scale, ListTodo, DollarSign, Code2, 
-  Megaphone, HeartHandshake, Users, LogOut, Zap, Timer, MonitorPlay, MessageSquare, Store
+  Megaphone, HeartHandshake, Users, LogOut, Zap, Timer, MonitorPlay, MessageSquare, Store, Monitor
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
