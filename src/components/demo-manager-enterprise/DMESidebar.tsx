@@ -64,7 +64,7 @@ export const DMESidebar: React.FC<DMESidebarProps> = ({
     <motion.aside
       initial={{ x: -20, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      className="fixed left-0 top-0 bottom-0 w-64 glass-panel border-r border-border/30 z-50 flex flex-col"
+      className="w-64 h-full bg-card border-r border-border flex flex-col shrink-0"
     >
       {/* Logo Section */}
       <div className="p-4 border-b border-border/30">
