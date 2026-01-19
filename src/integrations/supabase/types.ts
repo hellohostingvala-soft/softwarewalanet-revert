@@ -274,6 +274,51 @@ export type Database = {
           },
         ]
       }
+      action_logs: {
+        Row: {
+          action_result: string
+          action_type: string
+          button_id: string | null
+          created_at: string | null
+          error_message: string | null
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          module_name: string
+          response_time_ms: number | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action_result: string
+          action_type: string
+          button_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          module_name: string
+          response_time_ms?: number | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action_result?: string
+          action_type?: string
+          button_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          module_name?: string
+          response_time_ms?: number | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       admin_scope_history: {
         Row: {
           admin_id: string
@@ -605,6 +650,45 @@ export type Database = {
           scope?: string | null
           scope_value?: string | null
           suggested_action?: string | null
+        }
+        Relationships: []
+      }
+      ai_observation_logs: {
+        Row: {
+          action_id: string | null
+          action_taken: string | null
+          confidence_score: number | null
+          created_at: string | null
+          id: string
+          module_name: string
+          observation_data: Json | null
+          observation_type: string
+          result: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action_id?: string | null
+          action_taken?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          id?: string
+          module_name: string
+          observation_data?: Json | null
+          observation_type: string
+          result?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action_id?: string | null
+          action_taken?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          id?: string
+          module_name?: string
+          observation_data?: Json | null
+          observation_type?: string
+          result?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1917,6 +2001,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      button_registry: {
+        Row: {
+          action_type: string
+          api_endpoint: string | null
+          button_id: string
+          created_at: string | null
+          db_table: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          module_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          action_type: string
+          api_endpoint?: string | null
+          button_id: string
+          created_at?: string | null
+          db_table?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          module_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          action_type?: string
+          api_endpoint?: string | null
+          button_id?: string
+          created_at?: string | null
+          db_table?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          module_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       buzzer_queue: {
         Row: {
