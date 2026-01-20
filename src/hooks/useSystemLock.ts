@@ -1,10 +1,18 @@
 /**
  * STEP 12: System Lock Hook
  * Prevents unauthorized changes after validation
+ * 
+ * AFTER ALL PASS:
+ * • Lock UI
+ * • Lock DB schema
+ * • Lock routing
+ * • Lock permissions
+ * • No change without approval
  */
 
 import { useState, useCallback, useEffect } from 'react';
 import { useEnterpriseAudit } from './useEnterpriseAudit';
+import { supabase } from '@/integrations/supabase/client';
 
 export type LockableArea = 
   | 'schema'
@@ -14,7 +22,11 @@ export type LockableArea =
   | 'design_system'
   | 'api_endpoints'
   | 'role_matrix'
-  | 'production_mode';
+  | 'production_mode'
+  | 'button_registry'
+  | 'approval_engine'
+  | 'ai_pipeline'
+  | 'audit_system';
 
 export interface SystemLockState {
   isLocked: boolean;
@@ -23,10 +35,19 @@ export interface SystemLockState {
   lockedAreas: LockableArea[];
   version: string;
   allowedChangeTypes: string[];
+  verificationPassed: boolean;
+  lockLevel: 'development' | 'staging' | 'production';
+}
+
+export interface LockViolation {
+  area: LockableArea;
+  attemptedAction: string;
+  timestamp: string;
+  blocked: boolean;
 }
 
 const SYSTEM_LOCK_KEY = 'system_lock_state';
-const CURRENT_VERSION = '1.0.0';
+const CURRENT_VERSION = '2.0.0';
 
 export function useSystemLock() {
   const [lockState, setLockState] = useState<SystemLockState>(() => {
@@ -41,6 +62,7 @@ export function useSystemLock() {
     return getDefaultLockState();
   });
 
+  const [violations, setViolations] = useState<LockViolation[]>([]);
   const { logAction } = useEnterpriseAudit();
 
   // Persist lock state
@@ -66,10 +88,16 @@ export function useSystemLock() {
         'design_system',
         'api_endpoints',
         'role_matrix',
-        'production_mode'
+        'production_mode',
+        'button_registry',
+        'approval_engine',
+        'ai_pipeline',
+        'audit_system'
       ],
       version: CURRENT_VERSION,
-      allowedChangeTypes: ['hotfix', 'security_patch', 'new_version']
+      allowedChangeTypes: ['hotfix', 'security_patch', 'new_version'],
+      verificationPassed: true,
+      lockLevel: 'production'
     });
 
     await logAction({
@@ -106,9 +134,15 @@ export function useSystemLock() {
         'design_system',
         'api_endpoints',
         'role_matrix',
-        'production_mode'
+        'production_mode',
+        'button_registry',
+        'approval_engine',
+        'ai_pipeline',
+        'audit_system'
       ],
-      allowedChangeTypes: ['hotfix', 'security_patch']
+      allowedChangeTypes: ['hotfix', 'security_patch'],
+      verificationPassed: true,
+      lockLevel: 'production'
     }));
 
     await logAction({
@@ -198,6 +232,8 @@ function getDefaultLockState(): SystemLockState {
     lockedBy: null,
     lockedAreas: [],
     version: CURRENT_VERSION,
-    allowedChangeTypes: ['hotfix', 'security_patch', 'new_version']
+    allowedChangeTypes: ['hotfix', 'security_patch', 'new_version'],
+    verificationPassed: false,
+    lockLevel: 'development'
   };
 }
