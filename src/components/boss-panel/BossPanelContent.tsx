@@ -1,6 +1,7 @@
 import React from 'react';
 import { useOutletContext } from 'react-router-dom';
 import type { BossPanelSection } from './BossPanelLayout';
+import { useBossPanelContext } from './BossPanelLayout';
 import { BossDashboard } from './sections/BossDashboard';
 import { LiveActivityStream } from './sections/LiveActivityStream';
 import { HierarchyControl } from './sections/HierarchyControl';
@@ -16,13 +17,38 @@ import { CodePilot } from './sections/CodePilot';
 import { ServerHosting } from './sections/ServerHosting';
 import { ValaAIModuleContainer } from '@/components/vala-ai-module/ValaAIModuleContainer';
 
-interface BossPanelContext {
+interface BossPanelOutletContext {
   activeSection: BossPanelSection;
   streamingOn: boolean;
 }
 
 export function BossPanelContent() {
-  const { activeSection, streamingOn } = useOutletContext<BossPanelContext>();
+  // Try outlet context first (for router-based usage), fallback to React context
+  let activeSection: BossPanelSection = 'dashboard';
+  let streamingOn = true;
+  
+  try {
+    const outletContext = useOutletContext<BossPanelOutletContext>();
+    if (outletContext?.activeSection) {
+      activeSection = outletContext.activeSection;
+      streamingOn = outletContext.streamingOn ?? true;
+    }
+  } catch {
+    // Outlet context not available, use React context
+  }
+  
+  // Fallback to React context if outlet didn't provide values
+  const bossPanelContext = useBossPanelContext();
+  if (activeSection === 'dashboard' && bossPanelContext.activeSection !== 'dashboard') {
+    activeSection = bossPanelContext.activeSection;
+    streamingOn = bossPanelContext.streamingOn;
+  }
+  
+  // Use the context values if available
+  if (bossPanelContext.activeSection) {
+    activeSection = bossPanelContext.activeSection;
+    streamingOn = bossPanelContext.streamingOn;
+  }
 
   const renderSection = () => {
     switch (activeSection) {
