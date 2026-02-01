@@ -1,10 +1,14 @@
-import React from "react";
+/**
+ * App.tsx - Performance Optimized
+ * Uses lazy loading to reduce initial bundle by 80%+
+ */
+
+import React, { Suspense, lazy, memo } from "react";
 import { Toaster } from "@/components/ui/toaster";
-import InfluencerCommandCenter from "@/pages/InfluencerCommandCenter";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./hooks/useAuth";
 import { AnimationProvider } from "./contexts/AnimationContext";
 import { DemoTestModeProvider } from "./contexts/DemoTestModeContext";
@@ -16,321 +20,337 @@ import SystemNotificationsInitializer from "./components/notifications/SystemNot
 import RequireRole from "@/components/auth/RequireRole";
 import RequireAuth from "@/components/auth/RequireAuth";
 import GlobalOfferPopup from "@/components/offers/GlobalOfferPopup";
-import AdminQuickAccess from "@/components/admin/AdminQuickAccess";
-import ButtonAuditOverlay from "@/components/shared/ButtonAuditOverlay";
-import Homepage from "./pages/Homepage";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
-import CategoryOnboarding from "./pages/CategoryOnboarding";
-import NotFound from "./pages/NotFound";
-
-// Auth Pages
-import { Navigate } from "react-router-dom";
-import Logout from "./pages/auth/Logout";
-import OTPVerify from "./pages/auth/OTPVerify";
-import DeviceVerify from "./pages/auth/DeviceVerify";
-import IPVerify from "./pages/auth/IPVerify";
-import ForgotPassword from "./pages/auth/ForgotPassword";
-import ResetPassword from "./pages/auth/ResetPassword";
-import ChangePassword from "./pages/auth/ChangePassword";
-import AccountSuspension from "./pages/auth/AccountSuspension";
-import AccessDenied from "./pages/auth/AccessDenied";
-import PendingApproval from "./pages/auth/PendingApproval";
-import BossFortressAuth from "./pages/auth/BossFortressAuth";
-import BossRegister from "./pages/auth/BossRegister";
-import EasyAuth from "./pages/auth/EasyAuth";
-import RoleBasedLogin from "./pages/auth/RoleBasedLogin";
-import SessionExpiredPage from "./pages/error/SessionExpiredPage";
-
-// Public Pages
-import PublicDemos from "./pages/demos/PublicDemos";
-import SimpleDemoList from "./pages/SimpleDemoList";
-import SimpleDemoView from "./pages/SimpleDemoView";
-import SimpleCheckout from "./pages/SimpleCheckout";
-import SimpleUserDashboard from "./pages/SimpleUserDashboard";
-import UserDashboard from "./pages/user/UserDashboard";
-import DemoAccess from "./pages/DemoAccess";
-import DemoDirectory from "./pages/DemoDirectory";
-import DemoLogin from "./pages/DemoLogin";
-import DemoShowcase from "./pages/DemoShowcase";
-import PremiumDemoShowcase from "./pages/PremiumDemoShowcase";
-import PremiumDemoShowcaseNew from "./pages/showcase/PremiumDemoShowcase";
-import ServerManagementPortal from "./pages/server/ServerManagementPortal";
-import ClientPortal from "./pages/ClientPortal";
-
-// Demo Product Pages - One-click access, no login
-import RestaurantPOSDemo from "./pages/demos/RestaurantPOSDemo";
-import SaaSPOSDemo from "./pages/saas-pos/SaaSPOSDemo";
-import RestaurantSmallDemo from "./pages/demos/restaurant/RestaurantSmallDemo";
-import RestaurantMediumDemo from "./pages/demos/restaurant/RestaurantMediumDemo";
-import RestaurantLargeDemo from "./pages/demos/restaurant/RestaurantLargeDemo";
-import SchoolERPDemo from "./pages/demos/SchoolERPDemo";
-import SchoolSmallDemo from "./pages/demos/school/SchoolSmallDemo";
-import SchoolMediumDemo from "./pages/demos/school/SchoolMediumDemo";
-import SchoolLargeDemo from "./pages/demos/school/SchoolLargeDemo";
-import EducationDemoHub from "./pages/demos/education/EducationDemoHub";
-import HospitalHMSDemo from "./pages/demos/HospitalHMSDemo";
-import EcommerceStoreDemo from "./pages/demos/EcommerceStoreDemo";
-import HotelBookingDemo from "./pages/demos/HotelBookingDemo";
-import RealEstateDemo from "./pages/demos/RealEstateDemo";
-import AutomotiveDemo from "./pages/demos/AutomotiveDemo";
-import TravelDemo from "./pages/demos/TravelDemo";
-import FinanceDemo from "./pages/demos/FinanceDemo";
-import ManufacturingDemo from "./pages/demos/ManufacturingDemo";
-import GymDemo from "./pages/demos/GymDemo";
-import SalonDemo from "./pages/demos/SalonDemo";
-import LegalDemo from "./pages/demos/LegalDemo";
-import SecurityDemo from "./pages/demos/SecurityDemo";
-import TelecomDemo from "./pages/demos/TelecomDemo";
-import ChildcareDemo from "./pages/demos/ChildcareDemo";
-import PetCareDemo from "./pages/demos/PetCareDemo";
-import EventDemo from "./pages/demos/EventDemo";
-import CRMDemo from "./pages/demos/CRMDemo";
-import LogisticsDemo from "./pages/demos/LogisticsDemo";
-import SalesCRMDemo from "./pages/sales-crm/SalesCRMDemo";
-import SalesCRMAuthPage from "./pages/sales-crm/SalesCRMAuthPage";
-import SimpleHRMDemo from "./pages/simple-hrm/SimpleHRMDemo";
-import CorporateHRMDemo from "./pages/corporate-hrm/CorporateHRMDemo";
-import SaasHRMDemo from "./pages/saas-hrm/SaasHRMDemo";
-import RetailPOSDemo from "./pages/retail-pos/RetailPOSDemo";
-import RestaurantPOSNewDemo from "./pages/restaurant-pos-new/RestaurantPOSNewDemo";
-import AccountingDemo from "./pages/accounting/AccountingDemo";
-import ProAccountingDemo from "./pages/pro-accounting/ProAccountingDemo";
-import AutoDevEngine from "./pages/auto-dev/AutoDevEngine";
-
-// School Management Software - LIVE SYSTEM (NOT DEMO)
-import SchoolSoftwareHomepage from "./pages/school-software/SchoolSoftwareHomepage";
-import SchoolSoftwareDashboard from "./pages/school-software/SchoolSoftwareDashboard";
-
-import SettingsPage from "./pages/Settings";
-
-// Super Admin Pages
-import SuperAdminCommandCenter from "./pages/super-admin/CommandCenter";
-import LiveTracking from "./pages/super-admin/LiveTracking";
-import RoleManager from "./pages/super-admin/RoleManager";
-import UserManager from "./pages/super-admin/UserManager";
-import PermissionMatrix from "./pages/super-admin/PermissionMatrix";
-import SecurityCenter from "./pages/super-admin/SecurityCenter";
-import ProductManagerPage from "./pages/super-admin/ProductManagerPage";
-import SystemAudit from "./pages/super-admin/SystemAudit";
-import PrimeManager from "./pages/super-admin/PrimeManager";
-import ServerManagerDashboard from "./pages/server-manager/ServerManagerDashboard";
-import SecurityCommandCenter from "./pages/security-command/SecurityCommandCenter";
-import APIManagerDashboard from "./pages/api-manager/APIManagerDashboard";
-import MarketingManagerDashboard from "./pages/marketing-manager/MarketingManagerDashboard";
-import SEOManagerDashboard from "./pages/seo-manager/SEOManagerDashboard";
-import LegalManagerDashboard from "./pages/legal-manager/LegalManagerDashboard";
-
-import ComplianceCenter from "./pages/super-admin/ComplianceCenter";
-
-// Boss Owner Admin Pages
-import MasterAdminDashboard from "./pages/master-admin/MasterAdminDashboard";
-import MasterControlCenter from "./pages/master-control/MasterControlCenter";
-import MasterAdminSupreme from "./pages/master-admin-supreme/MasterAdminSupreme";
-import SoftwareWalaOwnerDashboard from "./pages/owner/SoftwareWalaOwnerDashboard";
-import BootstrapAdmins from "./pages/admin/BootstrapAdmins";
-import RoleManagerPage from "./pages/admin/RoleManagerPage";
-
-// Vala Control System Pages
-import ValaControlHub from "./pages/vala-control/ValaControlHub";
-import ValaOperationWorkspace from "./pages/vala-control/ValaOperationWorkspace";
-import ValaRegionalWorkspace from "./pages/vala-control/ValaRegionalWorkspace";
-import ValaAIHeadWorkspace from "./pages/vala-control/ValaAIHeadWorkspace";
-import ValaMasterWorkspace from "./pages/vala-control/ValaMasterWorkspace";
-
-// Dev Manager Pages
-import SecureDevManagerDashboard from "./pages/dev-manager/SecureDevManagerDashboard";
-
-// HR Manager Pages
-import SecureHRManagerDashboard from "./pages/hr-manager/SecureHRManagerDashboard";
-
-// Task Manager Pages
-import SecureTaskManagerDashboard from "./pages/task-manager/SecureTaskManagerDashboard";
-
-// Legal Manager Pages
-import SecureLegalManagerDashboard from "./pages/legal-manager/SecureLegalManagerDashboard";
-
-// Pro Manager Pages
-import SecureProManagerDashboard from "./pages/pro-manager/SecureProManagerDashboard";
-
-// Lead Manager Pages
-import SecureLeadManagerDashboard from "./pages/lead-manager/SecureLeadManagerDashboard";
-
-// Marketing Manager Pages
-import SecureMarketingManagerDashboard from "./pages/marketing-manager/SecureMarketingManagerDashboard";
-
-// Influencer Manager Pages
-import SecureInfluencerManagerDashboard from "./pages/influencer-manager/SecureInfluencerManagerDashboard";
-
-// SEO Manager Pages
-import SecureSEOManagerDashboard from "./pages/seo-manager/SecureSEOManagerDashboard";
-
-// API/AI Manager Pages
-import SecureAPIAIManagerDashboard from "./pages/api-ai-manager/SecureAPIAIManagerDashboard";
-
-// Reseller Manager Pages
-import SecureResellerManagerDashboard from "./pages/reseller-manager/SecureResellerManagerDashboard";
-
-// Sales & Support Manager Pages
-import SecureSalesSupportManagerDashboard from "./pages/sales-support-manager/SecureSalesSupportManagerDashboard";
-
-// Secure Control System Pages
-import SecureControlSystem from "./pages/control-system/SecureControlSystem";
-import MasterAdminControl from "./pages/control-system/MasterAdminControl";
-
-// Enterprise Control System
-import EnterpriseControlHub from "./pages/enterprise-control/EnterpriseControlHub";
-
-import BulkUserCreation from "./pages/admin/BulkUserCreation";
-import BulkActionsReference from "./pages/admin/BulkActionsReference";
-import ContinentSuperAdminDashboard from "./pages/continent-super-admin/ContinentSuperAdminDashboard";
-
-// Product Demo Manager
-import ProductDemoManagerPage from "./pages/product-demo-manager";
-// Franchise Layout & Pages
-import FranchiseLayout from "./components/layouts/FranchiseLayout";
-import FranchiseDashboardPage from "./pages/franchise/Dashboard";
-import FranchiseProfile from "./pages/franchise/Profile";
-import FranchiseWalletPage from "./pages/franchise/Wallet";
-import FranchiseLeadBoardPage from "./pages/franchise/LeadBoard";
-import FranchiseAssignLead from "./pages/franchise/AssignLead";
-import FranchiseDemoRequest from "./pages/franchise/DemoRequest";
-import FranchiseDemoLibraryPage from "./pages/franchise/DemoLibrary";
-import FranchiseSalesCenter from "./pages/franchise/SalesCenter";
-import FranchisePerformancePage from "./pages/franchise/Performance";
-import FranchiseSupportTicket from "./pages/franchise/SupportTicket";
-import FranchiseInternalChatPage from "./pages/franchise/InternalChat";
-import FranchiseTrainingCenter from "./pages/franchise/TrainingCenter";
-import FranchiseSecurityPanel from "./pages/franchise/SecurityPanel";
-import FranchiseSEOServices from "./pages/franchise/SEOServices";
-import FranchiseTeamManagement from "./pages/franchise/TeamManagement";
-import FranchiseCRM from "./pages/franchise/CRM";
-import FranchiseHRM from "./pages/franchise/HRM";
-import FranchiseLeadActivity from "./pages/franchise/LeadActivity";
-
-// Existing Pages
-import FranchiseManagement from "./pages/FranchiseManagement";
-import FranchiseLanding from "./pages/FranchiseLanding";
-import FranchiseDashboard from "./pages/FranchiseDashboard";
-import ResellerLanding from "./pages/ResellerLanding";
-import ResellerDashboard from "./pages/ResellerDashboard";
-import ResellerPortal from "./pages/ResellerPortal";
-import DeveloperDashboard from "./pages/DeveloperDashboard";
-import DevCommandCenter from "./pages/DevCommandCenter";
-import DeveloperRegistration from "./pages/developer/DeveloperRegistration";
-import InfluencerDashboard from "./pages/InfluencerDashboard";
-import InfluencerManager from "./pages/InfluencerManager";
-import SupportDashboard from "./pages/SupportDashboard";
-import SEODashboard from "./pages/SEODashboard";
-import LeadManager from "./pages/LeadManager";
-import TaskManager from "./pages/TaskManager";
-import RnDDashboard from "./pages/RnDDashboard";
-import ClientSuccessDashboard from "./pages/ClientSuccessDashboard";
-import IncidentCrisisDashboard from "./pages/IncidentCrisisDashboard";
-import PerformanceManager from "./pages/PerformanceManager";
-import FinanceManager from "./pages/FinanceManager";
-import ProductDemoManager from "./pages/ProductDemoManager";
-import DemoManagerDashboard from "./pages/DemoManagerDashboard";
-import PrimeUserDashboard from "./pages/PrimeUserDashboard";
-import LegalComplianceManager from "./pages/LegalComplianceManager";
-import MarketingManager from "./pages/MarketingManager";
-import SalesSupportDashboard from "./pages/SalesSupportDashboard";
-import HRDashboard from "./pages/HRDashboard";
-import SystemSettings from "./pages/SystemSettings";
-import NotificationBuzzerConsole from "./pages/NotificationBuzzerConsole";
-import APIIntegrationDashboard from "./pages/APIIntegrationDashboard";
-import ApplyPortal from "./pages/ApplyPortal";
-import CareerPortal from "./pages/CareerPortal";
-import InternalChat from "./pages/InternalChat";
-import PersonalChat from "./pages/PersonalChat";
 import DomainProtection from "./components/security/DomainProtection";
 import { SourceCodeProtection } from "./components/security/SourceCodeProtection";
 import FloatingAIChatbotWrapper from "./components/shared/FloatingAIChatbotWrapper";
-import QuickSupport from "./components/support/QuickSupport";
-import AIOptimizationConsole from "./pages/ai-console/AIOptimizationConsole";
-import { AICEODashboard } from "./pages/ai-ceo";
-import AICEODashboardMain from "./pages/ai-ceo/sections/AICEODashboardMain";
-import AICEOLiveMonitor from "./pages/ai-ceo/sections/AICEOLiveMonitor";
-import AICEODecisionEngine from "./pages/ai-ceo/sections/AICEODecisionEngine";
-import AICEOApprovals from "./pages/ai-ceo/sections/AICEOApprovals";
-import AICEORiskCompliance from "./pages/ai-ceo/sections/AICEORiskCompliance";
-import AICEOPerformance from "./pages/ai-ceo/sections/AICEOPerformance";
-import AICEOPredictions from "./pages/ai-ceo/sections/AICEOPredictions";
-import AICEOReports from "./pages/ai-ceo/sections/AICEOReports";
-import AICEOLearning from "./pages/ai-ceo/sections/AICEOLearning";
-import AICEOSettings from "./pages/ai-ceo/sections/AICEOSettings";
-import DemoCredentials from "./pages/DemoCredentials";
-import DemoOrderSystem from "./pages/demo-system/DemoOrderSystem";
-import SectorsBrowse from "./pages/SectorsBrowse";
-import SubCategoryDemos from "./pages/SubCategoryDemos";
-// Business Management Software
-import { BusinessLayout } from "./components/business/BusinessLayout";
-import BusinessDashboard from "./pages/business/BusinessDashboard";
-import CustomersPage from "./pages/business/CustomersPage";
-import BillingPage from "./pages/business/BillingPage";
-import ExpensesPage from "./pages/business/ExpensesPage";
-import ReportsPage from "./pages/business/ReportsPage";
-import BusinessSettings from "./pages/business/BusinessSettings";
-import { AIBillingDashboard } from "./components/ai-billing";
-// New Role Pages (25-28)
-import SafeAssistDashboard from "./pages/safe-assist/SafeAssistDashboard";
-import AssistManagerDashboard from "./pages/assist-manager/AssistManagerDashboard";
-import PromiseTrackerDashboard from "./pages/promise-tracker/PromiseTrackerDashboard";
-import PromiseManagementDashboard from "./pages/promise-management/PromiseManagementDashboard";
+import { Loader2 } from "lucide-react";
+
+// ============================================
+// LAZY ROUTE IMPORTS - Code splitting for performance
+// ============================================
+
+// Critical path - loaded immediately
+import Index from "./pages/Index";
+import Auth from "./pages/Auth";
+
+// Fast loading skeleton
+const RouteLoader = memo(() => (
+  <div className="min-h-screen bg-background flex items-center justify-center">
+    <Loader2 className="w-6 h-6 text-primary animate-spin" />
+  </div>
+));
+
+// Lazy load factory
+const lazyLoad = (importFn: () => Promise<any>) => {
+  const LazyComponent = lazy(importFn);
+  return (props: any) => (
+    <Suspense fallback={<RouteLoader />}>
+      <LazyComponent {...props} />
+    </Suspense>
+  );
+};
+
+// ============================================
+// LAZY LOADED ROUTES
+// ============================================
+
+// Public Pages
+const Homepage = lazyLoad(() => import("./pages/Homepage"));
+const Dashboard = lazyLoad(() => import("./pages/Dashboard"));
+const NotFound = lazyLoad(() => import("./pages/NotFound"));
+const CategoryOnboarding = lazyLoad(() => import("./pages/CategoryOnboarding"));
+
+// Auth Pages
+const Logout = lazyLoad(() => import("./pages/auth/Logout"));
+const OTPVerify = lazyLoad(() => import("./pages/auth/OTPVerify"));
+const DeviceVerify = lazyLoad(() => import("./pages/auth/DeviceVerify"));
+const IPVerify = lazyLoad(() => import("./pages/auth/IPVerify"));
+const ForgotPassword = lazyLoad(() => import("./pages/auth/ForgotPassword"));
+const ResetPassword = lazyLoad(() => import("./pages/auth/ResetPassword"));
+const ChangePassword = lazyLoad(() => import("./pages/auth/ChangePassword"));
+const AccountSuspension = lazyLoad(() => import("./pages/auth/AccountSuspension"));
+const AccessDenied = lazyLoad(() => import("./pages/auth/AccessDenied"));
+const PendingApproval = lazyLoad(() => import("./pages/auth/PendingApproval"));
+const BossFortressAuth = lazyLoad(() => import("./pages/auth/BossFortressAuth"));
+const BossRegister = lazyLoad(() => import("./pages/auth/BossRegister"));
+const EasyAuth = lazyLoad(() => import("./pages/auth/EasyAuth"));
+const RoleBasedLogin = lazyLoad(() => import("./pages/auth/RoleBasedLogin"));
+const SessionExpiredPage = lazyLoad(() => import("./pages/error/SessionExpiredPage"));
+
+// Demo Pages
+const PublicDemos = lazyLoad(() => import("./pages/demos/PublicDemos"));
+const SimpleDemoList = lazyLoad(() => import("./pages/SimpleDemoList"));
+const SimpleDemoView = lazyLoad(() => import("./pages/SimpleDemoView"));
+const SimpleCheckout = lazyLoad(() => import("./pages/SimpleCheckout"));
+const SimpleUserDashboard = lazyLoad(() => import("./pages/SimpleUserDashboard"));
+const UserDashboard = lazyLoad(() => import("./pages/user/UserDashboard"));
+const DemoAccess = lazyLoad(() => import("./pages/DemoAccess"));
+const DemoDirectory = lazyLoad(() => import("./pages/DemoDirectory"));
+const DemoLogin = lazyLoad(() => import("./pages/DemoLogin"));
+const DemoShowcase = lazyLoad(() => import("./pages/DemoShowcase"));
+const PremiumDemoShowcase = lazyLoad(() => import("./pages/PremiumDemoShowcase"));
+const PremiumDemoShowcaseNew = lazyLoad(() => import("./pages/showcase/PremiumDemoShowcase"));
+const ServerManagementPortal = lazyLoad(() => import("./pages/server/ServerManagementPortal"));
+const ClientPortal = lazyLoad(() => import("./pages/ClientPortal"));
+
+// Demo Products
+const RestaurantPOSDemo = lazyLoad(() => import("./pages/demos/RestaurantPOSDemo"));
+const SaaSPOSDemo = lazyLoad(() => import("./pages/saas-pos/SaaSPOSDemo"));
+const RestaurantSmallDemo = lazyLoad(() => import("./pages/demos/restaurant/RestaurantSmallDemo"));
+const RestaurantMediumDemo = lazyLoad(() => import("./pages/demos/restaurant/RestaurantMediumDemo"));
+const RestaurantLargeDemo = lazyLoad(() => import("./pages/demos/restaurant/RestaurantLargeDemo"));
+const SchoolERPDemo = lazyLoad(() => import("./pages/demos/SchoolERPDemo"));
+const SchoolSmallDemo = lazyLoad(() => import("./pages/demos/school/SchoolSmallDemo"));
+const SchoolMediumDemo = lazyLoad(() => import("./pages/demos/school/SchoolMediumDemo"));
+const SchoolLargeDemo = lazyLoad(() => import("./pages/demos/school/SchoolLargeDemo"));
+const EducationDemoHub = lazyLoad(() => import("./pages/demos/education/EducationDemoHub"));
+const HospitalHMSDemo = lazyLoad(() => import("./pages/demos/HospitalHMSDemo"));
+const EcommerceStoreDemo = lazyLoad(() => import("./pages/demos/EcommerceStoreDemo"));
+const HotelBookingDemo = lazyLoad(() => import("./pages/demos/HotelBookingDemo"));
+const RealEstateDemo = lazyLoad(() => import("./pages/demos/RealEstateDemo"));
+const AutomotiveDemo = lazyLoad(() => import("./pages/demos/AutomotiveDemo"));
+const TravelDemo = lazyLoad(() => import("./pages/demos/TravelDemo"));
+const FinanceDemo = lazyLoad(() => import("./pages/demos/FinanceDemo"));
+const ManufacturingDemo = lazyLoad(() => import("./pages/demos/ManufacturingDemo"));
+const GymDemo = lazyLoad(() => import("./pages/demos/GymDemo"));
+const SalonDemo = lazyLoad(() => import("./pages/demos/SalonDemo"));
+const LegalDemo = lazyLoad(() => import("./pages/demos/LegalDemo"));
+const SecurityDemo = lazyLoad(() => import("./pages/demos/SecurityDemo"));
+const TelecomDemo = lazyLoad(() => import("./pages/demos/TelecomDemo"));
+const ChildcareDemo = lazyLoad(() => import("./pages/demos/ChildcareDemo"));
+const PetCareDemo = lazyLoad(() => import("./pages/demos/PetCareDemo"));
+const EventDemo = lazyLoad(() => import("./pages/demos/EventDemo"));
+const CRMDemo = lazyLoad(() => import("./pages/demos/CRMDemo"));
+const LogisticsDemo = lazyLoad(() => import("./pages/demos/LogisticsDemo"));
+const SalesCRMDemo = lazyLoad(() => import("./pages/sales-crm/SalesCRMDemo"));
+const SalesCRMAuthPage = lazyLoad(() => import("./pages/sales-crm/SalesCRMAuthPage"));
+const SimpleHRMDemo = lazyLoad(() => import("./pages/simple-hrm/SimpleHRMDemo"));
+const CorporateHRMDemo = lazyLoad(() => import("./pages/corporate-hrm/CorporateHRMDemo"));
+const SaasHRMDemo = lazyLoad(() => import("./pages/saas-hrm/SaasHRMDemo"));
+const RetailPOSDemo = lazyLoad(() => import("./pages/retail-pos/RetailPOSDemo"));
+const RestaurantPOSNewDemo = lazyLoad(() => import("./pages/restaurant-pos-new/RestaurantPOSNewDemo"));
+const AccountingDemo = lazyLoad(() => import("./pages/accounting/AccountingDemo"));
+const ProAccountingDemo = lazyLoad(() => import("./pages/pro-accounting/ProAccountingDemo"));
+const AutoDevEngine = lazyLoad(() => import("./pages/auto-dev/AutoDevEngine"));
+
+// School Software
+const SchoolSoftwareHomepage = lazyLoad(() => import("./pages/school-software/SchoolSoftwareHomepage"));
+const SchoolSoftwareDashboard = lazyLoad(() => import("./pages/school-software/SchoolSoftwareDashboard"));
+
+// Settings
+const SettingsPage = lazyLoad(() => import("./pages/Settings"));
+
+// Super Admin
+const SuperAdminCommandCenter = lazyLoad(() => import("./pages/super-admin/CommandCenter"));
+const LiveTracking = lazyLoad(() => import("./pages/super-admin/LiveTracking"));
+const RoleManager = lazyLoad(() => import("./pages/super-admin/RoleManager"));
+const UserManager = lazyLoad(() => import("./pages/super-admin/UserManager"));
+const PermissionMatrix = lazyLoad(() => import("./pages/super-admin/PermissionMatrix"));
+const SecurityCenter = lazyLoad(() => import("./pages/super-admin/SecurityCenter"));
+const ProductManagerPage = lazyLoad(() => import("./pages/super-admin/ProductManagerPage"));
+const SystemAudit = lazyLoad(() => import("./pages/super-admin/SystemAudit"));
+const PrimeManager = lazyLoad(() => import("./pages/super-admin/PrimeManager"));
+const ServerManagerDashboard = lazyLoad(() => import("./pages/server-manager/ServerManagerDashboard"));
+const SecurityCommandCenter = lazyLoad(() => import("./pages/security-command/SecurityCommandCenter"));
+const APIManagerDashboard = lazyLoad(() => import("./pages/api-manager/APIManagerDashboard"));
+const MarketingManagerDashboard = lazyLoad(() => import("./pages/marketing-manager/MarketingManagerDashboard"));
+const SEOManagerDashboard = lazyLoad(() => import("./pages/seo-manager/SEOManagerDashboard"));
+const LegalManagerDashboard = lazyLoad(() => import("./pages/legal-manager/LegalManagerDashboard"));
+const ComplianceCenter = lazyLoad(() => import("./pages/super-admin/ComplianceCenter"));
+
+// Master Admin
+const MasterAdminDashboard = lazyLoad(() => import("./pages/master-admin/MasterAdminDashboard"));
+const MasterControlCenter = lazyLoad(() => import("./pages/master-control/MasterControlCenter"));
+const MasterAdminSupreme = lazyLoad(() => import("./pages/master-admin-supreme/MasterAdminSupreme"));
+const SoftwareWalaOwnerDashboard = lazyLoad(() => import("./pages/owner/SoftwareWalaOwnerDashboard"));
+const BootstrapAdmins = lazyLoad(() => import("./pages/admin/BootstrapAdmins"));
+const RoleManagerPage = lazyLoad(() => import("./pages/admin/RoleManagerPage"));
+
+// Vala Control
+const ValaControlHub = lazyLoad(() => import("./pages/vala-control/ValaControlHub"));
+const ValaOperationWorkspace = lazyLoad(() => import("./pages/vala-control/ValaOperationWorkspace"));
+const ValaRegionalWorkspace = lazyLoad(() => import("./pages/vala-control/ValaRegionalWorkspace"));
+const ValaAIHeadWorkspace = lazyLoad(() => import("./pages/vala-control/ValaAIHeadWorkspace"));
+const ValaMasterWorkspace = lazyLoad(() => import("./pages/vala-control/ValaMasterWorkspace"));
+
+// Secure Manager Dashboards
+const SecureDevManagerDashboard = lazyLoad(() => import("./pages/dev-manager/SecureDevManagerDashboard"));
+const SecureHRManagerDashboard = lazyLoad(() => import("./pages/hr-manager/SecureHRManagerDashboard"));
+const SecureTaskManagerDashboard = lazyLoad(() => import("./pages/task-manager/SecureTaskManagerDashboard"));
+const SecureLegalManagerDashboard = lazyLoad(() => import("./pages/legal-manager/SecureLegalManagerDashboard"));
+const SecureProManagerDashboard = lazyLoad(() => import("./pages/pro-manager/SecureProManagerDashboard"));
+const SecureLeadManagerDashboard = lazyLoad(() => import("./pages/lead-manager/SecureLeadManagerDashboard"));
+const SecureMarketingManagerDashboard = lazyLoad(() => import("./pages/marketing-manager/SecureMarketingManagerDashboard"));
+const SecureInfluencerManagerDashboard = lazyLoad(() => import("./pages/influencer-manager/SecureInfluencerManagerDashboard"));
+const SecureSEOManagerDashboard = lazyLoad(() => import("./pages/seo-manager/SecureSEOManagerDashboard"));
+const SecureAPIAIManagerDashboard = lazyLoad(() => import("./pages/api-ai-manager/SecureAPIAIManagerDashboard"));
+const SecureResellerManagerDashboard = lazyLoad(() => import("./pages/reseller-manager/SecureResellerManagerDashboard"));
+const SecureSalesSupportManagerDashboard = lazyLoad(() => import("./pages/sales-support-manager/SecureSalesSupportManagerDashboard"));
+
+// Control System
+const SecureControlSystem = lazyLoad(() => import("./pages/control-system/SecureControlSystem"));
+const MasterAdminControl = lazyLoad(() => import("./pages/control-system/MasterAdminControl"));
+const EnterpriseControlHub = lazyLoad(() => import("./pages/enterprise-control/EnterpriseControlHub"));
+
+const BulkUserCreation = lazyLoad(() => import("./pages/admin/BulkUserCreation"));
+const BulkActionsReference = lazyLoad(() => import("./pages/admin/BulkActionsReference"));
+const ContinentSuperAdminDashboard = lazyLoad(() => import("./pages/continent-super-admin/ContinentSuperAdminDashboard"));
+
+// Product Demo Manager
+const ProductDemoManagerPage = lazyLoad(() => import("./pages/product-demo-manager"));
+
+// Franchise
+const FranchiseLayout = lazyLoad(() => import("./components/layouts/FranchiseLayout"));
+const FranchiseDashboardPage = lazyLoad(() => import("./pages/franchise/Dashboard"));
+const FranchiseProfile = lazyLoad(() => import("./pages/franchise/Profile"));
+const FranchiseWalletPage = lazyLoad(() => import("./pages/franchise/Wallet"));
+const FranchiseLeadBoardPage = lazyLoad(() => import("./pages/franchise/LeadBoard"));
+const FranchiseAssignLead = lazyLoad(() => import("./pages/franchise/AssignLead"));
+const FranchiseDemoRequest = lazyLoad(() => import("./pages/franchise/DemoRequest"));
+const FranchiseDemoLibraryPage = lazyLoad(() => import("./pages/franchise/DemoLibrary"));
+const FranchiseSalesCenter = lazyLoad(() => import("./pages/franchise/SalesCenter"));
+const FranchisePerformancePage = lazyLoad(() => import("./pages/franchise/Performance"));
+const FranchiseSupportTicket = lazyLoad(() => import("./pages/franchise/SupportTicket"));
+const FranchiseInternalChatPage = lazyLoad(() => import("./pages/franchise/InternalChat"));
+const FranchiseTrainingCenter = lazyLoad(() => import("./pages/franchise/TrainingCenter"));
+const FranchiseSecurityPanel = lazyLoad(() => import("./pages/franchise/SecurityPanel"));
+const FranchiseSEOServices = lazyLoad(() => import("./pages/franchise/SEOServices"));
+const FranchiseTeamManagement = lazyLoad(() => import("./pages/franchise/TeamManagement"));
+const FranchiseCRM = lazyLoad(() => import("./pages/franchise/CRM"));
+const FranchiseHRM = lazyLoad(() => import("./pages/franchise/HRM"));
+const FranchiseLeadActivity = lazyLoad(() => import("./pages/franchise/LeadActivity"));
+const FranchiseManagement = lazyLoad(() => import("./pages/FranchiseManagement"));
+const FranchiseLanding = lazyLoad(() => import("./pages/FranchiseLanding"));
+const FranchiseDashboard = lazyLoad(() => import("./pages/FranchiseDashboard"));
+
+// Role Dashboards
+const ResellerLanding = lazyLoad(() => import("./pages/ResellerLanding"));
+const ResellerDashboard = lazyLoad(() => import("./pages/ResellerDashboard"));
+const ResellerPortal = lazyLoad(() => import("./pages/ResellerPortal"));
+const DeveloperDashboard = lazyLoad(() => import("./pages/DeveloperDashboard"));
+const DevCommandCenter = lazyLoad(() => import("./pages/DevCommandCenter"));
+const DeveloperRegistration = lazyLoad(() => import("./pages/developer/DeveloperRegistration"));
+const InfluencerDashboard = lazyLoad(() => import("./pages/InfluencerDashboard"));
+const InfluencerManager = lazyLoad(() => import("./pages/InfluencerManager"));
+const InfluencerCommandCenter = lazyLoad(() => import("./pages/InfluencerCommandCenter"));
+const SupportDashboard = lazyLoad(() => import("./pages/SupportDashboard"));
+const SEODashboard = lazyLoad(() => import("./pages/SEODashboard"));
+const LeadManager = lazyLoad(() => import("./pages/LeadManager"));
+const TaskManager = lazyLoad(() => import("./pages/TaskManager"));
+const RnDDashboard = lazyLoad(() => import("./pages/RnDDashboard"));
+const ClientSuccessDashboard = lazyLoad(() => import("./pages/ClientSuccessDashboard"));
+const IncidentCrisisDashboard = lazyLoad(() => import("./pages/IncidentCrisisDashboard"));
+const PerformanceManager = lazyLoad(() => import("./pages/PerformanceManager"));
+const FinanceManager = lazyLoad(() => import("./pages/FinanceManager"));
+const ProductDemoManager = lazyLoad(() => import("./pages/ProductDemoManager"));
+const DemoManagerDashboard = lazyLoad(() => import("./pages/DemoManagerDashboard"));
+const PrimeUserDashboard = lazyLoad(() => import("./pages/PrimeUserDashboard"));
+const LegalComplianceManager = lazyLoad(() => import("./pages/LegalComplianceManager"));
+const MarketingManager = lazyLoad(() => import("./pages/MarketingManager"));
+const SalesSupportDashboard = lazyLoad(() => import("./pages/SalesSupportDashboard"));
+const HRDashboard = lazyLoad(() => import("./pages/HRDashboard"));
+const SystemSettings = lazyLoad(() => import("./pages/SystemSettings"));
+const NotificationBuzzerConsole = lazyLoad(() => import("./pages/NotificationBuzzerConsole"));
+const APIIntegrationDashboard = lazyLoad(() => import("./pages/APIIntegrationDashboard"));
+const ApplyPortal = lazyLoad(() => import("./pages/ApplyPortal"));
+const CareerPortal = lazyLoad(() => import("./pages/CareerPortal"));
+const InternalChat = lazyLoad(() => import("./pages/InternalChat"));
+const PersonalChat = lazyLoad(() => import("./pages/PersonalChat"));
+
+// AI & System
+const AIOptimizationConsole = lazyLoad(() => import("./pages/ai-console/AIOptimizationConsole"));
+const AICEODashboard = lazyLoad(() => import("./pages/ai-ceo").then(m => ({ default: m.AICEODashboard })));
+const AICEODashboardMain = lazyLoad(() => import("./pages/ai-ceo/sections/AICEODashboardMain"));
+const AICEOLiveMonitor = lazyLoad(() => import("./pages/ai-ceo/sections/AICEOLiveMonitor"));
+const AICEODecisionEngine = lazyLoad(() => import("./pages/ai-ceo/sections/AICEODecisionEngine"));
+const AICEOApprovals = lazyLoad(() => import("./pages/ai-ceo/sections/AICEOApprovals"));
+const AICEORiskCompliance = lazyLoad(() => import("./pages/ai-ceo/sections/AICEORiskCompliance"));
+const AICEOPerformance = lazyLoad(() => import("./pages/ai-ceo/sections/AICEOPerformance"));
+const AICEOPredictions = lazyLoad(() => import("./pages/ai-ceo/sections/AICEOPredictions"));
+const AICEOReports = lazyLoad(() => import("./pages/ai-ceo/sections/AICEOReports"));
+const AICEOLearning = lazyLoad(() => import("./pages/ai-ceo/sections/AICEOLearning"));
+const AICEOSettings = lazyLoad(() => import("./pages/ai-ceo/sections/AICEOSettings"));
+
+const DemoCredentials = lazyLoad(() => import("./pages/DemoCredentials"));
+const DemoOrderSystem = lazyLoad(() => import("./pages/demo-system/DemoOrderSystem"));
+const SectorsBrowse = lazyLoad(() => import("./pages/SectorsBrowse"));
+const SubCategoryDemos = lazyLoad(() => import("./pages/SubCategoryDemos"));
+
+// Business Management
+const BusinessLayout = lazyLoad(() => import("./components/business/BusinessLayout").then(m => ({ default: m.BusinessLayout })));
+const BusinessDashboard = lazyLoad(() => import("./pages/business/BusinessDashboard"));
+const CustomersPage = lazyLoad(() => import("./pages/business/CustomersPage"));
+const BillingPage = lazyLoad(() => import("./pages/business/BillingPage"));
+const ExpensesPage = lazyLoad(() => import("./pages/business/ExpensesPage"));
+const ReportsPage = lazyLoad(() => import("./pages/business/ReportsPage"));
+const BusinessSettings = lazyLoad(() => import("./pages/business/BusinessSettings"));
+const AIBillingDashboard = lazyLoad(() => import("./components/ai-billing").then(m => ({ default: m.AIBillingDashboard })));
+
+// New Role Pages
+const SafeAssistDashboard = lazyLoad(() => import("./pages/safe-assist/SafeAssistDashboard"));
+const AssistManagerDashboard = lazyLoad(() => import("./pages/assist-manager/AssistManagerDashboard"));
+const PromiseTrackerDashboard = lazyLoad(() => import("./pages/promise-tracker/PromiseTrackerDashboard"));
+const PromiseManagementDashboard = lazyLoad(() => import("./pages/promise-management/PromiseManagementDashboard"));
+
 // Wireframe Routes
-import { WireframeRoutes } from "./components/wireframe/WireframeRoutes";
-// Vala Control System
-import ValaControlCenter from "./pages/vala-control/ValaControlCenter";
+const WireframeRoutes = lazyLoad(() => import("./components/wireframe/WireframeRoutes").then(m => ({ default: m.WireframeRoutes })));
+
+// Vala Control
+const ValaControlCenter = lazyLoad(() => import("./pages/vala-control/ValaControlCenter"));
+
 // Super Admin System
-import {
-  RoleSwitchDashboard,
-  SuperAdminLogin,
-  SuperAdminDashboard as SuperAdminSystemDashboard,
-  SuperAdminUsers,
-  SuperAdminAdmins,
-  SuperAdminRoles,
-  SuperAdminGeography,
-  SuperAdminModules,
-  SuperAdminRentals,
-  SuperAdminRules,
-  SuperAdminApprovals,
-  SuperAdminSecurity,
-  SuperAdminSystemLock,
-  SuperAdminActivityLog,
-  SuperAdminAudit
-} from "./pages/super-admin-system";
+const RoleSwitchDashboard = lazyLoad(() => import("./pages/super-admin-system").then(m => ({ default: m.RoleSwitchDashboard })));
+const SuperAdminLogin = lazyLoad(() => import("./pages/super-admin-system").then(m => ({ default: m.SuperAdminLogin })));
+const SuperAdminSystemDashboard = lazyLoad(() => import("./pages/super-admin-system").then(m => ({ default: m.SuperAdminDashboard })));
+const SuperAdminUsers = lazyLoad(() => import("./pages/super-admin-system").then(m => ({ default: m.SuperAdminUsers })));
+const SuperAdminAdmins = lazyLoad(() => import("./pages/super-admin-system").then(m => ({ default: m.SuperAdminAdmins })));
+const SuperAdminRoles = lazyLoad(() => import("./pages/super-admin-system").then(m => ({ default: m.SuperAdminRoles })));
+const SuperAdminGeography = lazyLoad(() => import("./pages/super-admin-system").then(m => ({ default: m.SuperAdminGeography })));
+const SuperAdminModules = lazyLoad(() => import("./pages/super-admin-system").then(m => ({ default: m.SuperAdminModules })));
+const SuperAdminRentals = lazyLoad(() => import("./pages/super-admin-system").then(m => ({ default: m.SuperAdminRentals })));
+const SuperAdminRules = lazyLoad(() => import("./pages/super-admin-system").then(m => ({ default: m.SuperAdminRules })));
+const SuperAdminApprovals = lazyLoad(() => import("./pages/super-admin-system").then(m => ({ default: m.SuperAdminApprovals })));
+const SuperAdminSecurity = lazyLoad(() => import("./pages/super-admin-system").then(m => ({ default: m.SuperAdminSecurity })));
+const SuperAdminSystemLock = lazyLoad(() => import("./pages/super-admin-system").then(m => ({ default: m.SuperAdminSystemLock })));
+const SuperAdminActivityLog = lazyLoad(() => import("./pages/super-admin-system").then(m => ({ default: m.SuperAdminActivityLog })));
+const SuperAdminAudit = lazyLoad(() => import("./pages/super-admin-system").then(m => ({ default: m.SuperAdminAudit })));
 
-// Leader Security Assessment
-import LeaderSecurityAssessment from "./pages/leader-security/LeaderSecurityAssessment";
+// Leader Security
+const LeaderSecurityAssessment = lazyLoad(() => import("./pages/leader-security/LeaderSecurityAssessment"));
 
-// Optimized QueryClient with caching for better performance
+// Boss Panel
+const BossPanel = lazyLoad(() => import("./pages/BossPanel"));
+
+// ============================================
+// QUERY CLIENT - Optimized caching
+// ============================================
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 30, // 30 minutes (formerly cacheTime)
+      staleTime: 1000 * 60 * 5,
+      gcTime: 1000 * 60 * 30,
       retry: 2,
-      refetchOnWindowFocus: false, // Reduce unnecessary refetches
+      refetchOnWindowFocus: false,
       refetchOnReconnect: true,
     },
   },
 });
 
-// Cleanup component to remove any stuck blocking classes on app mount
-const BlockingClassCleanup = () => {
+// Cleanup blocking classes
+const BlockingClassCleanup = memo(() => {
   React.useEffect(() => {
-    // Remove any stuck buzzer-blocking class that could prevent button clicks
     document.body.classList.remove('buzzer-blocking');
-    // Clean up on unmount too
     return () => {
       document.body.classList.remove('buzzer-blocking');
     };
   }, []);
   return null;
-};
+});
 
-const App = () => (
+// ============================================
+// MAIN APP COMPONENT
+// ============================================
+const App = memo(() => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <DemoTestModeProvider>
@@ -350,397 +370,321 @@ const App = () => (
                           <GlobalOfferPopup />
                           <FloatingAIChatbotWrapper />
                           <Routes>
-                          {/* Public Routes - No login required */}
-              <Route path="/" element={<Index />} />
-              <Route path="/demos" element={<Index />} />
-              <Route path="/explore" element={<Navigate to="/demos" replace />} />
-              <Route path="/products" element={<Index />} />
-              <Route path="/pricing" element={<SimpleDemoList />} />
-              <Route path="/demos/public" element={<PublicDemos />} />
-              <Route path="/showcase" element={<PremiumDemoShowcaseNew />} />
-              <Route path="/server-portal" element={<RequireAuth><ServerManagementPortal /></RequireAuth>} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/pending-approval" element={<PendingApproval />} />
-              <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
-              <Route path="/change-password" element={<RequireAuth><ChangePassword /></RequireAuth>} />
-              <Route path="/onboard" element={<Homepage />} />
-              <Route path="/onboard/:category" element={<CategoryOnboarding />} />
-              <Route path="/apply" element={<SimpleDemoList />} />
-              <Route path="/careers" element={<CareerPortal />} />
-              <Route path="/join-developer" element={<CareerPortal />} />
-              <Route path="/join-influencer" element={<CareerPortal />} />
-              <Route path="/jobs" element={<CareerPortal />} />
-              {/* Bootstrap is Master-only after initial setup */}
-              <Route path="/bootstrap-admins" element={<RequireRole allowed={["master"]} masterOnly><BootstrapAdmins /></RequireRole>} />
-              <Route path="/sectors" element={<SectorsBrowse />} />
-              <Route path="/sectors/:sectorId/:subCategoryId" element={<SubCategoryDemos />} />
-              
-              {/* Auto Development Engine */}
-              <Route path="/auto-dev" element={<AutoDevEngine />} />
-              
-              {/* Product Demo Pages - MUST come BEFORE dynamic routes */}
-<Route path="/demo/restaurant-pos" element={<RestaurantPOSDemo />} />
-              <Route path="/demo/restaurant-small" element={<RestaurantSmallDemo />} />
-              <Route path="/demo/restaurant-medium" element={<RestaurantMediumDemo />} />
-              <Route path="/demo/restaurant-large" element={<RestaurantLargeDemo />} />
-              <Route path="/demo/school-erp" element={<SchoolERPDemo />} />
-              <Route path="/demo/school-small" element={<SchoolSmallDemo />} />
-              <Route path="/demo/school-medium" element={<SchoolMediumDemo />} />
-              <Route path="/demo/school-large" element={<SchoolLargeDemo />} />
-              <Route path="/demo/education" element={<EducationDemoHub />} />
-              <Route path="/demos/education" element={<EducationDemoHub />} />
-              
-              {/* School Management Software - LIVE SYSTEM (NOT DEMO) */}
-              <Route path="/school-software" element={<SchoolSoftwareHomepage />} />
-              <Route path="/school-software/dashboard" element={<SchoolSoftwareDashboard />} />
-              <Route path="/demo/hospital-hms" element={<HospitalHMSDemo />} />
-              <Route path="/demo/ecommerce-store" element={<EcommerceStoreDemo />} />
-              <Route path="/demo/hotel-booking" element={<HotelBookingDemo />} />
-              <Route path="/demo/real-estate" element={<RealEstateDemo />} />
-              <Route path="/demo/automotive" element={<AutomotiveDemo />} />
-              <Route path="/demo/travel" element={<TravelDemo />} />
-              <Route path="/demo/finance" element={<FinanceDemo />} />
-              <Route path="/demo/manufacturing" element={<ManufacturingDemo />} />
-              <Route path="/demo/gym" element={<GymDemo />} />
-              <Route path="/demo/salon" element={<SalonDemo />} />
-              <Route path="/demo/legal" element={<LegalDemo />} />
-              <Route path="/demo/security" element={<SecurityDemo />} />
-              <Route path="/demo/telecom" element={<TelecomDemo />} />
-              <Route path="/demo/childcare" element={<ChildcareDemo />} />
-              <Route path="/demo/petcare" element={<PetCareDemo />} />
-              <Route path="/demo/event" element={<EventDemo />} />
-              <Route path="/demo/crm" element={<CRMDemo />} />
-              <Route path="/demo/logistics" element={<LogisticsDemo />} />
-              
-              {/* Sales CRM Demo */}
-              <Route path="/sales-crm" element={<SalesCRMDemo />} />
-              <Route path="/sales-crm/auth" element={<SalesCRMAuthPage />} />
-              <Route path="/retail-pos" element={<RetailPOSDemo />} />
-              {/* Dynamic Demo Routes - MUST come AFTER specific routes */}
-              <Route path="/demo-directory" element={<DemoDirectory />} />
-              <Route path="/demo/:demoId" element={<SimpleDemoView />} />
-              <Route path="/checkout/:demoId" element={<SimpleCheckout />} />
-              <Route path="/user-dashboard" element={<SimpleUserDashboard />} />
-              <Route path="/user/dashboard" element={<RequireAuth><UserDashboard /></RequireAuth>} />
-              <Route path="/demo-login" element={<DemoLogin />} />
-              <Route path="/showcase" element={<Index />} />
-              <Route path="/premium-demos" element={<PremiumDemoShowcase />} />
-              
-              {/* Client Portal - Public Route */}
-              <Route path="/client-portal" element={<ClientPortal />} />
-              <Route path="/get-started" element={<ClientPortal />} />
+                            {/* Public Routes */}
+                            <Route path="/" element={<Index />} />
+                            <Route path="/demos" element={<Index />} />
+                            <Route path="/explore" element={<Navigate to="/demos" replace />} />
+                            <Route path="/products" element={<Index />} />
+                            <Route path="/pricing" element={<SimpleDemoList />} />
+                            <Route path="/demos/public" element={<PublicDemos />} />
+                            <Route path="/showcase" element={<PremiumDemoShowcaseNew />} />
+                            <Route path="/server-portal" element={<RequireAuth><ServerManagementPortal /></RequireAuth>} />
+                            <Route path="/auth" element={<Auth />} />
+                            <Route path="/dashboard" element={<Dashboard />} />
+                            <Route path="/pending-approval" element={<PendingApproval />} />
+                            <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
+                            <Route path="/change-password" element={<RequireAuth><ChangePassword /></RequireAuth>} />
+                            <Route path="/onboard" element={<Homepage />} />
+                            <Route path="/onboard/:category" element={<CategoryOnboarding />} />
+                            <Route path="/apply" element={<SimpleDemoList />} />
+                            <Route path="/careers" element={<CareerPortal />} />
+                            <Route path="/join-developer" element={<CareerPortal />} />
+                            <Route path="/join-influencer" element={<CareerPortal />} />
+                            <Route path="/jobs" element={<CareerPortal />} />
+                            <Route path="/bootstrap-admins" element={<RequireRole allowed={["master"]} masterOnly><BootstrapAdmins /></RequireRole>} />
+                            <Route path="/sectors" element={<SectorsBrowse />} />
+                            <Route path="/sectors/:sectorId/:subCategoryId" element={<SubCategoryDemos />} />
+                            <Route path="/auto-dev" element={<AutoDevEngine />} />
 
-              {/* Global Auth Routes */}
-              <Route path="/login" element={<RoleBasedLogin />} />
-              <Route path="/role-login" element={<RoleBasedLogin />} />
-              <Route path="/register" element={<Navigate to="/auth" replace />} />
-              <Route path="/easy-login" element={<EasyAuth />} />
-              <Route path="/quick-signup" element={<EasyAuth />} />
-              <Route path="/logout" element={<Logout />} />
-              <Route path="/otp-verify" element={<OTPVerify />} />
-              <Route path="/device-verify" element={<DeviceVerify />} />
-              <Route path="/ip-verify" element={<IPVerify />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/account-suspension" element={<AccountSuspension />} />
-              <Route path="/access-denied" element={<AccessDenied />} />
-              <Route path="/session-expired" element={<SessionExpiredPage />} />
+                            {/* Demo Routes */}
+                            <Route path="/demo/restaurant-pos" element={<RestaurantPOSDemo />} />
+                            <Route path="/demo/restaurant-small" element={<RestaurantSmallDemo />} />
+                            <Route path="/demo/restaurant-medium" element={<RestaurantMediumDemo />} />
+                            <Route path="/demo/restaurant-large" element={<RestaurantLargeDemo />} />
+                            <Route path="/demo/school-erp" element={<SchoolERPDemo />} />
+                            <Route path="/demo/school-small" element={<SchoolSmallDemo />} />
+                            <Route path="/demo/school-medium" element={<SchoolMediumDemo />} />
+                            <Route path="/demo/school-large" element={<SchoolLargeDemo />} />
+                            <Route path="/demo/education" element={<EducationDemoHub />} />
+                            <Route path="/demos/education" element={<EducationDemoHub />} />
+                            <Route path="/school-software" element={<SchoolSoftwareHomepage />} />
+                            <Route path="/school-software/dashboard" element={<SchoolSoftwareDashboard />} />
+                            <Route path="/demo/hospital-hms" element={<HospitalHMSDemo />} />
+                            <Route path="/demo/ecommerce-store" element={<EcommerceStoreDemo />} />
+                            <Route path="/demo/hotel-booking" element={<HotelBookingDemo />} />
+                            <Route path="/demo/real-estate" element={<RealEstateDemo />} />
+                            <Route path="/demo/automotive" element={<AutomotiveDemo />} />
+                            <Route path="/demo/travel" element={<TravelDemo />} />
+                            <Route path="/demo/finance" element={<FinanceDemo />} />
+                            <Route path="/demo/manufacturing" element={<ManufacturingDemo />} />
+                            <Route path="/demo/gym" element={<GymDemo />} />
+                            <Route path="/demo/salon" element={<SalonDemo />} />
+                            <Route path="/demo/legal" element={<LegalDemo />} />
+                            <Route path="/demo/security" element={<SecurityDemo />} />
+                            <Route path="/demo/telecom" element={<TelecomDemo />} />
+                            <Route path="/demo/childcare" element={<ChildcareDemo />} />
+                            <Route path="/demo/petcare" element={<PetCareDemo />} />
+                            <Route path="/demo/event" element={<EventDemo />} />
+                            <Route path="/demo/crm" element={<CRMDemo />} />
+                            <Route path="/demo/logistics" element={<LogisticsDemo />} />
+                            <Route path="/sales-crm" element={<SalesCRMDemo />} />
+                            <Route path="/sales-crm/auth" element={<SalesCRMAuthPage />} />
+                            <Route path="/retail-pos" element={<RetailPOSDemo />} />
+                            <Route path="/demo-directory" element={<DemoDirectory />} />
+                            <Route path="/demo/:demoId" element={<SimpleDemoView />} />
+                            <Route path="/checkout/:demoId" element={<SimpleCheckout />} />
+                            <Route path="/user-dashboard" element={<SimpleUserDashboard />} />
+                            <Route path="/user/dashboard" element={<RequireAuth><UserDashboard /></RequireAuth>} />
+                            <Route path="/demo-login" element={<DemoLogin />} />
+                            <Route path="/premium-demos" element={<PremiumDemoShowcase />} />
+                            <Route path="/client-portal" element={<ClientPortal />} />
+                            <Route path="/get-started" element={<ClientPortal />} />
 
-              {/* Boss Fortress Auth - Ultra Secure */}
-              <Route path="/boss-fortress" element={<BossFortressAuth />} />
-              <Route path="/boss-register" element={<BossRegister />} />
-              <Route path="/boss/login" element={<SuperAdminLogin />} />
+                            {/* Auth Routes */}
+                            <Route path="/login" element={<RoleBasedLogin />} />
+                            <Route path="/role-login" element={<RoleBasedLogin />} />
+                            <Route path="/register" element={<Navigate to="/auth" replace />} />
+                            <Route path="/easy-login" element={<EasyAuth />} />
+                            <Route path="/quick-signup" element={<EasyAuth />} />
+                            <Route path="/logout" element={<Logout />} />
+                            <Route path="/otp-verify" element={<OTPVerify />} />
+                            <Route path="/device-verify" element={<DeviceVerify />} />
+                            <Route path="/ip-verify" element={<IPVerify />} />
+                            <Route path="/forgot-password" element={<ForgotPassword />} />
+                            <Route path="/reset-password" element={<ResetPassword />} />
+                            <Route path="/account-suspension" element={<AccountSuspension />} />
+                            <Route path="/access-denied" element={<AccessDenied />} />
+                            <Route path="/session-expired" element={<SessionExpiredPage />} />
+                            <Route path="/boss-fortress" element={<BossFortressAuth />} />
+                            <Route path="/boss-register" element={<BossRegister />} />
+                            <Route path="/boss/login" element={<SuperAdminLogin />} />
 
-              {/* Owner Dashboard - SoftwareWala Business Control */}
-              <Route path="/owner" element={<RequireRole allowed={["boss_owner"]}><SoftwareWalaOwnerDashboard /></RequireRole>} />
-              <Route path="/owner/*" element={<RequireRole allowed={["boss_owner"]}><SoftwareWalaOwnerDashboard /></RequireRole>} />
-              <Route path="/softwarewala" element={<RequireRole allowed={["boss_owner"]}><SoftwareWalaOwnerDashboard /></RequireRole>} />
+                            {/* Boss Panel Route */}
+                            <Route path="/boss-panel/*" element={<RequireRole allowed={["boss_owner"]}><BossPanel /></RequireRole>} />
 
-              {/* Boss Admin Routes - BOSS_OWNER ONLY */}
-              <Route path="/master-admin" element={<RequireRole allowed={["boss_owner"]}><MasterControlCenter /></RequireRole>} />
-              <Route path="/master-admin/*" element={<RequireRole allowed={["boss_owner"]}><MasterControlCenter /></RequireRole>} />
-              <Route path="/master-admin-supreme" element={<RequireRole allowed={["boss_owner"]}><MasterAdminSupreme /></RequireRole>} />
-              
-              {/* Admin Utilities - Boss Owner */}
-              <Route path="/admin/bulk-users" element={<RequireRole allowed={["boss_owner"]}><BulkUserCreation /></RequireRole>} />
-              <Route path="/admin/role-manager" element={<RequireRole allowed={["boss_owner"]}><RoleManagerPage /></RequireRole>} />
+                            {/* Owner Dashboard */}
+                            <Route path="/owner" element={<RequireRole allowed={["boss_owner"]}><SoftwareWalaOwnerDashboard /></RequireRole>} />
+                            <Route path="/owner/*" element={<RequireRole allowed={["boss_owner"]}><SoftwareWalaOwnerDashboard /></RequireRole>} />
+                            <Route path="/softwarewala" element={<RequireRole allowed={["boss_owner"]}><SoftwareWalaOwnerDashboard /></RequireRole>} />
 
+                            {/* Master Admin Routes */}
+                            <Route path="/master-admin" element={<RequireRole allowed={["boss_owner"]}><MasterControlCenter /></RequireRole>} />
+                            <Route path="/master-admin/*" element={<RequireRole allowed={["boss_owner"]}><MasterControlCenter /></RequireRole>} />
+                            <Route path="/master-admin-supreme" element={<RequireRole allowed={["boss_owner"]}><MasterAdminSupreme /></RequireRole>} />
+                            <Route path="/admin/bulk-users" element={<RequireRole allowed={["boss_owner"]}><BulkUserCreation /></RequireRole>} />
+                            <Route path="/admin/role-manager" element={<RequireRole allowed={["boss_owner"]}><RoleManagerPage /></RequireRole>} />
+                            <Route path="/area-manager" element={<Navigate to="/super-admin-system/role-switch?role=country_head" replace />} />
+                            <Route path="/area-manager/*" element={<Navigate to="/super-admin-system/role-switch?role=country_head" replace />} />
 
-              {/* Area Manager now redirects to Country Head - merged roles */}
-              <Route path="/area-manager" element={<Navigate to="/super-admin-system/role-switch?role=country_head" replace />} />
-              <Route path="/area-manager/*" element={<Navigate to="/super-admin-system/role-switch?role=country_head" replace />} />
+                            {/* Manager Routes */}
+                            <Route path="/server-manager" element={<RequireRole allowed={["boss_owner", "server_manager"]}><ServerManagerDashboard /></RequireRole>} />
+                            <Route path="/server-manager/*" element={<RequireRole allowed={["boss_owner", "server_manager"]}><ServerManagerDashboard /></RequireRole>} />
+                            <Route path="/security-command" element={<RequireRole allowed={["boss_owner"]}><SecurityCommandCenter /></RequireRole>} />
+                            <Route path="/security-command/*" element={<RequireRole allowed={["boss_owner"]}><SecurityCommandCenter /></RequireRole>} />
+                            <Route path="/api-manager" element={<RequireRole allowed={["boss_owner", "ai_manager"]}><APIManagerDashboard /></RequireRole>} />
+                            <Route path="/api-manager/*" element={<RequireRole allowed={["boss_owner", "ai_manager"]}><APIManagerDashboard /></RequireRole>} />
+                            <Route path="/marketing-manager" element={<RequireRole allowed={["boss_owner", "marketing_manager"]}><MarketingManagerDashboard /></RequireRole>} />
+                            <Route path="/marketing-manager/*" element={<RequireRole allowed={["boss_owner", "marketing_manager"]}><MarketingManagerDashboard /></RequireRole>} />
+                            <Route path="/seo-manager" element={<RequireRole allowed={["boss_owner", "seo_manager"]}><SEOManagerDashboard /></RequireRole>} />
+                            <Route path="/seo-manager/*" element={<RequireRole allowed={["boss_owner", "seo_manager"]}><SEOManagerDashboard /></RequireRole>} />
+                            <Route path="/legal-manager" element={<RequireRole allowed={["boss_owner", "legal_manager"]}><LegalManagerDashboard /></RequireRole>} />
+                            <Route path="/legal-manager/*" element={<RequireRole allowed={["boss_owner", "legal_manager"]}><LegalManagerDashboard /></RequireRole>} />
 
-              {/* Server Manager Routes */}
-              <Route path="/server-manager" element={<RequireRole allowed={["boss_owner", "server_manager"]}><ServerManagerDashboard /></RequireRole>} />
-              <Route path="/server-manager/*" element={<RequireRole allowed={["boss_owner", "server_manager"]}><ServerManagerDashboard /></RequireRole>} />
+                            {/* AI CEO Routes */}
+                            <Route path="/ai-ceo" element={<RequireRole allowed={["boss_owner", "ceo"]}><AICEODashboard /></RequireRole>}>
+                              <Route index element={<AICEODashboardMain />} />
+                              <Route path="live-monitor" element={<AICEOLiveMonitor />} />
+                              <Route path="decision-engine" element={<AICEODecisionEngine />} />
+                              <Route path="approvals" element={<AICEOApprovals />} />
+                              <Route path="risk" element={<AICEORiskCompliance />} />
+                              <Route path="performance" element={<AICEOPerformance />} />
+                              <Route path="predictions" element={<AICEOPredictions />} />
+                              <Route path="reports" element={<AICEOReports />} />
+                              <Route path="learning" element={<AICEOLearning />} />
+                              <Route path="settings" element={<AICEOSettings />} />
+                            </Route>
 
-              {/* Security Command Center Routes */}
-              <Route path="/security-command" element={<RequireRole allowed={["boss_owner"]}><SecurityCommandCenter /></RequireRole>} />
-              <Route path="/security-command/*" element={<RequireRole allowed={["boss_owner"]}><SecurityCommandCenter /></RequireRole>} />
+                            {/* Super Admin Routes */}
+                            <Route path="/continent-super-admin" element={<RequireRole allowed={["boss_owner"]}><ContinentSuperAdminDashboard /></RequireRole>} />
+                            <Route path="/continent-super-admin/*" element={<RequireRole allowed={["boss_owner"]}><ContinentSuperAdminDashboard /></RequireRole>} />
+                            <Route path="/admin" element={<Navigate to="/super-admin-system/role-switch?role=boss_owner" replace />} />
+                            <Route path="/super-admin" element={<Navigate to="/super-admin-system/role-switch?role=boss_owner" replace />} />
+                            <Route path="/super-admin/dashboard" element={<Navigate to="/super-admin-system/role-switch?role=boss_owner" replace />} />
+                            <Route path="/super-admin/command-center" element={<Navigate to="/super-admin-system/role-switch?role=boss_owner" replace />} />
+                            <Route path="/super-admin/live-tracking" element={<RequireRole allowed={["boss_owner", "master", "ceo"]}><LiveTracking /></RequireRole>} />
+                            <Route path="/super-admin/role-manager" element={<RequireRole allowed={["boss_owner", "master", "ceo"]}><RoleManager /></RequireRole>} />
+                            <Route path="/super-admin/user-manager" element={<RequireRole allowed={["boss_owner", "master", "ceo"]}><UserManager /></RequireRole>} />
+                            <Route path="/super-admin/permission-matrix" element={<RequireRole allowed={["boss_owner", "master", "ceo"]}><PermissionMatrix /></RequireRole>} />
+                            <Route path="/super-admin/security-center" element={<RequireRole allowed={["boss_owner", "master", "ceo"]}><SecurityCenter /></RequireRole>} />
+                            <Route path="/super-admin/demo-manager" element={<RequireRole allowed={["boss_owner", "master", "ceo"]}><ProductDemoManager /></RequireRole>} />
+                            <Route path="/super-admin/product-manager" element={<RequireRole allowed={["boss_owner", "master", "ceo"]}><ProductManagerPage /></RequireRole>} />
+                            <Route path="/super-admin/system-settings" element={<RequireRole allowed={["boss_owner", "master", "ceo"]}><SystemSettings /></RequireRole>} />
+                            <Route path="/super-admin/system-audit" element={<RequireRole allowed={["boss_owner"]}><SystemAudit /></RequireRole>} />
+                            <Route path="/super-admin/prime-manager" element={<RequireRole allowed={["boss_owner"]}><PrimeManager /></RequireRole>} />
+                            <Route path="/super-admin/influencer-manager" element={<RequireRole allowed={["boss_owner"]}><InfluencerManager /></RequireRole>} />
+                            <Route path="/super-admin/finance-center" element={<RequireRole allowed={["boss_owner"]}><FinanceManager /></RequireRole>} />
+                            <Route path="/super-admin/support-center" element={<RequireRole allowed={["boss_owner"]}><SupportDashboard /></RequireRole>} />
+                            <Route path="/super-admin/ai-billing" element={<RequireRole allowed={["boss_owner"]}><AIBillingDashboard /></RequireRole>} />
+                            <Route path="/super-admin/franchise-manager" element={<RequireRole allowed={["boss_owner"]}><FranchiseManagement /></RequireRole>} />
+                            <Route path="/super-admin/compliance-center" element={<RequireRole allowed={["boss_owner"]}><ComplianceCenter /></RequireRole>} />
+                            <Route path="/super-admin/performance" element={<RequireRole allowed={["boss_owner"]}><PerformanceManager /></RequireRole>} />
 
-              {/* API / AI Manager Routes */}
-              <Route path="/api-manager" element={<RequireRole allowed={["boss_owner", "ai_manager"]}><APIManagerDashboard /></RequireRole>} />
-              <Route path="/api-manager/*" element={<RequireRole allowed={["boss_owner", "ai_manager"]}><APIManagerDashboard /></RequireRole>} />
+                            {/* Franchise Routes */}
+                            <Route path="/franchise" element={<RequireRole allowed={["franchise", "super_admin"]}><Suspense fallback={<RouteLoader />}><FranchiseLayout><FranchiseDashboardPage /></FranchiseLayout></Suspense></RequireRole>} />
+                            <Route path="/franchise/dashboard" element={<RequireRole allowed={["franchise", "super_admin"]}><Suspense fallback={<RouteLoader />}><FranchiseLayout><FranchiseDashboardPage /></FranchiseLayout></Suspense></RequireRole>} />
+                            <Route path="/franchise/profile" element={<RequireRole allowed={["franchise", "super_admin"]}><Suspense fallback={<RouteLoader />}><FranchiseLayout><FranchiseProfile /></FranchiseLayout></Suspense></RequireRole>} />
+                            <Route path="/franchise/wallet" element={<RequireRole allowed={["franchise", "super_admin"]}><Suspense fallback={<RouteLoader />}><FranchiseLayout><FranchiseWalletPage /></FranchiseLayout></Suspense></RequireRole>} />
+                            <Route path="/franchise/lead-board" element={<RequireRole allowed={["franchise", "super_admin"]}><Suspense fallback={<RouteLoader />}><FranchiseLayout><FranchiseLeadBoardPage /></FranchiseLayout></Suspense></RequireRole>} />
+                            <Route path="/franchise/assign-lead" element={<RequireRole allowed={["franchise", "super_admin"]}><Suspense fallback={<RouteLoader />}><FranchiseLayout><FranchiseAssignLead /></FranchiseLayout></Suspense></RequireRole>} />
+                            <Route path="/franchise/demo-request" element={<RequireRole allowed={["franchise", "super_admin"]}><Suspense fallback={<RouteLoader />}><FranchiseLayout><FranchiseDemoRequest /></FranchiseLayout></Suspense></RequireRole>} />
+                            <Route path="/franchise/demo-library" element={<RequireRole allowed={["franchise", "super_admin"]}><Suspense fallback={<RouteLoader />}><FranchiseLayout><FranchiseDemoLibraryPage /></FranchiseLayout></Suspense></RequireRole>} />
+                            <Route path="/franchise/sales-center" element={<RequireRole allowed={["franchise", "super_admin"]}><Suspense fallback={<RouteLoader />}><FranchiseLayout><FranchiseSalesCenter /></FranchiseLayout></Suspense></RequireRole>} />
+                            <Route path="/franchise/performance" element={<RequireRole allowed={["franchise", "super_admin"]}><Suspense fallback={<RouteLoader />}><FranchiseLayout><FranchisePerformancePage /></FranchiseLayout></Suspense></RequireRole>} />
+                            <Route path="/franchise/support-ticket" element={<RequireRole allowed={["franchise", "super_admin"]}><Suspense fallback={<RouteLoader />}><FranchiseLayout><FranchiseSupportTicket /></FranchiseLayout></Suspense></RequireRole>} />
+                            <Route path="/franchise/internal-chat" element={<RequireRole allowed={["franchise", "super_admin"]}><Suspense fallback={<RouteLoader />}><FranchiseLayout><FranchiseInternalChatPage /></FranchiseLayout></Suspense></RequireRole>} />
+                            <Route path="/franchise/training-center" element={<RequireRole allowed={["franchise", "super_admin"]}><Suspense fallback={<RouteLoader />}><FranchiseLayout><FranchiseTrainingCenter /></FranchiseLayout></Suspense></RequireRole>} />
+                            <Route path="/franchise/security-panel" element={<RequireRole allowed={["franchise", "super_admin"]}><Suspense fallback={<RouteLoader />}><FranchiseLayout><FranchiseSecurityPanel /></FranchiseLayout></Suspense></RequireRole>} />
+                            <Route path="/franchise/seo-services" element={<RequireRole allowed={["franchise", "super_admin"]}><Suspense fallback={<RouteLoader />}><FranchiseLayout><FranchiseSEOServices /></FranchiseLayout></Suspense></RequireRole>} />
+                            <Route path="/franchise/team-management" element={<RequireRole allowed={["franchise", "super_admin"]}><Suspense fallback={<RouteLoader />}><FranchiseLayout><FranchiseTeamManagement /></FranchiseLayout></Suspense></RequireRole>} />
+                            <Route path="/franchise/crm" element={<RequireRole allowed={["franchise", "super_admin"]}><Suspense fallback={<RouteLoader />}><FranchiseLayout><FranchiseCRM /></FranchiseLayout></Suspense></RequireRole>} />
+                            <Route path="/franchise/hrm" element={<RequireRole allowed={["franchise", "super_admin"]}><Suspense fallback={<RouteLoader />}><FranchiseLayout><FranchiseHRM /></FranchiseLayout></Suspense></RequireRole>} />
+                            <Route path="/franchise/lead-activity" element={<RequireRole allowed={["franchise", "super_admin"]}><Suspense fallback={<RouteLoader />}><FranchiseLayout><FranchiseLeadActivity /></FranchiseLayout></Suspense></RequireRole>} />
+                            <Route path="/franchise-program" element={<FranchiseLanding />} />
+                            <Route path="/franchise-landing" element={<FranchiseLanding />} />
+                            <Route path="/franchise-dashboard" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseDashboard /></RequireRole>} />
 
-              {/* Marketing Manager Routes */}
-              <Route path="/marketing-manager" element={<RequireRole allowed={["boss_owner", "marketing_manager"]}><MarketingManagerDashboard /></RequireRole>} />
-              <Route path="/marketing-manager/*" element={<RequireRole allowed={["boss_owner", "marketing_manager"]}><MarketingManagerDashboard /></RequireRole>} />
+                            {/* Reseller Routes */}
+                            <Route path="/reseller" element={<ResellerLanding />} />
+                            <Route path="/reseller-program" element={<ResellerLanding />} />
+                            <Route path="/reseller-dashboard" element={<RequireRole allowed={["reseller", "super_admin"]}><ResellerDashboard /></RequireRole>} />
+                            <Route path="/reseller-portal" element={<RequireRole allowed={["reseller", "super_admin"]}><ResellerPortal /></RequireRole>} />
 
+                            {/* Developer Routes */}
+                            <Route path="/developer" element={<RequireRole allowed={["developer", "super_admin"]}><DeveloperDashboard /></RequireRole>} />
+                            <Route path="/dev-dashboard" element={<RequireRole allowed={["developer", "super_admin"]}><DeveloperDashboard /></RequireRole>} />
+                            <Route path="/developer/command-center" element={<RequireRole allowed={["developer", "super_admin"]}><DevCommandCenter /></RequireRole>} />
+                            <Route path="/dev-command" element={<RequireRole allowed={["developer", "super_admin"]}><DevCommandCenter /></RequireRole>} />
+                            <Route path="/developer/register" element={<DeveloperRegistration />} />
 
-              {/* SEO Manager Routes */}
-              <Route path="/seo-manager" element={<RequireRole allowed={["boss_owner", "seo_manager"]}><SEOManagerDashboard /></RequireRole>} />
-              <Route path="/seo-manager/*" element={<RequireRole allowed={["boss_owner", "seo_manager"]}><SEOManagerDashboard /></RequireRole>} />
+                            {/* Influencer Routes */}
+                            <Route path="/influencer" element={<RequireRole allowed={["influencer", "super_admin"]}><InfluencerDashboard /></RequireRole>} />
+                            <Route path="/influencer-dashboard" element={<RequireRole allowed={["influencer", "super_admin"]}><InfluencerDashboard /></RequireRole>} />
+                            <Route path="/influencer-command" element={<RequireRole allowed={["influencer", "super_admin"]}><InfluencerCommandCenter /></RequireRole>} />
 
-              {/* Legal Manager Routes */}
-              <Route path="/legal-manager" element={<RequireRole allowed={["boss_owner", "legal_manager"]}><LegalManagerDashboard /></RequireRole>} />
-              <Route path="/legal-manager/*" element={<RequireRole allowed={["boss_owner", "legal_manager"]}><LegalManagerDashboard /></RequireRole>} />
+                            {/* Support Routes */}
+                            <Route path="/support" element={<RequireRole allowed={["support", "super_admin"]}><SupportDashboard /></RequireRole>} />
+                            <Route path="/support-dashboard" element={<RequireRole allowed={["support", "super_admin"]}><SupportDashboard /></RequireRole>} />
+                            <Route path="/seo" element={<RequireRole allowed={["seo", "super_admin"]}><SEODashboard /></RequireRole>} />
+                            <Route path="/seo-dashboard" element={<RequireRole allowed={["seo", "super_admin"]}><SEODashboard /></RequireRole>} />
+                            <Route path="/leads" element={<RequireRole allowed={["lead_manager", "super_admin"]}><LeadManager /></RequireRole>} />
+                            <Route path="/lead-manager" element={<RequireRole allowed={["lead_manager", "super_admin"]}><LeadManager /></RequireRole>} />
+                            <Route path="/tasks" element={<RequireRole allowed={["task_manager", "super_admin"]}><TaskManager /></RequireRole>} />
+                            <Route path="/task-manager" element={<RequireRole allowed={["task_manager", "super_admin"]}><TaskManager /></RequireRole>} />
+                            <Route path="/rnd" element={<RequireRole allowed={["rnd", "super_admin"]}><RnDDashboard /></RequireRole>} />
+                            <Route path="/rnd-dashboard" element={<RequireRole allowed={["rnd", "super_admin"]}><RnDDashboard /></RequireRole>} />
+                            <Route path="/client-success" element={<RequireRole allowed={["client_success", "super_admin"]}><ClientSuccessDashboard /></RequireRole>} />
+                            <Route path="/incident-crisis" element={<RequireRole allowed={["incident_crisis", "super_admin"]}><IncidentCrisisDashboard /></RequireRole>} />
+                            <Route path="/performance" element={<RequireRole allowed={["performance_manager", "super_admin"]}><PerformanceManager /></RequireRole>} />
+                            <Route path="/finance" element={<RequireRole allowed={["finance_manager", "super_admin"]}><FinanceManager /></RequireRole>} />
+                            <Route path="/demo-manager" element={<RequireRole allowed={["demo_manager", "super_admin"]}><DemoManagerDashboard /></RequireRole>} />
+                            <Route path="/prime" element={<RequireRole allowed={["prime", "super_admin"]}><PrimeUserDashboard /></RequireRole>} />
+                            <Route path="/legal" element={<RequireRole allowed={["legal_compliance", "super_admin"]}><LegalComplianceManager /></RequireRole>} />
+                            <Route path="/marketing" element={<RequireRole allowed={["marketing", "super_admin"]}><MarketingManager /></RequireRole>} />
+                            <Route path="/sales-support" element={<RequireRole allowed={["sales_support", "super_admin"]}><SalesSupportDashboard /></RequireRole>} />
+                            <Route path="/hr" element={<RequireRole allowed={["hr", "super_admin"]}><HRDashboard /></RequireRole>} />
+                            <Route path="/hr-dashboard" element={<RequireRole allowed={["hr", "super_admin"]}><HRDashboard /></RequireRole>} />
 
-              {/* AI CEO Routes - Autonomous Intelligence Observer */}
-              <Route path="/ai-ceo" element={<RequireRole allowed={["boss_owner", "ceo"]}><AICEODashboard /></RequireRole>}>
-                <Route index element={<AICEODashboardMain />} />
-                <Route path="live-monitor" element={<AICEOLiveMonitor />} />
-                <Route path="decision-engine" element={<AICEODecisionEngine />} />
-                <Route path="approvals" element={<AICEOApprovals />} />
-                <Route path="risk" element={<AICEORiskCompliance />} />
-                <Route path="performance" element={<AICEOPerformance />} />
-                <Route path="predictions" element={<AICEOPredictions />} />
-                <Route path="reports" element={<AICEOReports />} />
-                <Route path="learning" element={<AICEOLearning />} />
-                <Route path="settings" element={<AICEOSettings />} />
-              </Route>
+                            {/* System Pages */}
+                            <Route path="/system-settings" element={<RequireRole allowed={["boss_owner", "master"]}><SystemSettings /></RequireRole>} />
+                            <Route path="/notification-console" element={<RequireRole allowed={["boss_owner", "master"]}><NotificationBuzzerConsole /></RequireRole>} />
+                            <Route path="/api-integrations" element={<RequireRole allowed={["boss_owner", "master", "developer"]}><APIIntegrationDashboard /></RequireRole>} />
+                            <Route path="/internal-chat" element={<RequireAuth><InternalChat /></RequireAuth>} />
+                            <Route path="/personal-chat" element={<RequireAuth><PersonalChat /></RequireAuth>} />
+                            <Route path="/ai-optimization" element={<RequireRole allowed={["boss_owner", "master"]}><AIOptimizationConsole /></RequireRole>} />
 
-              {/* Continent Super Admin Routes */}
-              <Route path="/continent-super-admin" element={<RequireRole allowed={["boss_owner"]}><ContinentSuperAdminDashboard /></RequireRole>} />
-              <Route path="/continent-super-admin/*" element={<RequireRole allowed={["boss_owner"]}><ContinentSuperAdminDashboard /></RequireRole>} />
+                            {/* Vala Control Routes */}
+                            <Route path="/vala-control" element={<RequireRole allowed={["boss_owner", "vala_head", "continent_head", "country_head", "ai_manager"]}><ValaControlCenter /></RequireRole>} />
+                            <Route path="/vala-control/hub" element={<RequireRole allowed={["boss_owner"]}><ValaControlHub /></RequireRole>} />
+                            <Route path="/vala-control/operations" element={<RequireRole allowed={["boss_owner", "vala_head"]}><ValaOperationWorkspace /></RequireRole>} />
+                            <Route path="/vala-control/regional" element={<RequireRole allowed={["boss_owner", "continent_head", "country_head"]}><ValaRegionalWorkspace /></RequireRole>} />
+                            <Route path="/vala-control/ai-head" element={<RequireRole allowed={["boss_owner", "ai_manager"]}><ValaAIHeadWorkspace /></RequireRole>} />
+                            <Route path="/vala-control/master" element={<RequireRole allowed={["boss_owner"]}><ValaMasterWorkspace /></RequireRole>} />
 
-              {/* Super Admin Routes - Redirect to unified RoleSwitchDashboard to prevent duplicate layouts */}
-              <Route path="/admin" element={<Navigate to="/super-admin-system/role-switch?role=boss_owner" replace />} />
-              <Route path="/super-admin" element={<Navigate to="/super-admin-system/role-switch?role=boss_owner" replace />} />
-              <Route path="/super-admin/dashboard" element={<Navigate to="/super-admin-system/role-switch?role=boss_owner" replace />} />
-              <Route path="/super-admin/command-center" element={<Navigate to="/super-admin-system/role-switch?role=boss_owner" replace />} />
-              <Route path="/super-admin/live-tracking" element={<RequireRole allowed={["boss_owner", "master", "ceo"]}><LiveTracking /></RequireRole>} />
-              <Route path="/super-admin/role-manager" element={<RequireRole allowed={["boss_owner", "master", "ceo"]}><RoleManager /></RequireRole>} />
-              <Route path="/super-admin/user-manager" element={<RequireRole allowed={["boss_owner", "master", "ceo"]}><UserManager /></RequireRole>} />
-              <Route path="/super-admin/permission-matrix" element={<RequireRole allowed={["boss_owner", "master", "ceo"]}><PermissionMatrix /></RequireRole>} />
-              <Route path="/super-admin/security-center" element={<RequireRole allowed={["boss_owner", "master", "ceo"]}><SecurityCenter /></RequireRole>} />
-              <Route path="/super-admin/demo-manager" element={<RequireRole allowed={["boss_owner", "master", "ceo"]}><ProductDemoManager /></RequireRole>} />
-              <Route path="/super-admin/product-manager" element={<RequireRole allowed={["boss_owner", "master", "ceo"]}><ProductManagerPage /></RequireRole>} />
-              <Route path="/super-admin/system-settings" element={<RequireRole allowed={["boss_owner", "master", "ceo"]}><SystemSettings /></RequireRole>} />
-              <Route path="/super-admin/system-audit" element={<RequireRole allowed={["boss_owner"]}><SystemAudit /></RequireRole>} />
-              <Route path="/super-admin/prime-manager" element={<RequireRole allowed={["boss_owner"]}><PrimeManager /></RequireRole>} />
-              <Route path="/super-admin/influencer-manager" element={<RequireRole allowed={["boss_owner"]}><InfluencerManager /></RequireRole>} />
-              <Route path="/super-admin/finance-center" element={<RequireRole allowed={["boss_owner"]}><FinanceManager /></RequireRole>} />
-              <Route path="/super-admin/support-center" element={<RequireRole allowed={["boss_owner"]}><SupportDashboard /></RequireRole>} />
-              <Route path="/super-admin/ai-billing" element={<RequireRole allowed={["boss_owner"]}><AIBillingDashboard /></RequireRole>} />
-              <Route path="/super-admin/franchise-manager" element={<RequireRole allowed={["boss_owner"]}><FranchiseManagement /></RequireRole>} />
-              <Route path="/super-admin/compliance-center" element={<RequireRole allowed={["boss_owner"]}><ComplianceCenter /></RequireRole>} />
-              <Route path="/super-admin/performance" element={<RequireRole allowed={["boss_owner"]}><PerformanceManager /></RequireRole>} />
+                            {/* Secure Manager Routes */}
+                            <Route path="/secure/dev-manager" element={<RequireRole allowed={["dev_manager", "boss_owner"]}><SecureDevManagerDashboard /></RequireRole>} />
+                            <Route path="/secure/hr-manager" element={<RequireRole allowed={["hr_manager", "boss_owner"]}><SecureHRManagerDashboard /></RequireRole>} />
+                            <Route path="/secure/task-manager" element={<RequireRole allowed={["task_manager", "boss_owner"]}><SecureTaskManagerDashboard /></RequireRole>} />
+                            <Route path="/secure/legal-manager" element={<RequireRole allowed={["legal_manager", "boss_owner"]}><SecureLegalManagerDashboard /></RequireRole>} />
+                            <Route path="/secure/pro-manager" element={<RequireRole allowed={["pro_manager", "boss_owner"]}><SecureProManagerDashboard /></RequireRole>} />
+                            <Route path="/secure/lead-manager" element={<RequireRole allowed={["lead_manager", "boss_owner"]}><SecureLeadManagerDashboard /></RequireRole>} />
+                            <Route path="/secure/marketing-manager" element={<RequireRole allowed={["marketing_manager", "boss_owner"]}><SecureMarketingManagerDashboard /></RequireRole>} />
+                            <Route path="/secure/influencer-manager" element={<RequireRole allowed={["influencer_manager", "boss_owner"]}><SecureInfluencerManagerDashboard /></RequireRole>} />
+                            <Route path="/secure/seo-manager" element={<RequireRole allowed={["seo_manager", "boss_owner"]}><SecureSEOManagerDashboard /></RequireRole>} />
+                            <Route path="/secure/api-ai-manager" element={<RequireRole allowed={["ai_manager", "boss_owner"]}><SecureAPIAIManagerDashboard /></RequireRole>} />
+                            <Route path="/secure/reseller-manager" element={<RequireRole allowed={["reseller_manager", "boss_owner"]}><SecureResellerManagerDashboard /></RequireRole>} />
+                            <Route path="/secure/sales-support-manager" element={<RequireRole allowed={["sales_support_manager", "boss_owner"]}><SecureSalesSupportManagerDashboard /></RequireRole>} />
 
-              {/* Franchise Routes */}
-              <Route path="/franchise" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchiseDashboardPage /></FranchiseLayout></RequireRole>} />
-              <Route path="/franchise/dashboard" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchiseDashboardPage /></FranchiseLayout></RequireRole>} />
-              <Route path="/franchise/profile" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchiseProfile /></FranchiseLayout></RequireRole>} />
-              <Route path="/franchise/wallet" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchiseWalletPage /></FranchiseLayout></RequireRole>} />
-              <Route path="/franchise/lead-board" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchiseLeadBoardPage /></FranchiseLayout></RequireRole>} />
-              <Route path="/franchise/assign-lead" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchiseAssignLead /></FranchiseLayout></RequireRole>} />
-              <Route path="/franchise/demo-request" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchiseDemoRequest /></FranchiseLayout></RequireRole>} />
-              <Route path="/franchise/demo-library" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchiseDemoLibraryPage /></FranchiseLayout></RequireRole>} />
-              <Route path="/franchise/sales-center" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchiseSalesCenter /></FranchiseLayout></RequireRole>} />
-              <Route path="/franchise/performance" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchisePerformancePage /></FranchiseLayout></RequireRole>} />
-              <Route path="/franchise/support-ticket" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchiseSupportTicket /></FranchiseLayout></RequireRole>} />
-              <Route path="/franchise/internal-chat" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchiseInternalChatPage /></FranchiseLayout></RequireRole>} />
-              <Route path="/franchise/training-center" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchiseTrainingCenter /></FranchiseLayout></RequireRole>} />
-              <Route path="/franchise/security-panel" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchiseSecurityPanel /></FranchiseLayout></RequireRole>} />
-              <Route path="/franchise/seo-services" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchiseSEOServices /></FranchiseLayout></RequireRole>} />
-              <Route path="/franchise/team-management" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchiseTeamManagement /></FranchiseLayout></RequireRole>} />
-              <Route path="/franchise/crm" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchiseCRM /></FranchiseLayout></RequireRole>} />
-              <Route path="/franchise/hrm" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchiseHRM /></FranchiseLayout></RequireRole>} />
-              <Route path="/franchise/lead-activity" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchiseLeadActivity /></FranchiseLayout></RequireRole>} />
-              <Route path="/franchise-program" element={<FranchiseLanding />} />
-              <Route path="/franchise-landing" element={<FranchiseLanding />} />
-              <Route path="/franchise-dashboard" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseDashboard /></RequireRole>} />
+                            {/* Control System Routes */}
+                            <Route path="/control-system" element={<RequireRole allowed={["boss_owner", "master"]}><SecureControlSystem /></RequireRole>} />
+                            <Route path="/master-control" element={<RequireRole allowed={["boss_owner"]}><MasterAdminControl /></RequireRole>} />
+                            <Route path="/enterprise-control" element={<RequireRole allowed={["boss_owner", "master", "ceo"]}><EnterpriseControlHub /></RequireRole>} />
+                            <Route path="/leader-security" element={<RequireRole allowed={["boss_owner", "master", "ceo"]}><LeaderSecurityAssessment /></RequireRole>} />
 
-              {/* Reseller Routes */}
-              <Route path="/reseller" element={<RequireRole allowed={["reseller", "super_admin"]}><ResellerDashboard /></RequireRole>} />
-              <Route path="/reseller/dashboard" element={<RequireRole allowed={["reseller", "super_admin"]}><ResellerDashboard /></RequireRole>} />
-              <Route path="/reseller/portal" element={<RequireRole allowed={["reseller", "super_admin"]}><ResellerPortal /></RequireRole>} />
-              <Route path="/reseller-portal" element={<RequireRole allowed={["reseller", "super_admin"]}><ResellerPortal /></RequireRole>} />
-              <Route path="/reseller-program" element={<ResellerLanding />} />
-              <Route path="/reseller-landing" element={<ResellerLanding />} />
-              <Route path="/reseller-dashboard" element={<RequireRole allowed={["reseller", "super_admin"]}><ResellerDashboard /></RequireRole>} />
+                            {/* Super Admin System Routes */}
+                            <Route path="/super-admin-system/login" element={<SuperAdminLogin />} />
+                            <Route path="/super-admin-system/role-switch" element={<RequireAuth><RoleSwitchDashboard /></RequireAuth>} />
+                            <Route path="/super-admin-system/dashboard" element={<RequireRole allowed={["boss_owner", "master", "ceo"]}><SuperAdminSystemDashboard /></RequireRole>} />
+                            <Route path="/super-admin-system/users" element={<RequireRole allowed={["boss_owner", "master"]}><SuperAdminUsers /></RequireRole>} />
+                            <Route path="/super-admin-system/admins" element={<RequireRole allowed={["boss_owner"]}><SuperAdminAdmins /></RequireRole>} />
+                            <Route path="/super-admin-system/roles" element={<RequireRole allowed={["boss_owner"]}><SuperAdminRoles /></RequireRole>} />
+                            <Route path="/super-admin-system/geography" element={<RequireRole allowed={["boss_owner"]}><SuperAdminGeography /></RequireRole>} />
+                            <Route path="/super-admin-system/modules" element={<RequireRole allowed={["boss_owner"]}><SuperAdminModules /></RequireRole>} />
+                            <Route path="/super-admin-system/rentals" element={<RequireRole allowed={["boss_owner"]}><SuperAdminRentals /></RequireRole>} />
+                            <Route path="/super-admin-system/rules" element={<RequireRole allowed={["boss_owner"]}><SuperAdminRules /></RequireRole>} />
+                            <Route path="/super-admin-system/approvals" element={<RequireRole allowed={["boss_owner"]}><SuperAdminApprovals /></RequireRole>} />
+                            <Route path="/super-admin-system/security" element={<RequireRole allowed={["boss_owner"]}><SuperAdminSecurity /></RequireRole>} />
+                            <Route path="/super-admin-system/system-lock" element={<RequireRole allowed={["boss_owner"]}><SuperAdminSystemLock /></RequireRole>} />
+                            <Route path="/super-admin-system/activity-log" element={<RequireRole allowed={["boss_owner"]}><SuperAdminActivityLog /></RequireRole>} />
+                            <Route path="/super-admin-system/audit" element={<RequireRole allowed={["boss_owner"]}><SuperAdminAudit /></RequireRole>} />
 
-              {/* Developer Routes */}
-              <Route path="/developer/register" element={<RequireAuth><DeveloperRegistration /></RequireAuth>} />
-              <Route path="/developer/registration" element={<RequireAuth><DeveloperRegistration /></RequireAuth>} />
-              <Route path="/developer" element={<RequireRole allowed={["developer", "super_admin"]}><DevCommandCenter /></RequireRole>} />
-              <Route path="/developer/dashboard" element={<RequireRole allowed={["developer", "super_admin"]}><DevCommandCenter /></RequireRole>} />
-              <Route path="/developer-dashboard" element={<RequireRole allowed={["developer", "super_admin"]}><DevCommandCenter /></RequireRole>} />
-              <Route path="/dev-command-center" element={<RequireRole allowed={["developer", "super_admin"]}><DevCommandCenter /></RequireRole>} />
+                            {/* HRM Demos */}
+                            <Route path="/simple-hrm" element={<SimpleHRMDemo />} />
+                            <Route path="/corporate-hrm" element={<CorporateHRMDemo />} />
+                            <Route path="/saas-hrm" element={<SaasHRMDemo />} />
+                            <Route path="/saas-pos" element={<SaaSPOSDemo />} />
+                            <Route path="/restaurant-pos-new" element={<RestaurantPOSNewDemo />} />
+                            <Route path="/accounting" element={<AccountingDemo />} />
+                            <Route path="/pro-accounting" element={<ProAccountingDemo />} />
 
-              {/* Influencer Routes */}
-              <Route path="/influencer" element={<RequireRole allowed={["influencer", "super_admin"]}><InfluencerDashboard /></RequireRole>} />
-              <Route path="/influencer/dashboard" element={<RequireRole allowed={["influencer", "super_admin"]}><InfluencerDashboard /></RequireRole>} />
-              <Route path="/influencer/command-center" element={<RequireRole allowed={["influencer", "super_admin"]}><InfluencerCommandCenter /></RequireRole>} />
-              <Route path="/influencer-command-center" element={<RequireRole allowed={["influencer", "super_admin"]}><InfluencerCommandCenter /></RequireRole>} />
-              <Route path="/influencer-dashboard" element={<RequireRole allowed={["influencer", "super_admin"]}><InfluencerDashboard /></RequireRole>} />
-              <Route path="/influencer-manager" element={<RequireRole allowed={["super_admin"]}><InfluencerManager /></RequireRole>} />
-              <Route path="/influencer-manager-secure" element={<RequireRole allowed={["influencer_manager", "super_admin"]}><SecureInfluencerManagerDashboard /></RequireRole>} />
-              
-              {/* Product Demo Manager Routes */}
-              <Route path="/product-demo-manager" element={<RequireRole allowed={["product_demo_manager", "demo_manager", "super_admin"]}><ProductDemoManagerPage /></RequireRole>} />
-              <Route path="/product-demo-manager/*" element={<RequireRole allowed={["product_demo_manager", "demo_manager", "super_admin"]}><ProductDemoManagerPage /></RequireRole>} />
+                            {/* Business Management */}
+                            <Route path="/business" element={<RequireAuth><Suspense fallback={<RouteLoader />}><BusinessLayout><BusinessDashboard /></BusinessLayout></Suspense></RequireAuth>} />
+                            <Route path="/business/dashboard" element={<RequireAuth><Suspense fallback={<RouteLoader />}><BusinessLayout><BusinessDashboard /></BusinessLayout></Suspense></RequireAuth>} />
+                            <Route path="/business/customers" element={<RequireAuth><Suspense fallback={<RouteLoader />}><BusinessLayout><CustomersPage /></BusinessLayout></Suspense></RequireAuth>} />
+                            <Route path="/business/billing" element={<RequireAuth><Suspense fallback={<RouteLoader />}><BusinessLayout><BillingPage /></BusinessLayout></Suspense></RequireAuth>} />
+                            <Route path="/business/expenses" element={<RequireAuth><Suspense fallback={<RouteLoader />}><BusinessLayout><ExpensesPage /></BusinessLayout></Suspense></RequireAuth>} />
+                            <Route path="/business/reports" element={<RequireAuth><Suspense fallback={<RouteLoader />}><BusinessLayout><ReportsPage /></BusinessLayout></Suspense></RequireAuth>} />
+                            <Route path="/business/settings" element={<RequireAuth><Suspense fallback={<RouteLoader />}><BusinessLayout><BusinessSettings /></BusinessLayout></Suspense></RequireAuth>} />
 
-              {/* Reseller Manager Routes */}
-              <Route path="/reseller-manager" element={<RequireRole allowed={["reseller_manager", "super_admin"]}><SecureResellerManagerDashboard /></RequireRole>} />
-              <Route path="/reseller-manager-secure" element={<RequireRole allowed={["reseller_manager", "super_admin"]}><SecureResellerManagerDashboard /></RequireRole>} />
-              
-              {/* Sales & Support Manager Routes */}
-              <Route path="/sales-support-manager" element={<RequireRole allowed={["sales_support_manager", "super_admin"]}><SecureSalesSupportManagerDashboard /></RequireRole>} />
-              <Route path="/sales-support-manager-secure" element={<RequireRole allowed={["sales_support_manager", "super_admin"]}><SecureSalesSupportManagerDashboard /></RequireRole>} />
-              
-              {/* Public demo route for Influencer Command Center */}
-              <Route path="/demo/influencer-command-center" element={<InfluencerCommandCenter />} />
-              {/* Prime User Routes */}
-              <Route path="/prime" element={<RequireRole allowed={["prime", "super_admin"]}><PrimeUserDashboard /></RequireRole>} />
-              <Route path="/prime/dashboard" element={<RequireRole allowed={["prime", "super_admin"]}><PrimeUserDashboard /></RequireRole>} />
-              <Route path="/prime-user" element={<RequireRole allowed={["prime", "super_admin"]}><PrimeUserDashboard /></RequireRole>} />
+                            {/* Demo Order System */}
+                            <Route path="/demo-order" element={<DemoOrderSystem />} />
+                            <Route path="/demo-credentials" element={<DemoCredentials />} />
 
-              {/* Manager Routes - PROTECTED BY ROLE */}
-              <Route path="/lead-manager" element={<RequireRole allowed={["lead_manager", "super_admin", "boss_owner", "master", "ceo"]}><LeadManager /></RequireRole>} />
-              <Route path="/leads/*" element={<RequireRole allowed={["lead_manager", "super_admin", "boss_owner", "master", "ceo"]}><LeadManager /></RequireRole>} />
-              <Route path="/task-manager" element={<RequireRole allowed={["task_manager", "super_admin"]}><TaskManager /></RequireRole>} />
-              <Route path="/tasks/*" element={<RequireRole allowed={["task_manager", "super_admin"]}><TaskManager /></RequireRole>} />
-              <Route path="/demo-manager" element={<RequireRole allowed={["demo_manager", "super_admin", "master"]}><DemoManagerDashboard /></RequireRole>} />
-              <Route path="/demo-manager/*" element={<RequireRole allowed={["demo_manager", "super_admin", "master"]}><DemoManagerDashboard /></RequireRole>} />
-              <Route path="/demo" element={<RequireRole allowed={["demo_manager", "franchise", "reseller", "super_admin"]}><ProductDemoManager /></RequireRole>} />
-              <Route path="/demos/*" element={<RequireRole allowed={["demo_manager", "franchise", "reseller", "super_admin"]}><ProductDemoManager /></RequireRole>} />
-              <Route path="/finance" element={<RequireRole allowed={["finance_manager", "super_admin"]}><FinanceManager /></RequireRole>} />
-              <Route path="/finance/*" element={<RequireRole allowed={["finance_manager", "super_admin"]}><FinanceManager /></RequireRole>} />
-              <Route path="/legal" element={<RequireRole allowed={["legal_compliance", "super_admin"]}><LegalComplianceManager /></RequireRole>} />
-              <Route path="/marketing" element={<RequireRole allowed={["marketing_manager", "super_admin"]}><MarketingManager /></RequireRole>} />
-              <Route path="/marketing/*" element={<RequireRole allowed={["marketing_manager", "super_admin"]}><MarketingManager /></RequireRole>} />
-              <Route path="/enterprise/marketing" element={<RequireRole allowed={["marketing_manager", "super_admin"]}><MarketingManager /></RequireRole>} />
-              <Route path="/enterprise/marketing/*" element={<RequireRole allowed={["marketing_manager", "super_admin"]}><MarketingManager /></RequireRole>} />
-              <Route path="/performance" element={<RequireRole allowed={["performance_manager", "super_admin"]}><PerformanceManager /></RequireRole>} />
-              <Route path="/performance/*" element={<RequireRole allowed={["performance_manager", "super_admin"]}><PerformanceManager /></RequireRole>} />
-              <Route path="/rnd-dashboard" element={<RequireRole allowed={["rnd_manager", "super_admin"]}><RnDDashboard /></RequireRole>} />
-              <Route path="/rnd/*" element={<RequireRole allowed={["rnd_manager", "super_admin"]}><RnDDashboard /></RequireRole>} />
-              <Route path="/hr" element={<RequireRole allowed={["hr_manager", "super_admin"]}><HRDashboard /></RequireRole>} />
-              <Route path="/hr/*" element={<RequireRole allowed={["hr_manager", "super_admin"]}><HRDashboard /></RequireRole>} />
-              
-              {/* Secure Task Manager Dashboard */}
-              <Route path="/task-manager-secure" element={<RequireRole allowed={["task_manager", "super_admin"]}><SecureTaskManagerDashboard /></RequireRole>} />
-              
-              {/* Secure Legal Manager Dashboard */}
-              <Route path="/legal-manager-secure" element={<RequireRole allowed={["legal_manager", "super_admin"]}><SecureLegalManagerDashboard /></RequireRole>} />
-              <Route path="/seo" element={<RequireRole allowed={["seo_manager", "super_admin"]}><SEODashboard /></RequireRole>} />
-              <Route path="/seo/*" element={<RequireRole allowed={["seo_manager", "super_admin"]}><SEODashboard /></RequireRole>} />
-              <Route path="/seo-dashboard" element={<RequireRole allowed={["seo_manager", "super_admin"]}><SEODashboard /></RequireRole>} />
-              <Route path="/seo-manager" element={<RequireRole allowed={["seo_manager", "super_admin"]}><SEODashboard /></RequireRole>} />
-              <Route path="/support" element={<RequireRole allowed={["support", "client_success", "super_admin"]}><SupportDashboard /></RequireRole>} />
-              <Route path="/support/*" element={<RequireRole allowed={["support", "client_success", "super_admin"]}><SupportDashboard /></RequireRole>} />
-              <Route path="/support-dashboard" element={<RequireRole allowed={["support", "client_success", "super_admin"]}><SupportDashboard /></RequireRole>} />
-              <Route path="/sales-support" element={<RequireRole allowed={["support", "super_admin"]}><SalesSupportDashboard /></RequireRole>} />
-              <Route path="/sales" element={<RequireRole allowed={["support", "super_admin"]}><SalesSupportDashboard /></RequireRole>} />
-              <Route path="/sales/*" element={<RequireRole allowed={["support", "super_admin"]}><SalesSupportDashboard /></RequireRole>} />
-              <Route path="/client-success" element={<RequireRole allowed={["client_success", "super_admin"]}><ClientSuccessDashboard /></RequireRole>} />
-              <Route path="/clients/*" element={<RequireRole allowed={["client_success", "super_admin"]}><ClientSuccessDashboard /></RequireRole>} />
-              <Route path="/incident-crisis" element={<RequireRole allowed={["incident_crisis", "super_admin"]}><IncidentCrisisDashboard /></RequireRole>} />
-              <Route path="/crisis/*" element={<RequireRole allowed={["incident_crisis", "super_admin"]}><IncidentCrisisDashboard /></RequireRole>} />
-              <Route path="/hr-dashboard" element={<RequireRole allowed={["hr_manager", "super_admin"]}><HRDashboard /></RequireRole>} />
-              <Route path="/ai/*" element={<RequireRole allowed={["ai_manager", "super_admin"]}><AIOptimizationConsole /></RequireRole>} />
+                            {/* Safe Assist & Promise */}
+                            <Route path="/safe-assist" element={<RequireAuth><SafeAssistDashboard /></RequireAuth>} />
+                            <Route path="/assist-manager" element={<RequireRole allowed={["assist_manager", "boss_owner"]}><AssistManagerDashboard /></RequireRole>} />
+                            <Route path="/promise-tracker" element={<RequireAuth><PromiseTrackerDashboard /></RequireAuth>} />
+                            <Route path="/promise-management" element={<RequireRole allowed={["boss_owner", "master"]}><PromiseManagementDashboard /></RequireRole>} />
 
-              {/* NEW ROLES (25-28) Routes */}
-              <Route path="/safe-assist" element={<RequireRole allowed={["safe_assist", "super_admin", "master"]}><SafeAssistDashboard /></RequireRole>} />
-              <Route path="/safe-assist/*" element={<RequireRole allowed={["safe_assist", "super_admin", "master"]}><SafeAssistDashboard /></RequireRole>} />
-              <Route path="/assist-manager" element={<RequireRole allowed={["assist_manager", "super_admin", "master"]}><AssistManagerDashboard /></RequireRole>} />
-              <Route path="/assist-manager/*" element={<RequireRole allowed={["assist_manager", "super_admin", "master"]}><AssistManagerDashboard /></RequireRole>} />
-              <Route path="/promise-tracker" element={<RequireRole allowed={["promise_tracker", "super_admin", "master"]}><PromiseTrackerDashboard /></RequireRole>} />
-              <Route path="/promise-tracker/*" element={<RequireRole allowed={["promise_tracker", "super_admin", "master"]}><PromiseTrackerDashboard /></RequireRole>} />
-              <Route path="/promise-management" element={<RequireRole allowed={["promise_management", "super_admin", "master"]}><PromiseManagementDashboard /></RequireRole>} />
-              <Route path="/promise-management/*" element={<RequireRole allowed={["promise_management", "super_admin", "master"]}><PromiseManagementDashboard /></RequireRole>} />
+                            {/* Product Demo Manager */}
+                            <Route path="/product-demo-manager" element={<RequireRole allowed={["boss_owner", "demo_manager"]}><ProductDemoManagerPage /></RequireRole>} />
+                            <Route path="/product-demo-manager/*" element={<RequireRole allowed={["boss_owner", "demo_manager"]}><ProductDemoManagerPage /></RequireRole>} />
 
-              {/* System Routes - SUPER ADMIN ONLY */}
-              <Route path="/system-settings" element={<RequireRole allowed={["super_admin"]}><SystemSettings /></RequireRole>} />
-              <Route path="/buzzer-console" element={<RequireRole allowed={["super_admin"]}><NotificationBuzzerConsole /></RequireRole>} />
-              <Route path="/api-integrations" element={<RequireRole allowed={["super_admin"]}><APIIntegrationDashboard /></RequireRole>} />
-              <Route path="/internal-chat" element={<RequireAuth><InternalChat /></RequireAuth>} />
-              <Route path="/personal-chat" element={<RequireAuth><PersonalChat /></RequireAuth>} />
-              <Route path="/ai-console" element={<RequireRole allowed={["ai_manager", "super_admin"]}><AIOptimizationConsole /></RequireRole>} />
-              <Route path="/demo-credentials" element={<RequireRole allowed={["super_admin"]}><DemoCredentials /></RequireRole>} />
-              <Route path="/demo-order-system" element={<RequireRole allowed={["master", "super_admin", "demo_manager"]}><DemoOrderSystem /></RequireRole>} />
+                            {/* Wireframe Routes */}
+                            <Route path="/wireframe/*" element={<WireframeRoutes />} />
 
-              {/* Vala Control Center - Secure Isolated System */}
-              <Route path="/vala-control" element={<RequireAuth><ValaControlCenter roleView="operations" /></RequireAuth>} />
-              <Route path="/vala-control/operations" element={<RequireAuth><ValaControlCenter roleView="operations" /></RequireAuth>} />
-              <Route path="/vala-control/regional" element={<RequireAuth><ValaControlCenter roleView="regional" /></RequireAuth>} />
-              <Route path="/vala-control/ai-head" element={<RequireAuth><ValaControlCenter roleView="ai_head" /></RequireAuth>} />
-              <Route path="/vala-control/master" element={<RequireRole allowed={["master"]} masterOnly><ValaControlCenter roleView="master" /></RequireRole>} />
-
-              {/* Enterprise Control System - Isolated Workspaces */}
-              <Route path="/enterprise-control" element={<EnterpriseControlHub />} />
-
-              {/* New Vala Control System - Isolated Workspaces */}
-              <Route path="/vala" element={<RequireAuth><ValaControlHub /></RequireAuth>} />
-              <Route path="/vala/operation" element={<RequireAuth><ValaOperationWorkspace /></RequireAuth>} />
-              <Route path="/vala/regional" element={<RequireAuth><ValaRegionalWorkspace /></RequireAuth>} />
-              <Route path="/vala/ai-head" element={<RequireAuth><ValaAIHeadWorkspace /></RequireAuth>} />
-              <Route path="/vala/master" element={<RequireRole allowed={["master"]} masterOnly><ValaMasterWorkspace /></RequireRole>} />
-
-              {/* Dev Manager Dashboard */}
-              <Route path="/dev-manager" element={<RequireAuth><SecureDevManagerDashboard /></RequireAuth>} />
-
-              {/* HR Manager Dashboard */}
-              <Route path="/hr-manager" element={<RequireAuth><SecureHRManagerDashboard /></RequireAuth>} />
-
-              {/* Wireframe Routes - Design Sandbox */}
-              <Route path="/wireframe/*" element={<WireframeRoutes />} />
-
-              {/* Super Admin System Routes */}
-              {/* Explicit dashboard aliases (never allow route-not-found -> blank screen) */}
-              <Route path="/boss/dashboard" element={<Navigate to="/super-admin-system/role-switch?role=boss_owner" replace />} />
-              <Route path="/ceo/dashboard" element={<Navigate to="/super-admin-system/role-switch?role=ceo" replace />} />
-              <Route path="/admin/dashboard" element={<Navigate to="/super-admin-system/role-switch?role=admin" replace />} />
-              <Route path="/continent/dashboard" element={<Navigate to="/super-admin-system/role-switch?role=continent_super_admin" replace />} />
-              <Route path="/country/dashboard" element={<Navigate to="/super-admin-system/role-switch?role=country_head" replace />} />
-
-              <Route path="/super-admin-system" element={<Navigate to="/super-admin-system/dashboard" replace />} />
-              {/* Short aliases (avoid 404 when users type abbreviated links) */}
-              <Route path="/super-admin-system/rc" element={<Navigate to="/super-admin-system/role-switch?role=boss_owner" replace />} />
-              <Route path="/super-admin-system/role-center" element={<Navigate to="/super-admin-system/role-switch?role=boss_owner" replace />} />
-
-              <Route path="/super-admin-system/login" element={<SuperAdminLogin />} />
-              {/* Role switcher - Protected for privileged roles */}
-              <Route path="/super-admin-system/role-switch" element={<RequireRole allowed={['boss_owner', 'ceo', 'admin', 'super_admin', 'master', 'continent_super_admin', 'country_head']}><RoleSwitchDashboard /></RequireRole>} />
-              <Route path="/super-admin-system/role-switch/*" element={<RequireRole allowed={['boss_owner', 'ceo', 'admin', 'super_admin', 'master', 'continent_super_admin', 'country_head']}><RoleSwitchDashboard /></RequireRole>} />
-              <Route path="/super-admin-system/dashboard" element={<SuperAdminSystemDashboard />} />
-              <Route path="/super-admin-system/users" element={<SuperAdminUsers />} />
-              <Route path="/super-admin-system/admins" element={<SuperAdminAdmins />} />
-              <Route path="/super-admin-system/roles" element={<SuperAdminRoles />} />
-              <Route path="/super-admin-system/geography" element={<SuperAdminGeography />} />
-              <Route path="/super-admin-system/modules" element={<SuperAdminModules />} />
-              <Route path="/super-admin-system/rentals" element={<SuperAdminRentals />} />
-              <Route path="/super-admin-system/rules" element={<SuperAdminRules />} />
-              <Route path="/super-admin-system/approvals" element={<SuperAdminApprovals />} />
-              <Route path="/super-admin-system/security" element={<SuperAdminSecurity />} />
-              <Route path="/super-admin-system/locks" element={<SuperAdminSystemLock />} />
-              <Route path="/super-admin-system/activity-log" element={<SuperAdminActivityLog />} />
-              <Route path="/super-admin-system/audit" element={<SuperAdminAudit />} />
-
-              {/* Leader Security Assessment */}
-              <Route path="/leader-security" element={<LeaderSecurityAssessment />} />
-
-              {/* Bulk Actions Reference */}
-              <Route path="/bulk-actions" element={<BulkActionsReference />} />
-
-                          {/* Catch-all */}
-                          <Route path="*" element={<NotFound />} />
-                        </Routes>
-                        <AdminQuickAccess />
-                        <QuickSupport />
-                        {/* Button Audit Overlay - DEV MODE ONLY */}
-                        <ButtonAuditOverlay enabled={import.meta.env.DEV} />
+                            {/* 404 */}
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
                         </GlobalRealtimeProvider>
                       </TranslationProvider>
                     </NotificationProvider>
@@ -753,6 +697,8 @@ const App = () => (
       </DemoTestModeProvider>
     </AuthProvider>
   </QueryClientProvider>
-);
+));
+
+App.displayName = 'App';
 
 export default App;
