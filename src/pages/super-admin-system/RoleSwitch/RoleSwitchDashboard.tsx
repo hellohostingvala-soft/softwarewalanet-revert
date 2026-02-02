@@ -136,6 +136,18 @@ const RoleSwitchDashboard = () => {
   const location = useLocation();
   const { userRole, isBossOwner, loading } = useAuth();
 
+  // Invisible debug logging (enable by setting localStorage.__sv_debug = '1')
+  const debug = useCallback((...args: unknown[]) => {
+    try {
+      if (localStorage.getItem('__sv_debug') === '1') {
+        // eslint-disable-next-line no-console
+        console.debug('[RoleSwitchDashboard]', ...args);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
   const requestedRole = useMemo(() => {
     const role = new URLSearchParams(location.search).get("role") as ActiveRole | null;
     return role && role in roleConfigs ? role : null;
@@ -329,6 +341,7 @@ const RoleSwitchDashboard = () => {
     if (loading) return;
 
     if (requestedRole && requestedRole !== prevRequestedRoleRef.current) {
+      debug('requestedRole change', { requestedRole, userRole, isBossOwner, url: window.location.href });
       prevRequestedRoleRef.current = requestedRole;
 
       const shouldStartInControlPanel = requestedRole === 'boss_owner';
@@ -357,6 +370,7 @@ const RoleSwitchDashboard = () => {
     }
 
     if (!didInitRef.current && !requestedRole) {
+      debug('no requestedRole, start in control panel', { userRole, isBossOwner });
       setActiveRole(null);
       didInitRef.current = true;
       setInitialized(true);
@@ -380,8 +394,9 @@ const RoleSwitchDashboard = () => {
     }
 
     const nextUrl = `/super-admin-system/role-switch?role=${encodeURIComponent(role)}`;
+    debug('role select', { role, nextUrl });
     window.location.assign(nextUrl);
-  }, [canAccessView]);
+  }, [canAccessView, debug]);
 
   const handleNavChange = useCallback((navId: string) => {
     setActiveNav(navId);
