@@ -71,7 +71,20 @@ const lazyLoad = (importFn: () => Promise<any>) => {
         .then(() => importFn())
         .catch((retryError) => {
           console.error("Retry also failed:", retryError);
-          // Return error fallback component
+          // If we still can't load, this is usually a stale chunk hash in cache.
+          // Trigger a one-time hard reload with cache-bust (logic-only recovery).
+          try {
+            if (sessionStorage.getItem('__sv_chunk_reload__') !== '1') {
+              sessionStorage.setItem('__sv_chunk_reload__', '1');
+              const url = new URL(window.location.href);
+              url.searchParams.set('v', Date.now().toString());
+              window.location.replace(url.toString());
+            }
+          } catch {
+            // ignore
+          }
+
+          // Return error fallback component (in case reload is blocked)
           return { default: ModuleErrorFallback };
         });
     })
