@@ -27,7 +27,9 @@ export async function createSystemRequest(input: SystemRequestInput) {
 
   const finalUserId = typeof user_id === 'string' ? user_id : null;
 
-  return supabase.from('system_requests').insert([
+  console.log('[SYSTEM_REQUEST] Creating request:', { action_type, role_type, source, status, user_id: finalUserId });
+
+  const { data, error } = await supabase.from('system_requests').insert([
     {
       action_type,
       role_type,
@@ -36,5 +38,13 @@ export async function createSystemRequest(input: SystemRequestInput) {
       status,
       payload_json: JSON.parse(JSON.stringify(payload_json)),
     },
-  ]);
+  ]).select();
+
+  if (error) {
+    console.error('[SYSTEM_REQUEST] Insert FAILED:', error);
+    return { data: null, error };
+  }
+
+  console.log('[SYSTEM_REQUEST] Insert SUCCESS:', data);
+  return { data, error: null };
 }
