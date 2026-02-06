@@ -38,6 +38,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { createSystemRequest } from "@/hooks/useSystemRequestLogger";
 
 const applicationTypes = [
   {
@@ -174,6 +175,22 @@ const ApplyPortal = () => {
         toast.error("Failed to submit application. Please try again.");
         return;
       }
+
+      // Log to system_events for Boss Panel visibility
+      await createSystemRequest({
+        action_type: selectedType,
+        role_type: selectedType,
+        status: 'PENDING',
+        source: 'apply_portal',
+        payload_json: {
+          intent: 'application_submitted',
+          application_type: selectedType,
+          full_name: formData.fullName,
+          country: formData.country,
+          path: window.location.pathname,
+        },
+        user_id: session.user.id,
+      });
 
       toast.success("Application submitted successfully! We'll review it shortly.");
       
