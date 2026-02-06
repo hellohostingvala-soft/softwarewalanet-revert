@@ -64,9 +64,9 @@ interface StatRowProps {
 }
 
 const StatRow = memo(forwardRef<HTMLDivElement, StatRowProps>(({ label, value, color = COLORS.text }, ref) => (
-  <div ref={ref} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
-    <span className="text-sm text-white/60">{label}</span>
-    <span className="text-sm font-semibold" style={{ color }}>{value}</span>
+  <div ref={ref} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0 gap-2">
+    <span className="text-sm text-white/60 truncate flex-shrink-0 min-w-0">{label}</span>
+    <span className="text-sm font-semibold flex-shrink-0 whitespace-nowrap" style={{ color }}>{value}</span>
   </div>
 )));
 StatRow.displayName = 'StatRow';
