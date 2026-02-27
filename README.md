@@ -1,4 +1,6 @@
-# Welcome to your Lovable project
+# SoftwareWala.net — Software Demo Platform
+
+A full-featured software demo and showcase platform where businesses can explore, try, and purchase industry-specific software solutions across 500+ live demos.
 
 ## Project info
 
