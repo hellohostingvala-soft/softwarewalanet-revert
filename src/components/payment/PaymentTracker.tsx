@@ -1,11 +1,15 @@
 /**
  * Payment Tracker - Tracks payment attempts for AI follow-up
+ * Fixed price: $249 USD for all products. Amount cannot be overridden.
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { FIXED_PRICE, FIXED_CURRENCY } from '@/lib/payment/fixed-price-validator';
 
 interface PaymentAttempt {
-  amount: number;
+  /** Ignored — always set to FIXED_PRICE ($249 USD) server-side */
+  amount?: number;
+  /** Ignored — always set to FIXED_CURRENCY (USD) */
   currency?: string;
   paymentType: 'subscription' | 'one-time' | 'deposit' | 'balance';
   productId?: string;
@@ -29,8 +33,8 @@ export const trackPaymentInitiated = async (attempt: PaymentAttempt) => {
         session_id: sessionId,
         email: attempt.email || user?.email,
         phone: attempt.phone,
-        amount: attempt.amount,
-        currency: attempt.currency || 'INR',
+        amount: FIXED_PRICE,          // always $249; caller-supplied value ignored
+        currency: FIXED_CURRENCY,     // always USD
         payment_type: attempt.paymentType,
         product_id: attempt.productId,
         product_name: attempt.productName,
