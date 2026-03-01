@@ -35,40 +35,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { GlobalNetworkMap } from './GlobalNetworkMap';
-
-// Summary cards with modern styling
-const summaryCards = [
-  { 
-    label: 'Total Consultations', 
-    value: '1,032', 
-    icon: Users, 
-    gradient: 'from-blue-500 to-cyan-400',
-    bgGradient: 'from-blue-500/20 to-cyan-400/10'
-  },
-  { 
-    label: 'In Progress', 
-    value: '132', 
-    icon: Clock, 
-    gradient: 'from-orange-500 to-amber-400',
-    bgGradient: 'from-orange-500/20 to-amber-400/10'
-  },
-  { 
-    label: 'In Review', 
-    value: '128', 
-    icon: CheckCircle2, 
-    gradient: 'from-purple-500 to-pink-400',
-    bgGradient: 'from-purple-500/20 to-pink-400/10'
-  },
-];
-
-const revenueData = [
-  { month: 'Jan', revenue: 4500, trend: 3200 },
-  { month: 'Feb', revenue: 5200, trend: 4100 },
-  { month: 'Mar', revenue: 4800, trend: 5500 },
-  { month: 'Apr', revenue: 6200, trend: 5800 },
-  { month: 'May', revenue: 7800, trend: 6900 },
-  { month: 'Jun', revenue: 8400, trend: 7200 },
-];
+import {
+  useResellerApplications,
+  useFranchiseAccounts,
+  useJobApplications,
+  useDashboardMetrics,
+  useDashboardRealtime,
+} from '@/hooks/boss-panel/useDashboardData';
 
 const bookingData = [
   { day: 'Sun', value: 30 },
@@ -80,19 +53,6 @@ const bookingData = [
   { day: 'Sat', value: 52 },
 ];
 
-const incomeData = [
-  { name: 'Income', value: 2000, color: '#8B5CF6' },
-  { name: 'Expense', value: 1000, color: '#F97316' },
-];
-
-const appointments = [
-  { name: 'Ronda Rousy', time: '10 am', duration: '30 Mins', avatar: 'RR' },
-  { name: 'Redona Charles', time: '11:30 am', duration: '45 Mins', avatar: 'RC' },
-  { name: 'Jia Nick', time: '12:15 pm', duration: '15 Mins', avatar: 'JN' },
-  { name: 'Wales James', time: '12:40 pm', duration: '20 Mins', avatar: 'WJ' },
-  { name: 'Maria Lucy', time: '12:40 pm', duration: '20 Mins', avatar: 'ML' },
-];
-
 const scheduleData = [
   { title: 'Aspirus Hospital', time: '8:00am - 10:00am', color: 'bg-emerald-500' },
   { title: 'Ron sesame st', time: '2:00pm - 4:00pm', color: 'bg-orange-500' },
@@ -100,6 +60,72 @@ const scheduleData = [
 ];
 
 export function BossDashboard() {
+  const { data: resellerData, isLoading: resellerLoading } = useResellerApplications();
+  const { data: franchiseData, isLoading: franchiseLoading } = useFranchiseAccounts();
+  const { data: jobData, isLoading: jobLoading } = useJobApplications();
+  const { data: metrics, isLoading: metricsLoading } = useDashboardMetrics();
+  useDashboardRealtime();
+
+  const summaryCards = [
+    {
+      label: 'Reseller Applications',
+      value: resellerLoading ? '...' : String(resellerData?.total ?? 0),
+      icon: Users,
+      gradient: 'from-blue-500 to-cyan-400',
+      bgGradient: 'from-blue-500/20 to-cyan-400/10',
+    },
+    {
+      label: 'Franchise Accounts',
+      value: franchiseLoading ? '...' : String(franchiseData?.total ?? 0),
+      icon: Clock,
+      gradient: 'from-orange-500 to-amber-400',
+      bgGradient: 'from-orange-500/20 to-amber-400/10',
+    },
+    {
+      label: 'Job Applications',
+      value: jobLoading ? '...' : String(jobData?.total ?? 0),
+      icon: CheckCircle2,
+      gradient: 'from-purple-500 to-pink-400',
+      bgGradient: 'from-purple-500/20 to-pink-400/10',
+    },
+  ];
+
+  const revenueData = metrics?.revenueByMonth ?? [
+    { month: 'Jan', revenue: 0, trend: 0 },
+    { month: 'Feb', revenue: 0, trend: 0 },
+    { month: 'Mar', revenue: 0, trend: 0 },
+    { month: 'Apr', revenue: 0, trend: 0 },
+    { month: 'May', revenue: 0, trend: 0 },
+    { month: 'Jun', revenue: 0, trend: 0 },
+  ];
+
+  const incomeData = metrics?.totalRevenue || (resellerData?.pending ?? 0) + (jobData?.pending ?? 0)
+    ? [
+        { name: 'Revenue', value: metrics?.totalRevenue || 0, color: '#8B5CF6' },
+        { name: 'Pending', value: (resellerData?.pending ?? 0) + (jobData?.pending ?? 0), color: '#F97316' },
+      ]
+    : [{ name: 'No Data', value: 1, color: '#CBD5E1' }];
+
+  const getInitials = (name: string) =>
+    name.trim()
+      ? name.trim().split(/\s+/).map(n => n[0]).join('').slice(0, 2).toUpperCase()
+      : '?';
+
+  const recentActivity = [
+    ...(resellerData?.recentApplications ?? []).map(a => ({
+      name: a.full_name,
+      time: new Date(a.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      duration: a.status,
+      avatar: getInitials(a.full_name),
+    })),
+    ...(jobData?.recentApplications ?? []).map(a => ({
+      name: a.full_name,
+      time: new Date(a.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      duration: a.application_type,
+      avatar: getInitials(a.full_name),
+    })),
+  ].slice(0, 5);
+
   return (
     <div className="p-6 space-y-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 min-h-full">
       {/* Header */}
@@ -150,7 +176,9 @@ export function BossDashboard() {
                   <Users className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-xl font-bold text-slate-900 dark:text-white">560</p>
+                  <p className="text-xl font-bold text-slate-900 dark:text-white">
+                    {metricsLoading ? '...' : metrics?.newUsers ?? 0}
+                  </p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">New Users</p>
                 </div>
               </div>
@@ -159,7 +187,9 @@ export function BossDashboard() {
                   <Activity className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-xl font-bold text-slate-900 dark:text-white">300</p>
+                  <p className="text-xl font-bold text-slate-900 dark:text-white">
+                    {metricsLoading ? '...' : metrics?.activeUsers ?? 0}
+                  </p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">Active</p>
                 </div>
               </div>
@@ -168,8 +198,10 @@ export function BossDashboard() {
                   <CheckCircle2 className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-xl font-bold text-slate-900 dark:text-white">200</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Completed</p>
+                  <p className="text-xl font-bold text-slate-900 dark:text-white">
+                    {resellerLoading ? '...' : resellerData?.approved ?? 0}
+                  </p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Approved</p>
                 </div>
               </div>
             </div>
@@ -381,7 +413,9 @@ export function BossDashboard() {
                 </ResponsiveContainer>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
-                    <p className="text-xl font-bold text-slate-900 dark:text-white">$2000</p>
+                    <p className="text-xl font-bold text-slate-900 dark:text-white">
+                      ${metricsLoading ? '...' : (metrics?.totalRevenue ?? 0).toLocaleString()}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -390,11 +424,11 @@ export function BossDashboard() {
             <div className="flex justify-center gap-6">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-violet-500" />
-                <span className="text-xs text-slate-500 dark:text-slate-400">Income</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400">Revenue</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-orange-500" />
-                <span className="text-xs text-slate-500 dark:text-slate-400">Expense</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400">Pending</span>
               </div>
             </div>
           </motion.div>
@@ -412,7 +446,9 @@ export function BossDashboard() {
             </div>
             
             <div className="space-y-3">
-              {appointments.map((apt, i) => (
+              {recentActivity.length === 0 ? (
+                <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">No recent activity</p>
+              ) : recentActivity.map((apt, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, x: 10 }}
@@ -432,7 +468,7 @@ export function BossDashboard() {
                     </div>
                   </div>
                   <Button variant="ghost" size="sm" className="text-violet-500 text-xs">
-                    History
+                    View
                   </Button>
                 </motion.div>
               ))}
