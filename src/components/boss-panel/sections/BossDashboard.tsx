@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Users, 
@@ -15,7 +15,10 @@ import {
   Clock,
   Calendar,
   Mail,
-  Phone
+  Phone,
+  Package,
+  ShoppingCart,
+  Bell
 } from 'lucide-react';
 import { 
   AreaChart,
@@ -42,6 +45,7 @@ import {
   useDashboardMetrics,
   useDashboardRealtime,
 } from '@/hooks/boss-panel/useDashboardData';
+import { marketplaceService, type MarketplaceStats } from '@/services/marketplaceService';
 
 const bookingData = [
   { day: 'Sun', value: 30 },
@@ -66,25 +70,43 @@ export function BossDashboard() {
   const { data: metrics, isLoading: metricsLoading } = useDashboardMetrics();
   useDashboardRealtime();
 
+  const [marketplaceStats, setMarketplaceStats] = useState<MarketplaceStats | null>(null);
+
+  useEffect(() => {
+    marketplaceService.getStats().then(setMarketplaceStats).catch((err) => console.error('Failed to load marketplace stats:', err));
+
+    const ordersChannel = marketplaceService.subscribeToOrderChanges(() => {
+      marketplaceService.getStats().then(setMarketplaceStats).catch((err) => console.error('Failed to refresh marketplace stats:', err));
+    });
+    const productsChannel = marketplaceService.subscribeToProductChanges(() => {
+      marketplaceService.getStats().then(setMarketplaceStats).catch((err) => console.error('Failed to refresh marketplace stats:', err));
+    });
+
+    return () => {
+      ordersChannel.unsubscribe();
+      productsChannel.unsubscribe();
+    };
+  }, []);
+
   const summaryCards = [
     {
-      label: 'Reseller Applications',
-      value: resellerLoading ? '...' : String(resellerData?.total ?? 0),
-      icon: Users,
+      label: 'Total Products',
+      value: marketplaceStats ? marketplaceStats.totalProducts.toLocaleString() : '—',
+      icon: Package,
       gradient: 'from-blue-500 to-cyan-400',
       bgGradient: 'from-blue-500/20 to-cyan-400/10',
     },
     {
-      label: 'Franchise Accounts',
-      value: franchiseLoading ? '...' : String(franchiseData?.total ?? 0),
-      icon: Clock,
+      label: 'Total Orders',
+      value: marketplaceStats ? marketplaceStats.totalOrders.toLocaleString() : '—',
+      icon: ShoppingCart,
       gradient: 'from-orange-500 to-amber-400',
       bgGradient: 'from-orange-500/20 to-amber-400/10',
     },
     {
-      label: 'Job Applications',
-      value: jobLoading ? '...' : String(jobData?.total ?? 0),
-      icon: CheckCircle2,
+      label: 'Pending Orders',
+      value: marketplaceStats ? marketplaceStats.pendingOrders.toLocaleString() : '—',
+      icon: Clock,
       gradient: 'from-purple-500 to-pink-400',
       bgGradient: 'from-purple-500/20 to-pink-400/10',
     },
