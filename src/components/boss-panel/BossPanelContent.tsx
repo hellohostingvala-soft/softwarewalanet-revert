@@ -16,7 +16,7 @@ import { BossSettings } from './sections/BossSettings';
 import { CodePilot } from './sections/CodePilot';
 import { ServerHosting } from './sections/ServerHosting';
 import { ValaAIModuleContainer } from '@/components/vala-ai-module/ValaAIModuleContainer';
-import { MMFullLayout } from '@/components/marketplace-manager/MMFullLayout';
+import { BossMarketplaceAdmin } from './sections/BossMarketplaceAdmin';
 
 const ResellerDashboardEmbed = lazy(() => import('@/pages/ResellerDashboard'));
 const FranchiseDashboardEmbed = lazy(() => import('@/pages/franchise/Dashboard'));
@@ -84,7 +84,7 @@ export function BossPanelContent() {
       case 'vala-ai':
         return <ValaAIModuleContainer />;
       case 'marketplace-manager':
-        return <MMFullLayout />;
+        return <BossMarketplaceAdmin />;
       case 'reseller-dashboard':
         return <Suspense fallback={<div className="p-6 text-center">Loading Reseller Dashboard...</div>}><ResellerDashboardEmbed /></Suspense>;
       case 'franchise-dashboard':
