@@ -50,6 +50,8 @@ export default function UserLicensesPage() {
       setCopied(licenseId);
       toast.success('License key copied!');
       setTimeout(() => setCopied(null), 2000);
+    }).catch(() => {
+      toast.error('Failed to copy — please copy manually');
     });
   };
 

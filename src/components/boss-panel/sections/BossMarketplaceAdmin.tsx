@@ -123,13 +123,17 @@ export function BossMarketplaceAdmin() {
 
   async function addProduct() {
     if (!newProduct.product_name.trim()) { toast.error('Product name required'); return; }
+    const monthlyVal = newProduct.monthly_price ? parseFloat(newProduct.monthly_price) : null;
+    const lifetimeVal = newProduct.lifetime_price ? parseFloat(newProduct.lifetime_price) : null;
+    if (monthlyVal !== null && monthlyVal <= 0) { toast.error('Monthly price must be positive'); return; }
+    if (lifetimeVal !== null && lifetimeVal <= 0) { toast.error('Lifetime price must be positive'); return; }
     const features = newProduct.features_csv ? newProduct.features_csv.split(',').map(f => f.trim()).filter(Boolean) : [];
     const { error } = await supabase.from('products').insert({
       product_name: newProduct.product_name,
       category: newProduct.category || null,
       description: newProduct.description || null,
-      monthly_price: newProduct.monthly_price ? parseFloat(newProduct.monthly_price) : null,
-      lifetime_price: newProduct.lifetime_price ? parseFloat(newProduct.lifetime_price) : null,
+      monthly_price: monthlyVal,
+      lifetime_price: lifetimeVal,
       pricing_model: newProduct.pricing_model || null,
       product_type: newProduct.product_type || null,
       tech_stack: newProduct.tech_stack || null,
@@ -151,6 +155,15 @@ export function BossMarketplaceAdmin() {
   }
 
   async function deleteProduct(id: string) {
+    const { data: deps } = await (supabase as any)
+      .from('marketplace_order_items')
+      .select('order_item_id')
+      .eq('product_id', id)
+      .limit(1);
+    if (deps && deps.length > 0) {
+      toast.error('Cannot delete: product has existing orders');
+      return;
+    }
     const { error } = await supabase.from('products').delete().eq('product_id', id);
     if (error) { toast.error('Failed to delete'); return; }
     toast.success('Product deleted');
@@ -176,6 +189,10 @@ export function BossMarketplaceAdmin() {
 
   async function addSection() {
     if (!newSection.title.trim() || !newSection.slug.trim()) { toast.error('Title and slug required'); return; }
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(newSection.slug)) {
+      toast.error('Slug must be lowercase with hyphens only (e.g. featured-products)');
+      return;
+    }
     const { error } = await (supabase as any).from('marketplace_sections').insert(newSection);
     if (error) { toast.error('Failed to add section'); return; }
     toast.success('Section added');

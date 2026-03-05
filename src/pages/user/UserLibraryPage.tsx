@@ -26,7 +26,7 @@ export default function UserLibraryPage() {
     if (!user) return;
     (async () => {
       setLoading(true);
-      const { data } = await (supabase as any)
+      const { data, error } = await (supabase as any)
         .from('marketplace_orders')
         .select(`
           order_id,
@@ -38,7 +38,14 @@ export default function UserLibraryPage() {
             products (product_name, category, product_type)
           )
         `)
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .limit(100);
+
+      if (error) {
+        toast.error('Failed to load library');
+        setLoading(false);
+        return;
+      }
 
       if (data) {
         const flat: LibraryItem[] = [];
