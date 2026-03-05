@@ -1,0 +1,282 @@
+/**
+ * DEMO: Admin Dashboard
+ * Standalone demo — no auth or database calls required.
+ */
+
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  LayoutDashboard, Users, FileText, CheckCircle, Bell,
+  TrendingUp, Package, AlertCircle, LogOut, ChevronLeft,
+  ChevronRight, Eye, ArrowLeft, Zap, UserPlus, ClipboardList,
+  Briefcase, BarChart3, MessageSquare, Settings, Shield
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import softwareValaLogo from "@/assets/software-vala-logo.png";
+
+// ─── Mock Data ────────────────────────────────────────────────────
+const MOCK_STATS = [
+  { label: "Pending Approvals", value: "23", change: "-5 today", icon: ClipboardList, color: "text-orange-500" },
+  { label: "Active Staff", value: "87", change: "All online", icon: Users, color: "text-blue-500" },
+  { label: "Leads Today", value: "64", change: "+18 new", icon: TrendingUp, color: "text-green-500" },
+  { label: "Open Tickets", value: "11", change: "3 urgent", icon: AlertCircle, color: "text-red-500" },
+];
+
+const MOCK_PENDING_APPROVALS = [
+  { id: 1, type: "Reseller Application", name: "Vikram Patel", submitted: "1h ago", priority: "high" },
+  { id: 2, type: "Lead Reassignment", name: "Delhi-East Team", submitted: "2h ago", priority: "medium" },
+  { id: 3, type: "Wallet Withdrawal", name: "Franchise #108", submitted: "3h ago", priority: "high" },
+  { id: 4, type: "Staff Registration", name: "Anjali Mehta", submitted: "4h ago", priority: "low" },
+  { id: 5, type: "Demo Extension", name: "Client #4421", submitted: "5h ago", priority: "medium" },
+];
+
+const MOCK_STAFF = [
+  { name: "Arjun Kapoor", role: "Lead Manager", status: "online", tasks: 8 },
+  { name: "Neha Sharma", role: "Support Agent", status: "online", tasks: 14 },
+  { name: "Ravi Kumar", role: "Dev Manager", status: "busy", tasks: 6 },
+  { name: "Sana Khan", role: "SEO Manager", status: "online", tasks: 11 },
+  { name: "Deepak Rao", role: "HR Manager", status: "offline", tasks: 3 },
+];
+
+const menuItems = [
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { id: "approvals", label: "Approvals", icon: CheckCircle, badge: 23 },
+  { id: "staff", label: "Staff", icon: Users, badge: 87 },
+  { id: "leads", label: "Leads", icon: TrendingUp, badge: "64" },
+  { id: "packages", label: "Packages", icon: Package },
+  { id: "tickets", label: "Support Tickets", icon: MessageSquare, badge: 11 },
+  { id: "reports", label: "Reports", icon: BarChart3 },
+  { id: "security", label: "Security", icon: Shield },
+  { id: "settings", label: "Settings", icon: Settings },
+];
+
+const SectionPlaceholder = ({ title }: { title: string }) => (
+  <div className="flex flex-col items-center justify-center h-64 text-center space-y-3">
+    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+      <Zap className="w-8 h-8 text-primary" />
+    </div>
+    <h3 className="text-xl font-semibold">{title}</h3>
+    <p className="text-muted-foreground max-w-sm">
+      This module is fully operational in the live system. Demo mode shows a preview.
+    </p>
+    <Badge variant="outline">Demo Mode</Badge>
+  </div>
+);
+
+const DashboardContent = () => (
+  <div className="space-y-6">
+    {/* Stats */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {MOCK_STATS.map((stat) => (
+        <Card key={stat.label}>
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className={`p-3 rounded-xl bg-background/50 ${stat.color}`}>
+              <stat.icon className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">{stat.label}</p>
+              <p className="text-2xl font-bold">{stat.value}</p>
+              <p className="text-xs text-muted-foreground">{stat.change}</p>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* Pending Approvals */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <ClipboardList className="w-4 h-4 text-orange-500" /> Pending Approvals
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {MOCK_PENDING_APPROVALS.map((item) => (
+            <div key={item.id} className="flex items-center gap-3 p-2 rounded-lg border">
+              <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                item.priority === "high" ? "bg-red-500" :
+                item.priority === "medium" ? "bg-yellow-500" : "bg-green-500"
+              }`} />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{item.name}</p>
+                <p className="text-xs text-muted-foreground">{item.type}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-muted-foreground">{item.submitted}</p>
+                <Badge
+                  variant={item.priority === "high" ? "destructive" : "outline"}
+                  className="text-[10px] h-4 px-1 mt-0.5"
+                >
+                  {item.priority}
+                </Badge>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Staff Status */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Users className="w-4 h-4 text-blue-500" /> Staff Status
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {MOCK_STAFF.map((member) => (
+            <div key={member.name} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+              <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                member.status === "online" ? "bg-green-500" :
+                member.status === "busy" ? "bg-yellow-500" : "bg-gray-400"
+              }`} />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{member.name}</p>
+                <p className="text-xs text-muted-foreground">{member.role}</p>
+              </div>
+              <Badge variant="outline" className="text-[10px] h-5 px-1.5">
+                {member.tasks} tasks
+              </Badge>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+);
+
+const DemoAdmin = () => {
+  const [activeSection, setActiveSection] = useState("dashboard");
+  const [collapsed, setCollapsed] = useState(false);
+  const navigate = useNavigate();
+
+  const renderContent = () => {
+    if (activeSection === "dashboard") return <DashboardContent />;
+    const item = menuItems.find((m) => m.id === activeSection);
+    return <SectionPlaceholder title={item?.label ?? "Section"} />;
+  };
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Demo Banner */}
+      <div className="bg-blue-600 text-white text-center py-1.5 text-xs font-medium flex items-center justify-center gap-2">
+        <Eye className="w-3 h-3" />
+        DEMO MODE — Admin Dashboard · No real data
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-5 px-2 text-xs text-white hover:bg-white/20 ml-4"
+          onClick={() => navigate("/demos/public")}
+        >
+          <ArrowLeft className="w-3 h-3 mr-1" /> Back to Demos
+        </Button>
+      </div>
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <aside
+          className={`${collapsed ? "w-16" : "w-56"} flex-shrink-0 bg-card border-r flex flex-col transition-all duration-300`}
+        >
+          <div className="p-3 border-b flex items-center gap-2">
+            <img src={softwareValaLogo} alt="Logo" className="w-8 h-8 rounded-lg flex-shrink-0" />
+            {!collapsed && (
+              <div className="overflow-hidden">
+                <p className="text-sm font-bold truncate">Software Vala</p>
+                <p className="text-xs text-muted-foreground truncate">Admin Panel</p>
+              </div>
+            )}
+          </div>
+
+          <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
+            {menuItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveSection(item.id)}
+                className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg text-sm transition-colors ${
+                  activeSection === item.id
+                    ? "bg-blue-600 text-white"
+                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <item.icon className="w-4 h-4 flex-shrink-0" />
+                {!collapsed && (
+                  <>
+                    <span className="flex-1 text-left truncate">{item.label}</span>
+                    {item.badge !== undefined && (
+                      <Badge variant="secondary" className="text-[10px] h-4 px-1">
+                        {item.badge}
+                      </Badge>
+                    )}
+                  </>
+                )}
+              </button>
+            ))}
+          </nav>
+
+          <div className="p-2 border-t space-y-0.5">
+            <button
+              onClick={() => navigate("/demos/public")}
+              className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            >
+              <LogOut className="w-4 h-4 flex-shrink-0" />
+              {!collapsed && <span>Exit Demo</span>}
+            </button>
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            >
+              {collapsed ? <ChevronRight className="w-4 h-4 flex-shrink-0" /> : (
+                <><ChevronLeft className="w-4 h-4 flex-shrink-0" /><span>Collapse</span></>
+              )}
+            </button>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <header className="bg-card border-b px-4 py-2.5 flex items-center justify-between">
+            <div>
+              <h1 className="text-base font-semibold">
+                {menuItems.find((m) => m.id === activeSection)?.label ?? "Dashboard"}
+              </h1>
+              <p className="text-xs text-muted-foreground">Admin · admin@softwarevala.com</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" className="relative">
+                <Bell className="w-4 h-4" />
+                <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-destructive rounded-full text-[9px] text-destructive-foreground flex items-center justify-center">
+                  3
+                </span>
+              </Button>
+              <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-muted">
+                <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">
+                  AD
+                </div>
+                <span className="text-xs font-medium hidden sm:block">Admin</span>
+              </div>
+            </div>
+          </header>
+
+          <main className="flex-1 overflow-auto p-4 md:p-6">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeSection}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.2 }}
+              >
+                {renderContent()}
+              </motion.div>
+            </AnimatePresence>
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DemoAdmin;

@@ -320,6 +320,13 @@ const AICEOSettings = lazyLoad(() => import("./pages/ai-ceo/sections/AICEOSettin
 const DemoCredentials = lazyLoad(() => import("./pages/DemoCredentials"));
 const DemoOrderSystem = lazyLoad(() => import("./pages/demo-system/DemoOrderSystem"));
 const SectorsBrowse = lazyLoad(() => import("./pages/SectorsBrowse"));
+
+// Role Demo Pages (no auth required)
+const DemoSuperAdmin = lazyLoad(() => import("./pages/demo/DemoSuperAdmin"));
+const DemoAdmin = lazyLoad(() => import("./pages/demo/DemoAdmin"));
+const DemoManager = lazyLoad(() => import("./pages/demo/DemoManager"));
+const DemoStaff = lazyLoad(() => import("./pages/demo/DemoStaff"));
+const DemoClient = lazyLoad(() => import("./pages/demo/DemoClient"));
 const SubCategoryDemos = lazyLoad(() => import("./pages/SubCategoryDemos"));
 
 // Business Management
@@ -714,6 +721,13 @@ const App = memo(() => (
                             {/* Demo Order System */}
                             <Route path="/demo-order" element={<DemoOrderSystem />} />
                             <Route path="/demo-credentials" element={<DemoCredentials />} />
+
+                            {/* Role Demo System — no auth required */}
+                            <Route path="/demo/super-admin" element={<DemoSuperAdmin />} />
+                            <Route path="/demo/admin" element={<DemoAdmin />} />
+                            <Route path="/demo/manager" element={<DemoManager />} />
+                            <Route path="/demo/staff" element={<DemoStaff />} />
+                            <Route path="/demo/client" element={<DemoClient />} />
 
                             {/* Safe Assist & Promise */}
                             <Route path="/safe-assist" element={<RequireAuth><SafeAssistDashboard /></RequireAuth>} />
