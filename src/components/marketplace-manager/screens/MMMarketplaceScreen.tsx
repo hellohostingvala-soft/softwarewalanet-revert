@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Star, Heart, Play, ShoppingCart, ChevronLeft, ChevronRight, X, Monitor, Tag, Zap, TrendingUp, Sparkles, Package } from 'lucide-react';
+import { createSystemRequest } from '@/hooks/useSystemRequestLogger';
+import { useAuth } from '@/hooks/useAuth';
+import { Search, Star, Heart, Play, ShoppingCart, ChevronLeft, ChevronRight, X, Monitor, Zap, TrendingUp, Sparkles, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -23,6 +26,12 @@ interface Product {
   created_at: string;
 }
 
+type PartnerRequestType =
+  | 'franchise_request'
+  | 'reseller_request'
+  | 'developer_request'
+  | 'support_request';
+
 const CATEGORIES = [
   'Restaurant', 'Education', 'Healthcare', 'E-commerce', 'Hotel',
   'Real Estate', 'Finance', 'Manufacturing', 'CRM', 'HRM',
@@ -36,7 +45,18 @@ const CATEGORY_ICONS: Record<string, string> = {
   'Legal': '⚖️', 'Retail': '🏪'
 };
 
+const PARTNER_REQUEST_BUTTONS: { event: PartnerRequestType; label: string }[] = [
+  { event: 'franchise_request', label: 'Franchise Request' },
+  { event: 'reseller_request', label: 'Reseller Request' },
+  { event: 'developer_request', label: 'Developer Request' },
+  { event: 'support_request', label: 'Support Request' },
+];
+
 export const MMMarketplaceScreen = () => {
+  const navigate = useNavigate();
+  const { productId, categoryId } = useParams();
+  const { user, userRole } = useAuth();
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -48,6 +68,22 @@ export const MMMarketplaceScreen = () => {
     fetchProducts();
     fetchFavorites();
   }, []);
+
+  useEffect(() => {
+    setSelectedCategory(categoryId ? decodeURIComponent(categoryId) : null);
+  }, [categoryId]);
+
+  useEffect(() => {
+    if (!productId) {
+      setSelectedProduct(null);
+      return;
+    }
+
+    const matched = products.find((product) => product.product_id === productId);
+    if (matched) {
+      setSelectedProduct(matched);
+    }
+  }, [productId, products]);
 
   const fetchProducts = async () => {
     try {
@@ -61,7 +97,6 @@ export const MMMarketplaceScreen = () => {
       setProducts(data || []);
     } catch (err) {
       console.error('Failed to fetch products:', err);
-      // Fallback mock data
       setProducts(generateMockProducts());
     } finally {
       setLoading(false);
@@ -70,86 +105,176 @@ export const MMMarketplaceScreen = () => {
 
   const fetchFavorites = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) return;
       const { data } = await supabase
         .from('product_favorites')
         .select('product_id')
-        .eq('user_id', user.id);
-      if (data) setFavorites(new Set(data.map(f => f.product_id)));
-    } catch { /* ignore */ }
+        .eq('user_id', authUser.id);
+      if (data) setFavorites(new Set(data.map((favorite) => favorite.product_id)));
+    } catch {
+      // ignore
+    }
   };
 
-  const toggleFavorite = async (productId: string) => {
+  const logEvent = async (
+    eventType: string,
+    product?: Product,
+    options?: {
+      queueForBoss?: boolean;
+      severity?: 'info' | 'warning' | 'critical' | 'emergency';
+      metadata?: Record<string, unknown>;
+    }
+  ) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { toast.error('Please log in to save favorites'); return; }
+      const actorId = user?.id ?? null;
+      const eventMetadata = {
+        module: 'marketplace',
+        product_name: product?.product_name,
+        category: product?.category,
+        timestamp: new Date().toISOString(),
+        ...(options?.metadata || {}),
+      };
 
-      if (favorites.has(productId)) {
-        await supabase.from('product_favorites').delete()
-          .eq('user_id', user.id).eq('product_id', productId);
-        setFavorites(prev => { const n = new Set(prev); n.delete(productId); return n; });
+      await supabase.from('activity_log').insert({
+        action_type: eventType,
+        entity_type: product ? 'product' : 'marketplace',
+        entity_id: product?.product_id ?? null,
+        user_id: actorId,
+        role: userRole || null,
+        severity_level: options?.severity || 'info',
+        metadata: eventMetadata,
+      });
+
+      if (options?.queueForBoss) {
+        await createSystemRequest({
+          action_type: eventType,
+          role_type: userRole || 'client',
+          payload_json: eventMetadata,
+          user_id: actorId,
+        });
+      }
+    } catch {
+      // silent
+    }
+  };
+
+  const toggleFavorite = async (productIdToToggle: string) => {
+    try {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) {
+        toast.error('Please log in to save favorites');
+        return;
+      }
+
+      const product = products.find((item) => item.product_id === productIdToToggle);
+      const wasFavorite = favorites.has(productIdToToggle);
+
+      if (wasFavorite) {
+        await supabase
+          .from('product_favorites')
+          .delete()
+          .eq('user_id', authUser.id)
+          .eq('product_id', productIdToToggle);
+
+        setFavorites((prev) => {
+          const next = new Set(prev);
+          next.delete(productIdToToggle);
+          return next;
+        });
+
         toast.success('Removed from favorites');
       } else {
-        await supabase.from('product_favorites').insert({ user_id: user.id, product_id: productId });
-        setFavorites(prev => new Set(prev).add(productId));
+        await supabase.from('product_favorites').insert({ user_id: authUser.id, product_id: productIdToToggle });
+        setFavorites((prev) => new Set(prev).add(productIdToToggle));
         toast.success('Added to favorites');
       }
-      logEvent('favorite_toggle', productId);
-    } catch { toast.error('Failed to update favorites'); }
+
+      void logEvent('favorite_toggle', product, {
+        metadata: {
+          favorite_state: wasFavorite ? 'removed' : 'added',
+        },
+      });
+    } catch {
+      toast.error('Failed to update favorites');
+    }
   };
 
   const handleDemo = (product: Product) => {
-    logEvent('demo_click', product.product_id);
+    void logEvent('demo_click', product);
     toast.info(`Loading demo for ${product.product_name}...`);
   };
 
   const handleBuy = (product: Product) => {
-    logEvent('purchase_click', product.product_id);
+    void logEvent('purchase_click', product, {
+      queueForBoss: true,
+      metadata: { stage: 'purchase_initiated' },
+    });
     toast.success(`Order initiated for ${product.product_name}`);
   };
 
   const handleProductView = (product: Product) => {
-    logEvent('product_view', product.product_id);
+    void logEvent('product_view', product);
     setSelectedProduct(product);
+    navigate(`/marketplace/product/${product.product_id}`);
   };
 
-  const logEvent = async (eventType: string, productId: string) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      await supabase.from('activity_log').insert({
-        action_type: eventType,
-        entity_type: 'product',
-        entity_id: productId,
-        user_id: user?.id || null,
-        metadata: { module: 'marketplace', timestamp: new Date().toISOString() }
-      });
-    } catch { /* silent */ }
+  const handlePartnerRequest = (requestType: PartnerRequestType, label: string) => {
+    void logEvent(requestType, undefined, {
+      queueForBoss: true,
+      severity: 'warning',
+      metadata: {
+        request_label: label,
+      },
+    });
+
+    toast.success(`${label} submitted`);
+  };
+
+  const handleCategoryFilter = (category: string | null) => {
+    if (category) {
+      navigate(`/marketplace/category/${encodeURIComponent(category)}`);
+      return;
+    }
+
+    navigate('/marketplace');
+  };
+
+  const handleCloseProductDialog = () => {
+    setSelectedProduct(null);
+    if (productId) {
+      navigate('/marketplace');
+    }
   };
 
   const filtered = useMemo(() => {
     let result = products;
+
     if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(p =>
-        p.product_name.toLowerCase().includes(q) ||
-        (p.description?.toLowerCase().includes(q)) ||
-        (p.category?.toLowerCase().includes(q))
+      const normalizedQuery = searchQuery.toLowerCase();
+      result = result.filter((product) =>
+        product.product_name.toLowerCase().includes(normalizedQuery) ||
+        product.description?.toLowerCase().includes(normalizedQuery) ||
+        product.category?.toLowerCase().includes(normalizedQuery)
       );
     }
+
     if (selectedCategory) {
-      result = result.filter(p => p.category?.toLowerCase() === selectedCategory.toLowerCase());
+      result = result.filter((product) => product.category?.toLowerCase() === selectedCategory.toLowerCase());
     }
+
     return result;
   }, [products, searchQuery, selectedCategory]);
 
   const groupedByCategory = useMemo(() => {
     const groups: Record<string, Product[]> = {};
-    products.forEach(p => {
-      const cat = p.category || 'Other';
-      if (!groups[cat]) groups[cat] = [];
-      groups[cat].push(p);
+
+    products.forEach((product) => {
+      const category = product.category || 'Other';
+      if (!groups[category]) groups[category] = [];
+      groups[category].push(product);
     });
+
     return groups;
   }, [products]);
 
@@ -157,7 +282,7 @@ export const MMMarketplaceScreen = () => {
   const trendingProducts = useMemo(() => [...products].sort(() => 0.5 - Math.random()).slice(0, 8), [products]);
   const newReleases = useMemo(() => products.slice(0, 8), [products]);
 
-  const discountedPrice = (price: number | null) => price ? (price * 0.7).toFixed(0) : '0';
+  const discountedPrice = (price: number | null) => (price ? (price * 0.7).toFixed(0) : '0');
 
   if (loading) {
     return (
@@ -170,11 +295,10 @@ export const MMMarketplaceScreen = () => {
     );
   }
 
-  const isSearching = searchQuery || selectedCategory;
+  const isSearching = Boolean(searchQuery || selectedCategory);
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      {/* Header */}
       <div className="sticky top-0 z-30 bg-slate-950/95 backdrop-blur border-b border-slate-800 px-6 py-4">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -189,7 +313,7 @@ export const MMMarketplaceScreen = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
               <Input
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder="Search software..."
                 className="pl-10 bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
               />
@@ -202,25 +326,38 @@ export const MMMarketplaceScreen = () => {
           </div>
         </div>
 
-        {/* Category Pills */}
+        <div className="flex flex-wrap gap-2 mt-3">
+          {PARTNER_REQUEST_BUTTONS.map((request) => (
+            <Button
+              key={request.event}
+              variant="outline"
+              size="sm"
+              className="border-slate-700 text-slate-300 hover:text-white"
+              onClick={() => handlePartnerRequest(request.event, request.label)}
+            >
+              {request.label}
+            </Button>
+          ))}
+        </div>
+
         <div className="flex gap-2 mt-3 overflow-x-auto pb-1 scrollbar-hide">
           <button
-            onClick={() => setSelectedCategory(null)}
+            onClick={() => handleCategoryFilter(null)}
             className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
               !selectedCategory ? 'bg-cyan-500 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
             }`}
           >
             All
           </button>
-          {CATEGORIES.map(cat => (
+          {CATEGORIES.map((category) => (
             <button
-              key={cat}
-              onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
+              key={category}
+              onClick={() => handleCategoryFilter(selectedCategory === category ? null : category)}
               className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
-                selectedCategory === cat ? 'bg-cyan-500 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                selectedCategory === category ? 'bg-cyan-500 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
               }`}
             >
-              {CATEGORY_ICONS[cat] || '📦'} {cat}
+              {CATEGORY_ICONS[category] || '📦'} {category}
             </button>
           ))}
         </div>
@@ -228,18 +365,24 @@ export const MMMarketplaceScreen = () => {
 
       <div className="px-6 py-4 space-y-8">
         {isSearching ? (
-          /* Search Results */
           <div>
             <h2 className="text-lg font-semibold mb-4">
-              {filtered.length} result{filtered.length !== 1 ? 's' : ''} 
+              {filtered.length} result{filtered.length !== 1 ? 's' : ''}
               {selectedCategory && ` in ${selectedCategory}`}
               {searchQuery && ` for "${searchQuery}"`}
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {filtered.map(p => (
-                <ProductCard key={p.product_id} product={p} isFav={favorites.has(p.product_id)}
-                  onView={handleProductView} onDemo={handleDemo} onBuy={handleBuy} onFav={toggleFavorite}
-                  discountedPrice={discountedPrice} />
+              {filtered.map((product) => (
+                <ProductCard
+                  key={product.product_id}
+                  product={product}
+                  isFav={favorites.has(product.product_id)}
+                  onView={handleProductView}
+                  onDemo={handleDemo}
+                  onBuy={handleBuy}
+                  onFav={toggleFavorite}
+                  discountedPrice={discountedPrice}
+                />
               ))}
             </div>
             {filtered.length === 0 && (
@@ -251,53 +394,84 @@ export const MMMarketplaceScreen = () => {
           </div>
         ) : (
           <>
-            {/* Hero Banner */}
-            {featuredProducts.length > 0 && <HeroBanner product={featuredProducts[0]} onDemo={handleDemo} onBuy={handleBuy} discountedPrice={discountedPrice} />}
+            {featuredProducts.length > 0 && (
+              <HeroBanner product={featuredProducts[0]} onDemo={handleDemo} onBuy={handleBuy} discountedPrice={discountedPrice} />
+            )}
 
-            {/* Featured Row */}
-            <ProductRow title="Featured Software" icon={<Sparkles className="w-5 h-5 text-yellow-400" />}
-              products={featuredProducts} favorites={favorites}
-              onView={handleProductView} onDemo={handleDemo} onBuy={handleBuy} onFav={toggleFavorite}
-              discountedPrice={discountedPrice} />
+            <ProductRow
+              title="Featured Software"
+              icon={<Sparkles className="w-5 h-5 text-yellow-400" />}
+              products={featuredProducts}
+              favorites={favorites}
+              onView={handleProductView}
+              onDemo={handleDemo}
+              onBuy={handleBuy}
+              onFav={toggleFavorite}
+              discountedPrice={discountedPrice}
+            />
 
-            {/* Trending Row */}
-            <ProductRow title="Trending Now" icon={<TrendingUp className="w-5 h-5 text-emerald-400" />}
-              products={trendingProducts} favorites={favorites}
-              onView={handleProductView} onDemo={handleDemo} onBuy={handleBuy} onFav={toggleFavorite}
-              discountedPrice={discountedPrice} />
+            <ProductRow
+              title="Trending Now"
+              icon={<TrendingUp className="w-5 h-5 text-emerald-400" />}
+              products={trendingProducts}
+              favorites={favorites}
+              onView={handleProductView}
+              onDemo={handleDemo}
+              onBuy={handleBuy}
+              onFav={toggleFavorite}
+              discountedPrice={discountedPrice}
+            />
 
-            {/* New Releases */}
-            <ProductRow title="New Releases" icon={<Zap className="w-5 h-5 text-purple-400" />}
-              products={newReleases} favorites={favorites}
-              onView={handleProductView} onDemo={handleDemo} onBuy={handleBuy} onFav={toggleFavorite}
-              discountedPrice={discountedPrice} />
+            <ProductRow
+              title="New Releases"
+              icon={<Zap className="w-5 h-5 text-purple-400" />}
+              products={newReleases}
+              favorites={favorites}
+              onView={handleProductView}
+              onDemo={handleDemo}
+              onBuy={handleBuy}
+              onFav={toggleFavorite}
+              discountedPrice={discountedPrice}
+            />
 
-            {/* Category Rows */}
-            {Object.entries(groupedByCategory).slice(0, 6).map(([cat, prods]) => (
-              <ProductRow key={cat} title={`${CATEGORY_ICONS[cat] || '📦'} ${cat}`}
-                products={prods} favorites={favorites}
-                onView={handleProductView} onDemo={handleDemo} onBuy={handleBuy} onFav={toggleFavorite}
-                discountedPrice={discountedPrice} />
+            {Object.entries(groupedByCategory).slice(0, 6).map(([category, categoryProducts]) => (
+              <ProductRow
+                key={category}
+                title={`${CATEGORY_ICONS[category] || '📦'} ${category}`}
+                products={categoryProducts}
+                favorites={favorites}
+                onView={handleProductView}
+                onDemo={handleDemo}
+                onBuy={handleBuy}
+                onFav={toggleFavorite}
+                discountedPrice={discountedPrice}
+              />
             ))}
           </>
         )}
       </div>
 
-      {/* Product Detail Dialog */}
       {selectedProduct && (
-        <ProductDetailDialog product={selectedProduct} open={!!selectedProduct}
-          onClose={() => setSelectedProduct(null)} onDemo={handleDemo} onBuy={handleBuy}
-          isFav={favorites.has(selectedProduct.product_id)} onFav={toggleFavorite}
-          discountedPrice={discountedPrice} />
+        <ProductDetailDialog
+          product={selectedProduct}
+          open={Boolean(selectedProduct)}
+          onClose={handleCloseProductDialog}
+          onDemo={handleDemo}
+          onBuy={handleBuy}
+          isFav={favorites.has(selectedProduct.product_id)}
+          onFav={toggleFavorite}
+          discountedPrice={discountedPrice}
+        />
       )}
     </div>
   );
 };
 
-/* ---- Sub Components ---- */
-
 function HeroBanner({ product, onDemo, onBuy, discountedPrice }: {
-  product: Product; onDemo: (p: Product) => void; onBuy: (p: Product) => void; discountedPrice: (p: number | null) => string;
+  product: Product;
+  onDemo: (product: Product) => void;
+  onBuy: (product: Product) => void;
+  discountedPrice: (price: number | null) => string;
 }) {
   return (
     <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-cyan-900/60 via-slate-900 to-purple-900/40 border border-slate-800 p-8 md:p-12">
@@ -331,13 +505,20 @@ function HeroBanner({ product, onDemo, onBuy, discountedPrice }: {
 }
 
 function ProductRow({ title, icon, products, favorites, onView, onDemo, onBuy, onFav, discountedPrice }: {
-  title: string; icon?: React.ReactNode; products: Product[]; favorites: Set<string>;
-  onView: (p: Product) => void; onDemo: (p: Product) => void; onBuy: (p: Product) => void;
-  onFav: (id: string) => void; discountedPrice: (p: number | null) => string;
+  title: string;
+  icon?: React.ReactNode;
+  products: Product[];
+  favorites: Set<string>;
+  onView: (product: Product) => void;
+  onDemo: (product: Product) => void;
+  onBuy: (product: Product) => void;
+  onFav: (id: string) => void;
+  discountedPrice: (price: number | null) => string;
 }) {
   const scrollRef = React.useRef<HTMLDivElement>(null);
-  const scroll = (dir: 'left' | 'right') => {
-    scrollRef.current?.scrollBy({ left: dir === 'left' ? -320 : 320, behavior: 'smooth' });
+
+  const scroll = (direction: 'left' | 'right') => {
+    scrollRef.current?.scrollBy({ left: direction === 'left' ? -320 : 320, behavior: 'smooth' });
   };
 
   if (!products.length) return null;
@@ -359,11 +540,17 @@ function ProductRow({ title, icon, products, favorites, onView, onDemo, onBuy, o
         </div>
       </div>
       <div ref={scrollRef} className="flex gap-4 overflow-x-auto scrollbar-hide pb-2">
-        {products.map(p => (
-          <div key={p.product_id} className="flex-shrink-0 w-56">
-            <ProductCard product={p} isFav={favorites.has(p.product_id)}
-              onView={onView} onDemo={onDemo} onBuy={onBuy} onFav={onFav}
-              discountedPrice={discountedPrice} />
+        {products.map((product) => (
+          <div key={product.product_id} className="flex-shrink-0 w-56">
+            <ProductCard
+              product={product}
+              isFav={favorites.has(product.product_id)}
+              onView={onView}
+              onDemo={onDemo}
+              onBuy={onBuy}
+              onFav={onFav}
+              discountedPrice={discountedPrice}
+            />
           </div>
         ))}
       </div>
@@ -372,14 +559,16 @@ function ProductRow({ title, icon, products, favorites, onView, onDemo, onBuy, o
 }
 
 function ProductCard({ product, isFav, onView, onDemo, onBuy, onFav, discountedPrice }: {
-  product: Product; isFav: boolean;
-  onView: (p: Product) => void; onDemo: (p: Product) => void; onBuy: (p: Product) => void;
-  onFav: (id: string) => void; discountedPrice: (p: number | null) => string;
+  product: Product;
+  isFav: boolean;
+  onView: (product: Product) => void;
+  onDemo: (product: Product) => void;
+  onBuy: (product: Product) => void;
+  onFav: (id: string) => void;
+  discountedPrice: (price: number | null) => string;
 }) {
   return (
-    <div className="group relative bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-cyan-500/50 transition-all cursor-pointer"
-      onClick={() => onView(product)}>
-      {/* Thumbnail */}
+    <div className="group relative bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-cyan-500/50 transition-all cursor-pointer" onClick={() => onView(product)}>
       <div className="h-32 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center relative">
         <Monitor className="w-10 h-10 text-slate-700" />
         <div className="absolute top-2 left-2">
@@ -387,25 +576,18 @@ function ProductCard({ product, isFav, onView, onDemo, onBuy, onFav, discountedP
             {product.category || 'Software'}
           </Badge>
         </div>
-        <button
-          onClick={(e) => { e.stopPropagation(); onFav(product.product_id); }}
-          className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800 transition"
-        >
+        <button onClick={(event) => { event.stopPropagation(); onFav(product.product_id); }} className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800 transition">
           <Heart className={`w-3.5 h-3.5 ${isFav ? 'fill-red-500 text-red-500' : 'text-slate-500'}`} />
         </button>
-        {/* Hover overlay */}
         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-          <button onClick={(e) => { e.stopPropagation(); onDemo(product); }}
-            className="p-2 rounded-full bg-cyan-500/20 hover:bg-cyan-500/40 transition">
+          <button onClick={(event) => { event.stopPropagation(); onDemo(product); }} className="p-2 rounded-full bg-cyan-500/20 hover:bg-cyan-500/40 transition">
             <Play className="w-4 h-4 text-cyan-400" />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); onBuy(product); }}
-            className="p-2 rounded-full bg-emerald-500/20 hover:bg-emerald-500/40 transition">
+          <button onClick={(event) => { event.stopPropagation(); onBuy(product); }} className="p-2 rounded-full bg-emerald-500/20 hover:bg-emerald-500/40 transition">
             <ShoppingCart className="w-4 h-4 text-emerald-400" />
           </button>
         </div>
       </div>
-      {/* Info */}
       <div className="p-3">
         <h4 className="text-sm font-medium truncate">{product.product_name}</h4>
         <p className="text-xs text-slate-500 truncate mt-0.5">{product.description || 'Enterprise software'}</p>
@@ -429,9 +611,14 @@ function ProductCard({ product, isFav, onView, onDemo, onBuy, onFav, discountedP
 }
 
 function ProductDetailDialog({ product, open, onClose, onDemo, onBuy, isFav, onFav, discountedPrice }: {
-  product: Product; open: boolean; onClose: () => void;
-  onDemo: (p: Product) => void; onBuy: (p: Product) => void;
-  isFav: boolean; onFav: (id: string) => void; discountedPrice: (p: number | null) => string;
+  product: Product;
+  open: boolean;
+  onClose: () => void;
+  onDemo: (product: Product) => void;
+  onBuy: (product: Product) => void;
+  isFav: boolean;
+  onFav: (id: string) => void;
+  discountedPrice: (price: number | null) => string;
 }) {
   const features = Array.isArray(product.features_json) ? product.features_json : [];
 
@@ -443,40 +630,35 @@ function ProductDetailDialog({ product, open, onClose, onDemo, onBuy, isFav, onF
         </DialogHeader>
         <ScrollArea className="max-h-[60vh] pr-4">
           <div className="space-y-4">
-            {/* Hero */}
             <div className="h-40 bg-gradient-to-br from-cyan-900/40 to-slate-800 rounded-lg flex items-center justify-center">
               <Monitor className="w-16 h-16 text-slate-600" />
             </div>
 
-            {/* Meta */}
             <div className="flex flex-wrap gap-2">
               {product.category && <Badge variant="outline" className="border-cyan-500/50 text-cyan-400">{product.category}</Badge>}
               {product.tech_stack && <Badge variant="outline" className="border-purple-500/50 text-purple-400">{product.tech_stack}</Badge>}
               {product.product_type && <Badge variant="outline" className="border-slate-600 text-slate-400">{product.product_type}</Badge>}
             </div>
 
-            {/* Description */}
             <div>
               <h3 className="text-sm font-semibold mb-1">Description</h3>
               <p className="text-sm text-slate-400">{product.description || 'Enterprise-grade software solution for your business.'}</p>
             </div>
 
-            {/* Features */}
             {features.length > 0 && (
               <div>
                 <h3 className="text-sm font-semibold mb-2">Features</h3>
                 <ul className="grid grid-cols-2 gap-1.5">
-                  {features.map((f: string, i: number) => (
-                    <li key={i} className="text-xs text-slate-400 flex items-center gap-1.5">
+                  {features.map((feature: string, index: number) => (
+                    <li key={index} className="text-xs text-slate-400 flex items-center gap-1.5">
                       <div className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-                      {f}
+                      {feature}
                     </li>
                   ))}
                 </ul>
               </div>
             )}
 
-            {/* Pricing */}
             <div className="bg-slate-800/50 rounded-lg p-4">
               <h3 className="text-sm font-semibold mb-3">Pricing</h3>
               <div className="grid grid-cols-2 gap-4">
@@ -501,10 +683,8 @@ function ProductDetailDialog({ product, open, onClose, onDemo, onBuy, isFav, onF
           </div>
         </ScrollArea>
 
-        {/* Actions */}
         <div className="flex items-center gap-3 pt-3 border-t border-slate-800">
-          <Button onClick={() => onFav(product.product_id)} variant="outline" size="sm"
-            className={`border-slate-700 ${isFav ? 'text-red-400' : 'text-slate-400'}`}>
+          <Button onClick={() => onFav(product.product_id)} variant="outline" size="sm" className={`border-slate-700 ${isFav ? 'text-red-400' : 'text-slate-400'}`}>
             <Heart className={`w-4 h-4 mr-1 ${isFav ? 'fill-red-500' : ''}`} />
             {isFav ? 'Saved' : 'Save'}
           </Button>
@@ -520,17 +700,16 @@ function ProductDetailDialog({ product, open, onClose, onDemo, onBuy, isFav, onF
   );
 }
 
-/* Mock data fallback */
 function generateMockProducts(): Product[] {
-  const cats = ['Restaurant', 'Education', 'Healthcare', 'E-commerce', 'Hotel', 'CRM', 'HRM', 'Finance'];
-  return Array.from({ length: 24 }, (_, i) => ({
-    product_id: `mock-${i}`,
-    product_name: `${cats[i % cats.length]} Management Pro ${i + 1}`,
-    description: `Complete ${cats[i % cats.length].toLowerCase()} management solution with AI-powered features`,
-    category: cats[i % cats.length],
-    monthly_price: 2999 + (i * 500),
-    lifetime_price: 29999 + (i * 5000),
-    tech_stack: ['React', 'Node.js', 'Python', 'Flutter'][i % 4],
+  const categories = ['Restaurant', 'Education', 'Healthcare', 'E-commerce', 'Hotel', 'CRM', 'HRM', 'Finance'];
+  return Array.from({ length: 24 }, (_, index) => ({
+    product_id: `mock-${index}`,
+    product_name: `${categories[index % categories.length]} Management Pro ${index + 1}`,
+    description: `Complete ${categories[index % categories.length].toLowerCase()} management solution with AI-powered features`,
+    category: categories[index % categories.length],
+    monthly_price: 2999 + index * 500,
+    lifetime_price: 29999 + index * 5000,
+    tech_stack: ['React', 'Node.js', 'Python', 'Flutter'][index % 4],
     product_type: 'SaaS',
     features_json: ['Dashboard', 'Reports', 'Analytics', 'API Access', 'Mobile App', '24/7 Support'],
     is_active: true,
@@ -538,3 +717,4 @@ function generateMockProducts(): Product[] {
     created_at: new Date().toISOString(),
   }));
 }
+

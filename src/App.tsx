@@ -367,6 +367,12 @@ const LeaderSecurityAssessment = lazyLoad(() => import("./pages/leader-security/
 // Boss Panel
 const BossPanel = lazyLoad(() => import("./pages/BossPanel"));
 
+// Marketplace
+const MMFullLayout = lazyLoad(() => import("./components/marketplace-manager/MMFullLayout").then(m => ({ default: m.MMFullLayout })));
+
+// AI Builder
+const AIBuilderPage = lazyLoad(() => import("./pages/AIBuilderPage"));
+
 // ============================================
 // QUERY CLIENT - Optimized caching
 // ============================================
@@ -441,6 +447,11 @@ const App = memo(() => (
                             <Route path="/sectors" element={<SectorsBrowse />} />
                             <Route path="/sectors/:sectorId/:subCategoryId" element={<SubCategoryDemos />} />
                             <Route path="/auto-dev" element={<AutoDevEngine />} />
+                            <Route path="/ai-builder" element={<RequireRole allowed={["boss_owner", "super_admin", "developer", "ai_manager", "demo_manager", "product_demo_manager"]}><AIBuilderPage /></RequireRole>} />
+                            <Route path="/marketplace" element={<RequireRole allowed={["boss_owner", "super_admin", "franchise", "reseller", "developer", "support", "demo_manager", "client", "user"]}><MMFullLayout /></RequireRole>} />
+                            <Route path="/marketplace/product/:productId" element={<RequireRole allowed={["boss_owner", "super_admin", "franchise", "reseller", "developer", "support", "demo_manager", "client", "user"]}><MMFullLayout /></RequireRole>} />
+                            <Route path="/marketplace/category/:categoryId" element={<RequireRole allowed={["boss_owner", "super_admin", "franchise", "reseller", "developer", "support", "demo_manager", "client", "user"]}><MMFullLayout /></RequireRole>} />
+                            <Route path="/marketplace/*" element={<RequireRole allowed={["boss_owner", "super_admin", "franchise", "reseller", "developer", "support", "demo_manager", "client", "user"]}><MMFullLayout /></RequireRole>} />
 
                             {/* Demo Routes */}
                             <Route path="/demo/restaurant-pos" element={<RestaurantPOSDemo />} />
@@ -481,6 +492,9 @@ const App = memo(() => (
                             <Route path="/checkout/:demoId" element={<SimpleCheckout />} />
                             <Route path="/user-dashboard" element={<SimpleUserDashboard />} />
                             <Route path="/user/dashboard" element={<RequireAuth><UserDashboard /></RequireAuth>} />
+                            <Route path="/user/library" element={<RequireRole allowed={["boss_owner", "super_admin", "client", "user", "franchise", "reseller"]}><MMFullLayout /></RequireRole>} />
+                            <Route path="/user/orders" element={<RequireRole allowed={["boss_owner", "super_admin", "client", "user", "franchise", "reseller"]}><MMFullLayout /></RequireRole>} />
+                            <Route path="/user/licenses" element={<RequireAuth><UserDashboard /></RequireAuth>} />
                             <Route path="/demo-login" element={<DemoLogin />} />
                             <Route path="/premium-demos" element={<PremiumDemoShowcase />} />
                             <Route path="/client-portal" element={<ClientPortal />} />
@@ -507,6 +521,9 @@ const App = memo(() => (
 
                             {/* Boss Panel Route */}
                             <Route path="/boss-panel/*" element={<RequireRole allowed={["boss_owner"]}><BossPanel /></RequireRole>} />
+                            <Route path="/boss/marketplace" element={<RequireRole allowed={["boss_owner", "super_admin"]}><BossPanel /></RequireRole>} />
+                            <Route path="/boss/marketplace/products" element={<RequireRole allowed={["boss_owner", "super_admin"]}><BossPanel /></RequireRole>} />
+                            <Route path="/boss/marketplace/banners" element={<RequireRole allowed={["boss_owner", "super_admin"]}><BossPanel /></RequireRole>} />
 
                             {/* Owner Dashboard */}
                             <Route path="/owner" element={<RequireRole allowed={["boss_owner"]}><SoftwareWalaOwnerDashboard /></RequireRole>} />
