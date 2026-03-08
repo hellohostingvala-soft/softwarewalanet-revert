@@ -426,6 +426,7 @@ const RoleSwitchDashboard = () => {
   
   // Default accent color for timer
   const timerAccentColor = 'text-primary';
+  const shouldUseBossPanel = activeRole === 'boss_owner' && activeNav === 'dashboard' && !selectedSubItem;
 
   if (loading || !initialized) {
     return (
