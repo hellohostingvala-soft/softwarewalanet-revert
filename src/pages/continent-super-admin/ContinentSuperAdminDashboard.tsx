@@ -88,7 +88,13 @@ const sidebarSections: SidebarSection[] = [
   },
 ];
 
-const ContinentSuperAdminDashboard = () => {
+interface ContinentDashboardProps {
+  continentId?: string;
+  continentName?: string;
+  onBack?: () => void;
+}
+
+const ContinentSuperAdminDashboard = ({ continentId, continentName, onBack }: ContinentDashboardProps = {}) => {
   const [activeView, setActiveView] = useState<ViewType>('overview');
   const [sessionTime, setSessionTime] = useState('00:00');
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
