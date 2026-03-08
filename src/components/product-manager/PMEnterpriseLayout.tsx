@@ -92,6 +92,7 @@ type PMSection =
   | 'activity'
   | 'settings'
   | 'add-product'
+  | 'client-deploy'
   | 'dev-studio';
 
 interface PMEnterpriseLayoutProps {
