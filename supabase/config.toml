@@ -119,3 +119,9 @@ verify_jwt = false
 
 [functions.vala-continuous-builder]
 verify_jwt = false
+
+[functions.dev-ai-chat]
+verify_jwt = false
+
+[functions.dev-code-review]
+verify_jwt = false
