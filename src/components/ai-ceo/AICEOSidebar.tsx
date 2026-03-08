@@ -19,7 +19,9 @@ import {
   Cpu,
   ScanSearch,
   ListTodo,
-  Megaphone
+  Megaphone,
+  Globe,
+  Handshake
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -33,6 +35,8 @@ const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/ai-ceo" },
   { id: "live-monitor", label: "Live Action Monitor", icon: Activity, path: "/ai-ceo/live-monitor" },
   { id: "voice-commands", label: "Voice Command Center", icon: Mic, path: "/ai-ceo/voice-commands" },
+  { id: "language", label: "Language Intelligence", icon: Globe, path: "/ai-ceo/language" },
+  { id: "sales", label: "Sales Intelligence", icon: Handshake, path: "/ai-ceo/sales" },
   { id: "ai-providers", label: "AI Providers Hub", icon: Cpu, path: "/ai-ceo/ai-providers" },
   { id: "project-scanner", label: "Project Scanner", icon: ScanSearch, path: "/ai-ceo/project-scanner" },
   { id: "task-engine", label: "Autonomous Tasks", icon: ListTodo, path: "/ai-ceo/task-engine" },
