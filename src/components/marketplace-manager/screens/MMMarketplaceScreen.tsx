@@ -882,7 +882,61 @@ function ProductDetailDialog({ product, open, onClose, onDemo, onBuy, isFav, onF
               {product.category && <Badge variant="outline" className="border-cyan-500/50 text-cyan-400">{product.category}</Badge>}
               {product.tech_stack && <Badge variant="outline" className="border-purple-500/50 text-purple-400">{product.tech_stack}</Badge>}
               {product.product_type && <Badge variant="outline" className="border-slate-600 text-slate-400">{product.product_type}</Badge>}
+              {product.repo_language && <Badge variant="outline" className="border-amber-500/50 text-amber-400">{product.repo_language}</Badge>}
+              {product.github_repo_url && <Badge variant="outline" className="border-emerald-500/50 text-emerald-400"><Github className="w-3 h-3 mr-1" /> Repo Connected</Badge>}
             </div>
+
+            {/* GitHub Repository & Demo Connection */}
+            {(product.github_repo_url || product.demo_url) && (
+              <div className="bg-slate-800/70 rounded-lg p-4 border border-slate-700/50">
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                  <GitCommit className="w-4 h-4 text-cyan-400" />
+                  Repository & Demo Connection
+                </h3>
+                <div className="space-y-2">
+                  {product.github_repo_url && (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Github className="w-4 h-4 text-slate-400" />
+                        <span className="text-xs text-slate-400">GitHub Repository</span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-xs text-cyan-400 hover:text-cyan-300"
+                        onClick={() => window.open(product.github_repo_url!, '_blank')}
+                      >
+                        <ExternalLink className="w-3 h-3 mr-1" /> View Repo
+                      </Button>
+                    </div>
+                  )}
+                  {product.demo_url && (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Play className="w-4 h-4 text-emerald-400" />
+                        <span className="text-xs text-slate-400">Live Demo</span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-xs text-emerald-400 hover:text-emerald-300"
+                        onClick={() => window.open(product.demo_url!, '_blank')}
+                      >
+                        <ExternalLink className="w-3 h-3 mr-1" /> Open Demo
+                      </Button>
+                    </div>
+                  )}
+                  {product.last_repo_sync_at && (
+                    <div className="flex items-center gap-2 pt-1 border-t border-slate-700/50">
+                      <RefreshCw className="w-3 h-3 text-slate-500" />
+                      <span className="text-[10px] text-slate-500">
+                        Last synced: {new Date(product.last_repo_sync_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div>
               <h3 className="text-sm font-semibold mb-1">Description</h3>
