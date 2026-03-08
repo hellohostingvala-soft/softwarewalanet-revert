@@ -33,6 +33,8 @@ import InfluencerCampaignHub from '@/components/influencer/InfluencerCampaignHub
 import SimpleShareCenter from '@/components/influencer/SimpleShareCenter';
 import InfluencerStatusBanner from '@/components/influencer/InfluencerStatusBanner';
 import InfluencerIDCard from '@/components/influencer/InfluencerIDCard';
+import InfluencerRateChart from '@/components/influencer/InfluencerRateChart';
+import AIBrandedPostGenerator from '@/components/influencer/AIBrandedPostGenerator';
 
 const menuItems = [
   { id: 'share', label: '🔗 Share & Earn', icon: Share2, highlight: true },
