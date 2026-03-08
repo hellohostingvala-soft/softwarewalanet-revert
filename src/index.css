@@ -193,9 +193,17 @@
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 243 60% 60%;
     --sidebar-ring: 0 0% 100%;
-  }
-}
 
+    /* Dark Surface Colors */
+    --surface-1: 224 50% 12%;
+    --surface-2: 224 50% 15%;
+    --surface-3: 224 50% 18%;
+    --surface-elevated: 224 50% 14%;
+
+    /* Dark Glass */
+    --glass-bg: 224 71% 11% / 0.8;
+    --glass-border: 224 50% 30% / 0.3;
+  }
 @layer base {
   * {
     @apply border-border;
