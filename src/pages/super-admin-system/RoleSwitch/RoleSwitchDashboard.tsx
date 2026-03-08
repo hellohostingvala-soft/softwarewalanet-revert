@@ -347,13 +347,7 @@ const RoleSwitchDashboard = () => {
       debug('requestedRole change', { requestedRole, userRole, isBossOwner, url: window.location.href });
       prevRequestedRoleRef.current = requestedRole;
 
-      const shouldStartInControlPanel = requestedRole === 'boss_owner';
-
-      if (shouldStartInControlPanel) {
-        setActiveRole(null);
-        setActiveNav("dashboard");
-        setSelectedSubItem(undefined);
-      } else if (canAccessView(requestedRole)) {
+      if (canAccessView(requestedRole)) {
         setActiveRole(requestedRole);
         setActiveNav("dashboard");
         setSelectedSubItem(undefined);
