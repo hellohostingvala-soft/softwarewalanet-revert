@@ -4266,6 +4266,48 @@ export type Database = {
         }
         Relationships: []
       }
+      country_daily_offers: {
+        Row: {
+          country_code: string
+          country_name: string
+          created_at: string | null
+          day: number
+          discount_percentage: number
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          month: number
+          national_day_name: string
+          offer_price: number
+        }
+        Insert: {
+          country_code: string
+          country_name: string
+          created_at?: string | null
+          day: number
+          discount_percentage?: number
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          month: number
+          national_day_name: string
+          offer_price?: number
+        }
+        Update: {
+          country_code?: string
+          country_name?: string
+          created_at?: string | null
+          day?: number
+          discount_percentage?: number
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          month?: number
+          national_day_name?: string
+          offer_price?: number
+        }
+        Relationships: []
+      }
       crm_customers: {
         Row: {
           address: string | null
