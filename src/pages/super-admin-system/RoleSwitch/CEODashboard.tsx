@@ -29,6 +29,7 @@ import {
 } from "@/components/aira/AIRACharts";
 import { AIRASystemScanner, ScanReport } from "@/components/aira/AIRASystemScanner";
 import AIRAChatInterface from "@/components/aira/AIRAChatInterface";
+import AIRAReports from "@/components/aira/AIRAReports";
 
 interface CEODashboardProps {
   activeNav?: string;
@@ -90,6 +91,7 @@ const CEODashboard = ({ activeNav }: CEODashboardProps) => {
   const sections = [
     { id: "scanner", label: "System Scanner", icon: ScanLine },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
+    { id: "reports", label: "Reports", icon: FileText },
     { id: "chat", label: "AIRA Chat", icon: Bot },
     { id: "insights", label: "AI Insights", icon: Brain },
     { id: "approvals", label: "Approvals", icon: FileText },
@@ -374,6 +376,13 @@ const CEODashboard = ({ activeNav }: CEODashboardProps) => {
                 </CardContent>
               </Card>
             </div>
+          </motion.div>
+        )}
+
+        {/* ─── REPORTS ─────────────────────────────────────── */}
+        {activeSection === "reports" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <AIRAReports />
           </motion.div>
         )}
 
