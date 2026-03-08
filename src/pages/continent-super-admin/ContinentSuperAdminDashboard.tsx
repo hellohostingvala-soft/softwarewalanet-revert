@@ -164,7 +164,7 @@ const ContinentSuperAdminDashboard = ({ continentId, continentName, onBack }: Co
               <Zap className="w-4 h-4 text-white" />
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[#1c1e21] text-base font-semibold">Business Manager</span>
+              <span className="text-[#1c1e21] text-base font-semibold">{continentName || 'Business Manager'}</span>
               <ChevronDown className="w-3.5 h-3.5 text-[#65676b]" />
             </div>
           </div>
