@@ -326,6 +326,13 @@ const CEODashboard = ({ activeNav }: CEODashboardProps) => {
           </motion.div>
         )}
 
+        {/* ─── AIRA CHAT ──────────────────────────────────── */}
+        {activeSection === "chat" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <AIRAChatInterface />
+          </motion.div>
+        )}
+
         {/* ─── AI INSIGHTS ──────────────────────────────────── */}
         {activeSection === "insights" && (
           <motion.div
