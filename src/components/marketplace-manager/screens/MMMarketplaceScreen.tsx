@@ -895,14 +895,7 @@ function ProductCard({ product, isFav, onView, onDemo, onBuy, onFav, discountedP
         <h4 className="text-sm font-medium truncate">{product.product_name}</h4>
         <p className="text-xs text-slate-500 truncate mt-0.5">{product.description || 'Enterprise software'}</p>
         <div className="flex items-center justify-between mt-2">
-          {product.monthly_price ? (
-            <div className="flex items-center gap-1.5">
-              <span className="text-[10px] text-slate-600 line-through">₹{product.monthly_price}</span>
-              <span className="text-sm font-bold text-cyan-400">₹{discountedPrice(product.monthly_price)}</span>
-            </div>
-          ) : (
-            <span className="text-xs text-slate-500">Contact Sales</span>
-          )}
+          <span className="text-sm font-bold text-cyan-400">$249</span>
           <div className="flex items-center gap-0.5">
             <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
             <span className="text-[10px] text-slate-400">4.8</span>
