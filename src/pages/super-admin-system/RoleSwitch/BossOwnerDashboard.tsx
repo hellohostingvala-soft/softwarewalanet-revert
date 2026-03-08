@@ -220,6 +220,37 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
           }));
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'system_events',
+          filter: 'status=eq.PENDING',
+        },
+        (payload) => {
+          const event = payload.new as any;
+          const trackedEvents = new Set([
+            'reseller_request',
+            'franchise_request',
+            'developer_request',
+            'job_apply',
+            'support_request',
+            'enquiry',
+            'marketplace_order_placed',
+          ]);
+
+          if (!trackedEvents.has(String(event?.event_type || ''))) return;
+
+          const meta = (event?.payload && typeof event.payload === 'object') ? event.payload : {};
+          const label = String((meta as any).request_label || (meta as any).product_name || event.event_type || 'New request');
+
+          toast.success('🔔 Marketplace / Apply action received', {
+            description: label,
+            duration: 10000,
+          });
+        }
+      )
       .subscribe((status) => {
         console.log('Realtime subscription status:', status);
       });
