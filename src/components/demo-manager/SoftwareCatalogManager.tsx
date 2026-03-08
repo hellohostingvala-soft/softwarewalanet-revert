@@ -63,6 +63,7 @@ interface ImportStats {
   total: number;
   imported: number;
   failed: number;
+  categories?: Record<string, number>;
 }
 
 const TYPES = ["All", "SaaS", "Desktop", "Mobile", "Offline", "Hybrid"];
@@ -71,7 +72,9 @@ const CATEGORIES = [
   "E-Commerce", "POS", "CRM", "HRM", "ERP", "Real Estate", "Logistics",
   "Inventory", "Project Management", "Fitness", "Events", "Lending",
   "Insurance", "Manufacturing", "Automotive", "Beauty/Salon", "Library",
-  "Subscription", "General"
+  "Subscription", "Social Media", "Security", "Agriculture", "Legal",
+  "NGO/Charity", "Telecom", "Media", "Jewellery", "Laundry", "Parking",
+  "Utility", "Gaming", "AI/ML", "DevOps", "Analytics", "Communication", "General"
 ];
 
 interface TypeStats {
