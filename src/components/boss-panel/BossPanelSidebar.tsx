@@ -3,11 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, Activity, Users, Shield, Boxes, Package,
   DollarSign, FileSearch, Lock, Settings, ChevronDown, ChevronLeft,
-  Server, Brain, Store, Zap, BarChart3, FileText, Bell,
+  Server, Store, Zap, BarChart3, FileText, Bell,
   TrendingUp, Network, Briefcase, Globe, MapPin, Scale,
   UserCircle, Megaphone, Search, HeartHandshake, ShoppingCart,
   Key, Rocket, LineChart, Link2, ScrollText, UserCog,
-  Code2, Monitor, Target, Headphones, Cpu
+  Code2, Target, Headphones, Cpu
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { BossPanelSection } from './BossPanelLayout';
