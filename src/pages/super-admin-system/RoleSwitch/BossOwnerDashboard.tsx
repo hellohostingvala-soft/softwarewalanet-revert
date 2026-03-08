@@ -206,6 +206,22 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
       )
       .on(
         'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'influencer_accounts' },
+        (payload) => {
+          console.log('New influencer application:', payload);
+          const newApp = payload.new as any;
+          toast.success(`🆕 New Influencer Application!`, {
+            description: `${newApp.name || newApp.influencer_name || 'New Influencer'} - ${newApp.platform || 'Unknown'}`,
+            duration: 10000,
+          });
+          setApprovals(prev => ({
+            ...prev,
+            influencers: [{ ...newApp, auto_approve_eligible: newApp.payment_status === 'paid' }, ...prev.influencers]
+          }));
+        }
+      )
+      .on(
+        'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
