@@ -137,10 +137,18 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
           .eq('status', 'pending')
           .limit(50);
 
-        const [resellerRes, franchiseRes, influencerRes] = await Promise.all([
+        const jobQuery = (supabase as any)
+          .from('job_applications')
+          .select('*')
+          .eq('status', 'pending')
+          .order('created_at', { ascending: false })
+          .limit(50);
+
+        const [resellerRes, franchiseRes, influencerRes, jobRes] = await Promise.all([
           resellerQuery,
           franchiseQuery,
           influencerQuery,
+          jobQuery,
         ]);
         
         // Add auto_approve_eligible flag to each application
@@ -152,13 +160,15 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
         console.log('All pending approvals fetched:', {
           resellers: resellerRes.data?.length || 0,
           franchises: franchiseRes.data?.length || 0,
-          influencers: influencerRes.data?.length || 0
+          influencers: influencerRes.data?.length || 0,
+          jobApplications: jobRes.data?.length || 0,
         });
         
         setApprovals({
           resellers: processApprovals((resellerRes.data as any[]) || []),
           franchises: processApprovals((franchiseRes.data as any[]) || []),
           influencers: processApprovals((influencerRes.data as any[]) || []),
+          jobApplications: (jobRes.data as any[]) || [],
         });
       } catch (e) {
         console.error('Error fetching approvals:', e);
