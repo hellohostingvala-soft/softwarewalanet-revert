@@ -3330,12 +3330,13 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
   const [heroIndex, setHeroIndex] = useState(0);
+  const [bannerColorIdx, setBannerColorIdx] = useState(getBannerColorIndex());
   const geoLocale = useGeoLocale();
   const festivalBanner = useFestivalBanner(geoLocale.country);
 
   // Auto-rotate hero every 6s
   useEffect(() => {
-    const activeDemos = allDemos.filter(d => d.status === 'ACTIVE');
+    const activeDemos = mergedDemos.filter(d => d.status === 'ACTIVE');
     if (activeDemos.length <= 1) return;
     const timer = setInterval(() => {
       setHeroIndex(prev => (prev + 1) % Math.min(activeDemos.length, 8));
@@ -3343,15 +3344,18 @@ const Index = () => {
     return () => clearInterval(timer);
   }, []);
 
-  /** Convert INR price string to local currency */
-  const localPrice = (inrStr: string) => {
-    if (geoLocale.currency === 'INR') return inrStr;
-    const num = parseINRPrice(inrStr);
-    if (!num) return inrStr;
-    return convertPrice(num, geoLocale.exchangeRate, geoLocale.currencySymbol);
-  };
+  // Rotate banner color every 30 minutes
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setBannerColorIdx(getBannerColorIndex());
+    }, 60000); // check every minute
+    return () => clearInterval(timer);
+  }, []);
 
-  const filteredDemos = allDemos.filter(demo => {
+  /** All prices are $249 fixed */
+  const localPrice = (priceStr: string) => priceStr;
+
+  const filteredDemos = mergedDemos.filter(demo => {
     const matchesCategory = activeCategory === "All" || demo.masterCategory === activeCategory;
     const matchesSearch = demo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           demo.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
