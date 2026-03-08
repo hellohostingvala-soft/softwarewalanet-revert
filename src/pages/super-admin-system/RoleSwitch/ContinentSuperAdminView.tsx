@@ -47,6 +47,7 @@ import ContinentDashboard from "@/components/super-admin-wireframe/ContinentDash
 import { ContinentSuperAdminDashboard, getContinentConfig, CONTINENT_CONFIGS } from "@/components/continent-dashboard";
 import GlobalContinentDashboard from "@/components/continent-dashboard/GlobalContinentDashboard";
 import MetaContinentDashboard from "@/pages/continent-super-admin/ContinentSuperAdminDashboard";
+import GlobalCommandCenter from "@/pages/continent-super-admin/views/GlobalCommandCenter";
 
 // Country data for each continent
 const continentCountries: Record<string, { name: string; admin: string; status: string }[]> = {
