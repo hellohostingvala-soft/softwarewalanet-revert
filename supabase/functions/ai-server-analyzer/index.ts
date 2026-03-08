@@ -224,7 +224,7 @@ Provide health analysis in JSON format:
 - recommendations: string[] (optimization suggestions)
 - resourceOptimization: { cpu: string, memory: string, disk: string }`;
 
-  if (!LOVABLE_API_KEY) {
+  if (!OPENAI_API_KEY) {
     // Calculate basic health score without AI
     const healthScore = Math.round(
       (100 - server.cpu_usage) * 0.3 +
