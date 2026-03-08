@@ -395,7 +395,7 @@ export const MMMarketplaceScreen = () => {
         ) : (
           <>
             {featuredProducts.length > 0 && (
-              <HeroBanner product={featuredProducts[0]} onDemo={handleDemo} onBuy={handleBuy} discountedPrice={discountedPrice} />
+              <HeroBanner products={featuredProducts} onDemo={handleDemo} onBuy={handleBuy} onView={handleProductView} discountedPrice={discountedPrice} />
             )}
 
             <ProductRow
