@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useGeoLocale, convertPrice, parseINRPrice } from "@/hooks/useGeoLocale";
 import { useFestivalBanner } from "@/hooks/useFestivalBanner";
 import { useEnterpriseAudit } from "@/hooks/useEnterpriseAudit";
+import { allMarketplaceProducts, totalProductCount } from "@/data/marketplace";
 import {
   Play, Heart, ShoppingCart, Filter, Search, Bell, ChevronLeft, ChevronRight,
   GraduationCap, Stethoscope, Utensils, Hotel, Home, Car, Plane,
@@ -3203,6 +3204,39 @@ const allDemos: Demo[] = [
   }
 ];
 
+// Merge old demos with new marketplace products (deduplicate by masterCategory match)
+const mergedDemos: Demo[] = [
+  ...allDemos,
+  ...allMarketplaceProducts
+    .filter(mp => !allDemos.some(d => d.id === mp.id))
+    .map(mp => ({
+      ...mp,
+      url: mp.url,
+      icon: mp.icon,
+      price: "$249",
+      discountPrice: "$249",
+    }))
+];
+
+// ===== ROTATING BANNER COLORS (changes every 30 min) =====
+const BANNER_COLORS = [
+  "from-red-600 to-orange-500",
+  "from-purple-600 to-pink-500",
+  "from-blue-600 to-cyan-500",
+  "from-green-600 to-emerald-500",
+  "from-amber-600 to-yellow-500",
+  "from-rose-600 to-red-500",
+  "from-indigo-600 to-violet-500",
+  "from-teal-600 to-green-500",
+  "from-fuchsia-600 to-pink-500",
+  "from-cyan-600 to-blue-500",
+];
+
+const getBannerColorIndex = () => {
+  const mins = Math.floor(Date.now() / (30 * 60 * 1000));
+  return mins % BANNER_COLORS.length;
+};
+
 // ===== 50 NETFLIX ROWS =====
 interface NetflixRow {
   id: number;
@@ -3296,12 +3330,13 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
   const [heroIndex, setHeroIndex] = useState(0);
+  const [bannerColorIdx, setBannerColorIdx] = useState(getBannerColorIndex());
   const geoLocale = useGeoLocale();
   const festivalBanner = useFestivalBanner(geoLocale.country);
 
   // Auto-rotate hero every 6s
   useEffect(() => {
-    const activeDemos = allDemos.filter(d => d.status === 'ACTIVE');
+    const activeDemos = mergedDemos.filter(d => d.status === 'ACTIVE');
     if (activeDemos.length <= 1) return;
     const timer = setInterval(() => {
       setHeroIndex(prev => (prev + 1) % Math.min(activeDemos.length, 8));
@@ -3309,15 +3344,18 @@ const Index = () => {
     return () => clearInterval(timer);
   }, []);
 
-  /** Convert INR price string to local currency */
-  const localPrice = (inrStr: string) => {
-    if (geoLocale.currency === 'INR') return inrStr;
-    const num = parseINRPrice(inrStr);
-    if (!num) return inrStr;
-    return convertPrice(num, geoLocale.exchangeRate, geoLocale.currencySymbol);
-  };
+  // Rotate banner color every 30 minutes
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setBannerColorIdx(getBannerColorIndex());
+    }, 60000); // check every minute
+    return () => clearInterval(timer);
+  }, []);
 
-  const filteredDemos = allDemos.filter(demo => {
+  /** All prices are $249 fixed */
+  const localPrice = (priceStr: string) => priceStr;
+
+  const filteredDemos = mergedDemos.filter(demo => {
     const matchesCategory = activeCategory === "All" || demo.masterCategory === activeCategory;
     const matchesSearch = demo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           demo.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -3331,8 +3369,8 @@ const Index = () => {
 
   // Count demos per master category
   const getCategoryCount = (category: string) => {
-    if (category === "All") return allDemos.length;
-    return allDemos.filter(d => d.masterCategory === category).length;
+    if (category === "All") return mergedDemos.length;
+    return mergedDemos.filter(d => d.masterCategory === category).length;
   };
 
   return (
@@ -3370,11 +3408,16 @@ const Index = () => {
               </Button>
               {/* Pricing Badge */}
               <Badge className="bg-white text-green-600 font-bold text-sm px-3 py-1.5 animate-pulse">
-                💰 $249 Lifetime
+                💰 $249 Lifetime • Source Code Included
               </Badge>
               <Badge className="bg-white/20 text-white border-0 text-xs px-3 py-1.5">
-                🎉 40% OFF
+                🎉 No Hidden Charges
               </Badge>
+              {festivalBanner && (
+                <Badge className={`bg-gradient-to-r ${BANNER_COLORS[bannerColorIdx]} text-white border-0 text-xs px-3 py-1.5 font-bold animate-pulse`}>
+                  🔥 Festival Week: ALL Software $99 for 7 Days!
+                </Badge>
+              )}
               {/* Login Button - For regular users */}
               <Button asChild className="bg-white text-orange-600 hover:bg-white/90 font-bold gap-2">
                 <Link to="/auth">
@@ -3399,7 +3442,7 @@ const Index = () => {
 
       {/* ===== NETFLIX HERO — Featured Product with Cinematic Visual ===== */}
       {(() => {
-        const activeDemos = allDemos.filter(d => d.status === 'ACTIVE');
+        const activeDemos = mergedDemos.filter(d => d.status === 'ACTIVE');
         const heroDemo = activeDemos[heroIndex % activeDemos.length];
         if (!heroDemo) return null;
         const HeroIcon = heroDemo.icon;
@@ -3501,7 +3544,7 @@ const Index = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className={`relative rounded-xl overflow-hidden bg-gradient-to-r ${festivalBanner.gradient} p-6 md:p-8`}
+              className={`relative rounded-xl overflow-hidden bg-gradient-to-r ${BANNER_COLORS[bannerColorIdx]} p-6 md:p-8`}
             >
               <div className="absolute inset-0 bg-black/20" />
               <div className="absolute top-0 right-8 opacity-10 text-[80px]">{festivalBanner.emoji}</div>
@@ -3509,12 +3552,17 @@ const Index = () => {
                 <div>
                   <h3 className="text-2xl font-extrabold text-white">{festivalBanner.title}</h3>
                   <p className="text-white/80 text-sm">{festivalBanner.subtitle}</p>
+                  <p className="text-white font-bold text-lg mt-2">🔥 Festival Special: ALL Software just $99 for 7 Days!</p>
+                  <p className="text-white/70 text-xs mt-1">$249 Lifetime with Full Source Code • No Hidden Charges • No Advance</p>
                 </div>
-                {festivalBanner.offer && (
-                  <Badge className="bg-white/20 text-white border-white/30 text-lg px-5 py-2 font-bold backdrop-blur-sm">
-                    {festivalBanner.offer}
+                <div className="flex flex-col items-center gap-2">
+                  <Badge className="bg-white text-green-600 border-0 text-2xl px-6 py-3 font-extrabold">
+                    $99 / 7 Days
                   </Badge>
-                )}
+                  <Badge className="bg-white/20 text-white border-white/30 text-sm px-4 py-1.5 font-bold backdrop-blur-sm">
+                    Regular: $249 Lifetime
+                  </Badge>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -3525,7 +3573,7 @@ const Index = () => {
       <section className="pb-12 px-4 md:px-12 space-y-10">
         <div className="max-w-[1400px] mx-auto space-y-10">
           {NETFLIX_ROWS.map(row => {
-            const rowDemos = allDemos.filter(row.filter);
+            const rowDemos = mergedDemos.filter(row.filter);
             const displayDemos = row.type === 'special' ? rowDemos.slice(0, 20) : rowDemos;
             const isEmpty = displayDemos.length === 0;
 
@@ -3548,7 +3596,7 @@ const Index = () => {
       <footer className="bg-[#060d18] border-t border-white/5 py-8 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <p className="text-slate-600 text-sm">© 2024 Software Vala - The Name of Trust</p>
-          <p className="text-slate-700 text-xs mt-1">20 Categories • 147 Software • 20 Live Demos</p>
+          <p className="text-slate-700 text-xs mt-1">50 Categories • {mergedDemos.length}+ Software • $249 Lifetime • Source Code Included</p>
         </div>
       </footer>
     </div>
