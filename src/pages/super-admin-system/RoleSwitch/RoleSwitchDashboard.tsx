@@ -617,7 +617,7 @@ const RoleSwitchDashboard = () => {
         {/* MAIN CONTENT */}
         <main className={cn(
           "flex-1 overflow-auto transition-all duration-300",
-          shouldShowGlobalSidebar && !collapsed && "ml-0"
+          shouldShowGlobalSidebar && "ml-[320px]"
         )}>
           <ErrorBoundary>
             {renderRoleView()}
