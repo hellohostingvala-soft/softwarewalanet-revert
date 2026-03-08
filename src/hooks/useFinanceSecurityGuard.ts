@@ -211,7 +211,7 @@ export function useFinanceSecurityGuard() {
     if (!user) return null;
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('approvals')
         .insert({
           request_type: actionType,
