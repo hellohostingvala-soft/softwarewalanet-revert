@@ -9632,6 +9632,57 @@ export type Database = {
         }
         Relationships: []
       }
+      job_applications: {
+        Row: {
+          application_type: string
+          created_at: string
+          email: string
+          experience: string | null
+          id: string
+          ip_address: string | null
+          message: string | null
+          name: string
+          phone: string | null
+          portfolio: string | null
+          status: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          application_type?: string
+          created_at?: string
+          email: string
+          experience?: string | null
+          id?: string
+          ip_address?: string | null
+          message?: string | null
+          name: string
+          phone?: string | null
+          portfolio?: string | null
+          status?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          application_type?: string
+          created_at?: string
+          email?: string
+          experience?: string | null
+          id?: string
+          ip_address?: string | null
+          message?: string | null
+          name?: string
+          phone?: string | null
+          portfolio?: string | null
+          status?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       job_execution_logs: {
         Row: {
           completed_at: string | null
