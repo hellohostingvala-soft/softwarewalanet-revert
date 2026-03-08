@@ -155,54 +155,74 @@
     --glass-bg: 0 0% 100% / 0.9;
     --glass-border: 0 0% 100% / 0.2;
   }
-  /* Dark Mode - Premium Dark */
+  /* ========================================
+     Dark Mode - Software Vala Premium
+     Royal Blue (#1A4FA0) + White + Red (#E63946)
+     Layered depth surfaces, metallic feel
+     ======================================== */
   .dark {
-    --background: 224 71% 8%;
-    --foreground: 220 20% 98%;
+    --background: 222 55% 7%;
+    --foreground: 210 40% 98%;
 
-    --card: 224 71% 11%;
-    --card-foreground: 220 20% 98%;
+    --card: 222 50% 10%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 224 71% 11%;
-    --popover-foreground: 220 20% 98%;
+    --popover: 222 50% 10%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 243 75% 65%;
+    /* Primary - Software Vala Royal Blue */
+    --primary: 217 72% 36%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 224 50% 15%;
-    --secondary-foreground: 220 20% 98%;
+    /* Secondary - Deep Navy Layer */
+    --secondary: 222 45% 14%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 224 50% 15%;
-    --muted-foreground: 220 14% 60%;
+    /* Muted - Steel Blue Gray */
+    --muted: 222 30% 16%;
+    --muted-foreground: 215 20% 55%;
 
-    --accent: 258 90% 70%;
+    /* Accent - Software Vala Red */
+    --accent: 355 78% 55%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 63% 50%;
-    --destructive-foreground: 220 20% 98%;
+    /* Destructive - Clean Red */
+    --destructive: 355 78% 50%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 224 50% 18%;
-    --input: 224 50% 18%;
-    --ring: 243 75% 65%;
+    /* Borders & Inputs - Layered depth */
+    --border: 217 35% 20%;
+    --input: 217 35% 20%;
+    --ring: 217 72% 36%;
 
-    --sidebar-background: 243 75% 55%;
+    /* Sidebar - Deep Royal Blue */
+    --sidebar-background: 217 72% 30%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 243 75% 55%;
-    --sidebar-accent: 243 75% 45%;
+    --sidebar-primary-foreground: 217 72% 30%;
+    --sidebar-accent: 217 72% 25%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 243 60% 60%;
+    --sidebar-border: 217 50% 35%;
     --sidebar-ring: 0 0% 100%;
 
-    /* Dark Surface Colors */
-    --surface-1: 224 50% 12%;
-    --surface-2: 224 50% 15%;
-    --surface-3: 224 50% 18%;
-    --surface-elevated: 224 50% 14%;
+    /* Dark Surface Colors - Layered Depth (like reference image) */
+    --surface-1: 222 45% 10%;
+    --surface-2: 222 40% 13%;
+    --surface-3: 222 35% 17%;
+    --surface-elevated: 222 45% 12%;
 
     /* Dark Glass */
-    --glass-bg: 224 71% 11% / 0.8;
-    --glass-border: 224 50% 30% / 0.3;
+    --glass-bg: 222 55% 9% / 0.85;
+    --glass-border: 217 40% 28% / 0.4;
+
+    /* Software Vala Brand Tokens */
+    --sv-royal: 217 72% 36%;
+    --sv-royal-light: 217 65% 50%;
+    --sv-royal-glow: 217 72% 36% / 0.25;
+    --sv-red: 355 78% 55%;
+    --sv-red-glow: 355 78% 55% / 0.2;
+    --sv-white: 0 0% 100%;
+    --sv-white-muted: 210 25% 85%;
   }
 }
 
