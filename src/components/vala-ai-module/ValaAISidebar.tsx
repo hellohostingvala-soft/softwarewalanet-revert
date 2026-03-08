@@ -46,6 +46,7 @@ interface ValaAISidebarProps {
 
 const sidebarItems: { id: ValaAISection; label: string; icon: React.ElementType; badge?: string }[] = [
   { id: 'command-center', label: 'Command Center', icon: Terminal, badge: 'CORE' },
+  { id: 'continuous-creation', label: 'Auto Builder', icon: InfinityIcon, badge: 'AUTO' },
   { id: 'active-project', label: 'Active Project', icon: FolderOpen },
   { id: 'prompt-history', label: 'Prompt History', icon: History, badge: 'Read-Only' },
   { id: 'execution-logs', label: 'Execution Logs', icon: LogsIcon },
