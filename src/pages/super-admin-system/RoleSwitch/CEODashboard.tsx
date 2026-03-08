@@ -90,6 +90,7 @@ const CEODashboard = ({ activeNav }: CEODashboardProps) => {
   const sections = [
     { id: "scanner", label: "System Scanner", icon: ScanLine },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
+    { id: "chat", label: "AIRA Chat", icon: Bot },
     { id: "insights", label: "AI Insights", icon: Brain },
     { id: "approvals", label: "Approvals", icon: FileText },
     { id: "risks", label: "Risk Radar", icon: AlertTriangle },
