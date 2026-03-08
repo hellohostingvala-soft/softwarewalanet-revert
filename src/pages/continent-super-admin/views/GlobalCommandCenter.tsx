@@ -275,16 +275,40 @@ const GlobalCommandCenter = ({ onSelectContinent }: GlobalCommandCenterProps) =>
                 }
               </Geographies>
 
-              {/* Data Flow Lines */}
+              {/* Animated Data Flow Lines with Moving Dots */}
               {dataFlowLines.map((line, i) => (
-                <Line
-                  key={`flow-${i}`}
-                  from={line.from as [number, number]}
-                  to={line.to as [number, number]}
-                  stroke="hsla(220, 80%, 60%, 0.12)"
-                  strokeWidth={1}
-                  strokeDasharray="5 5"
-                />
+                <g key={`flow-${i}`}>
+                  <Line
+                    from={line.from as [number, number]}
+                    to={line.to as [number, number]}
+                    stroke="hsla(220, 80%, 60%, 0.15)"
+                    strokeWidth={1}
+                    strokeDasharray="5 5"
+                  />
+                  {/* Animated traveling dot along the line */}
+                  <Marker coordinates={line.from as [number, number]}>
+                    <circle r={2} fill="#60a5fa" opacity={0.9}>
+                      <animateMotion
+                        dur={`${3 + i * 0.5}s`}
+                        repeatCount="indefinite"
+                        path={`M0,0 L${(line.to[0] - line.from[0]) * 2},${(line.to[1] - line.from[1]) * -2}`}
+                      />
+                      <animate attributeName="opacity" values="0;1;1;0" dur={`${3 + i * 0.5}s`} repeatCount="indefinite" />
+                    </circle>
+                  </Marker>
+                  {/* Second dot, offset timing */}
+                  <Marker coordinates={line.from as [number, number]}>
+                    <circle r={1.5} fill="#93c5fd" opacity={0.7}>
+                      <animateMotion
+                        dur={`${3 + i * 0.5}s`}
+                        repeatCount="indefinite"
+                        begin={`${1.5 + i * 0.25}s`}
+                        path={`M0,0 L${(line.to[0] - line.from[0]) * 2},${(line.to[1] - line.from[1]) * -2}`}
+                      />
+                      <animate attributeName="opacity" values="0;0.8;0.8;0" dur={`${3 + i * 0.5}s`} repeatCount="indefinite" begin={`${1.5 + i * 0.25}s`} />
+                    </circle>
+                  </Marker>
+                </g>
               ))}
 
               {/* Activity Signal Points */}
