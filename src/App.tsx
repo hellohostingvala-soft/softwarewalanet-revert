@@ -568,6 +568,8 @@ const App = memo(() => (
                               <Route index element={<AICEODashboardMain />} />
                               <Route path="live-monitor" element={<AICEOLiveMonitor />} />
                               <Route path="voice-commands" element={<AIRAVoiceCommands />} />
+                              <Route path="language" element={<AIRALanguageIntelligence />} />
+                              <Route path="sales" element={<AIRASalesIntelligence />} />
                               <Route path="ai-providers" element={<AIRAProviders />} />
                               <Route path="project-scanner" element={<AIRAProjectScanner />} />
                               <Route path="task-engine" element={<AIRATaskEngine />} />
