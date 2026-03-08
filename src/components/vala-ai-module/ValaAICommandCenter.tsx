@@ -364,6 +364,18 @@ const ValaAICommandCenter: React.FC = () => {
             </Badge>
           </div>
           <div className="flex items-center gap-1">
+            {hasGeneratedContent && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-[10px] gap-1 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10"
+                onClick={() => setShowPublishDialog(true)}
+                disabled={isPublishing}
+              >
+                {isPublishing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Rocket className="w-3 h-3" />}
+                Publish
+              </Button>
+            )}
             <Button variant="ghost" size="icon" className="w-7 h-7 text-white/40 hover:text-white hover:bg-white/5" onClick={handleNewChat}>
               <Plus className="w-4 h-4" />
             </Button>
