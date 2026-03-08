@@ -46,16 +46,16 @@ export function useAIRAMetrics() {
         activityRes,
         rolesRes,
       ] = await Promise.all([
-        supabase.from('profiles').select('id', { count: 'exact', head: true }),
-        supabase.from('marketplace_orders').select('id, final_amount, created_at'),
-        supabase.from('products').select('id, category', { count: 'exact' }).eq('is_active', true),
-        supabase.from('server_instances').select('id', { count: 'exact' }).eq('status', 'running'),
-        supabase.from('approvals').select('id', { count: 'exact' }).eq('status', 'pending'),
-        supabase.from('system_alerts').select('id', { count: 'exact' }).eq('is_resolved', false),
-        supabase.from('audit_logs').select('id, module, action, role, timestamp').order('timestamp', { ascending: false }).limit(200),
-        supabase.from('activity_log').select('id, action_type, entity_type, role, severity_level, created_at').order('created_at', { ascending: false }).limit(100),
-        supabase.from('user_roles').select('role'),
-      ]);
+        supabase.from('profiles').select('id', { count: 'exact', head: true }) as any,
+        supabase.from('marketplace_orders').select('id, final_amount, created_at') as any,
+        supabase.from('products').select('id, category', { count: 'exact' }).eq('is_active', true) as any,
+        supabase.from('server_instances').select('id', { count: 'exact' }).eq('status', 'running') as any,
+        supabase.from('approvals').select('id', { count: 'exact' }).eq('status', 'pending') as any,
+        supabase.from('system_alerts').select('id', { count: 'exact' }).eq('is_resolved', false) as any,
+        supabase.from('audit_logs').select('id, module, action, role, timestamp').order('timestamp', { ascending: false }).limit(200) as any,
+        supabase.from('activity_log').select('id, action_type, entity_type, role, severity_level, created_at').order('created_at', { ascending: false }).limit(100) as any,
+        supabase.from('user_roles').select('role') as any,
+      ]) as any[];
 
       // Calculate revenue
       const orders = ordersRes.data || [];
