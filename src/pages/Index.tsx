@@ -2805,14 +2805,14 @@ const DemoCard = ({ demo, index, isFavorite, onToggleFavorite, localPrice }: {
     >
       {/* Poster Card */}
       <div className={`relative rounded-lg overflow-hidden aspect-[3/4] transition-all duration-300 ${isHovered ? 'scale-105 z-30 shadow-2xl shadow-black/80' : 'scale-100 z-0'}`}>
-        {/* Poster Visual — gradient + icon */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${demo.color}`} />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-        
-        {/* Large centered icon */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-20 group-hover:opacity-30 transition-opacity">
-          <Icon className="w-24 h-24 text-white" />
-        </div>
+        {/* Poster Visual — AI Generated Thumbnail */}
+        <img 
+          src={getThumbnail(demo)} 
+          alt={demo.name}
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
 
         {/* Status badge */}
         <div className="absolute top-2 right-2 z-10">
