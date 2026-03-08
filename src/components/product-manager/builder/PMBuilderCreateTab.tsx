@@ -336,7 +336,7 @@ const PMBuilderCreateTab = ({ onProductUpdate, onPipelineStep }: PMBuilderCreate
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
       <div className="px-4 pt-3 pb-2 border-b border-border/30">
         <div className="flex items-center gap-2">
