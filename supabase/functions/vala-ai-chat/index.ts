@@ -37,17 +37,14 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Unauthorized: Invalid or expired token" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" }, });
     }
 
-    // Fetch user role from database
-    const { data: userRole, error: roleError } = await supabase
+    // Fetch user role (fallback to generic user role if not assigned)
+    const { data: userRole } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
 
-    if (roleError || userRole?.role !== "boss_owner") {
-      clearTimeout(timeoutId);
-      return new Response(JSON.stringify({ error: "Forbidden: Requires boss_owner role" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" }, });
-    }
+    const currentRole = userRole?.role || "user";
 
     const { messages, context } = await req.json();
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");

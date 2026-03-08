@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import softwareValaLogo from '@/assets/software-vala-logo.png';
 
 type RequestStatus = 'none' | 'pending' | 'approved' | 'rejected';
