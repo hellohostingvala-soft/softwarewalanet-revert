@@ -41,17 +41,15 @@ type PartnerRequestType =
   | 'job_apply'
   | 'enquiry';
 
-const CATEGORIES = [
-  'Restaurant', 'Education', 'Healthcare', 'E-commerce', 'Hotel',
-  'Real Estate', 'Finance', 'Manufacturing', 'CRM', 'HRM',
-  'Logistics', 'Salon', 'Gym', 'Legal', 'Retail'
-];
-
 const CATEGORY_ICONS: Record<string, string> = {
-  'Restaurant': '🍽️', 'Education': '📚', 'Healthcare': '🏥', 'E-commerce': '🛒',
-  'Hotel': '🏨', 'Real Estate': '🏠', 'Finance': '💰', 'Manufacturing': '🏭',
-  'CRM': '📊', 'HRM': '👥', 'Logistics': '🚚', 'Salon': '💇', 'Gym': '💪',
-  'Legal': '⚖️', 'Retail': '🏪'
+  'Restaurant': '🍽️', 'Education': '📚', 'Healthcare': '🏥', 'E-Commerce': '🛒',
+  'E-commerce': '🛒', 'Hotel': '🏨', 'Hotel/Travel': '🏨', 'Real Estate': '🏠',
+  'Finance': '💰', 'Manufacturing': '🏭', 'CRM': '📊', 'HRM': '👥',
+  'Logistics': '🚚', 'Salon': '💇', 'Beauty/Salon': '💇', 'Gym': '💪',
+  'Fitness': '💪', 'Legal': '⚖️', 'Retail': '🏪', 'POS': '🏪',
+  'ERP': '🏢', 'Inventory': '📦', 'Insurance': '🛡️', 'Lending': '🏦',
+  'Automotive': '🚗', 'Events': '🎉', 'Library': '📖', 'General': '📦',
+  'Project Management': '📋', 'Subscription': '🔄',
 };
 
 const PARTNER_REQUEST_BUTTONS: { event: PartnerRequestType; label: string }[] = [
