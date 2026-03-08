@@ -168,9 +168,9 @@ export default function AIRAClientChat({ productId, productName, conversationTyp
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-500/25 flex items-center justify-center hover:shadow-violet-500/40 transition-shadow"
+            className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full overflow-hidden shadow-lg shadow-violet-500/25 flex items-center justify-center hover:shadow-violet-500/40 transition-shadow border-2 border-violet-500/50"
           >
-            <img src={airaAvatar} alt="AIRA" className="w-10 h-10 rounded-full object-cover" />
+            <img src={airaAvatar} alt="AIRA" className="w-full h-full object-cover" />
             <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white animate-pulse" />
           </motion.button>
         )}
