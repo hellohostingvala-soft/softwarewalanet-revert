@@ -236,7 +236,7 @@ export function BossDashboard() {
                   </p>
                   <p className="text-[9px] uppercase" style={{ color: T.dim }}>uptime</p>
                 </div>
-                <Badge status={m.status} />
+                <StatusBadge status={m.status} />
               </motion.div>
             ))}
           </div>
