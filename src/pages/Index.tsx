@@ -5,8 +5,8 @@ import { toast } from "sonner";
 import { useGeoLocale, convertPrice, parseINRPrice } from "@/hooks/useGeoLocale";
 import { useFestivalBanner } from "@/hooks/useFestivalBanner";
 import { useEnterpriseAudit } from "@/hooks/useEnterpriseAudit";
-import { 
-  Play, Heart, ShoppingCart, Filter, Search, Bell,
+import {
+  Play, Heart, ShoppingCart, Filter, Search, Bell, ChevronLeft, ChevronRight,
   GraduationCap, Stethoscope, Utensils, Hotel, Home, Car, Plane,
   CreditCard, Factory, Users, Truck, Building, BookOpen, FlaskConical,
   Phone, Pill, Package, MapPin, Star, Award, CheckCircle, Wallet, Landmark,
