@@ -355,6 +355,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) throw error;
 
+      if (data.session) {
+        setSessionStartNow();
+      }
+
       if (data.user) {
         // Boss Owner should never be blocked by allowlist rules (break-glass access)
         let isBossOwner = false;
