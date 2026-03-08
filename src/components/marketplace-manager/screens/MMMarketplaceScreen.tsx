@@ -150,6 +150,7 @@ export const MMMarketplaceScreen = () => {
           demo_build_status: item.demo_build_status || null,
           last_repo_sync_at: item.last_repo_sync_at || null,
           listing_status: item.listing_status || 'draft',
+          source: item.source || 'vala_ai',
         }));
       } else if (!fetchError) {
         // Fallback to products table
