@@ -2449,8 +2449,19 @@ const Index = () => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [heroIndex, setHeroIndex] = useState(0);
   const geoLocale = useGeoLocale();
   const festivalBanner = useFestivalBanner(geoLocale.country);
+
+  // Auto-rotate hero every 6s
+  useEffect(() => {
+    const activeDemos = allDemos.filter(d => d.status === 'ACTIVE');
+    if (activeDemos.length <= 1) return;
+    const timer = setInterval(() => {
+      setHeroIndex(prev => (prev + 1) % Math.min(activeDemos.length, 8));
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
 
   /** Convert INR price string to local currency */
   const localPrice = (inrStr: string) => {
