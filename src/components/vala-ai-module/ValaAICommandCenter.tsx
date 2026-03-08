@@ -206,6 +206,14 @@ const FileTreeItem: React.FC<{
 };
 
 // ===== MAIN COMPONENT =====
+const CATEGORIES = [
+  'Education', 'Healthcare', 'E-Commerce', 'CRM', 'ERP', 'POS', 'HRM',
+  'Finance', 'Real Estate', 'Logistics', 'Restaurant', 'Hotel/Travel',
+  'Fitness', 'Insurance', 'Automotive', 'Manufacturing', 'Subscription',
+  'Library', 'Events', 'Project Management', 'Beauty/Salon', 'Inventory',
+  'Lending', 'General',
+];
+
 const ValaAICommandCenter: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -222,6 +230,19 @@ const ValaAICommandCenter: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState('');
   const [previewHtml, setPreviewHtml] = useState('<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0f172a;color:white;font-family:system-ui;"><div style="text-align:center;"><h1 style="font-size:2rem;margin-bottom:1rem;">🚀 VALA AI Preview</h1><p style="color:rgba(255,255,255,0.6);">Your generated app will appear here</p></div></div>');
+
+  // Auto-publish state
+  const { publish, isPublishing, lastResult } = useAutoPublish();
+  const [showPublishDialog, setShowPublishDialog] = useState(false);
+  const [publishForm, setPublishForm] = useState({
+    productName: '',
+    description: '',
+    category: 'General',
+    type: 'SaaS',
+    price: 249,
+    githubRepoUrl: '',
+  });
+  const hasGeneratedContent = messages.length > 1 && messages.some(m => m.role === 'assistant' && m.content.length > 200);
   const [copied, setCopied] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
