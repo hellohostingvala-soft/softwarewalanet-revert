@@ -34,6 +34,8 @@ interface Product {
   last_repo_sync_at?: string | null;
   listing_status?: string | null;
   source?: string | null;
+  product_thumbnail_url?: string | null;
+  product_icon_url?: string | null;
 }
 
 type PartnerRequestType =
