@@ -47,6 +47,7 @@ import ContinentDashboard from "@/components/super-admin-wireframe/ContinentDash
 import { ContinentSuperAdminDashboard, getContinentConfig, CONTINENT_CONFIGS } from "@/components/continent-dashboard";
 import GlobalContinentDashboard from "@/components/continent-dashboard/GlobalContinentDashboard";
 import MetaContinentDashboard from "@/pages/continent-super-admin/ContinentSuperAdminDashboard";
+import GlobalCommandCenter from "@/pages/continent-super-admin/views/GlobalCommandCenter";
 
 // Country data for each continent
 const continentCountries: Record<string, { name: string; admin: string; status: string }[]> = {
@@ -821,8 +822,16 @@ const ContinentSuperAdminView = ({ activeNav = "dashboard", selectedSubItem }: C
     return renderRegistryView();
   }
 
-  // Default: Show the Meta Business Manager clone dashboard
-  return <MetaContinentDashboard />;
+  // Default: Show the Global Command Center with 7D World Map
+  return (
+    <GlobalCommandCenter
+      onSelectContinent={(continentId) => {
+        if (continentId !== "antarctica") {
+          setShowContinentDashboard(continentId);
+        }
+      }}
+    />
+  );
 };
 
 export default ContinentSuperAdminView;
