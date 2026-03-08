@@ -27,6 +27,7 @@ import {
   KPISparkline,
   CategoryTreemap,
 } from "@/components/aira/AIRACharts";
+import { AIRASystemScanner, ScanReport } from "@/components/aira/AIRASystemScanner";
 
 interface CEODashboardProps {
   activeNav?: string;
