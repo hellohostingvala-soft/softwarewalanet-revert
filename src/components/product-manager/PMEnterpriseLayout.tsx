@@ -23,6 +23,7 @@ import PMReports from './screens/PMReports';
 import PMSoftwareProfile from './screens/PMSoftwareProfile';
 import ValaAICommandCenter from '@/components/vala-ai-module/ValaAICommandCenter';
 import PMDeployScreen from './screens/PMDeployScreen';
+import PMClientDomains from './screens/PMClientDomains';
 
 type PMSection = 
   | 'dashboard' 
