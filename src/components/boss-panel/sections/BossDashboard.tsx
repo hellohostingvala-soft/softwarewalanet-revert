@@ -18,22 +18,22 @@ import { useBossDashboard } from '@/hooks/boss-panel/useBossDashboard';
 
 // ─── 7D ENTERPRISE DESIGN TOKENS ─────────────────────────────
 const T = {
-  // Card gradient presets
-  g1: 'linear-gradient(135deg, hsla(217, 91%, 60%, 0.12) 0%, hsla(262, 83%, 58%, 0.06) 100%)',
-  g2: 'linear-gradient(135deg, hsla(160, 84%, 39%, 0.12) 0%, hsla(172, 66%, 50%, 0.06) 100%)',
-  g3: 'linear-gradient(135deg, hsla(38, 92%, 50%, 0.12) 0%, hsla(45, 93%, 47%, 0.06) 100%)',
-  g4: 'linear-gradient(135deg, hsla(346, 77%, 49%, 0.12) 0%, hsla(330, 80%, 60%, 0.06) 100%)',
-  g5: 'linear-gradient(135deg, hsla(262, 83%, 58%, 0.12) 0%, hsla(280, 87%, 65%, 0.06) 100%)',
-  g6: 'linear-gradient(135deg, hsla(199, 89%, 48%, 0.12) 0%, hsla(187, 85%, 53%, 0.06) 100%)',
-  // Colors
-  blue: 'hsl(217, 91%, 60%)', green: 'hsl(160, 84%, 39%)', amber: 'hsl(38, 92%, 50%)',
-  red: 'hsl(346, 77%, 49%)', purple: 'hsl(262, 83%, 58%)', cyan: 'hsl(199, 89%, 48%)',
-  // Surfaces
-  glass: 'hsla(222, 47%, 13%, 0.65)',
-  glassBorder: 'hsla(215, 28%, 30%, 0.3)',
-  glassHighlight: 'hsla(215, 100%, 90%, 0.04)',
-  text: 'hsl(210, 40%, 96%)', muted: 'hsl(215, 20%, 60%)', dim: 'hsl(215, 15%, 40%)',
-  rowHover: 'hsla(217, 91%, 60%, 0.05)',
+  // Card gradient presets — deeper, richer, more dimensional
+  g1: 'linear-gradient(135deg, hsla(217, 91%, 60%, 0.18) 0%, hsla(262, 83%, 58%, 0.08) 50%, hsla(217, 91%, 60%, 0.03) 100%)',
+  g2: 'linear-gradient(135deg, hsla(160, 84%, 39%, 0.18) 0%, hsla(173, 80%, 40%, 0.08) 50%, hsla(160, 84%, 39%, 0.03) 100%)',
+  g3: 'linear-gradient(135deg, hsla(38, 92%, 50%, 0.18) 0%, hsla(45, 93%, 47%, 0.08) 50%, hsla(38, 92%, 50%, 0.03) 100%)',
+  g4: 'linear-gradient(135deg, hsla(346, 77%, 49%, 0.18) 0%, hsla(330, 80%, 60%, 0.08) 50%, hsla(346, 77%, 49%, 0.03) 100%)',
+  g5: 'linear-gradient(135deg, hsla(262, 83%, 58%, 0.18) 0%, hsla(280, 87%, 65%, 0.08) 50%, hsla(262, 83%, 58%, 0.03) 100%)',
+  g6: 'linear-gradient(135deg, hsla(199, 89%, 48%, 0.18) 0%, hsla(187, 85%, 53%, 0.08) 50%, hsla(199, 89%, 48%, 0.03) 100%)',
+  // Colors — higher saturation, brighter
+  blue: 'hsl(217, 92%, 65%)', green: 'hsl(160, 84%, 44%)', amber: 'hsl(38, 95%, 55%)',
+  red: 'hsl(346, 82%, 55%)', purple: 'hsl(262, 85%, 63%)', cyan: 'hsl(199, 90%, 55%)',
+  // Surfaces — richer glass
+  glass: 'hsla(222, 47%, 11%, 0.72)',
+  glassBorder: 'hsla(215, 40%, 35%, 0.25)',
+  glassHighlight: 'hsla(215, 100%, 90%, 0.06)',
+  text: 'hsl(210, 40%, 98%)', muted: 'hsl(215, 22%, 65%)', dim: 'hsl(215, 15%, 42%)',
+  rowHover: 'hsla(217, 91%, 60%, 0.07)',
 };
 
 const PIE_COLORS = [T.blue, T.green, T.amber, T.red, T.purple, T.cyan];
