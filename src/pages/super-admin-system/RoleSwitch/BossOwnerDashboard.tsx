@@ -616,6 +616,41 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
                 )}
               </ScrollArea>
             </div>
+
+            {/* JOB / CAREER PENDING */}
+            <div className="rounded-lg p-3" style={{ background: 'rgba(0,0,0,0.3)' }}>
+              <div className="flex items-center gap-2 mb-3 pb-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                <Briefcase size={14} className="text-white" />
+                <span className="text-xs font-semibold text-white">JOB / CAREER</span>
+                <Badge className="ml-auto text-[10px] bg-white/20 text-white">{approvals.jobApplications.length}</Badge>
+              </div>
+              <ScrollArea className="h-[200px]">
+                {approvals.jobApplications.length === 0 ? (
+                  <p className="text-xs text-center py-4 text-red-200">No job applications waiting</p>
+                ) : (
+                  <div className="space-y-2">
+                    {approvals.jobApplications.map((item: any) => (
+                      <div key={item.id} className="p-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                        <p className="text-sm font-semibold text-white">{item.name || 'Applicant'}</p>
+                        <p className="text-[10px] text-red-200">{item.application_type?.toUpperCase()} • {item.email}</p>
+                        <p className="text-[9px] text-red-300">{item.experience || 'No experience listed'} • {new Date(item.created_at).toLocaleDateString()}</p>
+                        <div className="flex gap-1 mt-2">
+                          <Button size="sm" className="h-6 px-2 text-[10px] bg-emerald-600 hover:bg-emerald-700 flex-1" onClick={() => handleApproval('job', item.id, 'approve')} disabled={processingId === item.id}>
+                            {processingId === item.id ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Approve'}
+                          </Button>
+                          <Button size="sm" className="h-6 px-2 text-[10px] bg-amber-600 hover:bg-amber-700" onClick={() => handleApproval('job', item.id, 'hold')} disabled={processingId === item.id}>
+                            Hold
+                          </Button>
+                          <Button size="sm" variant="destructive" className="h-6 px-2 text-[10px]" onClick={() => handleApproval('job', item.id, 'reject')} disabled={processingId === item.id}>
+                            Reject
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+            </div>
           </div>
         </motion.div>
       )}
