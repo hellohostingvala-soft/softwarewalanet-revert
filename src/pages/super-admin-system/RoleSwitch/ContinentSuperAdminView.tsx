@@ -91,12 +91,21 @@ const continentCountries: Record<string, { name: string; admin: string; status: 
     { name: "Colombia", admin: "Carlos Mendez", status: "active" },
     { name: "Chile", admin: "Pablo Gonzalez", status: "active" },
   ],
+  "Middle East": [
+    { name: "UAE", admin: "Ahmed Al-Rashid", status: "active" },
+    { name: "Saudi Arabia", admin: "Mohammed Al-Saud", status: "active" },
+    { name: "Qatar", admin: "Khalid Al-Thani", status: "active" },
+    { name: "Kuwait", admin: "Fahad Al-Sabah", status: "active" },
+    { name: "Bahrain", admin: "Ali Al-Khalifa", status: "active" },
+    { name: "Oman", admin: "Said Al-Busaidi", status: "active" },
+    { name: "Jordan", admin: "Omar Hassan", status: "active" },
+    { name: "Israel", admin: "David Cohen", status: "active" },
+  ],
   "Australia/Oceania": [
     { name: "Australia", admin: "Jack Thompson", status: "active" },
     { name: "New Zealand", admin: "William Clarke", status: "active" },
     { name: "Fiji", admin: "Ratu Meli", status: "active" },
   ],
-  "Antarctica": []
 };
 
 // All 7 Continent Super Admins data
