@@ -23,6 +23,7 @@ import PMReports from './screens/PMReports';
 import PMSoftwareProfile from './screens/PMSoftwareProfile';
 import ValaAICommandCenter from '@/components/vala-ai-module/ValaAICommandCenter';
 import PMDeployScreen from './screens/PMDeployScreen';
+import PMClientDomains from './screens/PMClientDomains';
 
 type PMSection = 
   | 'dashboard' 
@@ -208,7 +209,10 @@ const PMEnterpriseLayout: React.FC<PMEnterpriseLayoutProps> = ({ viewOnly = fals
     }
     
     // Security & License
-    if (['license-lock', 'domain-lock', 'api-key-binding', 'expiry-control', 'abuse-protection'].includes(activeSection)) {
+    if (activeSection === 'domain-lock') {
+      return <PMClientDomains />;
+    }
+    if (['license-lock', 'api-key-binding', 'expiry-control', 'abuse-protection'].includes(activeSection)) {
       return <PMSecurityLicense securityType={activeSection} />;
     }
     
