@@ -45,8 +45,13 @@ const float = { initial: { y: 0 }, animate: { y: [-1.5, 1.5, -1.5], transition: 
 
 // ─── REUSABLE COMPONENTS ─────────────────────────────────────
 const Glass = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-  <motion.div variants={rise} className={`rounded-xl overflow-hidden ${className}`}
-    style={{ background: T.glass, backdropFilter: 'blur(16px)', border: `1px solid ${T.glassBorder}`, boxShadow: '0 4px 24px -4px hsla(222,47%,4%,0.5)' }}>
+  <motion.div variants={rise} className={`rounded-2xl overflow-hidden ${className}`}
+    style={{ 
+      background: T.glass, 
+      backdropFilter: 'blur(20px) saturate(1.4)', 
+      border: `1px solid ${T.glassBorder}`,
+      boxShadow: `0 8px 32px -8px hsla(222,47%,4%,0.5), inset 0 1px 0 hsla(215,100%,90%,0.04)`,
+    }}>
     {children}
   </motion.div>
 );
