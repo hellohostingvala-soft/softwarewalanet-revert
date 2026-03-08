@@ -425,7 +425,6 @@ const RoleSwitchDashboard = () => {
   
   // Default accent color for timer
   const timerAccentColor = 'text-primary';
-  const shouldUseBossPanel = activeRole === 'boss_owner' && activeNav === 'dashboard' && !selectedSubItem;
 
   if (loading || !initialized) {
     return (
@@ -435,16 +434,6 @@ const RoleSwitchDashboard = () => {
       )}>
         <LoadingSkeleton message="System is preparing this section" />
       </div>
-    );
-  }
-
-  if (shouldUseBossPanel) {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<ModuleLoader />}>
-          <BossPanelView />
-        </Suspense>
-      </ErrorBoundary>
     );
   }
 
