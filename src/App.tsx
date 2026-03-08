@@ -322,6 +322,8 @@ const AIRAProviders = lazyLoad(() => import("./pages/ai-ceo/sections/AIRAProvide
 const AIRAProjectScanner = lazyLoad(() => import("./pages/ai-ceo/sections/AIRAProjectScanner"));
 const AIRATaskEngine = lazyLoad(() => import("./pages/ai-ceo/sections/AIRATaskEngine"));
 const AIRAMarketing = lazyLoad(() => import("./pages/ai-ceo/sections/AIRAMarketing"));
+const AIRALanguageIntelligence = lazyLoad(() => import("./pages/ai-ceo/sections/AIRALanguageIntelligence"));
+const AIRASalesIntelligence = lazyLoad(() => import("./pages/ai-ceo/sections/AIRASalesIntelligence"));
 
 const DemoCredentials = lazyLoad(() => import("./pages/DemoCredentials"));
 const DemoOrderSystem = lazyLoad(() => import("./pages/demo-system/DemoOrderSystem"));
