@@ -25,15 +25,15 @@ import {
 
 // ─── ENTERPRISE DARK SHELL ───────────────────────────────────
 const S = {
-  bg:       'hsl(222, 47%, 8%)',
-  bgHover:  'hsla(215, 100%, 60%, 0.08)',
-  border:   'hsla(215, 28%, 30%, 0.4)',
-  text:     'hsl(210, 40%, 96%)',
-  muted:    'hsl(215, 20%, 60%)',
-  brand:    'hsl(217, 91%, 60%)',
-  green:    'hsl(160, 84%, 39%)',
-  red:      'hsl(346, 77%, 49%)',
-  amber:    'hsl(38, 92%, 50%)',
+  bg:       'hsl(222, 47%, 7%)',
+  bgHover:  'hsla(217, 92%, 65%, 0.1)',
+  border:   'hsla(215, 40%, 35%, 0.3)',
+  text:     'hsl(210, 40%, 98%)',
+  muted:    'hsl(215, 22%, 58%)',
+  brand:    'hsl(217, 92%, 65%)',
+  green:    'hsl(160, 84%, 44%)',
+  red:      'hsl(346, 82%, 55%)',
+  amber:    'hsl(38, 95%, 55%)',
 };
 
 interface BossPanelHeaderProps {
