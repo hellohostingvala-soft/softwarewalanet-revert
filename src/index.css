@@ -884,3 +884,53 @@ html {
   from { width: 0%; }
   to { width: 100%; }
 }
+
+/* ========================================
+   MOBILE PERFORMANCE & RESPONSIVENESS
+   ======================================== */
+
+/* Prevent horizontal overflow globally */
+html, body, #root {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Touch-optimized buttons — instant response */
+@media (pointer: coarse) {
+  button, a, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Remove 300ms tap delay */
+  * {
+    touch-action: manipulation;
+  }
+}
+
+/* Active state feedback for buttons */
+button:active, [role="button"]:active {
+  transform: scale(0.97);
+  transition: transform 0.05s ease-out;
+}
+
+/* Smooth button transitions */
+button, [role="button"] {
+  transition: transform 0.1s ease-out, opacity 0.1s ease-out, background-color 0.15s ease-out;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Mobile-safe scrolling */
+@media (max-width: 768px) {
+  .overflow-auto, .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Prevent content overflow on mobile */
+  main, section, .container {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+}
