@@ -322,22 +322,30 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
   };
 
   // === APPROVAL ACTIONS ===
-  const handleApproval = async (type: 'reseller' | 'franchise' | 'influencer', id: string, action: 'approve' | 'reject') => {
+  const handleApproval = async (type: 'reseller' | 'franchise' | 'influencer' | 'job', id: string, action: 'approve' | 'reject' | 'hold') => {
     setProcessingId(id);
     try {
-      const table = type === 'reseller' ? 'reseller_applications' : type === 'franchise' ? 'franchise_accounts' : 'influencer_accounts';
-      const newStatus = action === 'approve' ? 'approved' : 'rejected';
+      const tableMap: Record<string, string> = {
+        reseller: 'reseller_applications',
+        franchise: 'franchise_accounts',
+        influencer: 'influencer_accounts',
+        job: 'job_applications',
+      };
+      const table = tableMap[type];
+      const statusMap: Record<string, string> = { approve: 'approved', reject: 'rejected', hold: 'on_hold' };
+      const newStatus = statusMap[action];
       
-      const { error } = await supabase.from(table).update({ status: newStatus }).eq('id', id);
+      const { error } = await (supabase as any).from(table).update({ status: newStatus }).eq('id', id);
       if (error) throw error;
       
       await logAction(`${action}_${type}`, id, { status: newStatus });
-      toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} ${action}d successfully`);
+      toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} ${action === 'hold' ? 'put on hold' : action + 'd'} successfully`);
       
       // Remove from local state
+      const stateKey = type === 'job' ? 'jobApplications' : type + 's';
       setApprovals(prev => ({
         ...prev,
-        [type + 's']: prev[type + 's' as keyof typeof prev].filter((item: any) => item.id !== id)
+        [stateKey]: (prev as any)[stateKey].filter((item: any) => item.id !== id)
       }));
     } catch (e) {
       console.error(e);
