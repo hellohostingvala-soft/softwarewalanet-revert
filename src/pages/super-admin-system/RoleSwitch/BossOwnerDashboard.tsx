@@ -523,7 +523,7 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
             </div>
           </div>
           
-          <div className="p-4 grid grid-cols-3 gap-4">
+          <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
             {/* RESELLER PENDING */}
             <div className="rounded-lg p-3" style={{ background: 'rgba(0,0,0,0.3)' }}>
               <div className="flex items-center gap-2 mb-3 pb-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
