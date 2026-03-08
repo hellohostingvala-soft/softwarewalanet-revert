@@ -17,7 +17,7 @@ import {
   Loader2, ChevronDown, Rocket, Image, Paperclip, Mic, MicOff,
   PanelLeftClose, PanelLeftOpen, Globe, CheckCircle,
   Layers, Database, GitBranch, Workflow, Clock, Zap,
-  Activity, Package, X
+  Activity, Package, X, Volume2, VolumeX
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -41,7 +41,8 @@ const C = {
   textDim: '#71717a',
 };
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/vala-ai-builder`;
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/vala-ai-openai`;
+const TTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`;
 
 interface ChatMessage {
   id: string;
@@ -163,6 +164,67 @@ const ValaAIDashboard = () => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playingMsgId, setPlayingMsgId] = useState<string | null>(null);
+  const [ttsLoading, setTtsLoading] = useState<string | null>(null);
+
+  // ===== TTS PLAYBACK =====
+  const speakMessage = useCallback(async (msgId: string, text: string) => {
+    // Stop if already playing this message
+    if (playingMsgId === msgId) {
+      audioRef.current?.pause();
+      audioRef.current = null;
+      setPlayingMsgId(null);
+      return;
+    }
+
+    // Stop any current audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+
+    setTtsLoading(msgId);
+    try {
+      // Strip markdown for cleaner speech
+      const cleanText = text.replace(/[#*`>\-\[\]()!]/g, '').replace(/\n+/g, '. ').substring(0, 3000);
+      
+      const response = await fetch(TTS_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({
+          text: cleanText,
+          voiceId: 'JBFqnCBsd6RMkjVDRZzb', // George
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: 'TTS failed' }));
+        throw new Error(err.error || 'TTS request failed');
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+
+      audio.onplay = () => setPlayingMsgId(msgId);
+      audio.onended = () => { setPlayingMsgId(null); URL.revokeObjectURL(audioUrl); };
+      audio.onerror = () => { setPlayingMsgId(null); toast.error('Audio playback failed'); };
+
+      await audio.play();
+      toast.success('🔊 Playing response...');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Voice failed';
+      toast.error(msg);
+    } finally {
+      setTtsLoading(null);
+    }
+  }, [playingMsgId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -409,6 +471,13 @@ export default function GeneratedApp() {
                     {msg.role === 'assistant' && !isGenerating && msg.id !== '1' && (
                       <div className="flex items-center gap-1 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button onClick={() => { navigator.clipboard.writeText(msg.content); toast.success('Copied!'); }} className="p-1 rounded hover:bg-white/5" style={{ color: C.textDim }}><Copy className="w-3.5 h-3.5" /></button>
+                        <button
+                          onClick={() => speakMessage(msg.id, msg.content)}
+                          className="p-1 rounded hover:bg-white/5"
+                          style={{ color: playingMsgId === msg.id ? '#8b5cf6' : C.textDim }}
+                        >
+                          {ttsLoading === msg.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : playingMsgId === msg.id ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                        </button>
                         <button className="p-1 rounded hover:bg-white/5" style={{ color: C.textDim }}><ThumbsUp className="w-3.5 h-3.5" /></button>
                         <button className="p-1 rounded hover:bg-white/5" style={{ color: C.textDim }}><ThumbsDown className="w-3.5 h-3.5" /></button>
                         <button className="p-1 rounded hover:bg-white/5" style={{ color: C.textDim }}><RefreshCw className="w-3.5 h-3.5" /></button>
