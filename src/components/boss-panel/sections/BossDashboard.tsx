@@ -18,22 +18,22 @@ import { useBossDashboard } from '@/hooks/boss-panel/useBossDashboard';
 
 // ─── 7D ENTERPRISE DESIGN TOKENS ─────────────────────────────
 const T = {
-  // Card gradient presets
-  g1: 'linear-gradient(135deg, hsla(217, 91%, 60%, 0.12) 0%, hsla(262, 83%, 58%, 0.06) 100%)',
-  g2: 'linear-gradient(135deg, hsla(160, 84%, 39%, 0.12) 0%, hsla(172, 66%, 50%, 0.06) 100%)',
-  g3: 'linear-gradient(135deg, hsla(38, 92%, 50%, 0.12) 0%, hsla(45, 93%, 47%, 0.06) 100%)',
-  g4: 'linear-gradient(135deg, hsla(346, 77%, 49%, 0.12) 0%, hsla(330, 80%, 60%, 0.06) 100%)',
-  g5: 'linear-gradient(135deg, hsla(262, 83%, 58%, 0.12) 0%, hsla(280, 87%, 65%, 0.06) 100%)',
-  g6: 'linear-gradient(135deg, hsla(199, 89%, 48%, 0.12) 0%, hsla(187, 85%, 53%, 0.06) 100%)',
-  // Colors
-  blue: 'hsl(217, 91%, 60%)', green: 'hsl(160, 84%, 39%)', amber: 'hsl(38, 92%, 50%)',
-  red: 'hsl(346, 77%, 49%)', purple: 'hsl(262, 83%, 58%)', cyan: 'hsl(199, 89%, 48%)',
-  // Surfaces
-  glass: 'hsla(222, 47%, 13%, 0.65)',
-  glassBorder: 'hsla(215, 28%, 30%, 0.3)',
-  glassHighlight: 'hsla(215, 100%, 90%, 0.04)',
-  text: 'hsl(210, 40%, 96%)', muted: 'hsl(215, 20%, 60%)', dim: 'hsl(215, 15%, 40%)',
-  rowHover: 'hsla(217, 91%, 60%, 0.05)',
+  // Card gradient presets — deeper, richer, more dimensional
+  g1: 'linear-gradient(135deg, hsla(217, 91%, 60%, 0.18) 0%, hsla(262, 83%, 58%, 0.08) 50%, hsla(217, 91%, 60%, 0.03) 100%)',
+  g2: 'linear-gradient(135deg, hsla(160, 84%, 39%, 0.18) 0%, hsla(173, 80%, 40%, 0.08) 50%, hsla(160, 84%, 39%, 0.03) 100%)',
+  g3: 'linear-gradient(135deg, hsla(38, 92%, 50%, 0.18) 0%, hsla(45, 93%, 47%, 0.08) 50%, hsla(38, 92%, 50%, 0.03) 100%)',
+  g4: 'linear-gradient(135deg, hsla(346, 77%, 49%, 0.18) 0%, hsla(330, 80%, 60%, 0.08) 50%, hsla(346, 77%, 49%, 0.03) 100%)',
+  g5: 'linear-gradient(135deg, hsla(262, 83%, 58%, 0.18) 0%, hsla(280, 87%, 65%, 0.08) 50%, hsla(262, 83%, 58%, 0.03) 100%)',
+  g6: 'linear-gradient(135deg, hsla(199, 89%, 48%, 0.18) 0%, hsla(187, 85%, 53%, 0.08) 50%, hsla(199, 89%, 48%, 0.03) 100%)',
+  // Colors — higher saturation, brighter
+  blue: 'hsl(217, 92%, 65%)', green: 'hsl(160, 84%, 44%)', amber: 'hsl(38, 95%, 55%)',
+  red: 'hsl(346, 82%, 55%)', purple: 'hsl(262, 85%, 63%)', cyan: 'hsl(199, 90%, 55%)',
+  // Surfaces — richer glass
+  glass: 'hsla(222, 47%, 11%, 0.72)',
+  glassBorder: 'hsla(215, 40%, 35%, 0.25)',
+  glassHighlight: 'hsla(215, 100%, 90%, 0.06)',
+  text: 'hsl(210, 40%, 98%)', muted: 'hsl(215, 22%, 65%)', dim: 'hsl(215, 15%, 42%)',
+  rowHover: 'hsla(217, 91%, 60%, 0.07)',
 };
 
 const PIE_COLORS = [T.blue, T.green, T.amber, T.red, T.purple, T.cyan];
@@ -45,8 +45,13 @@ const float = { initial: { y: 0 }, animate: { y: [-1.5, 1.5, -1.5], transition: 
 
 // ─── REUSABLE COMPONENTS ─────────────────────────────────────
 const Glass = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-  <motion.div variants={rise} className={`rounded-xl overflow-hidden ${className}`}
-    style={{ background: T.glass, backdropFilter: 'blur(16px)', border: `1px solid ${T.glassBorder}`, boxShadow: '0 4px 24px -4px hsla(222,47%,4%,0.5)' }}>
+  <motion.div variants={rise} className={`rounded-2xl overflow-hidden ${className}`}
+    style={{ 
+      background: T.glass, 
+      backdropFilter: 'blur(20px) saturate(1.4)', 
+      border: `1px solid ${T.glassBorder}`,
+      boxShadow: `0 8px 32px -8px hsla(222,47%,4%,0.5), inset 0 1px 0 hsla(215,100%,90%,0.04)`,
+    }}>
     {children}
   </motion.div>
 );
@@ -64,22 +69,22 @@ const SH = ({ title, count, icon: Icon }: { title: string; count?: number; icon?
   </div>
 );
 
-const Badge = ({ status }: { status: string }) => {
+const StatusBadge = ({ status }: { status: string }) => {
   const c: Record<string, { bg: string; fg: string; label: string }> = {
-    active: { bg: `${T.green}15`, fg: T.green, label: 'Active' },
-    approved: { bg: `${T.green}15`, fg: T.green, label: 'Approved' },
-    pending: { bg: `${T.amber}15`, fg: T.amber, label: 'Pending' },
-    rejected: { bg: `${T.red}15`, fg: T.red, label: 'Rejected' },
-    maintenance: { bg: `${T.amber}15`, fg: T.amber, label: 'Maint.' },
-    critical: { bg: `${T.red}15`, fg: T.red, label: 'Critical' },
-    warning: { bg: `${T.amber}15`, fg: T.amber, label: 'Warning' },
-    healthy: { bg: `${T.green}15`, fg: T.green, label: 'Healthy' },
+    active: { bg: `${T.green}18`, fg: T.green, label: 'Active' },
+    approved: { bg: `${T.green}18`, fg: T.green, label: 'Approved' },
+    pending: { bg: `${T.amber}18`, fg: T.amber, label: 'Pending' },
+    rejected: { bg: `${T.red}18`, fg: T.red, label: 'Rejected' },
+    maintenance: { bg: `${T.amber}18`, fg: T.amber, label: 'Maint.' },
+    critical: { bg: `${T.red}18`, fg: T.red, label: 'Critical' },
+    warning: { bg: `${T.amber}18`, fg: T.amber, label: 'Warning' },
+    healthy: { bg: `${T.green}18`, fg: T.green, label: 'Healthy' },
   };
   const s = c[status] || c.pending;
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold"
-      style={{ background: s.bg, color: s.fg, border: `1px solid ${s.fg}20` }}>
-      <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.fg }} />
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold"
+      style={{ background: s.bg, color: s.fg, border: `1px solid ${s.fg}22`, boxShadow: `0 0 8px ${s.fg}10` }}>
+      <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.fg, boxShadow: `0 0 4px ${s.fg}` }} />
       {s.label}
     </span>
   );
@@ -92,25 +97,35 @@ function KPI({ title, value, trend, trendVal, icon: Icon, gradient, accent }: {
 }) {
   return (
     <motion.div variants={rise}
-      whileHover={{ scale: 1.03, y: -3, boxShadow: `0 16px 48px -8px ${accent}22` }}
-      className="relative group cursor-pointer overflow-hidden rounded-xl"
-      style={{ background: gradient, backdropFilter: 'blur(20px)', border: `1px solid ${T.glassBorder}`, minHeight: '120px' }}>
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{ background: T.glassHighlight }} />
-      <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full blur-3xl opacity-15 group-hover:opacity-30 transition-opacity duration-700"
+      whileHover={{ scale: 1.04, y: -4, boxShadow: `0 20px 60px -12px ${accent}30` }}
+      className="relative group cursor-pointer overflow-hidden rounded-2xl"
+      style={{ 
+        background: gradient, 
+        backdropFilter: 'blur(24px) saturate(1.5)', 
+        border: `1px solid ${T.glassBorder}`, 
+        minHeight: '130px',
+        boxShadow: `0 4px 20px -4px ${accent}15`,
+      }}>
+      {/* Ambient glow overlay */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+        style={{ background: `radial-gradient(circle at 70% 30%, ${accent}12 0%, transparent 60%)` }} />
+      <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-700"
         style={{ background: accent }} />
       <motion.div variants={float} initial="initial" animate="animate"
-        className="absolute top-3 right-3 w-9 h-9 rounded-lg flex items-center justify-center"
-        style={{ background: `${accent}18`, border: `1px solid ${accent}25` }}>
-        <Icon className="w-4 h-4" style={{ color: accent }} />
+        className="absolute top-3.5 right-3.5 w-10 h-10 rounded-xl flex items-center justify-center"
+        style={{ background: `${accent}15`, border: `1px solid ${accent}22`, boxShadow: `0 0 12px ${accent}15` }}>
+        <Icon className="w-4.5 h-4.5" style={{ color: accent }} />
       </motion.div>
-      <div className="relative z-10 p-4">
-        <span className="text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: T.muted }}>{title}</span>
-        <p className="text-2xl font-black tabular-nums tracking-tight mt-1.5" style={{ color: T.text }}>{value}</p>
+      <div className="relative z-10 p-5">
+        <span className="text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: T.muted }}>{title}</span>
+        <p className="text-[28px] font-black tabular-nums tracking-tight mt-2 leading-none" style={{ color: T.text }}>{value}</p>
         {trend && trendVal && (
-          <div className="flex items-center gap-1 mt-1.5">
-            <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full"
-              style={{ background: trend === 'up' ? `${T.green}15` : trend === 'down' ? `${T.red}15` : `${T.dim}15` }}>
+          <div className="flex items-center gap-1 mt-2.5">
+            <div className="flex items-center gap-0.5 px-2 py-0.5 rounded-full"
+              style={{ 
+                background: trend === 'up' ? `${T.green}12` : trend === 'down' ? `${T.red}12` : `${T.dim}12`,
+                border: `1px solid ${trend === 'up' ? `${T.green}20` : trend === 'down' ? `${T.red}20` : `${T.dim}15`}`,
+              }}>
               {trend === 'up' && <TrendingUp className="w-3 h-3" style={{ color: T.green }} />}
               {trend === 'down' && <TrendingDown className="w-3 h-3" style={{ color: T.red }} />}
               <span className="text-[10px] font-bold" style={{ color: trend === 'up' ? T.green : trend === 'down' ? T.red : T.muted }}>
@@ -231,7 +246,7 @@ export function BossDashboard() {
                   </p>
                   <p className="text-[9px] uppercase" style={{ color: T.dim }}>uptime</p>
                 </div>
-                <Badge status={m.status} />
+                <StatusBadge status={m.status} />
               </motion.div>
             ))}
           </div>
@@ -258,7 +273,7 @@ export function BossDashboard() {
                     <span className="text-[10px] font-mono" style={{ color: T.dim }}>{a.time}</span>
                   </div>
                 </div>
-                <Badge status={a.type} />
+                <StatusBadge status={a.type} />
               </motion.div>
             ))}
           </div>
@@ -386,7 +401,7 @@ export function BossDashboard() {
                     <td className="px-5 py-3 font-mono tabular-nums" style={{ color: T.dim }}>
                       {new Date(app.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </td>
-                    <td className="px-5 py-3"><Badge status={app.status} /></td>
+                    <td className="px-5 py-3"><StatusBadge status={app.status} /></td>
                   </motion.tr>
                 ))}
               </tbody>
