@@ -138,8 +138,8 @@ export const MMMarketplaceScreen = () => {
           product_name: item.name || item.product_name || 'Unnamed Product',
           description: item.description || item.short_description || `${item.category || 'Enterprise'} software solution by ${item.vendor || 'Software Vala'}`,
           category: item.category,
-          monthly_price: item.base_price ? Number(item.base_price) : null,
-          lifetime_price: item.base_price ? Math.round(Number(item.base_price) * 10) : null,
+          monthly_price: item.base_price ? Number(item.base_price) : 249,
+          lifetime_price: item.base_price ? Math.round(Number(item.base_price) * 10) : 2490,
           tech_stack: item.tech_stack || item.type || null,
           product_type: item.type || item.product_type || 'SaaS',
           features_json: item.features_json || null,
@@ -154,6 +154,8 @@ export const MMMarketplaceScreen = () => {
           last_repo_sync_at: item.last_repo_sync_at || null,
           listing_status: item.listing_status || 'draft',
           source: item.source || 'vala_ai',
+          product_thumbnail_url: item.product_thumbnail_url || null,
+          product_icon_url: item.product_icon_url || null,
         }));
       } else if (!fetchError) {
         // Fallback to products table
