@@ -406,7 +406,8 @@ const PMBuilderCreateTab = ({ onProductUpdate, onPipelineStep }: PMBuilderCreate
             </motion.div>
           )}
         </div>
-      </ScrollArea>
+        </ScrollArea>
+      </div>
 
       {/* Input */}
       <div className="p-4 border-t border-border/40">
