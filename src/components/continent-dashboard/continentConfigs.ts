@@ -136,6 +136,16 @@ export const CONTINENT_CONFIGS: Record<string, ContinentConfig> = {
     themeGradient: "from-purple-500 to-violet-600",
     accentColor: "purple",
   },
+  middle_east: {
+    id: "middle_east",
+    name: "Middle East",
+    icon: "🕌",
+    mapCenter: [45, 25],
+    mapScale: 500,
+    countries: middleEastCountries,
+    themeGradient: "from-yellow-500 to-orange-600",
+    accentColor: "yellow",
+  },
 };
 
 export const getContinentConfig = (continentId: string): ContinentConfig => {
