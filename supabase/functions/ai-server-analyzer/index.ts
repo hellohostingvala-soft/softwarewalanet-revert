@@ -296,7 +296,7 @@ Provide health analysis in JSON format:
 }
 
 async function performSecurityScan(supabase: any, serverId: string) {
-  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+  const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
   
   const { data: server } = await supabase
     .from('server_instances')
