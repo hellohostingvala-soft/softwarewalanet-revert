@@ -863,21 +863,3 @@ function ProductDetailDialog({ product, open, onClose, onDemo, onBuy, isFav, onF
   );
 }
 
-function generateMockProducts(): Product[] {
-  const categories = ['Restaurant', 'Education', 'Healthcare', 'E-commerce', 'Hotel', 'CRM', 'HRM', 'Finance'];
-  return Array.from({ length: 24 }, (_, index) => ({
-    product_id: `mock-${index}`,
-    product_name: `${categories[index % categories.length]} Management Pro ${index + 1}`,
-    description: `Complete ${categories[index % categories.length].toLowerCase()} management solution with AI-powered features`,
-    category: categories[index % categories.length],
-    monthly_price: 2999 + index * 500,
-    lifetime_price: 29999 + index * 5000,
-    tech_stack: ['React', 'Node.js', 'Python', 'Flutter'][index % 4],
-    product_type: 'SaaS',
-    features_json: ['Dashboard', 'Reports', 'Analytics', 'API Access', 'Mobile App', '24/7 Support'],
-    is_active: true,
-    status: 'active',
-    created_at: new Date().toISOString(),
-  }));
-}
-
