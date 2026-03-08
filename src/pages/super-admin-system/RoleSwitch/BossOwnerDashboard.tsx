@@ -859,6 +859,9 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
                           <Button size="sm" className="h-7 px-3 text-[11px] bg-emerald-600 hover:bg-emerald-700 flex-1" onClick={() => handleApproval('influencer', item.id, 'approve')} disabled={processingId === item.id}>
                             {processingId === item.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <><CheckCircle className="w-3 h-3 mr-1" /> Approve</>}
                           </Button>
+                          <Button size="sm" className="h-7 px-2 text-[11px] bg-amber-600 hover:bg-amber-700" onClick={() => handleApproval('influencer', item.id, 'hold')} disabled={processingId === item.id}>
+                            <PauseCircle className="w-3 h-3 mr-1" /> Hold
+                          </Button>
                           <Button size="sm" variant="destructive" className="h-7 px-3 text-[11px]" onClick={() => handleApproval('influencer', item.id, 'reject')} disabled={processingId === item.id}>
                             <XCircle className="w-3 h-3 mr-1" /> Reject
                           </Button>
