@@ -55,6 +55,8 @@ export function BossPanelContent() {
     switch (activeSection) {
       case 'dashboard':
         return <BossDashboard />;
+      case 'ceo-dashboard':
+        return <Navigate to="/super-admin-system/role-switch?role=aira" replace />;
       case 'live-activity':
         return <LiveActivityStream streamingOn={streamingOn} />;
       case 'hierarchy':
@@ -68,7 +70,7 @@ export function BossPanelContent() {
       case 'products':
         return <ProductDemo />;
       case 'product-manager':
-        return <ProductManagerModule />;
+        return <Navigate to="/super-admin/product-manager" replace />;
       case 'revenue':
         return <RevenueSnapshot />;
       case 'audit':
@@ -88,7 +90,7 @@ export function BossPanelContent() {
       case 'franchise-dashboard':
         return <Suspense fallback={<div className="p-6 text-center">Loading Franchise Dashboard...</div>}><FranchiseDashboardEmbed /></Suspense>;
       case 'aira':
-        return <Suspense fallback={<div className="p-6 text-center">Loading AIRA...</div>}><CEODashboardEmbed /></Suspense>;
+        return <Navigate to="/super-admin-system/role-switch?role=aira" replace />;
       case 'settings':
         return <BossSettings />;
       default:
