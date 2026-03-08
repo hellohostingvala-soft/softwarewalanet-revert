@@ -49,6 +49,11 @@ export const ServerModuleContainer: React.FC<ServerModuleContainerProps> = ({
       case 'auto-scan': return <ServerAutoScan />;
       case 'downtime': return <DowntimeDetection />;
       case 'auto-repair': return <AutoRepairEngine />;
+      case 'ssl-manager': return <AutoSSLManager />;
+      case 'domain-lock': return <DomainLockSystem />;
+      case 'code-protection': return <CodeProtection />;
+      case 'deploy-security': return <DeploySecurity />;
+      case 'security-dashboard': return <SecurityDashboard />;
       case 'health-load': return <ServerHealthLoad />;
       case 'security': return <ServerSecurity />;
       case 'backups': return <ServerBackups />;
