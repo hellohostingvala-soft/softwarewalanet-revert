@@ -91,13 +91,32 @@ const activityPoints: { coordinates: [number, number]; type: string; color: stri
 ];
 
 const dataFlowLines = [
-  { from: [15, 50], to: [-100, 45] },
-  { from: [-100, 45], to: [105, 25] },
-  { from: [105, 25], to: [135, -25] },
-  { from: [20, 5], to: [15, 50] },
-  { from: [-60, -15], to: [-100, 45] },
-  { from: [15, 50], to: [105, 25] },
-  { from: [135, -25], to: [-60, -15] },
+  { from: [15, 50], to: [-100, 45], label: 'EU→NA' },
+  { from: [-100, 45], to: [105, 25], label: 'NA→AS' },
+  { from: [105, 25], to: [135, -25], label: 'AS→OC' },
+  { from: [20, 5], to: [15, 50], label: 'AF→EU' },
+  { from: [-60, -15], to: [-100, 45], label: 'SA→NA' },
+  { from: [15, 50], to: [105, 25], label: 'EU→AS' },
+  { from: [135, -25], to: [-60, -15], label: 'OC→SA' },
+];
+
+// System connection modules
+const systemConnections = [
+  { name: 'Marketplace', icon: '🛒', status: 'active', requests: '2.4K/min', color: '#10b981' },
+  { name: 'Sales', icon: '💰', status: 'active', requests: '890/min', color: '#3b82f6' },
+  { name: 'License', icon: '🔑', status: 'active', requests: '340/min', color: '#8b5cf6' },
+  { name: 'Deploy', icon: '🚀', status: 'active', requests: '42/min', color: '#06b6d4' },
+  { name: 'Analytics', icon: '📊', status: 'active', requests: '1.2K/min', color: '#f59e0b' },
+  { name: 'Servers', icon: '🖥️', status: 'active', requests: '680/min', color: '#ef4444' },
+  { name: 'Notifications', icon: '🔔', status: 'active', requests: '3.1K/min', color: '#ec4899' },
+];
+
+// Floating stat positions on map (absolute positioned)
+const floatingStats = [
+  { top: '15%', left: '8%', label: 'NA Active', value: '5.8K', color: '#10b981' },
+  { top: '30%', left: '42%', label: 'EU Revenue', value: '$3.1M', color: '#3b82f6' },
+  { top: '55%', left: '60%', label: 'AF Growth', value: '+24%', color: '#f59e0b' },
+  { top: '25%', left: '75%', label: 'AS Products', value: '4.2K', color: '#ef4444' },
 ];
 
 // Live feed events
