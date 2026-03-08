@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useGeoLocale, convertPrice, parseINRPrice } from "@/hooks/useGeoLocale";
 import { useFestivalBanner } from "@/hooks/useFestivalBanner";
 import { useEnterpriseAudit } from "@/hooks/useEnterpriseAudit";
+import { allMarketplaceProducts, totalProductCount } from "@/data/marketplace";
 import {
   Play, Heart, ShoppingCart, Filter, Search, Bell, ChevronLeft, ChevronRight,
   GraduationCap, Stethoscope, Utensils, Hotel, Home, Car, Plane,
