@@ -555,7 +555,7 @@ const RoleSwitchDashboard = () => {
       <header className={cn(
         "h-16 backdrop-blur-xl border-b flex items-center justify-between px-6 z-50 transition-colors duration-300",
         "bg-gradient-to-r from-[#0a1628] via-[#0d1b2a] to-[#0a1628] border-[#1e3a5f]",
-        isInControlPanelView && !isInModuleView && "ml-[320px]"
+        shouldShowGlobalSidebar && "ml-[320px]"
       )}>
         <div className="flex items-center gap-4">
           {(!isInControlPanelView || isInModuleView) && (
