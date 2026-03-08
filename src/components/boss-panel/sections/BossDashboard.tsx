@@ -79,7 +79,7 @@ const cardVariants = {
   hidden: { opacity: 0, y: 20, scale: 0.97 },
   show: { 
     opacity: 1, y: 0, scale: 1,
-    transition: { type: 'spring', stiffness: 300, damping: 24 }
+    transition: { type: 'spring' as const, stiffness: 300, damping: 24 }
   }
 };
 
@@ -87,7 +87,7 @@ const floatVariants = {
   initial: { y: 0 },
   animate: { 
     y: [-2, 2, -2],
-    transition: { duration: 4, repeat: Infinity, ease: 'easeInOut' }
+    transition: { duration: 4, repeat: Infinity, ease: 'easeInOut' as const }
   }
 };
 
