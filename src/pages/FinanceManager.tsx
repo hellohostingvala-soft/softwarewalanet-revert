@@ -1,6 +1,7 @@
 import { useState } from "react";
 import FinanceSidebar, { FinanceView } from "@/components/finance/FinanceSidebar";
 import FinanceNotifications from "@/components/finance/FinanceNotifications";
+import FinanceSecurityBanner from "@/components/finance/FinanceSecurityBanner";
 
 // New section components
 import FinanceDashboard from "@/components/finance/sections/FinanceDashboard";
