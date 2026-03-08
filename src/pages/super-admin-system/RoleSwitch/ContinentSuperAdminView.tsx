@@ -833,10 +833,15 @@ const ContinentSuperAdminView = ({ activeNav = "dashboard", selectedSubItem }: C
     </div>
   );
 
-  // If a continent dashboard is selected from sidebar - use currentContinentId for immediate response
-  if (currentContinentId && currentContinentId !== "antarctica" && CONTINENT_CONFIGS[currentContinentId]) {
-    const config = getContinentConfig(currentContinentId);
-    return <ContinentSuperAdminDashboard config={config} onBack={() => setShowContinentDashboard(null)} />;
+  // If a continent dashboard is selected from sidebar - use Meta BM dashboard
+  if (currentContinentId && CONTINENT_CONFIGS[currentContinentId]) {
+    return (
+      <MetaContinentDashboard 
+        continentId={currentContinentId}
+        continentName={continentNameMap[currentContinentId] || currentContinentId}
+        onBack={() => setShowContinentDashboard(null)} 
+      />
+    );
   }
 
   // If activeNav is "admins", show the registry view with the list
@@ -848,9 +853,7 @@ const ContinentSuperAdminView = ({ activeNav = "dashboard", selectedSubItem }: C
   return (
     <GlobalCommandCenter
       onSelectContinent={(continentId) => {
-        if (continentId !== "antarctica") {
-          setShowContinentDashboard(continentId);
-        }
+        setShowContinentDashboard(continentId);
       }}
     />
   );
