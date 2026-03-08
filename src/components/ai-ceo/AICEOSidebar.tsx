@@ -22,7 +22,8 @@ import {
   Megaphone,
   Globe,
   Handshake,
-  Wrench
+  Wrench,
+  HeartPulse
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -50,6 +51,7 @@ const menuItems = [
   { id: "predictions", label: "Predictive Insights", icon: Lightbulb, path: "/ai-ceo/predictions" },
   { id: "reports", label: "AI Reports", icon: FileText, path: "/ai-ceo/reports" },
   { id: "learning", label: "System Learning Log", icon: Database, path: "/ai-ceo/learning" },
+  { id: "auto-healing", label: "Auto Healing Engine", icon: HeartPulse, path: "/ai-ceo/auto-healing" },
   { id: "settings", label: "Settings (Read-Only)", icon: Settings, path: "/ai-ceo/settings" },
 ];
 const AICEOSidebar = ({ activeSection, collapsed, onCollapsedChange }: AICEOSidebarProps) => {

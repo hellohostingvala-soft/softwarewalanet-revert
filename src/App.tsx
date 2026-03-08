@@ -325,6 +325,7 @@ const AIRAMarketing = lazyLoad(() => import("./pages/ai-ceo/sections/AIRAMarketi
 const AIRALanguageIntelligence = lazyLoad(() => import("./pages/ai-ceo/sections/AIRALanguageIntelligence"));
 const AIRASalesIntelligence = lazyLoad(() => import("./pages/ai-ceo/sections/AIRASalesIntelligence"));
 const AIRAToolStack = lazyLoad(() => import("./pages/ai-ceo/sections/AIRAToolStack"));
+const AutoHealingEngine = lazyLoad(() => import("./pages/ai-ceo/sections/AutoHealingEngine"));
 
 const DemoCredentials = lazyLoad(() => import("./pages/DemoCredentials"));
 const DemoOrderSystem = lazyLoad(() => import("./pages/demo-system/DemoOrderSystem"));
@@ -584,6 +585,7 @@ const App = memo(() => (
                               <Route path="reports" element={<AICEOReports />} />
                               <Route path="learning" element={<AICEOLearning />} />
                               <Route path="settings" element={<AICEOSettings />} />
+                              <Route path="auto-healing" element={<AutoHealingEngine />} />
                             </Route>
 
                             {/* Super Admin Routes */}
