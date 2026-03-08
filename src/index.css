@@ -315,7 +315,7 @@
 
   .neon-text {
     @apply text-primary;
-    text-shadow: 0 0 20px hsl(var(--aurora-violet) / 0.8), 0 0 40px hsl(var(--aurora-violet) / 0.4);
+    text-shadow: 0 0 20px hsl(var(--sv-royal) / 0.6), 0 0 40px hsl(var(--sv-royal) / 0.3);
   }
 
   .neon-text-cyan {
@@ -326,6 +326,11 @@
   .neon-text-green {
     color: hsl(var(--aurora-green));
     text-shadow: 0 0 20px hsl(var(--neon-green) / 0.8), 0 0 40px hsl(var(--neon-green) / 0.4);
+  }
+
+  .neon-text-red {
+    color: hsl(var(--sv-red));
+    text-shadow: 0 0 20px hsl(var(--sv-red) / 0.6), 0 0 40px hsl(var(--sv-red) / 0.3);
   }
 
   /* ========================================
