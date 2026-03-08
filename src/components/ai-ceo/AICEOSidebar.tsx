@@ -22,7 +22,8 @@ import {
   Megaphone,
   Globe,
   Handshake,
-  Wrench
+  Wrench,
+  HeartPulse
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
