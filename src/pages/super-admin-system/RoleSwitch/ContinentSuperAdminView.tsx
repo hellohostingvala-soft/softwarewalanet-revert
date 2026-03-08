@@ -413,7 +413,7 @@ const ContinentSuperAdminView = ({ activeNav = "dashboard", selectedSubItem }: C
   // Stats calculations
   const totalCSAs = continentSuperAdmins.length;
   const activeCSAs = continentSuperAdmins.filter(c => c.status === "active").length;
-  const lockedCSAs = continentSuperAdmins.filter(c => c.status === "locked").length;
+  const lockedCSAs = 0;
   const liveActionsToday = continentSuperAdmins.reduce((sum, c) => sum + c.actionsToday, 0);
 
   // Filtered CSAs
