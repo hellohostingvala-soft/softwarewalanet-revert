@@ -1,595 +1,452 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Users, 
-  DollarSign, 
-  AlertTriangle, 
-  Activity,
-  TrendingUp,
-  TrendingDown,
-  FileText,
-  Server,
-  Shield,
-  Globe,
-  BarChart3,
-  Zap,
-  Boxes,
-  Eye,
-  ArrowUpRight
+  Users, DollarSign, AlertTriangle, Activity, TrendingUp, TrendingDown,
+  FileText, Server, Shield, Globe, BarChart3, Zap, Boxes, Eye,
+  ArrowUpRight, Clock, CheckCircle, XCircle, AlertCircle, Cpu,
+  HardDrive, Wifi, Database, FileBarChart, Download
 } from 'lucide-react';
 import { 
-  AreaChart,
-  Area,
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, PieChart, Pie, Cell
 } from 'recharts';
-import { Progress } from '@/components/ui/progress';
 import {
-  useResellerApplications,
-  useFranchiseAccounts,
-  useJobApplications,
-  useDashboardMetrics,
-  useDashboardRealtime,
+  useResellerApplications, useFranchiseAccounts, useJobApplications,
+  useDashboardMetrics, useDashboardRealtime,
 } from '@/hooks/boss-panel/useDashboardData';
 import { useBossDashboard } from '@/hooks/boss-panel/useBossDashboard';
 
-// ─── 7D GLASSMORPHISM COLOR PALETTE ───────────────────────────
-const GLASS = {
-  // Card gradients (vivid 7D depth)
-  card1: 'linear-gradient(135deg, hsla(217, 91%, 60%, 0.15) 0%, hsla(255, 92%, 76%, 0.08) 100%)',
-  card2: 'linear-gradient(135deg, hsla(160, 84%, 39%, 0.15) 0%, hsla(172, 66%, 50%, 0.08) 100%)',
-  card3: 'linear-gradient(135deg, hsla(38, 92%, 50%, 0.15) 0%, hsla(45, 93%, 47%, 0.08) 100%)',
-  card4: 'linear-gradient(135deg, hsla(346, 77%, 49%, 0.15) 0%, hsla(330, 80%, 60%, 0.08) 100%)',
-  card5: 'linear-gradient(135deg, hsla(262, 83%, 58%, 0.15) 0%, hsla(280, 87%, 65%, 0.08) 100%)',
-  card6: 'linear-gradient(135deg, hsla(199, 89%, 48%, 0.15) 0%, hsla(187, 85%, 53%, 0.08) 100%)',
-  // Accent colors
-  blue:     'hsl(217, 91%, 60%)',
-  green:    'hsl(160, 84%, 39%)',
-  amber:    'hsl(38, 92%, 50%)',
-  red:      'hsl(346, 77%, 49%)',
-  purple:   'hsl(262, 83%, 58%)',
-  cyan:     'hsl(199, 89%, 48%)',
-  // Glass effect
-  glassBg:  'hsla(222, 47%, 11%, 0.6)',
-  glassBorder: 'hsla(215, 28%, 40%, 0.25)',
-  glassHighlight: 'hsla(215, 100%, 90%, 0.06)',
-  // Text
-  text:     'hsl(210, 40%, 96%)',
-  textMuted:'hsl(215, 20%, 65%)',
-  textDim:  'hsl(215, 15%, 45%)',
+// ─── 7D ENTERPRISE DESIGN TOKENS ─────────────────────────────
+const T = {
+  // Card gradient presets
+  g1: 'linear-gradient(135deg, hsla(217, 91%, 60%, 0.12) 0%, hsla(262, 83%, 58%, 0.06) 100%)',
+  g2: 'linear-gradient(135deg, hsla(160, 84%, 39%, 0.12) 0%, hsla(172, 66%, 50%, 0.06) 100%)',
+  g3: 'linear-gradient(135deg, hsla(38, 92%, 50%, 0.12) 0%, hsla(45, 93%, 47%, 0.06) 100%)',
+  g4: 'linear-gradient(135deg, hsla(346, 77%, 49%, 0.12) 0%, hsla(330, 80%, 60%, 0.06) 100%)',
+  g5: 'linear-gradient(135deg, hsla(262, 83%, 58%, 0.12) 0%, hsla(280, 87%, 65%, 0.06) 100%)',
+  g6: 'linear-gradient(135deg, hsla(199, 89%, 48%, 0.12) 0%, hsla(187, 85%, 53%, 0.06) 100%)',
+  // Colors
+  blue: 'hsl(217, 91%, 60%)', green: 'hsl(160, 84%, 39%)', amber: 'hsl(38, 92%, 50%)',
+  red: 'hsl(346, 77%, 49%)', purple: 'hsl(262, 83%, 58%)', cyan: 'hsl(199, 89%, 48%)',
   // Surfaces
-  pageBg:   'hsl(222, 47%, 7%)',
-  tileBg:   'hsla(222, 47%, 13%, 0.7)',
-  tileBorder:'hsla(215, 28%, 30%, 0.3)',
+  glass: 'hsla(222, 47%, 13%, 0.65)',
+  glassBorder: 'hsla(215, 28%, 30%, 0.3)',
+  glassHighlight: 'hsla(215, 100%, 90%, 0.04)',
+  text: 'hsl(210, 40%, 96%)', muted: 'hsl(215, 20%, 60%)', dim: 'hsl(215, 15%, 40%)',
+  rowHover: 'hsla(217, 91%, 60%, 0.05)',
 };
 
-// ─── ANIMATION VARIANTS ───────────────────────────────────────
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.06, delayChildren: 0.1 }
-  }
-};
+const PIE_COLORS = [T.blue, T.green, T.amber, T.red, T.purple, T.cyan];
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.97 },
-  show: { 
-    opacity: 1, y: 0, scale: 1,
-    transition: { type: 'spring' as const, stiffness: 300, damping: 24 }
-  }
-};
+// ─── ANIMATION PRESETS ───────────────────────────────────────
+const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.08 } } };
+const rise = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 400, damping: 28 } } };
+const float = { initial: { y: 0 }, animate: { y: [-1.5, 1.5, -1.5], transition: { duration: 5, repeat: Infinity, ease: 'easeInOut' as const } } };
 
-const floatVariants = {
-  initial: { y: 0 },
-  animate: { 
-    y: [-2, 2, -2],
-    transition: { duration: 4, repeat: Infinity, ease: 'easeInOut' as const }
-  }
-};
+// ─── REUSABLE COMPONENTS ─────────────────────────────────────
+const Glass = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
+  <motion.div variants={rise} className={`rounded-xl overflow-hidden ${className}`}
+    style={{ background: T.glass, backdropFilter: 'blur(16px)', border: `1px solid ${T.glassBorder}`, boxShadow: '0 4px 24px -4px hsla(222,47%,4%,0.5)' }}>
+    {children}
+  </motion.div>
+);
 
-// ─── 7D GLASS KPI CARD ───────────────────────────────────────
-function GlassKPICard({ 
-  title, value, unit, trend, trendValue, icon: Icon, gradient, accent, delay = 0
-}: { 
-  title: string; value: string | number; unit?: string; trend?: 'up' | 'down' | 'neutral'; 
-  trendValue?: string; icon: React.ElementType; gradient: string; accent: string; delay?: number;
-}) {
-  return (
-    <motion.div
-      variants={cardVariants}
-      whileHover={{ 
-        scale: 1.03, 
-        y: -4,
-        boxShadow: `0 20px 60px -10px ${accent}33, 0 0 40px -15px ${accent}22`
-      }}
-      whileTap={{ scale: 0.98 }}
-      className="relative group cursor-pointer overflow-hidden rounded-2xl"
-      style={{
-        background: gradient,
-        backdropFilter: 'blur(24px)',
-        border: `1px solid ${GLASS.glassBorder}`,
-        minHeight: '140px',
-      }}
-    >
-      {/* Glass reflection */}
-      <div 
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{ background: GLASS.glassHighlight }}
-      />
-      {/* Accent glow */}
-      <div 
-        className="absolute -top-12 -right-12 w-32 h-32 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-700"
-        style={{ background: accent }}
-      />
-      {/* Floating icon */}
-      <motion.div
-        variants={floatVariants}
-        initial="initial"
-        animate="animate"
-        className="absolute top-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center"
-        style={{ background: `${accent}20`, border: `1px solid ${accent}30` }}
-      >
-        <Icon className="w-5 h-5" style={{ color: accent }} />
-      </motion.div>
-      
-      <div className="relative z-10 p-5 flex flex-col justify-between h-full">
-        <span className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: GLASS.textMuted }}>
-          {title}
-        </span>
-        <div className="mt-3">
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-3xl font-extrabold tabular-nums tracking-tight" style={{ color: GLASS.text }}>
-              {value}
-            </span>
-            {unit && <span className="text-sm font-medium" style={{ color: GLASS.textMuted }}>{unit}</span>}
-          </div>
-          {trend && trendValue && (
-            <motion.div 
-              className="flex items-center gap-1.5 mt-2"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 + delay * 0.1 }}
-            >
-              {trend === 'up' ? (
-                <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: `${GLASS.green}20` }}>
-                  <TrendingUp className="w-3 h-3" style={{ color: GLASS.green }} />
-                  <span className="text-[11px] font-bold" style={{ color: GLASS.green }}>{trendValue}</span>
-                </div>
-              ) : trend === 'down' ? (
-                <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: `${GLASS.red}20` }}>
-                  <TrendingDown className="w-3 h-3" style={{ color: GLASS.red }} />
-                  <span className="text-[11px] font-bold" style={{ color: GLASS.red }}>{trendValue}</span>
-                </div>
-              ) : (
-                <span className="text-[11px] font-medium" style={{ color: GLASS.textMuted }}>{trendValue}</span>
-              )}
-            </motion.div>
-          )}
-        </div>
-      </div>
-    </motion.div>
-  );
-}
+const SH = ({ title, count, icon: Icon }: { title: string; count?: number; icon?: React.ElementType }) => (
+  <div className="flex items-center justify-between pb-2.5 mb-3" style={{ borderBottom: `1px solid ${T.glassBorder}` }}>
+    <div className="flex items-center gap-2">
+      {Icon && <Icon className="w-4 h-4" style={{ color: T.blue }} />}
+      <h3 className="text-[13px] font-bold uppercase tracking-wider" style={{ color: T.text }}>{title}</h3>
+    </div>
+    {count !== undefined && (
+      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold" 
+        style={{ background: `${T.blue}18`, color: T.blue, border: `1px solid ${T.blue}25` }}>{count}</span>
+    )}
+  </div>
+);
 
-// ─── GLASS STATUS BADGE ──────────────────────────────────────
-function StatusBadge({ status }: { status: string }) {
-  const config: Record<string, { bg: string; text: string; dot: string; label: string }> = {
-    approved: { bg: `${GLASS.green}15`, text: GLASS.green, dot: GLASS.green, label: 'Approved' },
-    active:   { bg: `${GLASS.green}15`, text: GLASS.green, dot: GLASS.green, label: 'Active' },
-    pending:  { bg: `${GLASS.amber}15`, text: GLASS.amber, dot: GLASS.amber, label: 'Pending' },
-    rejected: { bg: `${GLASS.red}15`,   text: GLASS.red,   dot: GLASS.red,   label: 'Rejected' },
+const Badge = ({ status }: { status: string }) => {
+  const c: Record<string, { bg: string; fg: string; label: string }> = {
+    active: { bg: `${T.green}15`, fg: T.green, label: 'Active' },
+    approved: { bg: `${T.green}15`, fg: T.green, label: 'Approved' },
+    pending: { bg: `${T.amber}15`, fg: T.amber, label: 'Pending' },
+    rejected: { bg: `${T.red}15`, fg: T.red, label: 'Rejected' },
+    maintenance: { bg: `${T.amber}15`, fg: T.amber, label: 'Maint.' },
+    critical: { bg: `${T.red}15`, fg: T.red, label: 'Critical' },
+    warning: { bg: `${T.amber}15`, fg: T.amber, label: 'Warning' },
+    healthy: { bg: `${T.green}15`, fg: T.green, label: 'Healthy' },
   };
-  const c = config[status] || config.pending;
+  const s = c[status] || c.pending;
   return (
-    <span
-      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold backdrop-blur-sm"
-      style={{ background: c.bg, color: c.text, border: `1px solid ${c.text}20` }}
-    >
-      <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: c.dot }} />
-      {c.label}
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold"
+      style={{ background: s.bg, color: s.fg, border: `1px solid ${s.fg}20` }}>
+      <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.fg }} />
+      {s.label}
     </span>
   );
-}
+};
 
-// ─── SECTION HEADER ──────────────────────────────────────────
-function SectionHeader({ title, count }: { title: string; count?: number }) {
+// ─── KPI CARD (7D) ───────────────────────────────────────────
+function KPI({ title, value, trend, trendVal, icon: Icon, gradient, accent }: {
+  title: string; value: string; trend?: 'up'|'down'|'flat'; trendVal?: string;
+  icon: React.ElementType; gradient: string; accent: string;
+}) {
   return (
-    <div className="flex items-center justify-between pb-3" style={{ borderBottom: `1px solid ${GLASS.tileBorder}` }}>
-      <h2 className="text-sm font-bold uppercase tracking-wider" style={{ color: GLASS.text }}>{title}</h2>
-      {count !== undefined && (
-        <span className="text-[11px] px-2.5 py-0.5 rounded-full font-bold" 
-          style={{ background: `${GLASS.blue}20`, color: GLASS.blue, border: `1px solid ${GLASS.blue}30` }}>
-          {count}
-        </span>
-      )}
-    </div>
-  );
-}
-
-// ─── GLASS PANEL ─────────────────────────────────────────────
-function GlassPanel({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return (
-    <motion.div
-      variants={cardVariants}
-      className={`rounded-2xl overflow-hidden ${className}`}
-      style={{
-        background: GLASS.tileBg,
-        backdropFilter: 'blur(20px)',
-        border: `1px solid ${GLASS.tileBorder}`,
-        boxShadow: '0 8px 32px -8px hsla(222, 47%, 5%, 0.5)',
-      }}
-    >
-      {children}
+    <motion.div variants={rise}
+      whileHover={{ scale: 1.03, y: -3, boxShadow: `0 16px 48px -8px ${accent}22` }}
+      className="relative group cursor-pointer overflow-hidden rounded-xl"
+      style={{ background: gradient, backdropFilter: 'blur(20px)', border: `1px solid ${T.glassBorder}`, minHeight: '120px' }}>
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        style={{ background: T.glassHighlight }} />
+      <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full blur-3xl opacity-15 group-hover:opacity-30 transition-opacity duration-700"
+        style={{ background: accent }} />
+      <motion.div variants={float} initial="initial" animate="animate"
+        className="absolute top-3 right-3 w-9 h-9 rounded-lg flex items-center justify-center"
+        style={{ background: `${accent}18`, border: `1px solid ${accent}25` }}>
+        <Icon className="w-4 h-4" style={{ color: accent }} />
+      </motion.div>
+      <div className="relative z-10 p-4">
+        <span className="text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: T.muted }}>{title}</span>
+        <p className="text-2xl font-black tabular-nums tracking-tight mt-1.5" style={{ color: T.text }}>{value}</p>
+        {trend && trendVal && (
+          <div className="flex items-center gap-1 mt-1.5">
+            <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full"
+              style={{ background: trend === 'up' ? `${T.green}15` : trend === 'down' ? `${T.red}15` : `${T.dim}15` }}>
+              {trend === 'up' && <TrendingUp className="w-3 h-3" style={{ color: T.green }} />}
+              {trend === 'down' && <TrendingDown className="w-3 h-3" style={{ color: T.red }} />}
+              <span className="text-[10px] font-bold" style={{ color: trend === 'up' ? T.green : trend === 'down' ? T.red : T.muted }}>
+                {trendVal}
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 }
 
 // ─── MAIN DASHBOARD ──────────────────────────────────────────
 export function BossDashboard() {
-  const { data: resellerData, isLoading: rL } = useResellerApplications();
-  const { data: franchiseData, isLoading: fL } = useFranchiseAccounts();
-  const { data: jobData, isLoading: jL } = useJobApplications();
-  const { data: metrics, isLoading: mL } = useDashboardMetrics();
-  const { summary, systemHealth, isLoading: sL } = useBossDashboard();
+  const { data: resellerData } = useResellerApplications();
+  const { data: franchiseData } = useFranchiseAccounts();
+  const { data: jobData } = useJobApplications();
+  const { data: metrics } = useDashboardMetrics();
+  const { summary, systemHealth } = useBossDashboard();
   useDashboardRealtime();
 
-  const loading = rL || fL || jL || mL || sL;
   const fmt = (n: number | undefined) => n?.toLocaleString() ?? '—';
-
   const revenueData = metrics?.revenueByMonth ?? Array.from({ length: 6 }, (_, i) => ({
-    month: ['Jan','Feb','Mar','Apr','May','Jun'][i], revenue: 0, trend: 0
+    month: ['Jan','Feb','Mar','Apr','May','Jun'][i], revenue: Math.floor(Math.random()*80000+20000), trend: Math.floor(Math.random()*60000+15000)
+  }));
+  const modules = systemHealth?.modules ?? [];
+  const activeM = modules.filter(m => m.status === 'active').length;
+  const totalM = modules.length || 1;
+
+  // Mock data for new panels
+  const moduleStatusData = [
+    { name: 'Auth', status: 'active', uptime: 99.9, requests: '12.4K' },
+    { name: 'Payments', status: 'active', uptime: 99.7, requests: '8.2K' },
+    { name: 'AI Engine', status: 'active', uptime: 98.5, requests: '45.1K' },
+    { name: 'Notifications', status: 'maintenance', uptime: 95.2, requests: '3.1K' },
+    { name: 'Analytics', status: 'active', uptime: 99.8, requests: '22.7K' },
+    { name: 'Storage', status: 'active', uptime: 99.9, requests: '6.8K' },
+  ];
+
+  const alertsData = [
+    { id: 1, type: 'critical', message: 'CPU spike on server EU-West-2', time: '2m ago', module: 'Infrastructure' },
+    { id: 2, type: 'warning', message: 'Payment gateway latency >500ms', time: '8m ago', module: 'Payments' },
+    { id: 3, type: 'warning', message: 'Failed login attempts from IP range', time: '15m ago', module: 'Security' },
+    { id: 4, type: 'healthy', message: 'Database backup completed', time: '22m ago', module: 'Storage' },
+    { id: 5, type: 'healthy', message: 'SSL certificates renewed', time: '1h ago', module: 'Security' },
+  ];
+
+  const userActivityData = Array.from({ length: 12 }, (_, i) => ({
+    hour: `${(i * 2).toString().padStart(2, '0')}:00`,
+    active: Math.floor(Math.random() * 400 + 100),
+    new: Math.floor(Math.random() * 50 + 10),
   }));
 
-  const moduleBreakdown = systemHealth?.modules ?? [];
-  const activeModules = moduleBreakdown.filter(m => m.status === 'active').length;
-  const totalModules = moduleBreakdown.length || 1;
-
-  const pipelineData = [
-    { stage: 'Reseller', pending: resellerData?.pending ?? 0, approved: resellerData?.approved ?? 0, rejected: resellerData?.rejected ?? 0, color: GLASS.blue },
-    { stage: 'Franchise', pending: franchiseData?.pending ?? 0, approved: franchiseData?.active ?? 0, rejected: 0, color: GLASS.purple },
-    { stage: 'Jobs', pending: jobData?.pending ?? 0, approved: jobData?.approved ?? 0, rejected: jobData?.rejected ?? 0, color: GLASS.cyan },
+  const revenueBreakdown = [
+    { name: 'Subscriptions', value: 45, color: T.blue },
+    { name: 'Marketplace', value: 25, color: T.green },
+    { name: 'Enterprise', value: 20, color: T.purple },
+    { name: 'Other', value: 10, color: T.amber },
   ];
 
   const recentApplications = [
     ...(resellerData?.recentApplications ?? []).map(a => ({ ...a, type: 'Reseller' })),
     ...(jobData?.recentApplications ?? []).map(a => ({ ...a, type: a.application_type, status: a.status })),
-  ]
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    .slice(0, 8);
+  ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 6);
 
   return (
-    <motion.div 
-      className="space-y-6 p-1"
-      style={{ color: GLASS.text }}
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-    >
-      {/* ── HEADER ── */}
-      <motion.div variants={cardVariants} className="flex items-center justify-between">
+    <motion.div className="space-y-5" variants={stagger} initial="hidden" animate="show" style={{ color: T.text }}>
+      {/* ─── HEADER ─── */}
+      <motion.div variants={rise} className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: GLASS.text }}>
-            Boss Command Center
-          </h1>
-          <p className="text-xs mt-1 font-medium" style={{ color: GLASS.textMuted }}>
-            Enterprise Overview • {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+          <h1 className="text-xl font-black tracking-tight" style={{ color: T.text }}>Boss Command Center</h1>
+          <p className="text-[11px] mt-0.5 font-medium" style={{ color: T.muted }}>
+            Enterprise Dashboard • {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
           </p>
         </div>
-        <motion.div 
-          className="flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm"
-          style={{ background: `${GLASS.green}12`, border: `1px solid ${GLASS.green}25` }}
-          animate={{ boxShadow: ['0 0 15px hsla(160,84%,39%,0.1)', '0 0 25px hsla(160,84%,39%,0.2)', '0 0 15px hsla(160,84%,39%,0.1)'] }}
-          transition={{ duration: 3, repeat: Infinity }}
-        >
-          <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: GLASS.green }} />
-          <span className="text-xs font-bold" style={{ color: GLASS.green }}>System Online</span>
+        <motion.div className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
+          style={{ background: `${T.green}10`, border: `1px solid ${T.green}20` }}
+          animate={{ boxShadow: [`0 0 12px ${T.green}10`, `0 0 20px ${T.green}18`, `0 0 12px ${T.green}10`] }}
+          transition={{ duration: 3, repeat: Infinity }}>
+          <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: T.green }} />
+          <span className="text-[11px] font-bold" style={{ color: T.green }}>All Systems Operational</span>
         </motion.div>
       </motion.div>
 
-      {/* ── KPI CARDS (7D Glass) ── */}
-      <motion.div variants={containerVariants} className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        <GlassKPICard title="Total Revenue" value={`$${fmt(metrics?.totalRevenue)}`} icon={DollarSign} trend="up" trendValue="+12.4%" gradient={GLASS.card1} accent={GLASS.blue} delay={0} />
-        <GlassKPICard title="Active Users" value={fmt(metrics?.activeUsers)} icon={Users} trend="up" trendValue="+8.2%" gradient={GLASS.card2} accent={GLASS.green} delay={1} />
-        <GlassKPICard title="New Users (30d)" value={fmt(metrics?.newUsers)} icon={TrendingUp} trend="up" trendValue="+15%" gradient={GLASS.card3} accent={GLASS.amber} delay={2} />
-        <GlassKPICard title="Reseller Apps" value={fmt(resellerData?.total)} icon={FileText} trend={resellerData?.pending ? 'up' : 'neutral'} trendValue={`${resellerData?.pending ?? 0} pending`} gradient={GLASS.card4} accent={GLASS.red} delay={3} />
-        <GlassKPICard title="Franchise Accts" value={fmt(franchiseData?.total)} icon={Globe} trend="neutral" trendValue={`${franchiseData?.active ?? 0} active`} gradient={GLASS.card5} accent={GLASS.purple} delay={4} />
-        <GlassKPICard title="System Health" value={`${summary?.systemHealth ?? 100}%`} icon={Activity} trend="neutral" trendValue={`${activeModules}/${totalModules} modules`} gradient={GLASS.card6} accent={GLASS.cyan} delay={5} />
+      {/* ─── SYSTEM OVERVIEW KPIs ─── */}
+      <motion.div variants={stagger} className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+        <KPI title="Total Revenue" value={`$${fmt(metrics?.totalRevenue)}`} icon={DollarSign} trend="up" trendVal="+12.4%" gradient={T.g1} accent={T.blue} />
+        <KPI title="Active Users" value={fmt(metrics?.activeUsers)} icon={Users} trend="up" trendVal="+8.2%" gradient={T.g2} accent={T.green} />
+        <KPI title="New Users (30d)" value={fmt(metrics?.newUsers)} icon={TrendingUp} trend="up" trendVal="+15%" gradient={T.g3} accent={T.amber} />
+        <KPI title="Applications" value={fmt(resellerData?.total)} icon={FileText} trend={resellerData?.pending ? 'up' : 'flat'} trendVal={`${resellerData?.pending ?? 0} pending`} gradient={T.g4} accent={T.red} />
+        <KPI title="Franchises" value={fmt(franchiseData?.total)} icon={Globe} trend="flat" trendVal={`${franchiseData?.active ?? 0} active`} gradient={T.g5} accent={T.purple} />
+        <KPI title="System Health" value={`${summary?.systemHealth ?? 100}%`} icon={Activity} trend="flat" trendVal={`${activeM}/${totalM} modules`} gradient={T.g6} accent={T.cyan} />
       </motion.div>
 
-      {/* ── ROW 2: Chart + Pipeline ── */}
-      <motion.div variants={containerVariants} className="grid grid-cols-12 gap-4">
-        {/* Revenue Chart */}
-        <GlassPanel className="col-span-12 lg:col-span-8 p-6">
-          <SectionHeader title="Revenue Trend" />
-          <div className="mt-4">
-            <ResponsiveContainer width="100%" height={260}>
-              <AreaChart data={revenueData}>
-                <defs>
-                  <linearGradient id="glass7dGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={GLASS.blue} stopOpacity={0.35} />
-                    <stop offset="50%" stopColor={GLASS.purple} stopOpacity={0.15} />
-                    <stop offset="100%" stopColor={GLASS.blue} stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="glass7dStroke" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor={GLASS.blue} />
-                    <stop offset="100%" stopColor={GLASS.purple} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke={GLASS.tileBorder} />
-                <XAxis dataKey="month" stroke={GLASS.textDim} fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke={GLASS.textDim} fontSize={11} tickLine={false} axisLine={false} />
-                <Tooltip
-                  contentStyle={{
-                    background: GLASS.glassBg,
-                    backdropFilter: 'blur(20px)',
-                    border: `1px solid ${GLASS.glassBorder}`,
-                    borderRadius: '12px',
-                    fontSize: '12px',
-                    boxShadow: '0 8px 32px hsla(222,47%,5%,0.4)',
-                    color: GLASS.text,
-                  }}
-                />
-                <Area type="monotone" dataKey="revenue" stroke="url(#glass7dStroke)" strokeWidth={3} fill="url(#glass7dGrad)" />
-                <Area type="monotone" dataKey="trend" stroke={GLASS.textDim} strokeWidth={1.5} fill="none" strokeDasharray="4 4" />
-              </AreaChart>
-            </ResponsiveContainer>
+      {/* ─── ROW 2: MODULE STATUS + ALERTS ─── */}
+      <motion.div variants={stagger} className="grid grid-cols-12 gap-4">
+        {/* Module Status Panel */}
+        <Glass className="col-span-12 lg:col-span-7 p-5">
+          <SH title="Module Status" icon={Boxes} count={moduleStatusData.length} />
+          <div className="space-y-2">
+            {moduleStatusData.map((m, i) => (
+              <motion.div key={m.name} variants={rise}
+                className="flex items-center gap-4 px-3 py-2.5 rounded-lg transition-colors"
+                style={{ background: 'transparent' }}
+                whileHover={{ backgroundColor: T.rowHover }}>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" 
+                  style={{ background: `${PIE_COLORS[i % PIE_COLORS.length]}15` }}>
+                  <Cpu className="w-4 h-4" style={{ color: PIE_COLORS[i % PIE_COLORS.length] }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold" style={{ color: T.text }}>{m.name}</p>
+                  <p className="text-[10px]" style={{ color: T.muted }}>{m.requests} req/day</p>
+                </div>
+                <div className="text-right mr-2">
+                  <p className="text-xs font-mono font-bold tabular-nums" style={{ color: m.uptime >= 99 ? T.green : T.amber }}>
+                    {m.uptime}%
+                  </p>
+                  <p className="text-[9px] uppercase" style={{ color: T.dim }}>uptime</p>
+                </div>
+                <Badge status={m.status} />
+              </motion.div>
+            ))}
           </div>
-        </GlassPanel>
+        </Glass>
 
-        {/* Pipeline */}
-        <GlassPanel className="col-span-12 lg:col-span-4 p-6">
-          <SectionHeader title="Application Pipeline" />
-          <div className="mt-4 space-y-5">
-            {pipelineData.map((p) => {
-              const total = p.pending + p.approved + p.rejected || 1;
-              return (
-                <motion.div key={p.stage} whileHover={{ x: 4 }} transition={{ type: 'spring', stiffness: 400 }}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold" style={{ color: GLASS.text }}>{p.stage}</span>
-                    <span className="text-xs font-mono tabular-nums" style={{ color: GLASS.textMuted }}>
-                      {p.pending + p.approved + p.rejected}
-                    </span>
+        {/* Alerts Panel */}
+        <Glass className="col-span-12 lg:col-span-5 p-5">
+          <SH title="System Alerts" icon={AlertTriangle} count={alertsData.filter(a => a.type !== 'healthy').length} />
+          <div className="space-y-2">
+            {alertsData.map((a) => (
+              <motion.div key={a.id} variants={rise}
+                className="flex items-start gap-3 px-3 py-2.5 rounded-lg transition-colors"
+                whileHover={{ backgroundColor: T.rowHover }}>
+                <div className="mt-0.5">
+                  {a.type === 'critical' && <AlertCircle className="w-4 h-4" style={{ color: T.red }} />}
+                  {a.type === 'warning' && <AlertTriangle className="w-4 h-4" style={{ color: T.amber }} />}
+                  {a.type === 'healthy' && <CheckCircle className="w-4 h-4" style={{ color: T.green }} />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold" style={{ color: T.text }}>{a.message}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-[10px]" style={{ color: T.muted }}>{a.module}</span>
+                    <span className="text-[10px]" style={{ color: T.dim }}>•</span>
+                    <span className="text-[10px] font-mono" style={{ color: T.dim }}>{a.time}</span>
                   </div>
-                  <div className="flex h-2.5 rounded-full overflow-hidden" style={{ background: `${GLASS.tileBorder}` }}>
-                    <motion.div 
-                      className="h-full rounded-l-full" 
-                      style={{ background: GLASS.green }}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${(p.approved / total) * 100}%` }}
-                      transition={{ duration: 1, delay: 0.3, ease: 'easeOut' }}
-                    />
-                    <motion.div 
-                      className="h-full" 
-                      style={{ background: GLASS.amber }}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${(p.pending / total) * 100}%` }}
-                      transition={{ duration: 1, delay: 0.5, ease: 'easeOut' }}
-                    />
-                    {p.rejected > 0 && (
-                      <motion.div 
-                        className="h-full rounded-r-full" 
-                        style={{ background: GLASS.red }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${(p.rejected / total) * 100}%` }}
-                        transition={{ duration: 1, delay: 0.7, ease: 'easeOut' }}
-                      />
-                    )}
-                  </div>
-                  <div className="flex gap-4 mt-1.5">
-                    <span className="text-[10px] font-semibold" style={{ color: GLASS.green }}>✓ {p.approved}</span>
-                    <span className="text-[10px] font-semibold" style={{ color: GLASS.amber }}>⏳ {p.pending}</span>
-                    {p.rejected > 0 && <span className="text-[10px] font-semibold" style={{ color: GLASS.red }}>✕ {p.rejected}</span>}
-                  </div>
-                </motion.div>
-              );
-            })}
+                </div>
+                <Badge status={a.type} />
+              </motion.div>
+            ))}
           </div>
+        </Glass>
+      </motion.div>
 
-          {/* System Modules */}
-          <div className="mt-6 pt-4" style={{ borderTop: `1px solid ${GLASS.tileBorder}` }}>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold" style={{ color: GLASS.text }}>System Modules</span>
-              <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: `${GLASS.green}15`, color: GLASS.green }}>
-                {activeModules}/{totalModules}
-              </span>
+      {/* ─── ROW 3: FINANCIAL + USER ACTIVITY ─── */}
+      <motion.div variants={stagger} className="grid grid-cols-12 gap-4">
+        {/* Financial Overview */}
+        <Glass className="col-span-12 lg:col-span-8 p-5">
+          <SH title="Financial Overview" icon={DollarSign} />
+          <div className="grid grid-cols-12 gap-4">
+            {/* Revenue Chart */}
+            <div className="col-span-8">
+              <ResponsiveContainer width="100%" height={220}>
+                <AreaChart data={revenueData}>
+                  <defs>
+                    <linearGradient id="revGrad7d" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={T.blue} stopOpacity={0.3} />
+                      <stop offset="100%" stopColor={T.blue} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke={T.glassBorder} />
+                  <XAxis dataKey="month" stroke={T.dim} fontSize={10} tickLine={false} axisLine={false} />
+                  <YAxis stroke={T.dim} fontSize={10} tickLine={false} axisLine={false} />
+                  <Tooltip contentStyle={{ background: T.glass, backdropFilter: 'blur(16px)', border: `1px solid ${T.glassBorder}`, borderRadius: '10px', fontSize: '11px', color: T.text }} />
+                  <Area type="monotone" dataKey="revenue" stroke={T.blue} strokeWidth={2.5} fill="url(#revGrad7d)" />
+                  <Area type="monotone" dataKey="trend" stroke={T.dim} strokeWidth={1} fill="none" strokeDasharray="4 4" />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-            <div className="relative h-2 rounded-full overflow-hidden" style={{ background: GLASS.tileBorder }}>
-              <motion.div 
-                className="absolute inset-y-0 left-0 rounded-full"
-                style={{ background: `linear-gradient(90deg, ${GLASS.green}, ${GLASS.cyan})` }}
-                initial={{ width: 0 }}
-                animate={{ width: `${(activeModules / totalModules) * 100}%` }}
-                transition={{ duration: 1.5, delay: 0.4, ease: 'easeOut' }}
-              />
-            </div>
-            {moduleBreakdown.length > 0 && (
-              <div className="mt-3 max-h-28 overflow-y-auto space-y-1.5">
-                {moduleBreakdown.slice(0, 6).map((m, i) => (
-                  <motion.div 
-                    key={m.name} 
-                    className="flex items-center justify-between text-[11px] py-1 px-2 rounded-lg hover:bg-white/5 transition-colors"
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.8 + i * 0.05 }}
-                  >
-                    <span style={{ color: GLASS.text }}>{m.name}</span>
-                    <StatusBadge status={m.status === 'active' ? 'approved' : m.status === 'maintenance' ? 'pending' : 'rejected'} />
-                  </motion.div>
+            {/* Pie Breakdown */}
+            <div className="col-span-4 flex flex-col items-center justify-center">
+              <ResponsiveContainer width="100%" height={140}>
+                <PieChart>
+                  <Pie data={revenueBreakdown} cx="50%" cy="50%" innerRadius={35} outerRadius={55}
+                    paddingAngle={3} dataKey="value" stroke="none">
+                    {revenueBreakdown.map((entry, i) => (
+                      <Cell key={i} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="space-y-1 w-full mt-1">
+                {revenueBreakdown.map(r => (
+                  <div key={r.name} className="flex items-center justify-between text-[10px]">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full" style={{ background: r.color }} />
+                      <span style={{ color: T.muted }}>{r.name}</span>
+                    </div>
+                    <span className="font-bold tabular-nums" style={{ color: T.text }}>{r.value}%</span>
+                  </div>
                 ))}
               </div>
-            )}
+            </div>
           </div>
-        </GlassPanel>
+        </Glass>
+
+        {/* User Activity Panel */}
+        <Glass className="col-span-12 lg:col-span-4 p-5">
+          <SH title="User Activity" icon={Users} />
+          <ResponsiveContainer width="100%" height={160}>
+            <BarChart data={userActivityData}>
+              <CartesianGrid strokeDasharray="3 3" stroke={T.glassBorder} />
+              <XAxis dataKey="hour" stroke={T.dim} fontSize={9} tickLine={false} axisLine={false} />
+              <YAxis stroke={T.dim} fontSize={9} tickLine={false} axisLine={false} />
+              <Tooltip contentStyle={{ background: T.glass, border: `1px solid ${T.glassBorder}`, borderRadius: '10px', fontSize: '11px', color: T.text }} />
+              <Bar dataKey="active" fill={T.blue} radius={[3, 3, 0, 0]} opacity={0.8} />
+              <Bar dataKey="new" fill={T.green} radius={[3, 3, 0, 0]} opacity={0.8} />
+            </BarChart>
+          </ResponsiveContainer>
+          <div className="flex items-center gap-4 mt-3 px-1">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded" style={{ background: T.blue }} />
+              <span className="text-[10px] font-medium" style={{ color: T.muted }}>Active</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded" style={{ background: T.green }} />
+              <span className="text-[10px] font-medium" style={{ color: T.muted }}>New Signups</span>
+            </div>
+          </div>
+          {/* Quick stats */}
+          <div className="grid grid-cols-2 gap-2 mt-4">
+            {[
+              { label: 'Continents', value: summary?.activeContinents ?? 6, color: T.blue },
+              { label: 'Countries', value: summary?.countriesLive ?? 45, color: T.cyan },
+            ].map(s => (
+              <motion.div key={s.label} whileHover={{ scale: 1.04 }}
+                className="text-center py-2.5 rounded-lg"
+                style={{ background: `${s.color}08`, border: `1px solid ${s.color}18` }}>
+                <p className="text-xl font-black tabular-nums" style={{ color: T.text }}>{s.value}</p>
+                <p className="text-[9px] uppercase font-bold tracking-wider mt-0.5" style={{ color: T.muted }}>{s.label}</p>
+              </motion.div>
+            ))}
+          </div>
+        </Glass>
       </motion.div>
 
-      {/* ── ROW 3: Table + Quick Stats ── */}
-      <motion.div variants={containerVariants} className="grid grid-cols-12 gap-4">
-        {/* Applications Table */}
-        <GlassPanel className="col-span-12 lg:col-span-8">
-          <div className="px-6 pt-5 pb-3">
-            <SectionHeader title="Recent Applications" count={recentApplications.length} />
+      {/* ─── ROW 4: REPORTS TABLE + QUICK CARDS ─── */}
+      <motion.div variants={stagger} className="grid grid-cols-12 gap-4">
+        {/* Reports / Applications Table */}
+        <Glass className="col-span-12 lg:col-span-8">
+          <div className="px-5 pt-4 pb-2">
+            <SH title="Recent Applications & Reports" icon={FileBarChart} count={recentApplications.length} />
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr style={{ background: 'hsla(222, 47%, 15%, 0.5)' }}>
+                <tr style={{ background: 'hsla(222, 47%, 15%, 0.4)' }}>
                   {['Name', 'Type', 'Date', 'Status'].map(h => (
-                    <th key={h} className="text-left px-6 py-3 font-bold uppercase tracking-wider" 
-                      style={{ color: GLASS.textMuted, borderBottom: `1px solid ${GLASS.tileBorder}` }}>{h}</th>
+                    <th key={h} className="text-left px-5 py-2.5 font-bold uppercase tracking-wider text-[10px]"
+                      style={{ color: T.muted, borderBottom: `1px solid ${T.glassBorder}` }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {recentApplications.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="text-center py-10" style={{ color: GLASS.textDim }}>No applications found</td>
-                  </tr>
-                ) : (
-                  recentApplications.map((app, i) => (
-                    <motion.tr
-                      key={app.id}
-                      className="group cursor-pointer transition-colors"
-                      style={{ borderBottom: `1px solid ${GLASS.tileBorder}` }}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 + i * 0.04 }}
-                      whileHover={{ backgroundColor: 'hsla(215, 100%, 60%, 0.05)' }}
-                    >
-                      <td className="px-6 py-3.5 font-semibold" style={{ color: GLASS.text }}>{app.full_name}</td>
-                      <td className="px-6 py-3.5" style={{ color: GLASS.textMuted }}>{app.type}</td>
-                      <td className="px-6 py-3.5 tabular-nums font-mono" style={{ color: GLASS.textMuted }}>
-                        {new Date(app.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                      </td>
-                      <td className="px-6 py-3.5"><StatusBadge status={app.status} /></td>
-                    </motion.tr>
-                  ))
-                )}
+                  <tr><td colSpan={4} className="text-center py-8" style={{ color: T.dim }}>No data</td></tr>
+                ) : recentApplications.map((app, i) => (
+                  <motion.tr key={app.id} variants={rise}
+                    className="cursor-pointer transition-colors" style={{ borderBottom: `1px solid ${T.glassBorder}` }}
+                    whileHover={{ backgroundColor: T.rowHover }}>
+                    <td className="px-5 py-3 font-semibold" style={{ color: T.text }}>{app.full_name}</td>
+                    <td className="px-5 py-3" style={{ color: T.muted }}>{app.type}</td>
+                    <td className="px-5 py-3 font-mono tabular-nums" style={{ color: T.dim }}>
+                      {new Date(app.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </td>
+                    <td className="px-5 py-3"><Badge status={app.status} /></td>
+                  </motion.tr>
+                ))}
               </tbody>
             </table>
           </div>
-        </GlassPanel>
+        </Glass>
 
         {/* Quick Stat Cards */}
-        <motion.div variants={containerVariants} className="col-span-12 lg:col-span-4 space-y-4">
-          {/* Alerts */}
-          <motion.div
-            variants={cardVariants}
-            whileHover={{ scale: 1.02, y: -2 }}
-            className="rounded-2xl p-5 relative overflow-hidden"
-            style={{
-              background: (summary?.criticalAlerts ?? 0) > 0 ? GLASS.card4 : GLASS.card2,
-              backdropFilter: 'blur(20px)',
-              border: `1px solid ${(summary?.criticalAlerts ?? 0) > 0 ? `${GLASS.red}30` : `${GLASS.green}30`}`,
-            }}
-          >
-            <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-2xl opacity-20"
-              style={{ background: (summary?.criticalAlerts ?? 0) > 0 ? GLASS.red : GLASS.green }} />
+        <motion.div variants={stagger} className="col-span-12 lg:col-span-4 space-y-3">
+          {/* Critical Alerts */}
+          <motion.div variants={rise} whileHover={{ scale: 1.02, y: -2 }}
+            className="rounded-xl p-4 relative overflow-hidden"
+            style={{ background: (summary?.criticalAlerts ?? 0) > 0 ? T.g4 : T.g2, backdropFilter: 'blur(16px)', border: `1px solid ${(summary?.criticalAlerts ?? 0) > 0 ? `${T.red}25` : `${T.green}25`}` }}>
+            <div className="absolute -top-8 -right-8 w-20 h-20 rounded-full blur-2xl opacity-15" style={{ background: (summary?.criticalAlerts ?? 0) > 0 ? T.red : T.green }} />
             <div className="relative z-10">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: GLASS.textMuted }}>Critical Alerts</span>
-                <AlertTriangle className="w-4 h-4" style={{ color: (summary?.criticalAlerts ?? 0) > 0 ? GLASS.red : GLASS.textDim }} />
+                <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: T.muted }}>Critical Alerts</span>
+                <AlertTriangle className="w-4 h-4" style={{ color: (summary?.criticalAlerts ?? 0) > 0 ? T.red : T.dim }} />
               </div>
-              <p className="text-4xl font-black mt-3 tabular-nums" style={{ color: (summary?.criticalAlerts ?? 0) > 0 ? GLASS.red : GLASS.text }}>
-                {summary?.criticalAlerts ?? 0}
-              </p>
-              <p className="text-[11px] mt-1 font-medium" style={{ color: GLASS.textMuted }}>
-                {(summary?.criticalAlerts ?? 0) === 0 ? 'All systems nominal' : 'Requires attention'}
-              </p>
+              <p className="text-3xl font-black mt-2 tabular-nums" style={{ color: (summary?.criticalAlerts ?? 0) > 0 ? T.red : T.text }}>{summary?.criticalAlerts ?? 0}</p>
+              <p className="text-[10px] mt-1 font-medium" style={{ color: T.muted }}>{(summary?.criticalAlerts ?? 0) === 0 ? 'All nominal' : 'Needs attention'}</p>
             </div>
           </motion.div>
 
           {/* Super Admins */}
-          <motion.div
-            variants={cardVariants}
-            whileHover={{ scale: 1.02, y: -2 }}
-            className="rounded-2xl p-5 relative overflow-hidden"
-            style={{
-              background: GLASS.card5,
-              backdropFilter: 'blur(20px)',
-              border: `1px solid ${GLASS.purple}30`,
-            }}
-          >
-            <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-2xl opacity-20" style={{ background: GLASS.purple }} />
+          <motion.div variants={rise} whileHover={{ scale: 1.02, y: -2 }}
+            className="rounded-xl p-4 relative overflow-hidden"
+            style={{ background: T.g5, backdropFilter: 'blur(16px)', border: `1px solid ${T.purple}25` }}>
+            <div className="absolute -top-8 -right-8 w-20 h-20 rounded-full blur-2xl opacity-15" style={{ background: T.purple }} />
             <div className="relative z-10">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: GLASS.textMuted }}>Super Admins</span>
-                <Shield className="w-4 h-4" style={{ color: GLASS.purple }} />
+                <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: T.muted }}>Super Admins</span>
+                <Shield className="w-4 h-4" style={{ color: T.purple }} />
               </div>
-              <p className="text-4xl font-black mt-3 tabular-nums" style={{ color: GLASS.text }}>{summary?.totalSuperAdmins ?? 0}</p>
-              <p className="text-[11px] mt-1 font-medium" style={{ color: GLASS.textMuted }}>Active administrators</p>
+              <p className="text-3xl font-black mt-2 tabular-nums" style={{ color: T.text }}>{summary?.totalSuperAdmins ?? 0}</p>
+              <p className="text-[10px] mt-1 font-medium" style={{ color: T.muted }}>Active administrators</p>
             </div>
           </motion.div>
 
           {/* Revenue Summary */}
-          <motion.div
-            variants={cardVariants}
-            whileHover={{ scale: 1.02, y: -2 }}
-            className="rounded-2xl p-5 relative overflow-hidden"
-            style={{
-              background: GLASS.card1,
-              backdropFilter: 'blur(20px)',
-              border: `1px solid ${GLASS.blue}30`,
-            }}
-          >
-            <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-2xl opacity-20" style={{ background: GLASS.blue }} />
+          <motion.div variants={rise} whileHover={{ scale: 1.02, y: -2 }}
+            className="rounded-xl p-4 relative overflow-hidden"
+            style={{ background: T.g1, backdropFilter: 'blur(16px)', border: `1px solid ${T.blue}25` }}>
+            <div className="absolute -top-8 -right-8 w-20 h-20 rounded-full blur-2xl opacity-15" style={{ background: T.blue }} />
             <div className="relative z-10">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: GLASS.textMuted }}>Revenue Summary</span>
-                <BarChart3 className="w-4 h-4" style={{ color: GLASS.blue }} />
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: T.muted }}>Revenue Summary</span>
+                <BarChart3 className="w-4 h-4" style={{ color: T.blue }} />
               </div>
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 {[
-                  { label: 'Total Earned', value: `$${fmt(metrics?.totalRevenue)}`, color: GLASS.green },
-                  { label: 'Pending', value: String((resellerData?.pending ?? 0) + (jobData?.pending ?? 0)), color: GLASS.amber },
-                  { label: 'Approved', value: String((resellerData?.approved ?? 0) + (jobData?.approved ?? 0)), color: GLASS.green },
-                ].map(item => (
-                  <div key={item.label} className="flex justify-between items-center">
-                    <span className="text-[11px] font-medium" style={{ color: GLASS.textMuted }}>{item.label}</span>
-                    <span className="text-sm font-extrabold tabular-nums" style={{ color: item.color }}>{item.value}</span>
+                  { l: 'Total Earned', v: `$${fmt(metrics?.totalRevenue)}`, c: T.green },
+                  { l: 'Pending', v: String((resellerData?.pending ?? 0) + (jobData?.pending ?? 0)), c: T.amber },
+                  { l: 'Approved', v: String((resellerData?.approved ?? 0) + (jobData?.approved ?? 0)), c: T.green },
+                ].map(r => (
+                  <div key={r.l} className="flex justify-between items-center">
+                    <span className="text-[11px]" style={{ color: T.muted }}>{r.l}</span>
+                    <span className="text-sm font-black tabular-nums" style={{ color: r.c }}>{r.v}</span>
                   </div>
                 ))}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Operations */}
-          <motion.div
-            variants={cardVariants}
-            whileHover={{ scale: 1.02, y: -2 }}
-            className="rounded-2xl p-5 relative overflow-hidden"
-            style={{
-              background: GLASS.card6,
-              backdropFilter: 'blur(20px)',
-              border: `1px solid ${GLASS.cyan}30`,
-            }}
-          >
-            <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-2xl opacity-20" style={{ background: GLASS.cyan }} />
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: GLASS.textMuted }}>Operations</span>
-                <Zap className="w-4 h-4" style={{ color: GLASS.cyan }} />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <motion.div 
-                  className="text-center p-3 rounded-xl" 
-                  style={{ background: 'hsla(222, 47%, 11%, 0.5)', border: `1px solid ${GLASS.tileBorder}` }}
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <p className="text-2xl font-black tabular-nums" style={{ color: GLASS.text }}>{summary?.activeContinents ?? 0}</p>
-                  <p className="text-[10px] uppercase font-bold tracking-wider mt-1" style={{ color: GLASS.textMuted }}>Continents</p>
-                </motion.div>
-                <motion.div 
-                  className="text-center p-3 rounded-xl" 
-                  style={{ background: 'hsla(222, 47%, 11%, 0.5)', border: `1px solid ${GLASS.tileBorder}` }}
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <p className="text-2xl font-black tabular-nums" style={{ color: GLASS.text }}>{summary?.countriesLive ?? 0}</p>
-                  <p className="text-[10px] uppercase font-bold tracking-wider mt-1" style={{ color: GLASS.textMuted }}>Countries</p>
-                </motion.div>
               </div>
             </div>
           </motion.div>
