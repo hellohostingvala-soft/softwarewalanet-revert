@@ -145,7 +145,7 @@ export const useSEOActivityLogs = (projectId?: string) => {
   }, [projectId]);
 
   const addLog = async (log: Record<string, any>) => {
-    await supabase.from("seo_activity_logs").insert(log);
+    await supabase.from("seo_activity_logs").insert([log]);
     fetchLogs();
   };
 
