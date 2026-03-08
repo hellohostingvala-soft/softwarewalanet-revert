@@ -488,7 +488,14 @@
   .sidebar-item-active {
     @apply sidebar-item bg-primary/15 text-primary;
     border-left: 3px solid hsl(var(--primary));
-    box-shadow: inset 0 0 30px hsl(var(--aurora-violet) / 0.1);
+    box-shadow: inset 0 0 30px hsl(var(--sv-royal) / 0.1);
+  }
+
+  /* Software Vala Brand Accent Bar */
+  .sv-accent-bar {
+    height: 3px;
+    background: linear-gradient(90deg, hsl(var(--sv-royal)) 0%, hsl(var(--sv-red)) 50%, hsl(var(--sv-royal)) 100%);
+    border-radius: 2px;
   }
 
   /* ========================================
