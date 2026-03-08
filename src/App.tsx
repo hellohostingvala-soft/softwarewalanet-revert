@@ -768,6 +768,10 @@ const App = memo(() => (
                             {/* Wireframe Routes */}
                             <Route path="/wireframe/*" element={<WireframeRoutes />} />
 
+                            {/* Payment Result Pages */}
+                            <Route path="/payment-success" element={<PaymentSuccess />} />
+                            <Route path="/payment-failure" element={<PaymentFailure />} />
+
                             {/* 404 */}
                             <Route path="*" element={<NotFound />} />
                           </Routes>
