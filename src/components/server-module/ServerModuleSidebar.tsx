@@ -46,6 +46,13 @@ const sidebarItems: { id: ServerModuleSection; label: string; icon: React.Elemen
   { id: 'ai-actions', label: 'AI Actions', icon: Cpu },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
+
+interface ServerModuleSidebarProps {
+  activeSection: ServerModuleSection;
+  onSectionChange: (section: ServerModuleSection) => void;
+  onBack?: () => void;
+}
+
 const ServerModuleSidebarComponent: React.FC<ServerModuleSidebarProps> = ({
   activeSection,
   onSectionChange,
