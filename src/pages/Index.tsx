@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { useGeoLocale, convertPrice, parseINRPrice } from "@/hooks/useGeoLocale";
+import { useFestivalBanner } from "@/hooks/useFestivalBanner";
 import { useEnterpriseAudit } from "@/hooks/useEnterpriseAudit";
 import { 
   Play, Heart, ShoppingCart, Filter, Search, Bell,
@@ -2447,6 +2449,16 @@ const Index = () => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
+  const geoLocale = useGeoLocale();
+  const festivalBanner = useFestivalBanner(geoLocale.country);
+
+  /** Convert INR price string to local currency */
+  const localPrice = (inrStr: string) => {
+    if (geoLocale.currency === 'INR') return inrStr;
+    const num = parseINRPrice(inrStr);
+    if (!num) return inrStr;
+    return convertPrice(num, geoLocale.exchangeRate, geoLocale.currencySymbol);
+  };
 
   const filteredDemos = allDemos.filter(demo => {
     const matchesCategory = activeCategory === "All" || demo.masterCategory === activeCategory;
@@ -2528,6 +2540,79 @@ const Index = () => {
         </div>
       </header>
 
+      {/* Hero Section - Complete Business Software Marketplace */}
+      <section className="relative py-16 px-4 bg-gradient-to-b from-[#0d1e36] to-transparent overflow-hidden">
+        {/* Ambient glow */}
+        <div className="absolute top-0 left-1/3 w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-[150px]" />
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-orange-500/4 rounded-full blur-[120px]" />
+
+        <div className="max-w-7xl mx-auto text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 mb-5 text-sm px-4 py-1.5">
+              <Star className="h-3.5 w-3.5 mr-1.5" /> 20 Master Categories • 147 Software Solutions • 20 Live Demos
+            </Badge>
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-5 leading-tight">
+              Complete <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-400">Business Software</span>
+              <br />Marketplace
+            </h2>
+            <p className="text-slate-400 text-lg md:text-xl max-w-3xl mx-auto mb-8 leading-relaxed">
+              Premium enterprise solutions across Education, Healthcare, Finance, Retail, Logistics & more.
+              Start your business today with our ready-to-deploy software!
+            </p>
+            <div className="flex flex-wrap justify-center gap-6 mb-4">
+              <div className="flex items-center gap-2 text-emerald-400 font-medium">
+                <CheckCircle className="h-5 w-5" /> Full Source Code
+              </div>
+              <div className="flex items-center gap-2 text-cyan-400 font-medium">
+                <CheckCircle className="h-5 w-5" /> 1 Year Free Support
+              </div>
+              <div className="flex items-center gap-2 text-orange-400 font-medium">
+                <CheckCircle className="h-5 w-5" /> Free Installation
+              </div>
+              <div className="flex items-center gap-2 text-purple-400 font-medium">
+                <CheckCircle className="h-5 w-5" /> Lifetime Updates
+              </div>
+            </div>
+            {!geoLocale.loading && geoLocale.country !== 'IN' && (
+              <p className="text-xs text-slate-500 mt-2">
+                📍 Showing prices in {geoLocale.currency} ({geoLocale.countryName})
+              </p>
+            )}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Festival / Special Day Banner - Netflix Style */}
+      {festivalBanner && (
+        <section className="px-4 md:px-8 mb-6">
+          <div className="max-w-[1400px] mx-auto">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className={`relative rounded-2xl overflow-hidden bg-gradient-to-r ${festivalBanner.gradient} p-8 md:p-12`}
+            >
+              <div className="absolute inset-0 bg-black/20" />
+              <div className="absolute top-0 right-0 w-1/3 h-full opacity-10 flex items-center justify-center">
+                <span className="text-[120px]">{festivalBanner.emoji}</span>
+              </div>
+              <div className="relative z-10">
+                <h3 className="text-3xl md:text-4xl font-extrabold text-white mb-2">{festivalBanner.title}</h3>
+                <p className="text-white/80 text-lg mb-4">{festivalBanner.subtitle}</p>
+                {festivalBanner.offer && (
+                  <Badge className="bg-white/20 text-white border-white/30 text-base px-4 py-1.5 backdrop-blur-sm">
+                    🎉 {festivalBanner.offer} — Limited Time!
+                  </Badge>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      )}
 
       {/* Netflix-Style Horizontal Rows */}
       <section className="pt-8 pb-12 px-4 md:px-8">
@@ -2550,6 +2635,7 @@ const Index = () => {
                         index={index}
                         isFavorite={favorites.includes(demo.id)}
                         onToggleFavorite={() => toggleFavorite(demo.id)}
+                        localPrice={localPrice}
                       />
                     </div>
                   ))}
@@ -2572,11 +2658,12 @@ const Index = () => {
 };
 
 // Demo Card Component - Enhanced with interactions
-const DemoCard = ({ demo, index, isFavorite, onToggleFavorite }: { 
+const DemoCard = ({ demo, index, isFavorite, onToggleFavorite, localPrice }: { 
   demo: Demo; 
   index: number; 
   isFavorite: boolean;
   onToggleFavorite: () => void;
+  localPrice?: (inrStr: string) => string;
 }) => {
   const Icon = demo.icon;
   const { logAction } = useEnterpriseAudit();
@@ -2729,13 +2816,13 @@ const DemoCard = ({ demo, index, isFavorite, onToggleFavorite }: {
 
             {/* Price with animation */}
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-gray-500 line-through text-sm">{demo.price}</span>
+              <span className="text-gray-500 line-through text-sm">{localPrice ? localPrice(demo.price) : demo.price}</span>
               <motion.span 
                 className="text-emerald-400 font-bold text-xl"
                 animate={{ scale: isHovered ? [1, 1.05, 1] : 1 }}
                 transition={{ duration: 0.3 }}
               >
-                {demo.discountPrice}
+                {localPrice ? localPrice(demo.discountPrice) : demo.discountPrice}
               </motion.span>
               <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-xs animate-pulse">
                 40% OFF
