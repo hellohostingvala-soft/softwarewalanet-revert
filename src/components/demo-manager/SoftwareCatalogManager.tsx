@@ -572,6 +572,18 @@ const SoftwareCatalogManager = () => {
                 Dismiss
               </Button>
             </div>
+            {importStats.categories && Object.keys(importStats.categories).length > 0 && (
+              <div className="mt-3 pt-3 border-t border-border/50">
+                <p className="text-xs text-muted-foreground mb-2">Category Breakdown:</p>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(importStats.categories).sort((a, b) => b[1] - a[1]).map(([cat, count]) => (
+                    <Badge key={cat} variant="outline" className="text-xs">
+                      {cat}: {count}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
