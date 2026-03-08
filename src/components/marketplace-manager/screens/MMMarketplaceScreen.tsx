@@ -31,6 +31,7 @@ interface Product {
   repo_language?: string | null;
   demo_build_status?: string | null;
   last_repo_sync_at?: string | null;
+  listing_status?: string | null;
 }
 
 type PartnerRequestType =
@@ -147,6 +148,7 @@ export const MMMarketplaceScreen = () => {
           repo_language: item.repo_language || null,
           demo_build_status: item.demo_build_status || null,
           last_repo_sync_at: item.last_repo_sync_at || null,
+          listing_status: item.listing_status || 'draft',
         }));
       } else if (!fetchError) {
         // Fallback to products table
@@ -423,6 +425,8 @@ export const MMMarketplaceScreen = () => {
     return groups;
   }, [products]);
 
+  const latestLaunches = useMemo(() => products.filter(p => p.listing_status === 'live' || p.demo_url), [products]);
+  const upcomingProducts = useMemo(() => products.filter(p => p.listing_status === 'upcoming' || p.listing_status === 'coming_soon').slice(0, 10), [products]);
   const featuredProducts = useMemo(() => products.slice(0, 5), [products]);
   const trendingProducts = useMemo(() => [...products].sort(() => 0.5 - Math.random()).slice(0, 8), [products]);
   const newReleases = useMemo(() => products.slice(0, 8), [products]);
@@ -540,7 +544,21 @@ export const MMMarketplaceScreen = () => {
         ) : (
           <>
             {featuredProducts.length > 0 && (
-              <HeroBanner products={featuredProducts} onDemo={handleDemo} onBuy={handleBuy} onView={handleProductView} discountedPrice={discountedPrice} />
+              <HeroBanner products={latestLaunches.length > 0 ? latestLaunches : featuredProducts} onDemo={handleDemo} onBuy={handleBuy} onView={handleProductView} discountedPrice={discountedPrice} />
+            )}
+
+            {latestLaunches.length > 0 && (
+              <ProductRow
+                title="🚀 Latest Launch"
+                icon={<Zap className="w-5 h-5 text-red-400" />}
+                products={latestLaunches}
+                favorites={favorites}
+                onView={handleProductView}
+                onDemo={handleDemo}
+                onBuy={handleBuy}
+                onFav={toggleFavorite}
+                discountedPrice={discountedPrice}
+              />
             )}
 
             <ProductRow
@@ -578,6 +596,20 @@ export const MMMarketplaceScreen = () => {
               onFav={toggleFavorite}
               discountedPrice={discountedPrice}
             />
+
+            {upcomingProducts.length > 0 && (
+              <ProductRow
+                title="🔜 Upcoming Soon"
+                icon={<Monitor className="w-5 h-5 text-amber-400" />}
+                products={upcomingProducts}
+                favorites={favorites}
+                onView={handleProductView}
+                onDemo={handleDemo}
+                onBuy={handleBuy}
+                onFav={toggleFavorite}
+                discountedPrice={discountedPrice}
+              />
+            )}
 
             {Object.entries(groupedByCategory).slice(0, 6).map(([category, categoryProducts]) => (
               <ProductRow
