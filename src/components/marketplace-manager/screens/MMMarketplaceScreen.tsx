@@ -104,8 +104,7 @@ export const MMMarketplaceScreen = () => {
         .from('software_catalog' as any)
         .select('*')
         .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .limit(1000);
+        .order('created_at', { ascending: false });
 
       if (!catalogResult.error && catalogResult.data && catalogResult.data.length > 0) {
         // Map software_catalog columns to Product interface
