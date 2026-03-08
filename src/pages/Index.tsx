@@ -2635,6 +2635,7 @@ const Index = () => {
                         index={index}
                         isFavorite={favorites.includes(demo.id)}
                         onToggleFavorite={() => toggleFavorite(demo.id)}
+                        localPrice={localPrice}
                       />
                     </div>
                   ))}
