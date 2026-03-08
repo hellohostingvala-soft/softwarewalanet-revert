@@ -26,6 +26,8 @@ const DeveloperDashboard = () => {
     switch (activeSection) {
       case 'command-center':
         return <DeveloperCommandCenterComplete />;
+      case 'source-lock':
+        return <DevSourceCodeLock />;
       case 'tasks':
         return <DevTaskAssignment />;
       case 'bugs':
@@ -34,8 +36,10 @@ const DeveloperDashboard = () => {
         return <DevCodeSubmission />;
       case 'timer':
         return <DevTimerProgress />;
-      case 'ai-assistant':
-        return <DeveloperAISection />;
+      case 'ai-chat':
+        return <DevAIChatLive />;
+      case 'code-quality':
+        return <DevCodeQualityPanel />;
       case 'performance':
         return <DeveloperPerformanceSection />;
       case 'settings':
