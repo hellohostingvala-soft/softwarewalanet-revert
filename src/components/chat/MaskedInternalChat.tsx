@@ -406,6 +406,12 @@ const MaskedInternalChat = () => {
   const [autoTranslate, setAutoTranslate] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
   const [showTranslation, setShowTranslation] = useState(true);
+  const [isEscalatedToAira, setIsEscalatedToAira] = useState(false);
+  const [isAiTyping, setIsAiTyping] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [autoTranslate, setAutoTranslate] = useState(true);
+  const [isRecording, setIsRecording] = useState(false);
+  const [showTranslation, setShowTranslation] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
