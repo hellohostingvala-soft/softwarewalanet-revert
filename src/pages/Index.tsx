@@ -2482,29 +2482,92 @@ const allDemos: Demo[] = [
   }
 ];
 
-// Master Categories for filtering (20 Categories)
+// ===== 50 NETFLIX ROWS =====
+interface NetflixRow {
+  id: number;
+  title: string;
+  type: 'special' | 'category';
+  filter: (demo: Demo) => boolean;
+}
+
+const NETFLIX_ROWS: NetflixRow[] = [
+  // Special Curated Rows
+  { id: 1, title: '🔥 Upcoming Products', type: 'special', filter: d => d.status === 'COMING_SOON' },
+  { id: 2, title: '⚡ On Demand Solutions', type: 'special', filter: d => d.status === 'ACTIVE' },
+  { id: 3, title: '🏆 This Week Top Products', type: 'special', filter: d => d.status === 'ACTIVE' || ['school-management', 'crm-software', 'hotel-management', 'manufacturing-erp', 'ecommerce-platform'].includes(d.id) },
+  { id: 4, title: '🌿 Evergreen Software', type: 'special', filter: d => ['school-management', 'hospital-hms', 'retail-pos', 'accounting-software', 'crm-software', 'hrms-software', 'fleet-management', 'property-management'].includes(d.id) },
+
+  // Category Rows (5-50)
+  { id: 5, title: 'Education & EdTech', type: 'category', filter: d => d.masterCategory === 'Education' },
+  { id: 6, title: 'Healthcare & Medical Services', type: 'category', filter: d => d.masterCategory === 'Healthcare' && !['Gym Fitness', 'Salon Spa'].includes(d.category) },
+  { id: 7, title: 'Real Estate & Property Services', type: 'category', filter: d => d.masterCategory === 'Real Estate' },
+  { id: 8, title: 'E-Commerce & Online Marketplaces', type: 'category', filter: d => d.masterCategory === 'E-commerce & Online Marketplaces' },
+  { id: 9, title: 'Retail & POS Systems', type: 'category', filter: d => d.masterCategory === 'Retail & POS' },
+  { id: 10, title: 'Food Delivery & Restaurant Systems', type: 'category', filter: d => ['Restaurant POS', 'Restaurant Mgmt', 'Kitchen KOT'].includes(d.category) || d.name.toLowerCase().includes('food') || d.name.toLowerCase().includes('restaurant') },
+  { id: 11, title: 'Hospitality & Hotel Booking', type: 'category', filter: d => d.masterCategory === 'Hospitality (Hotel, Restaurant, Travel)' || d.masterCategory === 'Hospitality' },
+  { id: 12, title: 'Transportation & Ride Sharing', type: 'category', filter: d => ['Fleet', 'Transport ERP', 'Route Planning', 'Driver Mgmt'].includes(d.category) },
+  { id: 13, title: 'Logistics & Supply Chain', type: 'category', filter: d => d.masterCategory === 'Logistics' || d.masterCategory === 'Inventory, Warehouse & Supply Chain' },
+  { id: 14, title: 'Finance & FinTech Platforms', type: 'category', filter: d => d.masterCategory === 'Finance' && !['Core Banking', 'Investment'].includes(d.category) },
+  { id: 15, title: 'Investment & Trading Platforms', type: 'category', filter: d => ['Investment', 'Trading ERP'].includes(d.category) || d.name.toLowerCase().includes('investment') || d.name.toLowerCase().includes('trading') },
+  { id: 16, title: 'Banking Systems', type: 'category', filter: d => d.category === 'Core Banking' || d.name.toLowerCase().includes('banking') },
+  { id: 17, title: 'Insurance Platforms', type: 'category', filter: d => d.name.toLowerCase().includes('insurance') || d.category.toLowerCase().includes('insurance') },
+  { id: 18, title: 'Productivity & Workspace Apps', type: 'category', filter: d => ['ESS Portal', 'DMS'].includes(d.category) || d.name.toLowerCase().includes('workspace') || d.name.toLowerCase().includes('productivity') },
+  { id: 19, title: 'Cybersecurity & Privacy Tools', type: 'category', filter: d => d.masterCategory === 'Cyber Security & Data Protection' },
+  { id: 20, title: 'Data Analytics & Business Intelligence', type: 'category', filter: d => d.category.includes('Analytics') || d.category.includes('Reports') || d.name.toLowerCase().includes('analytics') },
+  { id: 21, title: 'Marketing & Advertising Platforms', type: 'category', filter: d => d.masterCategory === 'Marketing' },
+  { id: 22, title: 'Sales & CRM Systems', type: 'category', filter: d => d.masterCategory === 'Sales & CRM' },
+  { id: 23, title: 'HRM & Workforce Management', type: 'category', filter: d => d.masterCategory === 'HR & Payroll' },
+  { id: 24, title: 'Developer Tools & DevOps', type: 'category', filter: d => d.name.toLowerCase().includes('developer') || d.name.toLowerCase().includes('devops') || d.category.toLowerCase().includes('code') },
+  { id: 25, title: 'Artificial Intelligence Tools', type: 'category', filter: d => d.name.toLowerCase().includes('ai') || d.features.some(f => f.toLowerCase().includes('ai')) },
+  { id: 26, title: 'Social Media Platforms', type: 'category', filter: d => d.category === 'Social Media' || d.name.toLowerCase().includes('social media') },
+  { id: 27, title: 'Media & Streaming Platforms', type: 'category', filter: d => d.name.toLowerCase().includes('media') || d.name.toLowerCase().includes('streaming') || d.name.toLowerCase().includes('broadcast') },
+  { id: 28, title: 'Gaming Platforms', type: 'category', filter: d => d.name.toLowerCase().includes('gaming') || d.name.toLowerCase().includes('esport') },
+  { id: 29, title: 'Creator Economy Platforms', type: 'category', filter: d => d.name.toLowerCase().includes('creator') || d.name.toLowerCase().includes('influencer') },
+  { id: 30, title: 'Legal Tech Systems', type: 'category', filter: d => d.masterCategory === 'Legal, Compliance & Documentation' },
+  { id: 31, title: 'Government & Public Administration', type: 'category', filter: d => d.masterCategory === 'Government & e-Governance Systems' },
+  { id: 32, title: 'Security & Surveillance Systems', type: 'category', filter: d => d.masterCategory === 'Security, Surveillance & Access Control' },
+  { id: 33, title: 'Smart Home & IoT Platforms', type: 'category', filter: d => d.name.toLowerCase().includes('iot') || d.name.toLowerCase().includes('smart') || d.category === 'Smart City' },
+  { id: 34, title: 'Research & Innovation Platforms', type: 'category', filter: d => d.name.toLowerCase().includes('research') || d.name.toLowerCase().includes('innovation') || d.category.includes('Lab') },
+  { id: 35, title: 'Environment & Sustainability Systems', type: 'category', filter: d => d.name.toLowerCase().includes('environment') || d.name.toLowerCase().includes('sustainability') || d.name.toLowerCase().includes('energy') },
+  { id: 36, title: 'Mining & Natural Resources', type: 'category', filter: d => d.name.toLowerCase().includes('mining') || d.name.toLowerCase().includes('resource') },
+  { id: 37, title: 'Wholesale & Distribution Systems', type: 'category', filter: d => ['Distribution ERP', 'Vendor Mgmt'].includes(d.category) || d.name.toLowerCase().includes('wholesale') || d.name.toLowerCase().includes('distribution') },
+  { id: 38, title: 'Pharmaceuticals & Biotechnology', type: 'category', filter: d => d.category === 'Pharmacy' || d.name.toLowerCase().includes('pharma') || d.name.toLowerCase().includes('biotech') },
+  { id: 39, title: 'NGO & Social Development', type: 'category', filter: d => d.name.toLowerCase().includes('ngo') || d.name.toLowerCase().includes('non-profit') || d.name.toLowerCase().includes('social') },
+  { id: 40, title: 'Event Management Platforms', type: 'category', filter: d => d.category === 'Event Mgmt' || d.name.toLowerCase().includes('event') },
+  { id: 41, title: 'Travel & Tourism Platforms', type: 'category', filter: d => d.category === 'Travel Booking' || d.name.toLowerCase().includes('travel') || d.name.toLowerCase().includes('tourism') },
+  { id: 42, title: 'Booking & Reservation Systems', type: 'category', filter: d => d.category.includes('Booking') || d.category.includes('Reserve') || d.category === 'Appointments' },
+  { id: 43, title: 'Franchise & Multi-Branch Systems', type: 'category', filter: d => d.category.includes('Multi-Branch') || d.category.includes('Multi-Store') || d.name.toLowerCase().includes('franchise') },
+  { id: 44, title: 'Subscription & SaaS Platforms', type: 'category', filter: d => d.category === 'Subscription' || d.name.toLowerCase().includes('subscription') || d.name.toLowerCase().includes('saas') },
+  { id: 45, title: 'Enterprise ERP Systems', type: 'category', filter: d => d.masterCategory === 'ERP' || d.masterCategory === 'Enterprise Resource Planning (ERP)' },
+  { id: 46, title: 'Manufacturing & Industrial Systems', type: 'category', filter: d => d.category === 'Manufacturing ERP' || d.name.toLowerCase().includes('manufacturing') || d.name.toLowerCase().includes('industrial') },
+  { id: 47, title: 'Construction & Infrastructure', type: 'category', filter: d => d.name.toLowerCase().includes('construction') || d.name.toLowerCase().includes('infrastructure') || d.category === 'Maintenance' },
+  { id: 48, title: 'Automotive & Vehicle Platforms', type: 'category', filter: d => d.category === 'Automotive' || d.name.toLowerCase().includes('automotive') || d.name.toLowerCase().includes('vehicle') },
+  { id: 49, title: 'Agriculture & Dairy Systems', type: 'category', filter: d => d.name.toLowerCase().includes('agriculture') || d.name.toLowerCase().includes('farm') || d.name.toLowerCase().includes('dairy') },
+  { id: 50, title: 'Telecom & Internet Services', type: 'category', filter: d => d.masterCategory === 'Telecom, Call Center & VoIP' },
+];
+
+// Master Categories for filtering header tabs
 const masterCategories = [
   "All",
   "Education",
-  "Retail & POS",
   "Healthcare",
-  "Logistics",
-  "Real Estate",
   "Finance",
-  "Accounting",
+  "Retail & POS",
+  "Real Estate",
+  "Logistics",
   "Sales & CRM",
   "Marketing",
   "HR & Payroll",
   "ERP",
-  "Inventory",
   "E-commerce",
   "Hospitality",
   "Telecom",
-  "Support",
   "Legal",
   "Government",
   "Security",
-  "Cyber Security"
+  "Cyber Security",
+  "Accounting",
+  "Support"
 ];
 
 const Index = () => {
