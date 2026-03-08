@@ -60,7 +60,7 @@ const MOCK_FILES: FileNode[] = [
 ];
 
 // ===== STREAMING CHAT =====
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/vala-ai-openai`;
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/vala-ai-builder`;
 
 async function streamChat({
   messages,
