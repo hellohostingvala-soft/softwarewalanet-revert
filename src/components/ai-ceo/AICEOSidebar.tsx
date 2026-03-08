@@ -21,7 +21,8 @@ import {
   ListTodo,
   Megaphone,
   Globe,
-  Handshake
+  Handshake,
+  Wrench
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -38,6 +39,7 @@ const menuItems = [
   { id: "language", label: "Language Intelligence", icon: Globe, path: "/ai-ceo/language" },
   { id: "sales", label: "Sales Intelligence", icon: Handshake, path: "/ai-ceo/sales" },
   { id: "ai-providers", label: "AI Providers Hub", icon: Cpu, path: "/ai-ceo/ai-providers" },
+  { id: "tool-stack", label: "Tool Stack", icon: Wrench, path: "/ai-ceo/tool-stack" },
   { id: "project-scanner", label: "Project Scanner", icon: ScanSearch, path: "/ai-ceo/project-scanner" },
   { id: "task-engine", label: "Autonomous Tasks", icon: ListTodo, path: "/ai-ceo/task-engine" },
   { id: "decision-engine", label: "Decision Engine", icon: Brain, path: "/ai-ceo/decision-engine" },
@@ -50,7 +52,6 @@ const menuItems = [
   { id: "learning", label: "System Learning Log", icon: Database, path: "/ai-ceo/learning" },
   { id: "settings", label: "Settings (Read-Only)", icon: Settings, path: "/ai-ceo/settings" },
 ];
-
 const AICEOSidebar = ({ activeSection, collapsed, onCollapsedChange }: AICEOSidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();

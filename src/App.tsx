@@ -324,6 +324,7 @@ const AIRATaskEngine = lazyLoad(() => import("./pages/ai-ceo/sections/AIRATaskEn
 const AIRAMarketing = lazyLoad(() => import("./pages/ai-ceo/sections/AIRAMarketing"));
 const AIRALanguageIntelligence = lazyLoad(() => import("./pages/ai-ceo/sections/AIRALanguageIntelligence"));
 const AIRASalesIntelligence = lazyLoad(() => import("./pages/ai-ceo/sections/AIRASalesIntelligence"));
+const AIRAToolStack = lazyLoad(() => import("./pages/ai-ceo/sections/AIRAToolStack"));
 
 const DemoCredentials = lazyLoad(() => import("./pages/DemoCredentials"));
 const DemoOrderSystem = lazyLoad(() => import("./pages/demo-system/DemoOrderSystem"));
@@ -571,6 +572,7 @@ const App = memo(() => (
                               <Route path="language" element={<AIRALanguageIntelligence />} />
                               <Route path="sales" element={<AIRASalesIntelligence />} />
                               <Route path="ai-providers" element={<AIRAProviders />} />
+                              <Route path="tool-stack" element={<AIRAToolStack />} />
                               <Route path="project-scanner" element={<AIRAProjectScanner />} />
                               <Route path="task-engine" element={<AIRATaskEngine />} />
                               <Route path="decision-engine" element={<AICEODecisionEngine />} />
