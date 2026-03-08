@@ -27,7 +27,6 @@ interface BossPanelLayoutProps {
   children?: React.ReactNode;
 }
 
-// Context for Boss Panel state
 interface BossPanelContextType {
   activeSection: BossPanelSection;
   streamingOn: boolean;
@@ -36,7 +35,6 @@ interface BossPanelContextType {
 
 const BossPanelContext = createContext<BossPanelContextType | null>(null);
 
-// Hook to access Boss Panel context
 export function useBossPanelContext() {
   const context = useContext(BossPanelContext);
   if (!context) {
@@ -49,13 +47,14 @@ export function useBossPanelContext() {
   return context;
 }
 
-// ─── SAP FIORI LAYOUT TOKENS ─────────────────────────────────
+// ─── ENTERPRISE DARK THEME TOKENS ─────────────────────────────
 const LAYOUT = {
-  shellHeight: '44px',          // SAP Shell Bar height
-  sidebarWidth: '240px',        // SAP Side Navigation width
-  sidebarCollapsed: '48px',     // Collapsed icon-only width
-  contentBg: 'hsl(210, 25%, 97%)', // SAP Fiori page background
-  text: 'hsl(214, 27%, 19%)',
+  shellHeight: '48px',
+  sidebarWidth: '260px',
+  sidebarCollapsed: '56px',
+  pageBg: 'hsl(222, 47%, 7%)',
+  contentBg: 'hsl(222, 47%, 9%)',
+  text: 'hsl(210, 40%, 96%)',
 };
 
 export function BossPanelLayout({ children }: BossPanelLayoutProps) {
@@ -73,16 +72,16 @@ export function BossPanelLayout({ children }: BossPanelLayoutProps) {
     <BossPanelContext.Provider value={contextValue}>
       <div 
         className="min-h-screen flex flex-col"
-        style={{ background: LAYOUT.contentBg, color: LAYOUT.text }}
+        style={{ background: LAYOUT.pageBg, color: LAYOUT.text }}
       >
-        {/* SAP Shell Bar - 44px */}
+        {/* Enterprise Shell Bar */}
         <BossPanelHeader 
           streamingOn={streamingOn}
           onStreamingToggle={() => setStreamingOn(!streamingOn)}
         />
 
         <div className="flex flex-1" style={{ paddingTop: LAYOUT.shellHeight }}>
-          {/* SAP Side Navigation */}
+          {/* Enterprise Side Navigation */}
           <BossPanelSidebar 
             activeSection={activeSection}
             onSectionChange={setActiveSection}
@@ -90,13 +89,14 @@ export function BossPanelLayout({ children }: BossPanelLayoutProps) {
             onCollapsedChange={setSidebarCollapsed}
           />
 
-          {/* Main Content Area - SAP Object Page style */}
+          {/* Main Content Area */}
           <main 
-            className="flex-1 transition-all duration-200"
+            className="flex-1 transition-all duration-200 overflow-auto"
             style={{ 
               marginLeft: sidebarCollapsed ? LAYOUT.sidebarCollapsed : LAYOUT.sidebarWidth,
               background: LAYOUT.contentBg,
               padding: '20px 24px',
+              minHeight: `calc(100vh - ${LAYOUT.shellHeight})`,
             }}
           >
             {children || <Outlet context={{ activeSection, streamingOn }} />}
