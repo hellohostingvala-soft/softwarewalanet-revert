@@ -159,6 +159,138 @@ const toolCategories: ToolCategory[] = [
       { name: 'Multilingual NLP', description: 'Language detection, sentiment, and entity extraction', status: 'active', lastRun: '2 min ago', version: 'v3.2' },
     ],
   },
+  {
+    id: 'iam', label: 'Identity & Access Management', icon: Lock,
+    color: 'text-violet-400', bg: 'bg-violet-500/10',
+    purpose: ['Role-based access', 'User permission control', 'Secure authentication', 'Enterprise SSO'],
+    healthScore: 97,
+    tools: [
+      { name: 'Keycloak', description: 'Open-source IAM with SSO and identity brokering', status: 'active', lastRun: 'Real-time', version: 'v24.0' },
+      { name: 'Auth0', description: 'Universal authentication and authorization platform', status: 'active', lastRun: 'Real-time', version: 'Latest' },
+      { name: 'OAuth2 / OIDC', description: 'Standard protocol layer for secure token-based auth', status: 'active', lastRun: 'Real-time', version: 'v2.1' },
+    ],
+  },
+  {
+    id: 'secrets', label: 'Secrets Management', icon: Lock,
+    color: 'text-yellow-400', bg: 'bg-yellow-500/10',
+    purpose: ['Store API keys', 'Protect DB credentials', 'Protect SSH keys'],
+    healthScore: 99,
+    tools: [
+      { name: 'HashiCorp Vault', description: 'Secrets lifecycle management with dynamic credentials', status: 'active', lastRun: 'Real-time', version: 'v1.16' },
+      { name: 'AWS Secrets Manager', description: 'Cloud-native secret rotation and access control', status: 'active', lastRun: 'Real-time', version: 'Latest' },
+      { name: 'Encrypted Key Storage', description: 'AES-256 local encrypted keyring for edge secrets', status: 'active', lastRun: 'Real-time', version: 'v2.0' },
+    ],
+  },
+  {
+    id: 'task-queue', label: 'Distributed Task Queue', icon: Zap,
+    color: 'text-lime-400', bg: 'bg-lime-500/10',
+    purpose: ['Job processing', 'AI task scheduling', 'Background execution'],
+    healthScore: 96,
+    tools: [
+      { name: 'Redis Queue (BullMQ)', description: 'High-performance job queue built on Redis', status: 'active', lastRun: '10s ago', version: 'v5.4' },
+      { name: 'RabbitMQ', description: 'Enterprise message broker with routing and clustering', status: 'standby', lastRun: '2h ago', version: 'v3.13' },
+      { name: 'Apache Kafka', description: 'Distributed event streaming for real-time pipelines', status: 'active', lastRun: 'Real-time', version: 'v3.7' },
+    ],
+  },
+  {
+    id: 'cdn-edge', label: 'Global CDN & Edge Delivery', icon: Globe,
+    color: 'text-sky-400', bg: 'bg-sky-500/10',
+    purpose: ['Reduce latency', 'Accelerate content delivery', 'DDoS protection'],
+    healthScore: 99,
+    tools: [
+      { name: 'Cloudflare CDN', description: 'Global edge network with WAF and DDoS mitigation', status: 'active', lastRun: 'Real-time', version: 'Latest' },
+      { name: 'Fastly', description: 'Edge cloud platform for real-time content delivery', status: 'active', lastRun: 'Real-time', version: 'Latest' },
+      { name: 'Edge Cache Engine', description: 'Custom edge caching with geo-aware invalidation', status: 'active', lastRun: '30s ago', version: 'v3.0' },
+    ],
+  },
+  {
+    id: 'zero-trust', label: 'Zero Trust Security', icon: Shield,
+    color: 'text-fuchsia-400', bg: 'bg-fuchsia-500/10',
+    purpose: ['Device verification', 'IP reputation', 'Secure session tokens', 'Continuous verification'],
+    healthScore: 98,
+    tools: [
+      { name: 'Device Fingerprinting', description: 'Unique device identity and trust scoring', status: 'active', lastRun: 'Real-time', version: 'v2.5' },
+      { name: 'IP Reputation Engine', description: 'Real-time IP threat intelligence and scoring', status: 'active', lastRun: 'Real-time', version: 'v1.8' },
+      { name: 'Session Guardian', description: 'Continuous session validation with anomaly detection', status: 'active', lastRun: 'Real-time', version: 'v3.0' },
+    ],
+  },
+  {
+    id: 'observability', label: 'Observability Platform', icon: Eye,
+    color: 'text-amber-300', bg: 'bg-amber-500/10',
+    purpose: ['Trace system events', 'Understand failures', 'Debug complex workflows'],
+    healthScore: 95,
+    tools: [
+      { name: 'OpenTelemetry', description: 'Vendor-neutral telemetry collection framework', status: 'active', lastRun: 'Real-time', version: 'v1.34' },
+      { name: 'Jaeger', description: 'Distributed tracing for microservice architectures', status: 'active', lastRun: 'Real-time', version: 'v1.55' },
+      { name: 'Grafana Tempo', description: 'Scalable distributed trace backend', status: 'active', lastRun: 'Real-time', version: 'v2.4' },
+    ],
+  },
+  {
+    id: 'data-pipeline', label: 'Data Pipeline System', icon: BarChart3,
+    color: 'text-blue-300', bg: 'bg-blue-400/10',
+    purpose: ['Analytics pipelines', 'Business intelligence', 'Large dataset processing'],
+    healthScore: 93,
+    tools: [
+      { name: 'Apache Airflow', description: 'Workflow orchestration for data engineering', status: 'active', lastRun: '5 min ago', version: 'v2.8' },
+      { name: 'Snowflake', description: 'Cloud data warehouse for analytics at scale', status: 'active', lastRun: '15 min ago', version: 'Latest' },
+      { name: 'BigQuery', description: 'Google serverless data analytics engine', status: 'standby', lastRun: '1d ago', version: 'Latest' },
+    ],
+  },
+  {
+    id: 'ai-model', label: 'AI Model Management', icon: Brain,
+    color: 'text-emerald-300', bg: 'bg-emerald-400/10',
+    purpose: ['Model version control', 'Model routing', 'Performance benchmarking', 'Fallback logic'],
+    healthScore: 96,
+    tools: [
+      { name: 'Model Registry', description: 'Centralized AI model versioning and deployment', status: 'active', lastRun: '10 min ago', version: 'v2.0' },
+      { name: 'AI Router', description: 'Intelligent model routing with latency-based fallback', status: 'active', lastRun: 'Real-time', version: 'v3.1' },
+      { name: 'Benchmark Engine', description: 'Automated model accuracy and speed benchmarking', status: 'active', lastRun: '1h ago', version: 'v1.5' },
+    ],
+  },
+  {
+    id: 'disaster-recovery', label: 'Disaster Recovery', icon: Server,
+    color: 'text-red-300', bg: 'bg-red-400/10',
+    purpose: ['Multi-region deployment', 'Automatic failover', 'Backup restore', 'System rollback'],
+    healthScore: 99,
+    tools: [
+      { name: 'Multi-Region Orchestrator', description: 'Cross-region failover with zero-downtime switchover', status: 'active', lastRun: 'Real-time', version: 'v2.0' },
+      { name: 'Backup Engine', description: 'Automated incremental backups with point-in-time recovery', status: 'active', lastRun: '30 min ago', version: 'v4.2' },
+      { name: 'Rollback Controller', description: 'Instant system state rollback with validation', status: 'active', lastRun: '2h ago', version: 'v1.8' },
+    ],
+  },
+  {
+    id: 'compliance', label: 'Compliance & Audit', icon: FileText,
+    color: 'text-orange-300', bg: 'bg-orange-400/10',
+    purpose: ['Audit logging', 'Activity tracking', 'Compliance monitoring', 'Policy enforcement'],
+    healthScore: 97,
+    tools: [
+      { name: 'Audit Trail Engine', description: 'Immutable append-only audit logging system', status: 'active', lastRun: 'Real-time', version: 'v3.0' },
+      { name: 'Compliance Scanner', description: 'GDPR, SOC2, HIPAA policy verification', status: 'active', lastRun: '1h ago', version: 'v2.1' },
+      { name: 'Policy Enforcer', description: 'Automated policy rule evaluation and enforcement', status: 'active', lastRun: 'Real-time', version: 'v1.6' },
+    ],
+  },
+  {
+    id: 'api-gateway', label: 'API Gateway', icon: Network,
+    color: 'text-cyan-300', bg: 'bg-cyan-400/10',
+    purpose: ['Rate limiting', 'API security', 'Request routing'],
+    healthScore: 98,
+    tools: [
+      { name: 'Kong Gateway', description: 'Cloud-native API gateway with plugin ecosystem', status: 'active', lastRun: 'Real-time', version: 'v3.6' },
+      { name: 'Apigee', description: 'Google full lifecycle API management platform', status: 'standby', lastRun: '3d ago', version: 'Latest' },
+      { name: 'AWS API Gateway', description: 'Managed API gateway with throttling and auth', status: 'active', lastRun: 'Real-time', version: 'Latest' },
+    ],
+  },
+  {
+    id: 'feature-flags', label: 'Feature Flag System', icon: Play,
+    color: 'text-green-300', bg: 'bg-green-400/10',
+    purpose: ['Enable/disable features', 'Controlled rollout', 'A/B testing'],
+    healthScore: 94,
+    tools: [
+      { name: 'LaunchDarkly', description: 'Enterprise feature management with targeting rules', status: 'active', lastRun: 'Real-time', version: 'Latest' },
+      { name: 'Unleash', description: 'Open-source feature toggle with gradual rollout', status: 'active', lastRun: 'Real-time', version: 'v5.9' },
+      { name: 'A/B Test Engine', description: 'Statistical experiment framework for feature testing', status: 'active', lastRun: '20 min ago', version: 'v2.0' },
+    ],
+  },
 ];
 
 // ─── STATUS CONFIG ──────────────────────────────────────
