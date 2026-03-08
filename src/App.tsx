@@ -455,6 +455,7 @@ const App = memo(() => (
                             <Route path="/marketplace/*" element={<RequireRole allowed={["boss_owner", "super_admin", "franchise", "reseller", "developer", "support", "demo_manager", "client", "user"]}><MMFullLayout /></RequireRole>} />
 
                             {/* Demo Routes */}
+                            <Route path="/demo/google-classroom" element={<GoogleClassroomDemo />} />
                             <Route path="/demo/restaurant-pos" element={<RestaurantPOSDemo />} />
                             <Route path="/demo/restaurant-small" element={<RestaurantSmallDemo />} />
                             <Route path="/demo/restaurant-medium" element={<RestaurantMediumDemo />} />
