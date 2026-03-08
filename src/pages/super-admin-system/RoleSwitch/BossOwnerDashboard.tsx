@@ -5,7 +5,7 @@ import {
   DollarSign, Wallet, BarChart3, ShieldAlert, FileText,
   Scale, Cpu, Clock, ArrowLeft, Eye, Edit3, RefreshCw,
   Play, StopCircle, Pause, CheckCircle, XCircle, UserPlus,
-  Megaphone, Store, Loader2, Bell, Bot, Sparkles
+  Megaphone, Store, Loader2, Bell, Bot, Sparkles, Briefcase, PauseCircle
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -103,7 +103,8 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
     resellers: any[];
     franchises: any[];
     influencers: any[];
-  }>({ resellers: [], franchises: [], influencers: [] });
+    jobApplications: any[];
+  }>({ resellers: [], franchises: [], influencers: [], jobApplications: [] });
   const [loadingApprovals, setLoadingApprovals] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
 
@@ -136,10 +137,18 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
           .eq('status', 'pending')
           .limit(50);
 
-        const [resellerRes, franchiseRes, influencerRes] = await Promise.all([
+        const jobQuery = (supabase as any)
+          .from('job_applications')
+          .select('*')
+          .eq('status', 'pending')
+          .order('created_at', { ascending: false })
+          .limit(50);
+
+        const [resellerRes, franchiseRes, influencerRes, jobRes] = await Promise.all([
           resellerQuery,
           franchiseQuery,
           influencerQuery,
+          jobQuery,
         ]);
         
         // Add auto_approve_eligible flag to each application
@@ -151,13 +160,15 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
         console.log('All pending approvals fetched:', {
           resellers: resellerRes.data?.length || 0,
           franchises: franchiseRes.data?.length || 0,
-          influencers: influencerRes.data?.length || 0
+          influencers: influencerRes.data?.length || 0,
+          jobApplications: jobRes.data?.length || 0,
         });
         
         setApprovals({
           resellers: processApprovals((resellerRes.data as any[]) || []),
           franchises: processApprovals((franchiseRes.data as any[]) || []),
           influencers: processApprovals((influencerRes.data as any[]) || []),
+          jobApplications: (jobRes.data as any[]) || [],
         });
       } catch (e) {
         console.error('Error fetching approvals:', e);
@@ -220,6 +231,22 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
           setApprovals(prev => ({
             ...prev,
             influencers: [{ ...newApp, auto_approve_eligible: newApp.payment_status === 'paid' }, ...prev.influencers]
+          }));
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'job_applications' },
+        (payload) => {
+          console.log('New job application:', payload);
+          const newApp = payload.new as any;
+          toast.success(`🆕 New ${(newApp.application_type || 'Job').toUpperCase()} Application!`, {
+            description: `${newApp.name || 'Applicant'} - ${newApp.email || ''}`,
+            duration: 10000,
+          });
+          setApprovals(prev => ({
+            ...prev,
+            jobApplications: [newApp, ...prev.jobApplications]
           }));
         }
       )
@@ -295,22 +322,30 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
   };
 
   // === APPROVAL ACTIONS ===
-  const handleApproval = async (type: 'reseller' | 'franchise' | 'influencer', id: string, action: 'approve' | 'reject') => {
+  const handleApproval = async (type: 'reseller' | 'franchise' | 'influencer' | 'job', id: string, action: 'approve' | 'reject' | 'hold') => {
     setProcessingId(id);
     try {
-      const table = type === 'reseller' ? 'reseller_applications' : type === 'franchise' ? 'franchise_accounts' : 'influencer_accounts';
-      const newStatus = action === 'approve' ? 'approved' : 'rejected';
+      const tableMap: Record<string, string> = {
+        reseller: 'reseller_applications',
+        franchise: 'franchise_accounts',
+        influencer: 'influencer_accounts',
+        job: 'job_applications',
+      };
+      const table = tableMap[type];
+      const statusMap: Record<string, string> = { approve: 'approved', reject: 'rejected', hold: 'on_hold' };
+      const newStatus = statusMap[action];
       
-      const { error } = await supabase.from(table).update({ status: newStatus }).eq('id', id);
+      const { error } = await (supabase as any).from(table).update({ status: newStatus }).eq('id', id);
       if (error) throw error;
       
       await logAction(`${action}_${type}`, id, { status: newStatus });
-      toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} ${action}d successfully`);
+      toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} ${action === 'hold' ? 'put on hold' : action + 'd'} successfully`);
       
       // Remove from local state
+      const stateKey = type === 'job' ? 'jobApplications' : type + 's';
       setApprovals(prev => ({
         ...prev,
-        [type + 's']: prev[type + 's' as keyof typeof prev].filter((item: any) => item.id !== id)
+        [stateKey]: (prev as any)[stateKey].filter((item: any) => item.id !== id)
       }));
     } catch (e) {
       console.error(e);
@@ -364,7 +399,7 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
     setShowLock(false); setReason(""); setConfirmed(false);
   };
 
-  const totalPendingApprovals = approvals.resellers.length + approvals.franchises.length + approvals.influencers.length;
+  const totalPendingApprovals = approvals.resellers.length + approvals.franchises.length + approvals.influencers.length + approvals.jobApplications.length;
 
   // If module is selected, show module container with back button
   if (activeNav && activeNav in modules) {
@@ -488,7 +523,7 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
             </div>
           </div>
           
-          <div className="p-4 grid grid-cols-3 gap-4">
+          <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
             {/* RESELLER PENDING */}
             <div className="rounded-lg p-3" style={{ background: 'rgba(0,0,0,0.3)' }}>
               <div className="flex items-center gap-2 mb-3 pb-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
@@ -581,6 +616,41 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
                 )}
               </ScrollArea>
             </div>
+
+            {/* JOB / CAREER PENDING */}
+            <div className="rounded-lg p-3" style={{ background: 'rgba(0,0,0,0.3)' }}>
+              <div className="flex items-center gap-2 mb-3 pb-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                <Briefcase size={14} className="text-white" />
+                <span className="text-xs font-semibold text-white">JOB / CAREER</span>
+                <Badge className="ml-auto text-[10px] bg-white/20 text-white">{approvals.jobApplications.length}</Badge>
+              </div>
+              <ScrollArea className="h-[200px]">
+                {approvals.jobApplications.length === 0 ? (
+                  <p className="text-xs text-center py-4 text-red-200">No job applications waiting</p>
+                ) : (
+                  <div className="space-y-2">
+                    {approvals.jobApplications.map((item: any) => (
+                      <div key={item.id} className="p-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                        <p className="text-sm font-semibold text-white">{item.name || 'Applicant'}</p>
+                        <p className="text-[10px] text-red-200">{item.application_type?.toUpperCase()} • {item.email}</p>
+                        <p className="text-[9px] text-red-300">{item.experience || 'No experience listed'} • {new Date(item.created_at).toLocaleDateString()}</p>
+                        <div className="flex gap-1 mt-2">
+                          <Button size="sm" className="h-6 px-2 text-[10px] bg-emerald-600 hover:bg-emerald-700 flex-1" onClick={() => handleApproval('job', item.id, 'approve')} disabled={processingId === item.id}>
+                            {processingId === item.id ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Approve'}
+                          </Button>
+                          <Button size="sm" className="h-6 px-2 text-[10px] bg-amber-600 hover:bg-amber-700" onClick={() => handleApproval('job', item.id, 'hold')} disabled={processingId === item.id}>
+                            Hold
+                          </Button>
+                          <Button size="sm" variant="destructive" className="h-6 px-2 text-[10px]" onClick={() => handleApproval('job', item.id, 'reject')} disabled={processingId === item.id}>
+                            Reject
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+            </div>
           </div>
         </motion.div>
       )}
@@ -624,10 +694,10 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
           <div className="p-8 text-center">
             <CheckCircle className="w-12 h-12 mx-auto mb-3 text-emerald-400" />
             <p className="text-sm font-medium" style={{ color: T.text }}>All approvals cleared</p>
-            <p className="text-xs" style={{ color: T.muted }}>No pending reseller, franchise, or influencer applications</p>
+            <p className="text-xs" style={{ color: T.muted }}>No pending reseller, franchise, influencer, or job applications</p>
           </div>
         ) : (
-          <div className="p-4 grid grid-cols-3 gap-4">
+          <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
             {/* RESELLER APPROVALS */}
             <div className="rounded-lg p-3" style={{ background: 'rgba(34, 197, 94, 0.05)', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
               <div className="flex items-center gap-2 mb-3 pb-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
@@ -672,6 +742,9 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
                         <div className="flex gap-1 mt-2">
                           <Button size="sm" className="h-7 px-3 text-[11px] bg-emerald-600 hover:bg-emerald-700 flex-1" onClick={() => handleApproval('reseller', item.id, 'approve')} disabled={processingId === item.id}>
                             {processingId === item.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <><CheckCircle className="w-3 h-3 mr-1" /> Approve</>}
+                          </Button>
+                          <Button size="sm" className="h-7 px-2 text-[11px] bg-amber-600 hover:bg-amber-700" onClick={() => handleApproval('reseller', item.id, 'hold')} disabled={processingId === item.id}>
+                            <PauseCircle className="w-3 h-3 mr-1" /> Hold
                           </Button>
                           <Button size="sm" variant="destructive" className="h-7 px-3 text-[11px]" onClick={() => handleApproval('reseller', item.id, 'reject')} disabled={processingId === item.id}>
                             <XCircle className="w-3 h-3 mr-1" /> Reject
@@ -728,6 +801,9 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
                           <Button size="sm" className="h-7 px-3 text-[11px] bg-emerald-600 hover:bg-emerald-700 flex-1" onClick={() => handleApproval('franchise', item.id, 'approve')} disabled={processingId === item.id}>
                             {processingId === item.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <><CheckCircle className="w-3 h-3 mr-1" /> Approve</>}
                           </Button>
+                          <Button size="sm" className="h-7 px-2 text-[11px] bg-amber-600 hover:bg-amber-700" onClick={() => handleApproval('franchise', item.id, 'hold')} disabled={processingId === item.id}>
+                            <PauseCircle className="w-3 h-3 mr-1" /> Hold
+                          </Button>
                           <Button size="sm" variant="destructive" className="h-7 px-3 text-[11px]" onClick={() => handleApproval('franchise', item.id, 'reject')} disabled={processingId === item.id}>
                             <XCircle className="w-3 h-3 mr-1" /> Reject
                           </Button>
@@ -783,7 +859,62 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
                           <Button size="sm" className="h-7 px-3 text-[11px] bg-emerald-600 hover:bg-emerald-700 flex-1" onClick={() => handleApproval('influencer', item.id, 'approve')} disabled={processingId === item.id}>
                             {processingId === item.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <><CheckCircle className="w-3 h-3 mr-1" /> Approve</>}
                           </Button>
+                          <Button size="sm" className="h-7 px-2 text-[11px] bg-amber-600 hover:bg-amber-700" onClick={() => handleApproval('influencer', item.id, 'hold')} disabled={processingId === item.id}>
+                            <PauseCircle className="w-3 h-3 mr-1" /> Hold
+                          </Button>
                           <Button size="sm" variant="destructive" className="h-7 px-3 text-[11px]" onClick={() => handleApproval('influencer', item.id, 'reject')} disabled={processingId === item.id}>
+                            <XCircle className="w-3 h-3 mr-1" /> Reject
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+            </div>
+
+            {/* JOB / CAREER APPROVALS */}
+            <div className="rounded-lg p-3" style={{ background: 'rgba(34, 197, 94, 0.05)', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
+              <div className="flex items-center gap-2 mb-3 pb-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <Briefcase size={14} style={{ color: '#22c55e' }} />
+                <span className="text-xs font-semibold" style={{ color: '#22c55e' }}>JOB / CAREER APPLICATIONS</span>
+                <Badge className="ml-auto text-[10px] bg-emerald-500/20 text-emerald-400">{approvals.jobApplications.length}</Badge>
+              </div>
+              <ScrollArea className="h-[280px]">
+                {approvals.jobApplications.length === 0 ? (
+                  <p className="text-xs text-center py-4" style={{ color: T.muted }}>No job applications waiting</p>
+                ) : (
+                  <div className="space-y-2">
+                    {approvals.jobApplications.map((item: any) => (
+                      <div key={item.id} className="p-3 rounded-lg" style={{ 
+                        background: 'rgba(59, 130, 246, 0.08)', 
+                        border: '1px solid rgba(59, 130, 246, 0.15)' 
+                      }}>
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <p className="text-sm font-semibold" style={{ color: T.text }}>{item.name || 'Applicant'}</p>
+                            <p className="text-[11px]" style={{ color: T.muted }}>{item.email}</p>
+                            <p className="text-[10px]" style={{ color: T.dim }}>{item.phone || 'No phone'} • {item.application_type?.toUpperCase()}</p>
+                          </div>
+                          <Badge className="bg-blue-500/30 text-blue-300 text-[10px]">
+                            <Briefcase className="w-3 h-3 mr-0.5" />
+                            {item.application_type?.toUpperCase() || 'JOB'}
+                          </Badge>
+                        </div>
+                        <p className="text-[9px] mt-1" style={{ color: T.dim }}>
+                          Exp: {item.experience || 'Not specified'} • Applied: {new Date(item.created_at).toLocaleDateString()}
+                        </p>
+                        {item.message && (
+                          <p className="text-[9px] mt-1 italic" style={{ color: T.dim }}>"{item.message.substring(0, 80)}{item.message.length > 80 ? '...' : ''}"</p>
+                        )}
+                        <div className="flex gap-1 mt-2">
+                          <Button size="sm" className="h-7 px-3 text-[11px] bg-emerald-600 hover:bg-emerald-700 flex-1" onClick={() => handleApproval('job', item.id, 'approve')} disabled={processingId === item.id}>
+                            {processingId === item.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <><CheckCircle className="w-3 h-3 mr-1" /> Approve</>}
+                          </Button>
+                          <Button size="sm" className="h-7 px-2 text-[11px] bg-amber-600 hover:bg-amber-700" onClick={() => handleApproval('job', item.id, 'hold')} disabled={processingId === item.id}>
+                            <PauseCircle className="w-3 h-3 mr-1" /> Hold
+                          </Button>
+                          <Button size="sm" variant="destructive" className="h-7 px-3 text-[11px]" onClick={() => handleApproval('job', item.id, 'reject')} disabled={processingId === item.id}>
                             <XCircle className="w-3 h-3 mr-1" /> Reject
                           </Button>
                         </div>
