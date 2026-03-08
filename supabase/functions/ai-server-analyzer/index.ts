@@ -396,7 +396,7 @@ async function generateSuggestions(supabase: any, serverId: string) {
     .order('created_at', { ascending: false })
     .limit(5);
 
-  if (!LOVABLE_API_KEY) {
+  if (!OPENAI_API_KEY) {
     return {
       suggestions: [
         { category: 'performance', priority: 'medium', suggestion: 'Monitor resource usage trends' },
