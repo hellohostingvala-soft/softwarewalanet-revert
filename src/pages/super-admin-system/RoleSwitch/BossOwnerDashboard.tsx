@@ -697,7 +697,7 @@ const BossOwnerDashboard = ({ activeNav }: Props) => {
             <p className="text-xs" style={{ color: T.muted }}>No pending reseller, franchise, influencer, or job applications</p>
           </div>
         ) : (
-          <div className="p-4 grid grid-cols-3 gap-4">
+          <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
             {/* RESELLER APPROVALS */}
             <div className="rounded-lg p-3" style={{ background: 'rgba(34, 197, 94, 0.05)', border: '1px solid rgba(34, 197, 94, 0.2)' }}>
               <div className="flex items-center gap-2 mb-3 pb-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
