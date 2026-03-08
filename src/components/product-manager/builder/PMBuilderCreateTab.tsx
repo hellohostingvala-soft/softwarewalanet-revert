@@ -176,8 +176,7 @@ const PMBuilderCreateTab = ({ onProductUpdate, onPipelineStep }: PMBuilderCreate
     setIsLoading(true);
 
     // Trigger pipeline steps
-    onPipelineStep?.(1, 'done'); // Prompt received
-    onPipelineStep?.(2, 'running'); // Understanding
+    onPipelineStep?.(1, 'running'); // Idea Understanding
 
     let assistantSoFar = '';
     const assistantId = (Date.now() + 1).toString();
