@@ -164,6 +164,67 @@ const ValaAIDashboard = () => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playingMsgId, setPlayingMsgId] = useState<string | null>(null);
+  const [ttsLoading, setTtsLoading] = useState<string | null>(null);
+
+  // ===== TTS PLAYBACK =====
+  const speakMessage = useCallback(async (msgId: string, text: string) => {
+    // Stop if already playing this message
+    if (playingMsgId === msgId) {
+      audioRef.current?.pause();
+      audioRef.current = null;
+      setPlayingMsgId(null);
+      return;
+    }
+
+    // Stop any current audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+
+    setTtsLoading(msgId);
+    try {
+      // Strip markdown for cleaner speech
+      const cleanText = text.replace(/[#*`>\-\[\]()!]/g, '').replace(/\n+/g, '. ').substring(0, 3000);
+      
+      const response = await fetch(TTS_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({
+          text: cleanText,
+          voiceId: 'JBFqnCBsd6RMkjVDRZzb', // George
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: 'TTS failed' }));
+        throw new Error(err.error || 'TTS request failed');
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+
+      audio.onplay = () => setPlayingMsgId(msgId);
+      audio.onended = () => { setPlayingMsgId(null); URL.revokeObjectURL(audioUrl); };
+      audio.onerror = () => { setPlayingMsgId(null); toast.error('Audio playback failed'); };
+
+      await audio.play();
+      toast.success('🔊 Playing response...');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Voice failed';
+      toast.error(msg);
+    } finally {
+      setTtsLoading(null);
+    }
+  }, [playingMsgId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
