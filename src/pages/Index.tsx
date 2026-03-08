@@ -2529,89 +2529,34 @@ const Index = () => {
       </header>
 
 
-      {/* Category Filter - Master Categories */}
-      <div className="bg-[#0d1e36]/80 backdrop-blur-sm border-b border-cyan-500/20 py-4 px-4 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-              <Input 
-                placeholder="Search software..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-[#1a2d4a] border-cyan-500/30 text-white placeholder:text-gray-400"
-              />
-            </div>
-            <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
-              {filteredDemos.length} Products
-            </Badge>
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            {masterCategories.map(cat => (
-              <Button
-                key={cat}
-                variant={activeCategory === cat ? "default" : "outline"}
-                size="sm"
-                onClick={() => setActiveCategory(cat)}
-                className={activeCategory === cat 
-                  ? "bg-cyan-500 text-white hover:bg-cyan-600" 
-                  : "border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/10 hover:text-cyan-200"
-                }
-              >
-                {cat === "All" ? `All (${getCategoryCount(cat)})` : cat}
-                {cat !== "All" && (
-                  <span className="ml-1 text-xs opacity-70">({getCategoryCount(cat)})</span>
-                )}
-              </Button>
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* Netflix-Style Horizontal Rows */}
+      <section className="pt-8 pb-12 px-4 md:px-8">
+        <div className="max-w-[1400px] mx-auto space-y-10">
+          {masterCategories.slice(1).map(masterCat => {
+            const categoryDemos = allDemos.filter(d => d.masterCategory === masterCat);
+            if (categoryDemos.length === 0) return null;
 
-      {/* Demo Cards Grid */}
-      <section className="py-8 px-4">
-        <div className="max-w-7xl mx-auto">
-          {/* Group by Master Category when "All" is selected */}
-          {activeCategory === "All" ? (
-            masterCategories.slice(1).map(masterCat => {
-              const categoryDemos = filteredDemos.filter(d => d.masterCategory === masterCat);
-              if (categoryDemos.length === 0) return null;
-              
-              return (
-                <div key={masterCat} className="mb-12">
-                  <div className="flex items-center gap-3 mb-6">
-                    <h3 className="text-2xl font-bold text-white">{masterCat}</h3>
-                    <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30">
-                      {categoryDemos.length} Products
-                    </Badge>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {categoryDemos.map((demo, index) => (
-                      <DemoCard 
-                        key={demo.id} 
-                        demo={demo} 
+            return (
+              <div key={masterCat}>
+                <div className="flex items-center gap-3 mb-4">
+                  <h3 className="text-xl font-bold text-white">{masterCat}</h3>
+                  <span className="text-xs text-slate-500">{categoryDemos.length} titles</span>
+                </div>
+                <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                  {categoryDemos.map((demo, index) => (
+                    <div key={demo.id} className="flex-shrink-0 w-[280px]">
+                      <DemoCard
+                        demo={demo}
                         index={index}
                         isFavorite={favorites.includes(demo.id)}
                         onToggleFavorite={() => toggleFavorite(demo.id)}
                       />
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-              );
-            })
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredDemos.map((demo, index) => (
-                <DemoCard 
-                  key={demo.id} 
-                  demo={demo} 
-                  index={index}
-                  isFavorite={favorites.includes(demo.id)}
-                  onToggleFavorite={() => toggleFavorite(demo.id)}
-                />
-              ))}
-            </div>
-          )}
+              </div>
+            );
+          })}
         </div>
       </section>
 
