@@ -96,6 +96,7 @@ const BossOwnerDashboard = lazyWithRetry(() => import("./BossOwnerDashboard"));
 const DeveloperManagementDashboard = lazyWithRetry(() => import("./DeveloperManagementDashboard"));
 const FranchiseDashboardEmbed = lazyWithRetry(() => import("@/pages/franchise/Dashboard"));
 const ResellerDashboardEmbed = lazyWithRetry(() => import("@/pages/ResellerDashboard"));
+const BossPanelView = lazyWithRetry(() => import("@/pages/BossPanel"));
 
 // Define which roles can switch to which views
 const ROLE_VIEW_ACCESS: Record<string, ActiveRole[]> = {
@@ -346,13 +347,7 @@ const RoleSwitchDashboard = () => {
       debug('requestedRole change', { requestedRole, userRole, isBossOwner, url: window.location.href });
       prevRequestedRoleRef.current = requestedRole;
 
-      const shouldStartInControlPanel = requestedRole === 'boss_owner';
-
-      if (shouldStartInControlPanel) {
-        setActiveRole(null);
-        setActiveNav("dashboard");
-        setSelectedSubItem(undefined);
-      } else if (canAccessView(requestedRole)) {
+      if (canAccessView(requestedRole)) {
         setActiveRole(requestedRole);
         setActiveNav("dashboard");
         setSelectedSubItem(undefined);
@@ -431,6 +426,7 @@ const RoleSwitchDashboard = () => {
   
   // Default accent color for timer
   const timerAccentColor = 'text-primary';
+  const shouldUseBossPanel = activeRole === 'boss_owner' && activeNav === 'dashboard' && !selectedSubItem;
 
   if (loading || !initialized) {
     return (
@@ -440,6 +436,16 @@ const RoleSwitchDashboard = () => {
       )}>
         <LoadingSkeleton message="System is preparing this section" />
       </div>
+    );
+  }
+
+  if (shouldUseBossPanel) {
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={<ModuleLoader />}>
+          <BossPanelView />
+        </Suspense>
+      </ErrorBoundary>
     );
   }
 
