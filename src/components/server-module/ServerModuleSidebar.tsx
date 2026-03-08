@@ -1,18 +1,15 @@
 /**
  * SERVER MODULE SIDEBAR
- * Ultra-simple sidebar with exactly 9 items as specified
+ * Ultra-simple sidebar with navigation items
  * Includes Back to Boss button for navigation
- * 
- * SINGLE-CONTEXT ENFORCEMENT:
- * - Only renders when activeContext === 'module' AND category matches
- * - Back button triggers FULL context switch to Boss
  */
 
 import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, Plus, Server, Activity, Shield, 
-  Database, FileText, Brain, Settings, ArrowLeft 
+  Database, FileText, Brain, Settings, ArrowLeft,
+  Globe, Cpu, AlertTriangle, Wrench, Search
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSidebarStore } from '@/stores/sidebarStore';
@@ -21,6 +18,11 @@ export type ServerModuleSection =
   | 'overview'
   | 'add-server'
   | 'active-servers'
+  | 'hosting'
+  | 'ai-tools'
+  | 'auto-scan'
+  | 'downtime'
+  | 'auto-repair'
   | 'health-load'
   | 'security'
   | 'backups'
@@ -28,24 +30,22 @@ export type ServerModuleSection =
   | 'ai-actions'
   | 'settings';
 
-interface ServerModuleSidebarProps {
-  activeSection: ServerModuleSection;
-  onSectionChange: (section: ServerModuleSection) => void;
-  onBack?: () => void;
-}
-
 const sidebarItems: { id: ServerModuleSection; label: string; icon: React.ElementType }[] = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'add-server', label: 'Add Server', icon: Plus },
   { id: 'active-servers', label: 'Active Servers', icon: Server },
+  { id: 'hosting', label: 'Hosting Connect', icon: Globe },
+  { id: 'ai-tools', label: 'AI Tool Monitor', icon: Brain },
+  { id: 'auto-scan', label: 'Auto Scan', icon: Search },
+  { id: 'downtime', label: 'Downtime Detection', icon: AlertTriangle },
+  { id: 'auto-repair', label: 'Auto Repair', icon: Wrench },
   { id: 'health-load', label: 'Health & Load', icon: Activity },
   { id: 'security', label: 'Security', icon: Shield },
   { id: 'backups', label: 'Backups', icon: Database },
   { id: 'logs', label: 'Logs', icon: FileText },
-  { id: 'ai-actions', label: 'AI Actions', icon: Brain },
+  { id: 'ai-actions', label: 'AI Actions', icon: Cpu },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
-
 const ServerModuleSidebarComponent: React.FC<ServerModuleSidebarProps> = ({
   activeSection,
   onSectionChange,

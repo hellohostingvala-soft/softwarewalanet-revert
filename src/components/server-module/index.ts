@@ -13,3 +13,8 @@ export { ServerLogs } from './ServerLogs';
 export { AIActions } from './AIActions';
 export { ServerSettings } from './ServerSettings';
 export { ServerModuleContainer } from './ServerModuleContainer';
+export { HostingConnection } from './HostingConnection';
+export { AIToolMonitor } from './AIToolMonitor';
+export { ServerAutoScan } from './ServerAutoScan';
+export { DowntimeDetection } from './DowntimeDetection';
+export { AutoRepairEngine } from './AutoRepairEngine';
