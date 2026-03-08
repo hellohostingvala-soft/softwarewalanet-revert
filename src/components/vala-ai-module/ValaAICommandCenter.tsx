@@ -590,6 +590,136 @@ const ValaAICommandCenter: React.FC = () => {
           </div>
         </div>
       </div>
+      {/* ===== PUBLISH TO MARKETPLACE DIALOG ===== */}
+      <Dialog open={showPublishDialog} onOpenChange={setShowPublishDialog}>
+        <DialogContent className="bg-[#111] border-white/10 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-white">
+              <Store className="w-5 h-5 text-emerald-400" />
+              Publish to Marketplace
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div>
+              <label className="text-xs text-white/50 mb-1 block">Product Name *</label>
+              <Input
+                value={publishForm.productName}
+                onChange={e => setPublishForm(prev => ({ ...prev, productName: e.target.value }))}
+                placeholder="e.g. Restaurant POS Pro"
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs text-white/50 mb-1 block">Description</label>
+              <Input
+                value={publishForm.description}
+                onChange={e => setPublishForm(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Brief product description"
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-white/50 mb-1 block">Category</label>
+                <Select
+                  value={publishForm.category}
+                  onValueChange={v => setPublishForm(prev => ({ ...prev, category: v }))}
+                >
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1a1a1a] border-white/10">
+                    {CATEGORIES.map(c => (
+                      <SelectItem key={c} value={c} className="text-white/80 focus:bg-white/10 focus:text-white">{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-xs text-white/50 mb-1 block">Type</label>
+                <Select
+                  value={publishForm.type}
+                  onValueChange={v => setPublishForm(prev => ({ ...prev, type: v }))}
+                >
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1a1a1a] border-white/10">
+                    {['SaaS', 'Desktop', 'Mobile', 'Hybrid', 'Offline'].map(t => (
+                      <SelectItem key={t} value={t} className="text-white/80 focus:bg-white/10 focus:text-white">{t}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-white/50 mb-1 block">Price (₹)</label>
+                <Input
+                  type="number"
+                  value={publishForm.price}
+                  onChange={e => setPublishForm(prev => ({ ...prev, price: Number(e.target.value) }))}
+                  className="bg-white/5 border-white/10 text-white"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-white/50 mb-1 block">GitHub Repo URL</label>
+                <Input
+                  value={publishForm.githubRepoUrl}
+                  onChange={e => setPublishForm(prev => ({ ...prev, githubRepoUrl: e.target.value }))}
+                  placeholder="https://github.com/..."
+                  className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+                />
+              </div>
+            </div>
+
+            {lastResult && (
+              <div className={`p-3 rounded-lg text-xs ${lastResult.success ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+                {lastResult.success ? (
+                  <div className="space-y-1">
+                    <p className="font-medium">✅ {lastResult.message}</p>
+                    {lastResult.demoDomain && <p>🌐 Domain: {lastResult.demoDomain}</p>}
+                    {lastResult.steps?.map((s, i) => (
+                      <p key={i} className="text-white/40">{s.status === 'success' ? '✓' : s.status === 'failed' ? '✗' : '○'} {s.step}</p>
+                    ))}
+                  </div>
+                ) : (
+                  <p>❌ {lastResult.error}</p>
+                )}
+              </div>
+            )}
+
+            <div className="p-2 rounded-lg text-[10px] text-white/30" style={{ background: 'rgba(255,255,255,0.03)' }}>
+              <Package className="w-3 h-3 inline mr-1" />
+              Pipeline: Catalog Entry → AI Image → VPS Deploy → Boss Approval
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => setShowPublishDialog(false)}
+              className="text-white/50 hover:text-white"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handlePublishToMarketplace}
+              disabled={!publishForm.productName || isPublishing}
+              className="gap-1.5"
+              style={{ background: '#10b981' }}
+            >
+              {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Rocket className="w-4 h-4" />}
+              {isPublishing ? 'Publishing...' : 'Submit for Review'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
