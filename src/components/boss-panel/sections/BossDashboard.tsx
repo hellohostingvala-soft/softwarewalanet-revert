@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { 
   Users, 
   DollarSign, 
@@ -6,18 +7,15 @@ import {
   Activity,
   TrendingUp,
   TrendingDown,
-  ArrowUpRight,
-  CheckCircle2,
-  Clock,
-  XCircle,
   FileText,
   Server,
   Shield,
-  Boxes,
   Globe,
   BarChart3,
   Zap,
-  Eye
+  Boxes,
+  Eye,
+  ArrowUpRight
 } from 'lucide-react';
 import { 
   AreaChart,
@@ -27,11 +25,6 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer,
-  BarChart,
-  Bar,
-  Cell,
-  PieChart,
-  Pie
 } from 'recharts';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -43,97 +36,173 @@ import {
 } from '@/hooks/boss-panel/useDashboardData';
 import { useBossDashboard } from '@/hooks/boss-panel/useBossDashboard';
 
-// ─── SAP FIORI COLOR TOKENS ────────────────────────────────────
-const SAP = {
-  shell:       'hsl(214, 27%, 26%)',   // SAP shell bar
-  blue:        'hsl(210, 100%, 46%)',  // SAP Brand Blue
-  blueDark:    'hsl(210, 100%, 36%)',
-  blueLight:   'hsl(210, 100%, 95%)',
-  positive:    'hsl(145, 63%, 42%)',   // SAP Positive/Good
-  critical:    'hsl(27, 100%, 50%)',   // SAP Critical/Warning
-  negative:    'hsl(0, 78%, 55%)',     // SAP Negative/Error
-  neutral:     'hsl(213, 14%, 55%)',   // SAP Neutral
-  tileBg:      'hsl(0, 0%, 100%)',
-  tileBorder:  'hsl(213, 18%, 90%)',
-  sectionBg:   'hsl(210, 25%, 97%)',
-  text:        'hsl(214, 27%, 19%)',
-  textLight:   'hsl(213, 14%, 55%)',
-  tableHeader: 'hsl(210, 25%, 97%)',
-  tableHover:  'hsl(210, 25%, 95%)',
-  tableStripe: 'hsl(210, 25%, 98.5%)',
+// ─── 7D GLASSMORPHISM COLOR PALETTE ───────────────────────────
+const GLASS = {
+  // Card gradients (vivid 7D depth)
+  card1: 'linear-gradient(135deg, hsla(217, 91%, 60%, 0.15) 0%, hsla(255, 92%, 76%, 0.08) 100%)',
+  card2: 'linear-gradient(135deg, hsla(160, 84%, 39%, 0.15) 0%, hsla(172, 66%, 50%, 0.08) 100%)',
+  card3: 'linear-gradient(135deg, hsla(38, 92%, 50%, 0.15) 0%, hsla(45, 93%, 47%, 0.08) 100%)',
+  card4: 'linear-gradient(135deg, hsla(346, 77%, 49%, 0.15) 0%, hsla(330, 80%, 60%, 0.08) 100%)',
+  card5: 'linear-gradient(135deg, hsla(262, 83%, 58%, 0.15) 0%, hsla(280, 87%, 65%, 0.08) 100%)',
+  card6: 'linear-gradient(135deg, hsla(199, 89%, 48%, 0.15) 0%, hsla(187, 85%, 53%, 0.08) 100%)',
+  // Accent colors
+  blue:     'hsl(217, 91%, 60%)',
+  green:    'hsl(160, 84%, 39%)',
+  amber:    'hsl(38, 92%, 50%)',
+  red:      'hsl(346, 77%, 49%)',
+  purple:   'hsl(262, 83%, 58%)',
+  cyan:     'hsl(199, 89%, 48%)',
+  // Glass effect
+  glassBg:  'hsla(222, 47%, 11%, 0.6)',
+  glassBorder: 'hsla(215, 28%, 40%, 0.25)',
+  glassHighlight: 'hsla(215, 100%, 90%, 0.06)',
+  // Text
+  text:     'hsl(210, 40%, 96%)',
+  textMuted:'hsl(215, 20%, 65%)',
+  textDim:  'hsl(215, 15%, 45%)',
+  // Surfaces
+  pageBg:   'hsl(222, 47%, 7%)',
+  tileBg:   'hsla(222, 47%, 13%, 0.7)',
+  tileBorder:'hsla(215, 28%, 30%, 0.3)',
 };
 
-// ─── SAP-STYLE SEMANTIC STATUS BADGE ───────────────────────────
+// ─── ANIMATION VARIANTS ───────────────────────────────────────
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.06, delayChildren: 0.1 }
+  }
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.97 },
+  show: { 
+    opacity: 1, y: 0, scale: 1,
+    transition: { type: 'spring', stiffness: 300, damping: 24 }
+  }
+};
+
+const floatVariants = {
+  initial: { y: 0 },
+  animate: { 
+    y: [-2, 2, -2],
+    transition: { duration: 4, repeat: Infinity, ease: 'easeInOut' }
+  }
+};
+
+// ─── 7D GLASS KPI CARD ───────────────────────────────────────
+function GlassKPICard({ 
+  title, value, unit, trend, trendValue, icon: Icon, gradient, accent, delay = 0
+}: { 
+  title: string; value: string | number; unit?: string; trend?: 'up' | 'down' | 'neutral'; 
+  trendValue?: string; icon: React.ElementType; gradient: string; accent: string; delay?: number;
+}) {
+  return (
+    <motion.div
+      variants={cardVariants}
+      whileHover={{ 
+        scale: 1.03, 
+        y: -4,
+        boxShadow: `0 20px 60px -10px ${accent}33, 0 0 40px -15px ${accent}22`
+      }}
+      whileTap={{ scale: 0.98 }}
+      className="relative group cursor-pointer overflow-hidden rounded-2xl"
+      style={{
+        background: gradient,
+        backdropFilter: 'blur(24px)',
+        border: `1px solid ${GLASS.glassBorder}`,
+        minHeight: '140px',
+      }}
+    >
+      {/* Glass reflection */}
+      <div 
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        style={{ background: GLASS.glassHighlight }}
+      />
+      {/* Accent glow */}
+      <div 
+        className="absolute -top-12 -right-12 w-32 h-32 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-700"
+        style={{ background: accent }}
+      />
+      {/* Floating icon */}
+      <motion.div
+        variants={floatVariants}
+        initial="initial"
+        animate="animate"
+        className="absolute top-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center"
+        style={{ background: `${accent}20`, border: `1px solid ${accent}30` }}
+      >
+        <Icon className="w-5 h-5" style={{ color: accent }} />
+      </motion.div>
+      
+      <div className="relative z-10 p-5 flex flex-col justify-between h-full">
+        <span className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: GLASS.textMuted }}>
+          {title}
+        </span>
+        <div className="mt-3">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-3xl font-extrabold tabular-nums tracking-tight" style={{ color: GLASS.text }}>
+              {value}
+            </span>
+            {unit && <span className="text-sm font-medium" style={{ color: GLASS.textMuted }}>{unit}</span>}
+          </div>
+          {trend && trendValue && (
+            <motion.div 
+              className="flex items-center gap-1.5 mt-2"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 + delay * 0.1 }}
+            >
+              {trend === 'up' ? (
+                <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: `${GLASS.green}20` }}>
+                  <TrendingUp className="w-3 h-3" style={{ color: GLASS.green }} />
+                  <span className="text-[11px] font-bold" style={{ color: GLASS.green }}>{trendValue}</span>
+                </div>
+              ) : trend === 'down' ? (
+                <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: `${GLASS.red}20` }}>
+                  <TrendingDown className="w-3 h-3" style={{ color: GLASS.red }} />
+                  <span className="text-[11px] font-bold" style={{ color: GLASS.red }}>{trendValue}</span>
+                </div>
+              ) : (
+                <span className="text-[11px] font-medium" style={{ color: GLASS.textMuted }}>{trendValue}</span>
+              )}
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── GLASS STATUS BADGE ──────────────────────────────────────
 function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { bg: string; text: string; dot: string; label: string }> = {
-    approved: { bg: 'hsl(145, 63%, 94%)', text: SAP.positive, dot: SAP.positive, label: 'Approved' },
-    active:   { bg: 'hsl(145, 63%, 94%)', text: SAP.positive, dot: SAP.positive, label: 'Active' },
-    pending:  { bg: 'hsl(27, 100%, 94%)', text: SAP.critical, dot: SAP.critical, label: 'Pending' },
-    rejected: { bg: 'hsl(0, 78%, 95%)',   text: SAP.negative, dot: SAP.negative, label: 'Rejected' },
+    approved: { bg: `${GLASS.green}15`, text: GLASS.green, dot: GLASS.green, label: 'Approved' },
+    active:   { bg: `${GLASS.green}15`, text: GLASS.green, dot: GLASS.green, label: 'Active' },
+    pending:  { bg: `${GLASS.amber}15`, text: GLASS.amber, dot: GLASS.amber, label: 'Pending' },
+    rejected: { bg: `${GLASS.red}15`,   text: GLASS.red,   dot: GLASS.red,   label: 'Rejected' },
   };
   const c = config[status] || config.pending;
   return (
     <span
-      className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-medium"
-      style={{ background: c.bg, color: c.text }}
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold backdrop-blur-sm"
+      style={{ background: c.bg, color: c.text, border: `1px solid ${c.text}20` }}
     >
-      <span className="w-1.5 h-1.5 rounded-full" style={{ background: c.dot }} />
+      <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: c.dot }} />
       {c.label}
     </span>
   );
 }
 
-// ─── SAP KPI NUMERIC TILE ──────────────────────────────────────
-function KPITile({ 
-  title, value, unit, trend, trendValue, icon: Icon, status 
-}: { 
-  title: string; value: string | number; unit?: string; trend?: 'up' | 'down' | 'neutral'; 
-  trendValue?: string; icon: React.ElementType; status?: 'good' | 'warning' | 'critical' 
-}) {
-  const statusColor = status === 'good' ? SAP.positive : status === 'warning' ? SAP.critical : status === 'critical' ? SAP.negative : SAP.blue;
-  return (
-    <div
-      className="flex flex-col justify-between p-4 rounded-lg transition-shadow hover:shadow-md"
-      style={{
-        background: SAP.tileBg,
-        border: `1px solid ${SAP.tileBorder}`,
-        borderLeft: `4px solid ${statusColor}`,
-        minHeight: '120px',
-      }}
-    >
-      <div className="flex items-start justify-between">
-        <span className="text-xs font-medium uppercase tracking-wide" style={{ color: SAP.textLight }}>{title}</span>
-        <Icon className="w-4 h-4" style={{ color: SAP.textLight }} />
-      </div>
-      <div className="mt-2">
-        <div className="flex items-baseline gap-1">
-          <span className="text-2xl font-bold tabular-nums" style={{ color: SAP.text }}>{value}</span>
-          {unit && <span className="text-sm" style={{ color: SAP.textLight }}>{unit}</span>}
-        </div>
-        {trend && trendValue && (
-          <div className="flex items-center gap-1 mt-1">
-            {trend === 'up' ? (
-              <TrendingUp className="w-3 h-3" style={{ color: SAP.positive }} />
-            ) : trend === 'down' ? (
-              <TrendingDown className="w-3 h-3" style={{ color: SAP.negative }} />
-            ) : null}
-            <span className="text-xs font-medium" style={{ color: trend === 'up' ? SAP.positive : trend === 'down' ? SAP.negative : SAP.neutral }}>
-              {trendValue}
-            </span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ─── SAP SECTION HEADER ────────────────────────────────────────
+// ─── SECTION HEADER ──────────────────────────────────────────
 function SectionHeader({ title, count }: { title: string; count?: number }) {
   return (
-    <div className="flex items-center justify-between pb-3 mb-0" style={{ borderBottom: `1px solid ${SAP.tileBorder}` }}>
-      <h2 className="text-sm font-semibold uppercase tracking-wide" style={{ color: SAP.text }}>{title}</h2>
+    <div className="flex items-center justify-between pb-3" style={{ borderBottom: `1px solid ${GLASS.tileBorder}` }}>
+      <h2 className="text-sm font-bold uppercase tracking-wider" style={{ color: GLASS.text }}>{title}</h2>
       {count !== undefined && (
-        <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: SAP.blueLight, color: SAP.blue }}>
+        <span className="text-[11px] px-2.5 py-0.5 rounded-full font-bold" 
+          style={{ background: `${GLASS.blue}20`, color: GLASS.blue, border: `1px solid ${GLASS.blue}30` }}>
           {count}
         </span>
       )}
@@ -141,7 +210,25 @@ function SectionHeader({ title, count }: { title: string; count?: number }) {
   );
 }
 
-// ─── MAIN DASHBOARD ────────────────────────────────────────────
+// ─── GLASS PANEL ─────────────────────────────────────────────
+function GlassPanel({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <motion.div
+      variants={cardVariants}
+      className={`rounded-2xl overflow-hidden ${className}`}
+      style={{
+        background: GLASS.tileBg,
+        backdropFilter: 'blur(20px)',
+        border: `1px solid ${GLASS.tileBorder}`,
+        boxShadow: '0 8px 32px -8px hsla(222, 47%, 5%, 0.5)',
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// ─── MAIN DASHBOARD ──────────────────────────────────────────
 export function BossDashboard() {
   const { data: resellerData, isLoading: rL } = useResellerApplications();
   const { data: franchiseData, isLoading: fL } = useFranchiseAccounts();
@@ -161,11 +248,10 @@ export function BossDashboard() {
   const activeModules = moduleBreakdown.filter(m => m.status === 'active').length;
   const totalModules = moduleBreakdown.length || 1;
 
-  // Application pipeline data
   const pipelineData = [
-    { stage: 'Reseller', pending: resellerData?.pending ?? 0, approved: resellerData?.approved ?? 0, rejected: resellerData?.rejected ?? 0 },
-    { stage: 'Franchise', pending: franchiseData?.pending ?? 0, approved: franchiseData?.active ?? 0, rejected: 0 },
-    { stage: 'Jobs', pending: jobData?.pending ?? 0, approved: jobData?.approved ?? 0, rejected: jobData?.rejected ?? 0 },
+    { stage: 'Reseller', pending: resellerData?.pending ?? 0, approved: resellerData?.approved ?? 0, rejected: resellerData?.rejected ?? 0, color: GLASS.blue },
+    { stage: 'Franchise', pending: franchiseData?.pending ?? 0, approved: franchiseData?.active ?? 0, rejected: 0, color: GLASS.purple },
+    { stage: 'Jobs', pending: jobData?.pending ?? 0, approved: jobData?.approved ?? 0, rejected: jobData?.rejected ?? 0, color: GLASS.cyan },
   ];
 
   const recentApplications = [
@@ -176,229 +262,339 @@ export function BossDashboard() {
     .slice(0, 8);
 
   return (
-    <div className="space-y-5" style={{ color: SAP.text }}>
-      {/* ── SHELL: Page Header ── */}
-      <div className="flex items-center justify-between">
+    <motion.div 
+      className="space-y-6 p-1"
+      style={{ color: GLASS.text }}
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
+      {/* ── HEADER ── */}
+      <motion.div variants={cardVariants} className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: SAP.text }}>Boss Command Center</h1>
-          <p className="text-xs mt-0.5" style={{ color: SAP.textLight }}>
-            Enterprise Overview • Last refreshed {new Date().toLocaleTimeString()}
+          <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: GLASS.text }}>
+            Boss Command Center
+          </h1>
+          <p className="text-xs mt-1 font-medium" style={{ color: GLASS.textMuted }}>
+            Enterprise Overview • {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium" style={{ background: 'hsl(145, 63%, 94%)', color: SAP.positive }}>
-            <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: SAP.positive }} />
-            System Online
-          </span>
-        </div>
-      </div>
+        <motion.div 
+          className="flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm"
+          style={{ background: `${GLASS.green}12`, border: `1px solid ${GLASS.green}25` }}
+          animate={{ boxShadow: ['0 0 15px hsla(160,84%,39%,0.1)', '0 0 25px hsla(160,84%,39%,0.2)', '0 0 15px hsla(160,84%,39%,0.1)'] }}
+          transition={{ duration: 3, repeat: Infinity }}
+        >
+          <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: GLASS.green }} />
+          <span className="text-xs font-bold" style={{ color: GLASS.green }}>System Online</span>
+        </motion.div>
+      </motion.div>
 
-      {/* ── ROW 1: KPI Tiles ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-3">
-        <KPITile title="Total Revenue" value={`$${fmt(metrics?.totalRevenue)}`} icon={DollarSign} trend="up" trendValue="+12.4%" status="good" />
-        <KPITile title="Active Users" value={fmt(metrics?.activeUsers)} icon={Users} trend="up" trendValue="+8.2%" status="good" />
-        <KPITile title="New Users (30d)" value={fmt(metrics?.newUsers)} icon={TrendingUp} trend="up" trendValue="+15%" status="good" />
-        <KPITile title="Reseller Apps" value={fmt(resellerData?.total)} icon={FileText} trend={resellerData?.pending ? 'up' : 'neutral'} trendValue={`${resellerData?.pending ?? 0} pending`} status={resellerData?.pending ? 'warning' : 'good'} />
-        <KPITile title="Franchise Accts" value={fmt(franchiseData?.total)} icon={Globe} trend="neutral" trendValue={`${franchiseData?.active ?? 0} active`} status="good" />
-        <KPITile title="System Health" value={`${summary?.systemHealth ?? 100}%`} icon={Activity} status={(summary?.systemHealth ?? 100) >= 90 ? 'good' : (summary?.systemHealth ?? 100) >= 70 ? 'warning' : 'critical'} trend="neutral" trendValue={`${activeModules}/${totalModules} modules`} />
-      </div>
+      {/* ── KPI CARDS (7D Glass) ── */}
+      <motion.div variants={containerVariants} className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <GlassKPICard title="Total Revenue" value={`$${fmt(metrics?.totalRevenue)}`} icon={DollarSign} trend="up" trendValue="+12.4%" gradient={GLASS.card1} accent={GLASS.blue} delay={0} />
+        <GlassKPICard title="Active Users" value={fmt(metrics?.activeUsers)} icon={Users} trend="up" trendValue="+8.2%" gradient={GLASS.card2} accent={GLASS.green} delay={1} />
+        <GlassKPICard title="New Users (30d)" value={fmt(metrics?.newUsers)} icon={TrendingUp} trend="up" trendValue="+15%" gradient={GLASS.card3} accent={GLASS.amber} delay={2} />
+        <GlassKPICard title="Reseller Apps" value={fmt(resellerData?.total)} icon={FileText} trend={resellerData?.pending ? 'up' : 'neutral'} trendValue={`${resellerData?.pending ?? 0} pending`} gradient={GLASS.card4} accent={GLASS.red} delay={3} />
+        <GlassKPICard title="Franchise Accts" value={fmt(franchiseData?.total)} icon={Globe} trend="neutral" trendValue={`${franchiseData?.active ?? 0} active`} gradient={GLASS.card5} accent={GLASS.purple} delay={4} />
+        <GlassKPICard title="System Health" value={`${summary?.systemHealth ?? 100}%`} icon={Activity} trend="neutral" trendValue={`${activeModules}/${totalModules} modules`} gradient={GLASS.card6} accent={GLASS.cyan} delay={5} />
+      </motion.div>
 
-      {/* ── ROW 2: Charts + Pipeline ── */}
-      <div className="grid grid-cols-12 gap-4">
-        {/* Revenue Trend Chart */}
-        <div className="col-span-12 lg:col-span-8 rounded-lg p-5" style={{ background: SAP.tileBg, border: `1px solid ${SAP.tileBorder}` }}>
+      {/* ── ROW 2: Chart + Pipeline ── */}
+      <motion.div variants={containerVariants} className="grid grid-cols-12 gap-4">
+        {/* Revenue Chart */}
+        <GlassPanel className="col-span-12 lg:col-span-8 p-6">
           <SectionHeader title="Revenue Trend" />
           <div className="mt-4">
-            <ResponsiveContainer width="100%" height={240}>
+            <ResponsiveContainer width="100%" height={260}>
               <AreaChart data={revenueData}>
                 <defs>
-                  <linearGradient id="sapBlueGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={SAP.blue} stopOpacity={0.2} />
-                    <stop offset="95%" stopColor={SAP.blue} stopOpacity={0} />
+                  <linearGradient id="glass7dGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={GLASS.blue} stopOpacity={0.35} />
+                    <stop offset="50%" stopColor={GLASS.purple} stopOpacity={0.15} />
+                    <stop offset="100%" stopColor={GLASS.blue} stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="glass7dStroke" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor={GLASS.blue} />
+                    <stop offset="100%" stopColor={GLASS.purple} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke={SAP.tileBorder} />
-                <XAxis dataKey="month" stroke={SAP.textLight} fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke={SAP.textLight} fontSize={11} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke={GLASS.tileBorder} />
+                <XAxis dataKey="month" stroke={GLASS.textDim} fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke={GLASS.textDim} fontSize={11} tickLine={false} axisLine={false} />
                 <Tooltip
                   contentStyle={{
-                    background: SAP.tileBg,
-                    border: `1px solid ${SAP.tileBorder}`,
-                    borderRadius: '6px',
+                    background: GLASS.glassBg,
+                    backdropFilter: 'blur(20px)',
+                    border: `1px solid ${GLASS.glassBorder}`,
+                    borderRadius: '12px',
                     fontSize: '12px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                    boxShadow: '0 8px 32px hsla(222,47%,5%,0.4)',
+                    color: GLASS.text,
                   }}
                 />
-                <Area type="monotone" dataKey="revenue" stroke={SAP.blue} strokeWidth={2} fill="url(#sapBlueGrad)" />
-                <Area type="monotone" dataKey="trend" stroke={SAP.neutral} strokeWidth={1.5} fill="none" strokeDasharray="4 4" />
+                <Area type="monotone" dataKey="revenue" stroke="url(#glass7dStroke)" strokeWidth={3} fill="url(#glass7dGrad)" />
+                <Area type="monotone" dataKey="trend" stroke={GLASS.textDim} strokeWidth={1.5} fill="none" strokeDasharray="4 4" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </GlassPanel>
 
-        {/* Application Pipeline */}
-        <div className="col-span-12 lg:col-span-4 rounded-lg p-5" style={{ background: SAP.tileBg, border: `1px solid ${SAP.tileBorder}` }}>
+        {/* Pipeline */}
+        <GlassPanel className="col-span-12 lg:col-span-4 p-6">
           <SectionHeader title="Application Pipeline" />
-          <div className="mt-4 space-y-4">
+          <div className="mt-4 space-y-5">
             {pipelineData.map((p) => {
               const total = p.pending + p.approved + p.rejected || 1;
               return (
-                <div key={p.stage}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-medium" style={{ color: SAP.text }}>{p.stage}</span>
-                    <span className="text-xs tabular-nums" style={{ color: SAP.textLight }}>{p.pending + p.approved + p.rejected}</span>
+                <motion.div key={p.stage} whileHover={{ x: 4 }} transition={{ type: 'spring', stiffness: 400 }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold" style={{ color: GLASS.text }}>{p.stage}</span>
+                    <span className="text-xs font-mono tabular-nums" style={{ color: GLASS.textMuted }}>
+                      {p.pending + p.approved + p.rejected}
+                    </span>
                   </div>
-                  <div className="flex h-2 rounded-full overflow-hidden" style={{ background: SAP.sectionBg }}>
-                    <div className="h-full" style={{ width: `${(p.approved / total) * 100}%`, background: SAP.positive }} />
-                    <div className="h-full" style={{ width: `${(p.pending / total) * 100}%`, background: SAP.critical }} />
-                    <div className="h-full" style={{ width: `${(p.rejected / total) * 100}%`, background: SAP.negative }} />
+                  <div className="flex h-2.5 rounded-full overflow-hidden" style={{ background: `${GLASS.tileBorder}` }}>
+                    <motion.div 
+                      className="h-full rounded-l-full" 
+                      style={{ background: GLASS.green }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(p.approved / total) * 100}%` }}
+                      transition={{ duration: 1, delay: 0.3, ease: 'easeOut' }}
+                    />
+                    <motion.div 
+                      className="h-full" 
+                      style={{ background: GLASS.amber }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(p.pending / total) * 100}%` }}
+                      transition={{ duration: 1, delay: 0.5, ease: 'easeOut' }}
+                    />
+                    {p.rejected > 0 && (
+                      <motion.div 
+                        className="h-full rounded-r-full" 
+                        style={{ background: GLASS.red }}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${(p.rejected / total) * 100}%` }}
+                        transition={{ duration: 1, delay: 0.7, ease: 'easeOut' }}
+                      />
+                    )}
                   </div>
-                  <div className="flex gap-3 mt-1">
-                    <span className="text-[10px]" style={{ color: SAP.positive }}>✓ {p.approved}</span>
-                    <span className="text-[10px]" style={{ color: SAP.critical }}>⏳ {p.pending}</span>
-                    {p.rejected > 0 && <span className="text-[10px]" style={{ color: SAP.negative }}>✕ {p.rejected}</span>}
+                  <div className="flex gap-4 mt-1.5">
+                    <span className="text-[10px] font-semibold" style={{ color: GLASS.green }}>✓ {p.approved}</span>
+                    <span className="text-[10px] font-semibold" style={{ color: GLASS.amber }}>⏳ {p.pending}</span>
+                    {p.rejected > 0 && <span className="text-[10px] font-semibold" style={{ color: GLASS.red }}>✕ {p.rejected}</span>}
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
 
-          {/* System Modules Mini */}
-          <div className="mt-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium" style={{ color: SAP.text }}>System Modules</span>
-              <span className="text-xs" style={{ color: SAP.positive }}>{activeModules}/{totalModules} active</span>
+          {/* System Modules */}
+          <div className="mt-6 pt-4" style={{ borderTop: `1px solid ${GLASS.tileBorder}` }}>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-bold" style={{ color: GLASS.text }}>System Modules</span>
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: `${GLASS.green}15`, color: GLASS.green }}>
+                {activeModules}/{totalModules}
+              </span>
             </div>
-            <Progress value={(activeModules / totalModules) * 100} className="h-1.5" />
+            <div className="relative h-2 rounded-full overflow-hidden" style={{ background: GLASS.tileBorder }}>
+              <motion.div 
+                className="absolute inset-y-0 left-0 rounded-full"
+                style={{ background: `linear-gradient(90deg, ${GLASS.green}, ${GLASS.cyan})` }}
+                initial={{ width: 0 }}
+                animate={{ width: `${(activeModules / totalModules) * 100}%` }}
+                transition={{ duration: 1.5, delay: 0.4, ease: 'easeOut' }}
+              />
+            </div>
             {moduleBreakdown.length > 0 && (
-              <div className="mt-2 max-h-28 overflow-y-auto space-y-1">
-                {moduleBreakdown.slice(0, 6).map((m) => (
-                  <div key={m.name} className="flex items-center justify-between text-[11px] py-0.5">
-                    <span style={{ color: SAP.text }}>{m.name}</span>
+              <div className="mt-3 max-h-28 overflow-y-auto space-y-1.5">
+                {moduleBreakdown.slice(0, 6).map((m, i) => (
+                  <motion.div 
+                    key={m.name} 
+                    className="flex items-center justify-between text-[11px] py-1 px-2 rounded-lg hover:bg-white/5 transition-colors"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.8 + i * 0.05 }}
+                  >
+                    <span style={{ color: GLASS.text }}>{m.name}</span>
                     <StatusBadge status={m.status === 'active' ? 'approved' : m.status === 'maintenance' ? 'pending' : 'rejected'} />
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             )}
           </div>
-        </div>
-      </div>
+        </GlassPanel>
+      </motion.div>
 
-      {/* ── ROW 3: Data Table + Quick Stats ── */}
-      <div className="grid grid-cols-12 gap-4">
-        {/* Recent Applications Table (SAP List Report style) */}
-        <div className="col-span-12 lg:col-span-8 rounded-lg overflow-hidden" style={{ background: SAP.tileBg, border: `1px solid ${SAP.tileBorder}` }}>
-          <div className="px-5 pt-4 pb-3">
+      {/* ── ROW 3: Table + Quick Stats ── */}
+      <motion.div variants={containerVariants} className="grid grid-cols-12 gap-4">
+        {/* Applications Table */}
+        <GlassPanel className="col-span-12 lg:col-span-8">
+          <div className="px-6 pt-5 pb-3">
             <SectionHeader title="Recent Applications" count={recentApplications.length} />
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr style={{ background: SAP.tableHeader }}>
-                  <th className="text-left px-5 py-2.5 font-semibold uppercase tracking-wider" style={{ color: SAP.textLight, borderBottom: `1px solid ${SAP.tileBorder}` }}>Name</th>
-                  <th className="text-left px-5 py-2.5 font-semibold uppercase tracking-wider" style={{ color: SAP.textLight, borderBottom: `1px solid ${SAP.tileBorder}` }}>Type</th>
-                  <th className="text-left px-5 py-2.5 font-semibold uppercase tracking-wider" style={{ color: SAP.textLight, borderBottom: `1px solid ${SAP.tileBorder}` }}>Date</th>
-                  <th className="text-left px-5 py-2.5 font-semibold uppercase tracking-wider" style={{ color: SAP.textLight, borderBottom: `1px solid ${SAP.tileBorder}` }}>Status</th>
+                <tr style={{ background: 'hsla(222, 47%, 15%, 0.5)' }}>
+                  {['Name', 'Type', 'Date', 'Status'].map(h => (
+                    <th key={h} className="text-left px-6 py-3 font-bold uppercase tracking-wider" 
+                      style={{ color: GLASS.textMuted, borderBottom: `1px solid ${GLASS.tileBorder}` }}>{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {recentApplications.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="text-center py-8" style={{ color: SAP.textLight }}>No applications found</td>
+                    <td colSpan={4} className="text-center py-10" style={{ color: GLASS.textDim }}>No applications found</td>
                   </tr>
                 ) : (
                   recentApplications.map((app, i) => (
-                    <tr
+                    <motion.tr
                       key={app.id}
-                      className="transition-colors cursor-pointer"
-                      style={{
-                        background: i % 2 === 0 ? SAP.tileBg : SAP.tableStripe,
-                        borderBottom: `1px solid ${SAP.tileBorder}`,
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = SAP.tableHover)}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = i % 2 === 0 ? SAP.tileBg : SAP.tableStripe)}
+                      className="group cursor-pointer transition-colors"
+                      style={{ borderBottom: `1px solid ${GLASS.tileBorder}` }}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 + i * 0.04 }}
+                      whileHover={{ backgroundColor: 'hsla(215, 100%, 60%, 0.05)' }}
                     >
-                      <td className="px-5 py-3 font-medium" style={{ color: SAP.text }}>{app.full_name}</td>
-                      <td className="px-5 py-3" style={{ color: SAP.textLight }}>{app.type}</td>
-                      <td className="px-5 py-3 tabular-nums" style={{ color: SAP.textLight }}>
-                        {new Date(app.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      <td className="px-6 py-3.5 font-semibold" style={{ color: GLASS.text }}>{app.full_name}</td>
+                      <td className="px-6 py-3.5" style={{ color: GLASS.textMuted }}>{app.type}</td>
+                      <td className="px-6 py-3.5 tabular-nums font-mono" style={{ color: GLASS.textMuted }}>
+                        {new Date(app.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </td>
-                      <td className="px-5 py-3"><StatusBadge status={app.status} /></td>
-                    </tr>
+                      <td className="px-6 py-3.5"><StatusBadge status={app.status} /></td>
+                    </motion.tr>
                   ))
                 )}
               </tbody>
             </table>
           </div>
-        </div>
+        </GlassPanel>
 
-        {/* Quick Stats Cards */}
-        <div className="col-span-12 lg:col-span-4 space-y-3">
-          {/* Alerts Card */}
-          <div className="rounded-lg p-4" style={{ background: SAP.tileBg, border: `1px solid ${SAP.tileBorder}`, borderLeft: `4px solid ${(summary?.criticalAlerts ?? 0) > 0 ? SAP.negative : SAP.positive}` }}>
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-wide" style={{ color: SAP.textLight }}>Critical Alerts</span>
-              <AlertTriangle className="w-4 h-4" style={{ color: (summary?.criticalAlerts ?? 0) > 0 ? SAP.negative : SAP.neutral }} />
+        {/* Quick Stat Cards */}
+        <motion.div variants={containerVariants} className="col-span-12 lg:col-span-4 space-y-4">
+          {/* Alerts */}
+          <motion.div
+            variants={cardVariants}
+            whileHover={{ scale: 1.02, y: -2 }}
+            className="rounded-2xl p-5 relative overflow-hidden"
+            style={{
+              background: (summary?.criticalAlerts ?? 0) > 0 ? GLASS.card4 : GLASS.card2,
+              backdropFilter: 'blur(20px)',
+              border: `1px solid ${(summary?.criticalAlerts ?? 0) > 0 ? `${GLASS.red}30` : `${GLASS.green}30`}`,
+            }}
+          >
+            <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-2xl opacity-20"
+              style={{ background: (summary?.criticalAlerts ?? 0) > 0 ? GLASS.red : GLASS.green }} />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: GLASS.textMuted }}>Critical Alerts</span>
+                <AlertTriangle className="w-4 h-4" style={{ color: (summary?.criticalAlerts ?? 0) > 0 ? GLASS.red : GLASS.textDim }} />
+              </div>
+              <p className="text-4xl font-black mt-3 tabular-nums" style={{ color: (summary?.criticalAlerts ?? 0) > 0 ? GLASS.red : GLASS.text }}>
+                {summary?.criticalAlerts ?? 0}
+              </p>
+              <p className="text-[11px] mt-1 font-medium" style={{ color: GLASS.textMuted }}>
+                {(summary?.criticalAlerts ?? 0) === 0 ? 'All systems nominal' : 'Requires attention'}
+              </p>
             </div>
-            <p className="text-3xl font-bold mt-2 tabular-nums" style={{ color: (summary?.criticalAlerts ?? 0) > 0 ? SAP.negative : SAP.text }}>
-              {summary?.criticalAlerts ?? 0}
-            </p>
-            <p className="text-xs mt-1" style={{ color: SAP.textLight }}>
-              {(summary?.criticalAlerts ?? 0) === 0 ? 'All systems nominal' : 'Requires immediate attention'}
-            </p>
-          </div>
+          </motion.div>
 
-          {/* Super Admins Card */}
-          <div className="rounded-lg p-4" style={{ background: SAP.tileBg, border: `1px solid ${SAP.tileBorder}`, borderLeft: `4px solid ${SAP.blue}` }}>
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-wide" style={{ color: SAP.textLight }}>Super Admins</span>
-              <Shield className="w-4 h-4" style={{ color: SAP.blue }} />
+          {/* Super Admins */}
+          <motion.div
+            variants={cardVariants}
+            whileHover={{ scale: 1.02, y: -2 }}
+            className="rounded-2xl p-5 relative overflow-hidden"
+            style={{
+              background: GLASS.card5,
+              backdropFilter: 'blur(20px)',
+              border: `1px solid ${GLASS.purple}30`,
+            }}
+          >
+            <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-2xl opacity-20" style={{ background: GLASS.purple }} />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: GLASS.textMuted }}>Super Admins</span>
+                <Shield className="w-4 h-4" style={{ color: GLASS.purple }} />
+              </div>
+              <p className="text-4xl font-black mt-3 tabular-nums" style={{ color: GLASS.text }}>{summary?.totalSuperAdmins ?? 0}</p>
+              <p className="text-[11px] mt-1 font-medium" style={{ color: GLASS.textMuted }}>Active administrators</p>
             </div>
-            <p className="text-3xl font-bold mt-2 tabular-nums" style={{ color: SAP.text }}>{summary?.totalSuperAdmins ?? 0}</p>
-            <p className="text-xs mt-1" style={{ color: SAP.textLight }}>Active administrators</p>
-          </div>
+          </motion.div>
 
-          {/* Revenue Breakdown Mini */}
-          <div className="rounded-lg p-4" style={{ background: SAP.tileBg, border: `1px solid ${SAP.tileBorder}`, borderLeft: `4px solid ${SAP.positive}` }}>
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-wide" style={{ color: SAP.textLight }}>Revenue Summary</span>
-              <BarChart3 className="w-4 h-4" style={{ color: SAP.positive }} />
+          {/* Revenue Summary */}
+          <motion.div
+            variants={cardVariants}
+            whileHover={{ scale: 1.02, y: -2 }}
+            className="rounded-2xl p-5 relative overflow-hidden"
+            style={{
+              background: GLASS.card1,
+              backdropFilter: 'blur(20px)',
+              border: `1px solid ${GLASS.blue}30`,
+            }}
+          >
+            <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-2xl opacity-20" style={{ background: GLASS.blue }} />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: GLASS.textMuted }}>Revenue Summary</span>
+                <BarChart3 className="w-4 h-4" style={{ color: GLASS.blue }} />
+              </div>
+              <div className="space-y-2.5">
+                {[
+                  { label: 'Total Earned', value: `$${fmt(metrics?.totalRevenue)}`, color: GLASS.green },
+                  { label: 'Pending', value: String((resellerData?.pending ?? 0) + (jobData?.pending ?? 0)), color: GLASS.amber },
+                  { label: 'Approved', value: String((resellerData?.approved ?? 0) + (jobData?.approved ?? 0)), color: GLASS.green },
+                ].map(item => (
+                  <div key={item.label} className="flex justify-between items-center">
+                    <span className="text-[11px] font-medium" style={{ color: GLASS.textMuted }}>{item.label}</span>
+                    <span className="text-sm font-extrabold tabular-nums" style={{ color: item.color }}>{item.value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="mt-3 space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-xs" style={{ color: SAP.text }}>Total Earned</span>
-                <span className="text-sm font-bold tabular-nums" style={{ color: SAP.positive }}>${fmt(metrics?.totalRevenue)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-xs" style={{ color: SAP.text }}>Pending</span>
-                <span className="text-sm font-medium tabular-nums" style={{ color: SAP.critical }}>{(resellerData?.pending ?? 0) + (jobData?.pending ?? 0)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-xs" style={{ color: SAP.text }}>Approved</span>
-                <span className="text-sm font-medium tabular-nums" style={{ color: SAP.positive }}>{(resellerData?.approved ?? 0) + (jobData?.approved ?? 0)}</span>
-              </div>
-            </div>
-          </div>
+          </motion.div>
 
-          {/* Operations Summary */}
-          <div className="rounded-lg p-4" style={{ background: SAP.tileBg, border: `1px solid ${SAP.tileBorder}`, borderLeft: `4px solid ${SAP.neutral}` }}>
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-wide" style={{ color: SAP.textLight }}>Operations</span>
-              <Zap className="w-4 h-4" style={{ color: SAP.neutral }} />
-            </div>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <div className="text-center p-2 rounded" style={{ background: SAP.sectionBg }}>
-                <p className="text-lg font-bold tabular-nums" style={{ color: SAP.text }}>{summary?.activeContinents ?? 0}</p>
-                <p className="text-[10px] uppercase" style={{ color: SAP.textLight }}>Continents</p>
+          {/* Operations */}
+          <motion.div
+            variants={cardVariants}
+            whileHover={{ scale: 1.02, y: -2 }}
+            className="rounded-2xl p-5 relative overflow-hidden"
+            style={{
+              background: GLASS.card6,
+              backdropFilter: 'blur(20px)',
+              border: `1px solid ${GLASS.cyan}30`,
+            }}
+          >
+            <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-2xl opacity-20" style={{ background: GLASS.cyan }} />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: GLASS.textMuted }}>Operations</span>
+                <Zap className="w-4 h-4" style={{ color: GLASS.cyan }} />
               </div>
-              <div className="text-center p-2 rounded" style={{ background: SAP.sectionBg }}>
-                <p className="text-lg font-bold tabular-nums" style={{ color: SAP.text }}>{summary?.countriesLive ?? 0}</p>
-                <p className="text-[10px] uppercase" style={{ color: SAP.textLight }}>Countries</p>
+              <div className="grid grid-cols-2 gap-3">
+                <motion.div 
+                  className="text-center p-3 rounded-xl" 
+                  style={{ background: 'hsla(222, 47%, 11%, 0.5)', border: `1px solid ${GLASS.tileBorder}` }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <p className="text-2xl font-black tabular-nums" style={{ color: GLASS.text }}>{summary?.activeContinents ?? 0}</p>
+                  <p className="text-[10px] uppercase font-bold tracking-wider mt-1" style={{ color: GLASS.textMuted }}>Continents</p>
+                </motion.div>
+                <motion.div 
+                  className="text-center p-3 rounded-xl" 
+                  style={{ background: 'hsla(222, 47%, 11%, 0.5)', border: `1px solid ${GLASS.tileBorder}` }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <p className="text-2xl font-black tabular-nums" style={{ color: GLASS.text }}>{summary?.countriesLive ?? 0}</p>
+                  <p className="text-[10px] uppercase font-bold tracking-wider mt-1" style={{ color: GLASS.textMuted }}>Countries</p>
+                </motion.div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }
