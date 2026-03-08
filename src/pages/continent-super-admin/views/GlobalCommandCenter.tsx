@@ -91,13 +91,32 @@ const activityPoints: { coordinates: [number, number]; type: string; color: stri
 ];
 
 const dataFlowLines = [
-  { from: [15, 50], to: [-100, 45] },
-  { from: [-100, 45], to: [105, 25] },
-  { from: [105, 25], to: [135, -25] },
-  { from: [20, 5], to: [15, 50] },
-  { from: [-60, -15], to: [-100, 45] },
-  { from: [15, 50], to: [105, 25] },
-  { from: [135, -25], to: [-60, -15] },
+  { from: [15, 50], to: [-100, 45], label: 'EU→NA' },
+  { from: [-100, 45], to: [105, 25], label: 'NA→AS' },
+  { from: [105, 25], to: [135, -25], label: 'AS→OC' },
+  { from: [20, 5], to: [15, 50], label: 'AF→EU' },
+  { from: [-60, -15], to: [-100, 45], label: 'SA→NA' },
+  { from: [15, 50], to: [105, 25], label: 'EU→AS' },
+  { from: [135, -25], to: [-60, -15], label: 'OC→SA' },
+];
+
+// System connection modules
+const systemConnections = [
+  { name: 'Marketplace', icon: '🛒', status: 'active', requests: '2.4K/min', color: '#10b981' },
+  { name: 'Sales', icon: '💰', status: 'active', requests: '890/min', color: '#3b82f6' },
+  { name: 'License', icon: '🔑', status: 'active', requests: '340/min', color: '#8b5cf6' },
+  { name: 'Deploy', icon: '🚀', status: 'active', requests: '42/min', color: '#06b6d4' },
+  { name: 'Analytics', icon: '📊', status: 'active', requests: '1.2K/min', color: '#f59e0b' },
+  { name: 'Servers', icon: '🖥️', status: 'active', requests: '680/min', color: '#ef4444' },
+  { name: 'Notifications', icon: '🔔', status: 'active', requests: '3.1K/min', color: '#ec4899' },
+];
+
+// Floating stat positions on map (absolute positioned)
+const floatingStats = [
+  { top: '15%', left: '8%', label: 'NA Active', value: '5.8K', color: '#10b981' },
+  { top: '30%', left: '42%', label: 'EU Revenue', value: '$3.1M', color: '#3b82f6' },
+  { top: '55%', left: '60%', label: 'AF Growth', value: '+24%', color: '#f59e0b' },
+  { top: '25%', left: '75%', label: 'AS Products', value: '4.2K', color: '#ef4444' },
 ];
 
 // Live feed events
@@ -256,16 +275,40 @@ const GlobalCommandCenter = ({ onSelectContinent }: GlobalCommandCenterProps) =>
                 }
               </Geographies>
 
-              {/* Data Flow Lines */}
+              {/* Animated Data Flow Lines with Moving Dots */}
               {dataFlowLines.map((line, i) => (
-                <Line
-                  key={`flow-${i}`}
-                  from={line.from as [number, number]}
-                  to={line.to as [number, number]}
-                  stroke="hsla(220, 80%, 60%, 0.12)"
-                  strokeWidth={1}
-                  strokeDasharray="5 5"
-                />
+                <g key={`flow-${i}`}>
+                  <Line
+                    from={line.from as [number, number]}
+                    to={line.to as [number, number]}
+                    stroke="hsla(220, 80%, 60%, 0.15)"
+                    strokeWidth={1}
+                    strokeDasharray="5 5"
+                  />
+                  {/* Animated traveling dot along the line */}
+                  <Marker coordinates={line.from as [number, number]}>
+                    <circle r={2} fill="#60a5fa" opacity={0.9}>
+                      <animateMotion
+                        dur={`${3 + i * 0.5}s`}
+                        repeatCount="indefinite"
+                        path={`M0,0 L${(line.to[0] - line.from[0]) * 2},${(line.to[1] - line.from[1]) * -2}`}
+                      />
+                      <animate attributeName="opacity" values="0;1;1;0" dur={`${3 + i * 0.5}s`} repeatCount="indefinite" />
+                    </circle>
+                  </Marker>
+                  {/* Second dot, offset timing */}
+                  <Marker coordinates={line.from as [number, number]}>
+                    <circle r={1.5} fill="#93c5fd" opacity={0.7}>
+                      <animateMotion
+                        dur={`${3 + i * 0.5}s`}
+                        repeatCount="indefinite"
+                        begin={`${1.5 + i * 0.25}s`}
+                        path={`M0,0 L${(line.to[0] - line.from[0]) * 2},${(line.to[1] - line.from[1]) * -2}`}
+                      />
+                      <animate attributeName="opacity" values="0;0.8;0.8;0" dur={`${3 + i * 0.5}s`} repeatCount="indefinite" begin={`${1.5 + i * 0.25}s`} />
+                    </circle>
+                  </Marker>
+                </g>
               ))}
 
               {/* Activity Signal Points */}
@@ -394,6 +437,30 @@ const GlobalCommandCenter = ({ onSelectContinent }: GlobalCommandCenterProps) =>
               ))}
             </div>
           </div>
+
+          {/* Floating Stat Cards */}
+          {floatingStats.map((fs, i) => (
+            <motion.div
+              key={fs.label}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1, y: [0, -4, 0] }}
+              transition={{ 
+                delay: 1 + i * 0.2,
+                y: { duration: 3 + i * 0.5, repeat: Infinity, ease: 'easeInOut' }
+              }}
+              className="absolute z-10 px-2.5 py-1.5 rounded-lg pointer-events-none"
+              style={{
+                top: fs.top, left: fs.left,
+                background: 'hsla(222, 47%, 10%, 0.8)',
+                backdropFilter: 'blur(12px)',
+                border: `1px solid ${fs.color}33`,
+                boxShadow: `0 4px 20px ${fs.color}15`,
+              }}
+            >
+              <div className="text-[7px] uppercase tracking-wider" style={{ color: mutedColor }}>{fs.label}</div>
+              <div className="text-sm font-bold text-white">{fs.value}</div>
+            </motion.div>
+          ))}
 
           {/* Bottom Continent Health Strip */}
           <div className="absolute bottom-3 left-3 right-3 z-10">
@@ -529,6 +596,36 @@ const GlobalCommandCenter = ({ onSelectContinent }: GlobalCommandCenterProps) =>
                       <div className="h-full rounded-full" style={{ background: r.color, width: `${r.pct}%` }} />
                     </div>
                   </div>
+                ))}
+              </div>
+            </div>
+
+            {/* System Connections */}
+            <div className="border-t mx-2 py-2" style={{ borderColor: borderCol }}>
+              <div className="flex items-center gap-1.5 px-1 mb-2">
+                <Zap className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-[10px] font-bold text-white">System Connections</span>
+              </div>
+              <div className="space-y-1 px-1">
+                {systemConnections.map((conn, i) => (
+                  <motion.div
+                    key={conn.name}
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.8 + i * 0.05 }}
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-lg"
+                    style={{ background: surfaceBg }}
+                  >
+                    <span className="text-xs">{conn.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-[9px] font-medium text-white block">{conn.name}</span>
+                      <span className="text-[7px]" style={{ color: mutedColor }}>{conn.requests}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="text-[7px] text-emerald-400">Live</span>
+                    </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
