@@ -805,19 +805,29 @@ function ProductCard({ product, isFav, onView, onDemo, onBuy, onFav, discountedP
     <div className="group relative bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-cyan-500/50 transition-all cursor-pointer" onClick={() => onView(product)}>
       <div className="h-32 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center relative">
         <Monitor className="w-10 h-10 text-slate-700" />
-        <div className="absolute top-2 left-2">
+        <div className="absolute top-2 left-2 flex gap-1">
           <Badge variant="outline" className="text-[10px] border-slate-600 text-slate-400 bg-slate-900/80">
             {product.category || 'Software'}
           </Badge>
+          {product.github_repo_url && (
+            <Badge variant="outline" className="text-[10px] border-emerald-600/50 text-emerald-400 bg-slate-900/80">
+              <Github className="w-2.5 h-2.5 mr-0.5" /> Connected
+            </Badge>
+          )}
         </div>
         <button onClick={(event) => { event.stopPropagation(); onFav(product.product_id); }} className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800 transition">
           <Heart className={`w-3.5 h-3.5 ${isFav ? 'fill-red-500 text-red-500' : 'text-slate-500'}`} />
         </button>
         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-          <button onClick={(event) => { event.stopPropagation(); onDemo(product); }} className="p-2 rounded-full bg-cyan-500/20 hover:bg-cyan-500/40 transition">
+          <button onClick={(event) => { event.stopPropagation(); onDemo(product); }} className="p-2 rounded-full bg-cyan-500/20 hover:bg-cyan-500/40 transition" title="Try Demo">
             <Play className="w-4 h-4 text-cyan-400" />
           </button>
-          <button onClick={(event) => { event.stopPropagation(); onBuy(product); }} className="p-2 rounded-full bg-emerald-500/20 hover:bg-emerald-500/40 transition">
+          {product.github_repo_url && (
+            <button onClick={(event) => { event.stopPropagation(); window.open(product.github_repo_url!, '_blank'); }} className="p-2 rounded-full bg-slate-500/20 hover:bg-slate-500/40 transition" title="View Repository">
+              <Github className="w-4 h-4 text-slate-300" />
+            </button>
+          )}
+          <button onClick={(event) => { event.stopPropagation(); onBuy(product); }} className="p-2 rounded-full bg-emerald-500/20 hover:bg-emerald-500/40 transition" title="Buy Now">
             <ShoppingCart className="w-4 h-4 text-emerald-400" />
           </button>
         </div>
