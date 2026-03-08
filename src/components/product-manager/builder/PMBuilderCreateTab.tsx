@@ -336,7 +336,7 @@ const PMBuilderCreateTab = ({ onProductUpdate, onPipelineStep }: PMBuilderCreate
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
       <div className="px-4 pt-3 pb-2 border-b border-border/30">
         <div className="flex items-center gap-2">
@@ -352,7 +352,8 @@ const PMBuilderCreateTab = ({ onProductUpdate, onPipelineStep }: PMBuilderCreate
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 px-4" ref={scrollRef}>
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <ScrollArea className="h-full px-4" ref={scrollRef}>
         <div className="py-4 space-y-4">
           <AnimatePresence mode="popLayout">
             {messages.map((msg) => (
@@ -405,7 +406,8 @@ const PMBuilderCreateTab = ({ onProductUpdate, onPipelineStep }: PMBuilderCreate
             </motion.div>
           )}
         </div>
-      </ScrollArea>
+        </ScrollArea>
+      </div>
 
       {/* Input */}
       <div className="p-4 border-t border-border/40">
