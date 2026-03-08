@@ -173,12 +173,110 @@ const AIRAMarketing = () => {
         </Card>
       </div>
 
+      {/* Competitor Analysis + Campaign Tracker */}
+      <div className="grid grid-cols-2 gap-6">
+        {/* Competitor Analysis */}
+        <Card className="bg-slate-900/50 border-slate-700/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-white flex items-center gap-2 text-base">
+              <Shield className="w-4 h-4 text-orange-400" />
+              Competitor Analysis
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {COMPETITORS.map((comp, i) => (
+                <motion.div
+                  key={comp.name}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="p-3 rounded-lg bg-slate-800/30 border border-slate-700/20"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-sm font-medium text-white">{comp.name}</h4>
+                    <div className="flex items-center gap-2">
+                      <Badge className={
+                        comp.threat === "high" ? "bg-red-500/20 text-red-400 text-xs" :
+                        comp.threat === "medium" ? "bg-yellow-500/20 text-yellow-400 text-xs" :
+                        "bg-emerald-500/20 text-emerald-400 text-xs"
+                      }>{comp.threat} threat</Badge>
+                      <span className="text-xs text-slate-400">{comp.share}% share</span>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="p-2 rounded bg-emerald-500/5 border border-emerald-500/10">
+                      <p className="text-slate-500">Strength</p>
+                      <p className="text-emerald-400">{comp.strength}</p>
+                    </div>
+                    <div className="p-2 rounded bg-red-500/5 border border-red-500/10">
+                      <p className="text-slate-500">Weakness</p>
+                      <p className="text-red-400">{comp.weakness}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Campaign Tracker */}
+        <Card className="bg-slate-900/50 border-slate-700/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-white flex items-center gap-2 text-base">
+              <Calendar className="w-4 h-4 text-violet-400" />
+              Campaign Tracker
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {CAMPAIGNS.map((camp, i) => (
+                <motion.div
+                  key={camp.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="p-3 rounded-lg bg-slate-800/30 border border-slate-700/20"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-sm font-medium text-white">{camp.name}</h4>
+                    <Badge className={
+                      camp.status === "active" ? "bg-emerald-500/20 text-emerald-400 text-xs" :
+                      camp.status === "completed" ? "bg-cyan-500/20 text-cyan-400 text-xs" :
+                      "bg-slate-500/20 text-slate-400 text-xs"
+                    }>{camp.status}</Badge>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 text-xs">
+                    <div>
+                      <p className="text-slate-500">Budget</p>
+                      <p className="text-white font-medium">{camp.budget}</p>
+                    </div>
+                    <div>
+                      <p className="text-slate-500">Spent</p>
+                      <Progress value={camp.spent} className="h-1 mt-1" />
+                    </div>
+                    <div>
+                      <p className="text-slate-500">Leads</p>
+                      <p className="text-emerald-400 font-medium">{camp.leads}</p>
+                    </div>
+                    <div>
+                      <p className="text-slate-500">ROI</p>
+                      <p className="text-cyan-400 font-medium">{camp.roi}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* AIRA Marketing Notice */}
       <div className="p-4 rounded-lg bg-pink-500/5 border border-pink-500/20">
         <div className="flex items-center gap-3">
           <Megaphone className="w-5 h-5 text-pink-400" />
           <p className="text-sm text-pink-400/80">
-            <strong>AIRA Marketing:</strong> All strategies are AI-generated recommendations. Execution requires CEO or Boss approval.
+            <strong>AIRA Marketing:</strong> All strategies, competitor insights, and campaign plans are AI-generated. Execution requires CEO or Boss approval.
           </p>
         </div>
       </div>
