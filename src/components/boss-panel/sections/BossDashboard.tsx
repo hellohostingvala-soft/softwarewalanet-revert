@@ -263,7 +263,7 @@ export function BossDashboard() {
                     <span className="text-[10px] font-mono" style={{ color: T.dim }}>{a.time}</span>
                   </div>
                 </div>
-                <Badge status={a.type} />
+                <StatusBadge status={a.type} />
               </motion.div>
             ))}
           </div>
