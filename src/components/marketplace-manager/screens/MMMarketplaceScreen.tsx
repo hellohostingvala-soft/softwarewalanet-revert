@@ -232,14 +232,13 @@ export const MMMarketplaceScreen = () => {
 
   const handlePartnerRequest = (requestType: PartnerRequestType, label: string) => {
     void logEvent(requestType, undefined, {
-      queueForBoss: true,
       severity: 'warning',
       metadata: {
         request_label: label,
       },
     });
 
-    toast.success(`${label} submitted`);
+    toast.success(`${label} submitted — Boss has been notified`);
   };
 
   const handleCategoryFilter = (category: string | null) => {
