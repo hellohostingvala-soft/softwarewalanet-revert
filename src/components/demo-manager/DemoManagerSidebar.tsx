@@ -231,25 +231,63 @@ const menuSections: MenuItem[] = [
       { id: "ui-integrity-check", label: "UI Integrity Check", icon: Monitor },
     ],
   },
-  // 🔟 Marketplace Operations (Full)
+  // 🔟 Marketplace Operations (Full — 37 features)
   {
     id: "marketplace-ops",
     label: "Marketplace Operations",
     icon: Store,
     badge: "LIVE",
     subItems: [
-      { id: "mp-product-listing", label: "Product Listing", icon: LayoutList },
-      { id: "mp-categories", label: "Categories Manager", icon: Tags },
-      { id: "mp-pricing", label: "Pricing & Plans", icon: DollarSign },
-      { id: "mp-orders", label: "Orders & Transactions", icon: ShoppingBag },
-      { id: "mp-wallet", label: "Wallet & Payments", icon: Wallet },
-      { id: "mp-licenses", label: "License Manager", icon: KeySquare },
-      { id: "mp-reviews", label: "Reviews & Ratings", icon: Star },
-      { id: "mp-analytics", label: "Sales Analytics", icon: BarChart2 },
+      // Product Management
+      { id: "mp-product-listing", label: "Manage Products", icon: LayoutList },
+      { id: "mp-create-product", label: "Create Product", icon: PlusCircle },
+      { id: "mp-edit-product", label: "Edit Product", icon: FileEdit },
+      { id: "mp-delete-product", label: "Delete Product", icon: Lock },
+      // Catalog
+      { id: "mp-categories", label: "Manage Categories", icon: Tags },
+      { id: "mp-tags", label: "Manage Tags", icon: Tags },
+      { id: "mp-modules", label: "Manage Modules", icon: Layers },
+      { id: "mp-versions", label: "Manage Versions", icon: GitBranch },
+      // Pricing & Offers
+      { id: "mp-pricing", label: "Manage Pricing", icon: DollarSign },
+      { id: "mp-discounts", label: "Manage Discounts", icon: Percent },
+      { id: "mp-offers", label: "Manage Offers", icon: Sparkles },
+      { id: "mp-coupons", label: "Manage Coupons", icon: Percent },
+      // Storefront
+      { id: "mp-banners", label: "Manage Banners", icon: ImageIcon },
+      { id: "mp-homepage", label: "Manage Homepage", icon: LayoutGrid },
       { id: "mp-featured", label: "Featured Products", icon: TrendingUp },
-      { id: "mp-discounts", label: "Discounts & Coupons", icon: Percent },
+      { id: "mp-trending", label: "Trending Products", icon: TrendingUp },
+      { id: "mp-sections", label: "Manage Sections", icon: LayoutList },
+      // Product Assets
+      { id: "mp-product-assets", label: "Product Assets", icon: FolderOpen },
+      { id: "mp-screenshots", label: "Screenshots", icon: Monitor },
+      { id: "mp-demo-videos", label: "Demo Videos", icon: Monitor },
+      { id: "mp-documentation", label: "Documentation", icon: BookOpen },
+      // Reviews & Engagement
+      { id: "mp-reviews", label: "Manage Reviews", icon: MessageSquare },
+      { id: "mp-ratings", label: "Manage Ratings", icon: Star },
+      { id: "mp-favorites", label: "Manage Favorites", icon: Heart },
+      // Orders & Payments
+      { id: "mp-orders", label: "Manage Orders", icon: ShoppingBag },
+      { id: "mp-payments", label: "Manage Payments", icon: CreditCard },
+      { id: "mp-refunds", label: "Manage Refunds", icon: RefreshCw },
+      // User Management
+      { id: "mp-user-products", label: "User Products", icon: Users },
+      { id: "mp-licenses", label: "User Licenses", icon: KeySquare },
+      // Discovery
+      { id: "mp-search", label: "Manage Search", icon: Search },
+      { id: "mp-recommendations", label: "Recommendations", icon: Sparkles },
+      // Analytics
+      { id: "mp-product-analytics", label: "Product Analytics", icon: BarChart2 },
+      { id: "mp-analytics", label: "Sales Analytics", icon: BarChart2 },
+      { id: "mp-demo-views", label: "Demo Views", icon: Eye },
+      // System
+      { id: "mp-notifications", label: "Notifications", icon: Globe },
+      { id: "mp-audit-logs", label: "Audit Logs", icon: FileStack },
       { id: "mp-support", label: "Customer Support", icon: HeadphonesIcon },
       { id: "mp-import", label: "Bulk Import / Export", icon: Upload },
+      { id: "mp-settings", label: "System Settings", icon: Settings },
     ],
   },
   // Marketplace Sync (existing)
