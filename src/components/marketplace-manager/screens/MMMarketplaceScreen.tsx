@@ -41,17 +41,15 @@ type PartnerRequestType =
   | 'job_apply'
   | 'enquiry';
 
-const CATEGORIES = [
-  'Restaurant', 'Education', 'Healthcare', 'E-commerce', 'Hotel',
-  'Real Estate', 'Finance', 'Manufacturing', 'CRM', 'HRM',
-  'Logistics', 'Salon', 'Gym', 'Legal', 'Retail'
-];
-
 const CATEGORY_ICONS: Record<string, string> = {
-  'Restaurant': '🍽️', 'Education': '📚', 'Healthcare': '🏥', 'E-commerce': '🛒',
-  'Hotel': '🏨', 'Real Estate': '🏠', 'Finance': '💰', 'Manufacturing': '🏭',
-  'CRM': '📊', 'HRM': '👥', 'Logistics': '🚚', 'Salon': '💇', 'Gym': '💪',
-  'Legal': '⚖️', 'Retail': '🏪'
+  'Restaurant': '🍽️', 'Education': '📚', 'Healthcare': '🏥', 'E-Commerce': '🛒',
+  'E-commerce': '🛒', 'Hotel': '🏨', 'Hotel/Travel': '🏨', 'Real Estate': '🏠',
+  'Finance': '💰', 'Manufacturing': '🏭', 'CRM': '📊', 'HRM': '👥',
+  'Logistics': '🚚', 'Salon': '💇', 'Beauty/Salon': '💇', 'Gym': '💪',
+  'Fitness': '💪', 'Legal': '⚖️', 'Retail': '🏪', 'POS': '🏪',
+  'ERP': '🏢', 'Inventory': '📦', 'Insurance': '🛡️', 'Lending': '🏦',
+  'Automotive': '🚗', 'Events': '🎉', 'Library': '📖', 'General': '📦',
+  'Project Management': '📋', 'Subscription': '🔄',
 };
 
 const PARTNER_REQUEST_BUTTONS: { event: PartnerRequestType; label: string }[] = [
@@ -74,6 +72,7 @@ export const MMMarketplaceScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [dynamicCategories, setDynamicCategories] = useState<string[]>([]);
 
   useEffect(() => {
     fetchProducts();
@@ -98,19 +97,38 @@ export const MMMarketplaceScreen = () => {
 
   const fetchProducts = async () => {
     try {
-      let data: any[] | null = null;
+      let allData: any[] = [];
       let fetchError: any = null;
+      const PAGE_SIZE = 1000;
 
-      const catalogResult = await supabase
-        .from('software_catalog' as any)
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .limit(1000);
+      // Paginate through software_catalog to get all 5000+ products
+      let page = 0;
+      let hasMore = true;
+      while (hasMore) {
+        const from = page * PAGE_SIZE;
+        const to = from + PAGE_SIZE - 1;
+        const catalogResult = await supabase
+          .from('software_catalog' as any)
+          .select('*')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+          .range(from, to);
 
-      if (!catalogResult.error && catalogResult.data && catalogResult.data.length > 0) {
-        // Map software_catalog columns to Product interface
-        data = (catalogResult.data as any[]).map((item: any) => ({
+        if (catalogResult.error) { fetchError = catalogResult.error; break; }
+        if (catalogResult.data && catalogResult.data.length > 0) {
+          allData = allData.concat(catalogResult.data);
+          hasMore = catalogResult.data.length === PAGE_SIZE;
+        } else {
+          hasMore = false;
+        }
+        page++;
+        if (page > 10) break; // Safety cap at 10k
+      }
+
+      let data: any[] | null = null;
+
+      if (!fetchError && allData.length > 0) {
+        data = allData.map((item: any) => ({
           product_id: item.id || item.product_id,
           product_name: item.name || item.product_name || 'Unnamed Product',
           description: item.description || item.short_description || `${item.category || 'Enterprise'} software solution by ${item.vendor || 'Software Vala'}`,
@@ -130,7 +148,7 @@ export const MMMarketplaceScreen = () => {
           demo_build_status: item.demo_build_status || null,
           last_repo_sync_at: item.last_repo_sync_at || null,
         }));
-      } else {
+      } else if (!fetchError) {
         // Fallback to products table
         const productsResult = await supabase
           .from('products')
@@ -146,7 +164,12 @@ export const MMMarketplaceScreen = () => {
       }
 
       if (fetchError) throw fetchError;
-      setProducts((data as Product[]) || []);
+      const allProducts = (data as Product[]) || [];
+      setProducts(allProducts);
+
+      // Extract dynamic categories from product data
+      const cats = Array.from(new Set(allProducts.map(p => p.category).filter(Boolean) as string[])).sort();
+      setDynamicCategories(cats);
     } catch (err) {
       console.error('Failed to fetch products:', err);
       setProducts([]);
@@ -471,7 +494,7 @@ export const MMMarketplaceScreen = () => {
           >
             All
           </button>
-          {CATEGORIES.map((category) => (
+          {dynamicCategories.map((category) => (
             <button
               key={category}
               onClick={() => handleCategoryFilter(selectedCategory === category ? null : category)}
