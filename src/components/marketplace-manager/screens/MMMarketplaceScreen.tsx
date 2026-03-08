@@ -30,7 +30,9 @@ type PartnerRequestType =
   | 'franchise_request'
   | 'reseller_request'
   | 'developer_request'
-  | 'support_request';
+  | 'support_request'
+  | 'job_apply'
+  | 'enquiry';
 
 const CATEGORIES = [
   'Restaurant', 'Education', 'Healthcare', 'E-commerce', 'Hotel',
@@ -50,6 +52,8 @@ const PARTNER_REQUEST_BUTTONS: { event: PartnerRequestType; label: string }[] = 
   { event: 'reseller_request', label: 'Reseller Request' },
   { event: 'developer_request', label: 'Developer Request' },
   { event: 'support_request', label: 'Support Request' },
+  { event: 'job_apply', label: 'Job Apply' },
+  { event: 'enquiry', label: 'Enquiry' },
 ];
 
 export const MMMarketplaceScreen = () => {
