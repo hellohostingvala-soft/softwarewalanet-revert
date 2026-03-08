@@ -101,7 +101,7 @@ export const MMMarketplaceScreen = () => {
       setProducts(data || []);
     } catch (err) {
       console.error('Failed to fetch products:', err);
-      setProducts(generateMockProducts());
+      setProducts([]);
     } finally {
       setLoading(false);
     }
