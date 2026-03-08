@@ -70,7 +70,7 @@ serve(async (req: Request) => {
 
         return jsonResponse({ success: true, message: "Image uploaded successfully", image: imageRecord });
       } catch (error) {
-        return errorResponse(`Error: ${error.message}`, 500);
+        return errorResponse(`Error: ${(error as Error).message}`, 500);
       }
     });
   }
