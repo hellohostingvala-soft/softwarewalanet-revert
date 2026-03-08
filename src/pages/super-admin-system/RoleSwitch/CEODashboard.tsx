@@ -29,6 +29,7 @@ import {
 } from "@/components/aira/AIRACharts";
 import { AIRASystemScanner, ScanReport } from "@/components/aira/AIRASystemScanner";
 import AIRAChatInterface from "@/components/aira/AIRAChatInterface";
+import AIRAReports from "@/components/aira/AIRAReports";
 
 interface CEODashboardProps {
   activeNav?: string;
