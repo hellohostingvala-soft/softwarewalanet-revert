@@ -816,9 +816,9 @@ async function getCommandCenterData(supabase: any, body: any) {
 async function aiRiskAnalysis(supabase: any, body: any) {
   const { user_id, analysis_type, data } = body;
 
-  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+  const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
   
-  if (!LOVABLE_API_KEY) {
+  if (!OPENAI_API_KEY) {
     // Fallback to rule-based analysis
     return new Response(
       JSON.stringify({
