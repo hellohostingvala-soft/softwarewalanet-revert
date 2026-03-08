@@ -731,13 +731,10 @@ function HeroBanner({ products, onDemo, onBuy, onView, discountedPrice }: {
               {product.description || 'Enterprise-grade software solution built for scale.'}
             </p>
             <div className="flex items-center gap-4 mb-6">
-              {product.monthly_price && (
-                <div className="flex items-center gap-2">
-                  <span className="text-slate-500 line-through text-sm">₹{product.monthly_price}/mo</span>
-                  <span className="text-2xl font-bold text-cyan-400">₹{discountedPrice(product.monthly_price)}/mo</span>
-                  <Badge className="bg-emerald-500/20 text-emerald-400 border-0 text-xs">30% OFF</Badge>
-                </div>
-              )}
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold text-cyan-400">$249</span>
+                <span className="text-sm text-slate-400">Lifetime • Source Code Included</span>
+              </div>
             </div>
             <div className="flex gap-3">
               <Button onClick={() => onDemo(product)} variant="outline" className="border-cyan-500 text-cyan-400 hover:bg-cyan-500/10">
@@ -898,14 +895,7 @@ function ProductCard({ product, isFav, onView, onDemo, onBuy, onFav, discountedP
         <h4 className="text-sm font-medium truncate">{product.product_name}</h4>
         <p className="text-xs text-slate-500 truncate mt-0.5">{product.description || 'Enterprise software'}</p>
         <div className="flex items-center justify-between mt-2">
-          {product.monthly_price ? (
-            <div className="flex items-center gap-1.5">
-              <span className="text-[10px] text-slate-600 line-through">₹{product.monthly_price}</span>
-              <span className="text-sm font-bold text-cyan-400">₹{discountedPrice(product.monthly_price)}</span>
-            </div>
-          ) : (
-            <span className="text-xs text-slate-500">Contact Sales</span>
-          )}
+          <span className="text-sm font-bold text-cyan-400">$249</span>
           <div className="flex items-center gap-0.5">
             <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
             <span className="text-[10px] text-slate-400">4.8</span>
@@ -1024,23 +1014,15 @@ function ProductDetailDialog({ product, open, onClose, onDemo, onBuy, isFav, onF
 
             <div className="bg-slate-800/50 rounded-lg p-4">
               <h3 className="text-sm font-semibold mb-3">Pricing</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {product.monthly_price && (
-                  <div className="bg-slate-900 rounded-lg p-3 border border-slate-700">
-                    <p className="text-xs text-slate-500">Monthly</p>
-                    <p className="text-slate-500 line-through text-xs">₹{product.monthly_price}</p>
-                    <p className="text-lg font-bold text-cyan-400">₹{discountedPrice(product.monthly_price)}/mo</p>
-                    <Badge className="bg-emerald-500/20 text-emerald-400 border-0 text-[10px] mt-1">30% Franchise Discount</Badge>
-                  </div>
-                )}
-                {product.lifetime_price && (
-                  <div className="bg-slate-900 rounded-lg p-3 border border-cyan-500/30">
-                    <p className="text-xs text-slate-500">Lifetime</p>
-                    <p className="text-slate-500 line-through text-xs">₹{product.lifetime_price}</p>
-                    <p className="text-lg font-bold text-cyan-400">₹{discountedPrice(product.lifetime_price)}</p>
-                    <Badge className="bg-yellow-500/20 text-yellow-400 border-0 text-[10px] mt-1">Best Value</Badge>
-                  </div>
-                )}
+              <div className="bg-slate-900 rounded-lg p-4 border border-cyan-500/30 text-center">
+                <p className="text-xs text-slate-500 mb-1">All Software — One Price</p>
+                <p className="text-3xl font-bold text-cyan-400">$249</p>
+                <p className="text-xs text-slate-400 mt-1">Lifetime Access • Full Source Code • No Hidden Charges</p>
+                <div className="flex flex-wrap justify-center gap-2 mt-3">
+                  <Badge className="bg-emerald-500/20 text-emerald-400 border-0 text-[10px]">✅ No Advance</Badge>
+                  <Badge className="bg-cyan-500/20 text-cyan-400 border-0 text-[10px]">✅ Free Updates</Badge>
+                  <Badge className="bg-purple-500/20 text-purple-400 border-0 text-[10px]">✅ 24/7 Support</Badge>
+                </div>
               </div>
             </div>
           </div>
