@@ -600,6 +600,36 @@ const GlobalCommandCenter = ({ onSelectContinent }: GlobalCommandCenterProps) =>
               </div>
             </div>
 
+            {/* System Connections */}
+            <div className="border-t mx-2 py-2" style={{ borderColor: borderCol }}>
+              <div className="flex items-center gap-1.5 px-1 mb-2">
+                <Zap className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-[10px] font-bold text-white">System Connections</span>
+              </div>
+              <div className="space-y-1 px-1">
+                {systemConnections.map((conn, i) => (
+                  <motion.div
+                    key={conn.name}
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.8 + i * 0.05 }}
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-lg"
+                    style={{ background: surfaceBg }}
+                  >
+                    <span className="text-xs">{conn.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-[9px] font-medium text-white block">{conn.name}</span>
+                      <span className="text-[7px]" style={{ color: mutedColor }}>{conn.requests}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="text-[7px] text-emerald-400">Live</span>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+
             {/* Infrastructure */}
             <div className="border-t mx-2 py-2" style={{ borderColor: borderCol }}>
               <div className="flex items-center gap-1.5 px-1 mb-2">
