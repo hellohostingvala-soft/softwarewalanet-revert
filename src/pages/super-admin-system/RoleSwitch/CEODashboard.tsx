@@ -5,7 +5,7 @@ import {
   Lightbulb, ThumbsUp, ThumbsDown, MessageSquare, Shield, Clock,
   Target, DollarSign, Users, Activity, Brain, Zap, CheckCircle2,
   XCircle, FileText, Sparkles, RefreshCw, Server, Package,
-  ShoppingCart, AlertCircle, Layers, ScanLine
+  ShoppingCart, AlertCircle, Layers, ScanLine, Bot
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
