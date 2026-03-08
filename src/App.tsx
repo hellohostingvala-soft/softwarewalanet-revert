@@ -124,6 +124,7 @@ const BossRegister = lazyLoad(() => import("./pages/auth/BossRegister"));
 const EasyAuth = lazyLoad(() => import("./pages/auth/EasyAuth"));
 const RoleBasedLogin = lazyLoad(() => import("./pages/auth/RoleBasedLogin"));
 const SessionExpiredPage = lazyLoad(() => import("./pages/error/SessionExpiredPage"));
+const DeadlineAnimationDemo = lazyLoad(() => import("./pages/DeadlineAnimationDemo"));
 
 // Demo Pages
 const PublicDemos = lazyLoad(() => import("./pages/demos/PublicDemos"));
