@@ -25,6 +25,12 @@ interface Product {
   is_active: boolean | null;
   status: string | null;
   created_at: string;
+  demo_url?: string | null;
+  demo_id?: string | null;
+  github_repo_url?: string | null;
+  repo_language?: string | null;
+  demo_build_status?: string | null;
+  last_repo_sync_at?: string | null;
 }
 
 type PartnerRequestType =
