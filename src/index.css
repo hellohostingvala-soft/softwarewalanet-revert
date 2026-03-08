@@ -61,6 +61,64 @@
     --sidebar-ring: 0 0% 100%;
 
     /* ========================================
+       AURORA COLOR PALETTE — Full Spectrum
+       ======================================== */
+    --aurora-violet: 262 83% 58%;
+    --aurora-purple: 280 87% 55%;
+    --aurora-blue: 217 91% 60%;
+    --aurora-cyan: 187 85% 53%;
+    --aurora-teal: 173 80% 40%;
+    --aurora-green: 160 84% 39%;
+    --aurora-lime: 84 81% 44%;
+    --aurora-gold: 45 93% 47%;
+    --aurora-orange: 25 95% 53%;
+    --aurora-rose: 346 77% 49%;
+    --aurora-pink: 330 81% 60%;
+    --aurora-magenta: 292 84% 61%;
+
+    /* ========================================
+       NEON COLOR PALETTE — Vivid Accents
+       ======================================== */
+    --neon-violet: 262 100% 65%;
+    --neon-cyan: 187 100% 50%;
+    --neon-green: 142 90% 45%;
+    --neon-orange: 25 100% 55%;
+    --neon-red: 0 90% 55%;
+    --neon-purple: 280 100% 60%;
+    --neon-blue: 217 100% 60%;
+    --neon-teal: 173 90% 42%;
+    --neon-pink: 330 100% 60%;
+    --neon-gold: 45 100% 50%;
+
+    /* ========================================
+       SURFACE COLORS — Depth Layers
+       ======================================== */
+    --surface-1: 222 47% 95%;
+    --surface-2: 222 30% 92%;
+    --surface-3: 222 20% 88%;
+    --surface-elevated: 0 0% 100%;
+
+    /* ========================================
+       STATUS COLORS - Professional
+       ======================================== */
+    --status-success: 142 76% 36%;
+    --status-warning: 38 92% 50%;
+    --status-error: 0 84% 60%;
+    --status-info: 217 91% 60%;
+    --status-pending: 38 80% 55%;
+
+    /* ========================================
+       LEGACY COMPATIBILITY
+       ======================================== */
+    --sapphire: 217 91% 60%;
+    --sapphire-light: 217 80% 72%;
+    --graphite: 222 14% 40%;
+    --graphite-dark: 222 20% 25%;
+    --sv-primary: 221 83% 53%;
+    --sv-accent: 262 83% 58%;
+    --sv-navy-deep: 224 71% 8%;
+
+    /* ========================================
        PREMIUM CARD GRADIENTS - Vibrant
        ======================================== */
     --gradient-purple: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -76,13 +134,14 @@
     --gradient-pink: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     --gradient-mint: linear-gradient(135deg, #0ba360 0%, #3cba92 100%);
 
-    /* ========================================
-       STATUS COLORS - Professional
-       ======================================== */
-    --status-success: 142 76% 36%;
-    --status-warning: 38 92% 50%;
-    --status-error: 0 84% 60%;
-    --status-info: 217 91% 60%;
+    /* Premium Named Gradients */
+    --gradient-aurora: linear-gradient(135deg, hsl(262 83% 58%) 0%, hsl(217 91% 60%) 50%, hsl(187 85% 53%) 100%);
+    --gradient-sunset: linear-gradient(135deg, hsl(346 77% 49%) 0%, hsl(25 95% 53%) 50%, hsl(45 93% 47%) 100%);
+    --gradient-ocean: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(187 85% 53%) 50%, hsl(173 80% 40%) 100%);
+    --gradient-cosmic: linear-gradient(135deg, hsl(280 87% 55%) 0%, hsl(262 83% 58%) 50%, hsl(217 91% 60%) 100%);
+    --gradient-emerald: linear-gradient(135deg, hsl(160 84% 39%) 0%, hsl(173 80% 40%) 50%, hsl(187 85% 53%) 100%);
+    --gradient-royal: linear-gradient(135deg, hsl(262 83% 58%) 0%, hsl(280 87% 55%) 100%);
+    --gradient-fire: linear-gradient(135deg, hsl(0 84% 60%) 0%, hsl(25 95% 53%) 50%, hsl(45 93% 47%) 100%);
 
     /* Premium Shadows - Ultra Soft */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -95,18 +154,7 @@
     /* Glass Effect */
     --glass-bg: 0 0% 100% / 0.9;
     --glass-border: 0 0% 100% / 0.2;
-
-    /* Legacy Compatibility */
-    --sv-primary: 221 83% 53%;
-    --sv-accent: 262 83% 58%;
-    --neon-teal: 173 80% 40%;
-    --neon-orange: 25 95% 53%;
-    --neon-green: 142 76% 36%;
-    --sapphire: 217 91% 60%;
-    --aurora-violet: 262 83% 58%;
-    --aurora-gold: 45 93% 47%;
   }
-
   /* Dark Mode - Premium Dark */
   .dark {
     --background: 224 71% 8%;
