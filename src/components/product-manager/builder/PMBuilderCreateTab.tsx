@@ -203,8 +203,8 @@ const PMBuilderCreateTab = ({ onProductUpdate, onPipelineStep }: PMBuilderCreate
         throw new Error(`AI error: ${response.status}`);
       }
 
-      onPipelineStep?.(2, 'done');
-      onPipelineStep?.(3, 'running'); // Architecture
+      onPipelineStep?.(1, 'done');
+      onPipelineStep?.(2, 'running'); // Market Research
 
       const reader = response.body?.getReader();
       if (!reader) throw new Error('No response stream');
