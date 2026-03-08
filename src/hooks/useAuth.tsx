@@ -48,20 +48,57 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isBossOwner = userRole === 'boss_owner' || userRole === 'master' || userRole === 'super_admin';
   const isCEO = userRole === 'ceo';
 
+  // Track this browser-tab session start for force-logout comparisons
+  const setSessionStartNow = useCallback(() => {
+    try {
+      const nowIso = new Date().toISOString();
+      sessionStorage.setItem('session_start', nowIso);
+      sessionStorage.setItem('last_activity', nowIso);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const clearSessionStart = useCallback(() => {
+    try {
+      sessionStorage.removeItem('session_start');
+      sessionStorage.removeItem('last_activity');
+      sessionStorage.removeItem('last_activity_update');
+    } catch {
+      // ignore
+    }
+  }, []);
+
   // Check if user was force logged out
   const checkForceLogout = useCallback(async (userId: string) => {
     try {
-      const { data, error } = await supabase.rpc('check_force_logout', { 
-        check_user_id: userId 
+      const { data: logoutTime, error } = await supabase.rpc('check_force_logout', {
+        check_user_id: userId,
       });
-      
-      if (!error && data) {
+
+      if (error || !logoutTime) return false;
+
+      const sessionStart = sessionStorage.getItem('session_start');
+      if (!sessionStart) {
+        // Strict default: if we can't validate the session timeline, terminate.
         setWasForceLoggedOut(true);
         await supabase.auth.signOut();
+        sessionStorage.clear();
         return true;
       }
+
+      const sessionStartTime = new Date(sessionStart).getTime();
+      const forceLogoutTime = new Date(String(logoutTime)).getTime();
+
+      if (Number.isFinite(forceLogoutTime) && forceLogoutTime > sessionStartTime) {
+        setWasForceLoggedOut(true);
+        await supabase.auth.signOut();
+        sessionStorage.clear();
+        return true;
+      }
+
       return false;
-    } catch (err) {
+    } catch {
       return false;
     }
   }, []);
@@ -71,7 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await supabase.rpc('clear_force_logout', { clear_user_id: userId });
       setWasForceLoggedOut(false);
-    } catch (err) {
+    } catch {
       // Silent fail
     }
   }, []);
@@ -88,6 +125,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
 
+        // Session start marker for force-logout comparisons (new login only)
+        if (event === 'SIGNED_IN' && session?.user) {
+          setSessionStartNow();
+        }
+
         // If this SIGNED_IN came from our own signIn() call, we will fetch role
         // after clearing any force-logout flag to avoid an immediate signOut race.
         if (event === 'SIGNED_IN' && pendingSignInRef.current) {
@@ -102,6 +144,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             }, 0);
           }
         } else if (event === 'SIGNED_OUT' || !session) {
+          clearSessionStart();
           setUserRole(null);
           setApprovalStatus(null);
           setRoleChecked(false);
@@ -312,6 +355,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) throw error;
 
+      if (data.session) {
+        setSessionStartNow();
+      }
+
       if (data.user) {
         // Boss Owner should never be blocked by allowlist rules (break-glass access)
         let isBossOwner = false;
@@ -403,6 +450,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    clearSessionStart();
     setUser(null);
     setSession(null);
     setUserRole(null);
