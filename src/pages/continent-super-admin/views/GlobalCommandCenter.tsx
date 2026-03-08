@@ -438,6 +438,30 @@ const GlobalCommandCenter = ({ onSelectContinent }: GlobalCommandCenterProps) =>
             </div>
           </div>
 
+          {/* Floating Stat Cards */}
+          {floatingStats.map((fs, i) => (
+            <motion.div
+              key={fs.label}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1, y: [0, -4, 0] }}
+              transition={{ 
+                delay: 1 + i * 0.2,
+                y: { duration: 3 + i * 0.5, repeat: Infinity, ease: 'easeInOut' }
+              }}
+              className="absolute z-10 px-2.5 py-1.5 rounded-lg pointer-events-none"
+              style={{
+                top: fs.top, left: fs.left,
+                background: 'hsla(222, 47%, 10%, 0.8)',
+                backdropFilter: 'blur(12px)',
+                border: `1px solid ${fs.color}33`,
+                boxShadow: `0 4px 20px ${fs.color}15`,
+              }}
+            >
+              <div className="text-[7px] uppercase tracking-wider" style={{ color: mutedColor }}>{fs.label}</div>
+              <div className="text-sm font-bold text-white">{fs.value}</div>
+            </motion.div>
+          ))}
+
           {/* Bottom Continent Health Strip */}
           <div className="absolute bottom-3 left-3 right-3 z-10">
             <div className="flex gap-1.5">
