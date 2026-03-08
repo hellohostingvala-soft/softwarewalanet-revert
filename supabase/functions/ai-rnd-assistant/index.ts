@@ -13,10 +13,10 @@ serve(async (req) => {
 
   try {
     const { type, data } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
     
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+    if (!OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY is not configured');
     }
 
     let systemPrompt = `You are an advanced AI R&D Assistant for Software Vala, a futuristic research and development management system. 
