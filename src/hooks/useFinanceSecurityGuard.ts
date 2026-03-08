@@ -164,7 +164,7 @@ export function useFinanceSecurityGuard() {
 
     try {
       // Verify OTP against otp_verifications table
-      const { data: otpRecord } = await supabase
+      const { data: otpRecord } = await (supabase as any)
         .from('otp_verifications')
         .select('*')
         .eq('user_id', user.id)
