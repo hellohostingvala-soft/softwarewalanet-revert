@@ -439,6 +439,16 @@ const RoleSwitchDashboard = () => {
     );
   }
 
+  if (shouldUseBossPanel) {
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={<ModuleLoader />}>
+          <BossPanelView />
+        </Suspense>
+      </ErrorBoundary>
+    );
+  }
+
   const riskColors = {
     low: "bg-emerald-500/20 text-emerald-400 border-emerald-500/50",
     medium: "bg-yellow-500/20 text-yellow-400 border-yellow-500/50",
