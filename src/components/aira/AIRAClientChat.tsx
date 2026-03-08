@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import ReactMarkdown from 'react-markdown';
+import airaAvatar from '@/assets/aira-avatar.png';
 
 interface ChatMessage {
   id: string;
