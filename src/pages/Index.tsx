@@ -2624,7 +2624,7 @@ const Index = () => {
                     variant="outline"
                     className="border-white/30 text-white hover:bg-white/10 font-medium text-base px-8 gap-2 rounded-sm"
                     onClick={() => {
-                      onToggleFavoriteGlobal(heroDemo.id);
+                      toggleFavorite(heroDemo.id);
                     }}
                   >
                     <Heart className={`h-5 w-5 ${favorites.includes(heroDemo.id) ? 'fill-red-500 text-red-500' : ''}`} /> 
