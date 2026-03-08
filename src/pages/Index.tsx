@@ -2801,37 +2801,23 @@ const Index = () => {
       )}
 
       {/* ===== 50 NETFLIX HORIZONTAL ROWS ===== */}
-      <section className="pb-12 px-4 md:px-12 space-y-8">
-        <div className="max-w-[1400px] mx-auto space-y-8">
+      <section className="pb-12 px-4 md:px-12 space-y-10">
+        <div className="max-w-[1400px] mx-auto space-y-10">
           {NETFLIX_ROWS.map(row => {
             const rowDemos = allDemos.filter(row.filter);
-            if (rowDemos.length === 0) return null;
-
-            // For special rows, limit and shuffle
             const displayDemos = row.type === 'special' ? rowDemos.slice(0, 20) : rowDemos;
+            const isEmpty = displayDemos.length === 0;
 
             return (
-              <div key={row.id} className="group/row">
-                <div className="flex items-center gap-3 mb-3">
-                  <h3 className="text-lg font-bold text-white group-hover/row:text-cyan-400 transition-colors">
-                    {row.title}
-                  </h3>
-                  <span className="text-xs text-slate-600 bg-slate-800/50 px-2 py-0.5 rounded-full">{displayDemos.length}</span>
-                </div>
-                <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide">
-                  {displayDemos.map((demo, index) => (
-                    <div key={demo.id} className="flex-shrink-0 w-[200px] md:w-[220px]">
-                      <DemoCard
-                        demo={demo}
-                        index={index}
-                        isFavorite={favorites.includes(demo.id)}
-                        onToggleFavorite={() => toggleFavorite(demo.id)}
-                        localPrice={localPrice}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <NetflixScrollRow
+                key={row.id}
+                row={row}
+                demos={displayDemos}
+                isEmpty={isEmpty}
+                favorites={favorites}
+                toggleFavorite={toggleFavorite}
+                localPrice={localPrice}
+              />
             );
           })}
         </div>
