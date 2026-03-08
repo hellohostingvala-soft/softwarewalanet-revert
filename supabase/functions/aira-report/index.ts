@@ -157,14 +157,14 @@ Provide executive-level strategic analysis with forward-looking recommendations.
     const prompt = reportPrompts[reportType] || reportPrompts.daily;
 
     // Stream the report
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "gpt-4o",
         messages: [
           { role: "system", content: "You are AIRA, the executive AI intelligence advisor for the CEO. Generate professional, data-driven executive reports. Use the real metrics provided. Be specific with numbers." },
           { role: "user", content: prompt },
