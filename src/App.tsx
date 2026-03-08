@@ -317,6 +317,11 @@ const AICEOPredictions = lazyLoad(() => import("./pages/ai-ceo/sections/AICEOPre
 const AICEOReports = lazyLoad(() => import("./pages/ai-ceo/sections/AICEOReports"));
 const AICEOLearning = lazyLoad(() => import("./pages/ai-ceo/sections/AICEOLearning"));
 const AICEOSettings = lazyLoad(() => import("./pages/ai-ceo/sections/AICEOSettings"));
+const AIRAVoiceCommands = lazyLoad(() => import("./pages/ai-ceo/sections/AIRAVoiceCommands"));
+const AIRAProviders = lazyLoad(() => import("./pages/ai-ceo/sections/AIRAProviders"));
+const AIRAProjectScanner = lazyLoad(() => import("./pages/ai-ceo/sections/AIRAProjectScanner"));
+const AIRATaskEngine = lazyLoad(() => import("./pages/ai-ceo/sections/AIRATaskEngine"));
+const AIRAMarketing = lazyLoad(() => import("./pages/ai-ceo/sections/AIRAMarketing"));
 
 const DemoCredentials = lazyLoad(() => import("./pages/DemoCredentials"));
 const DemoOrderSystem = lazyLoad(() => import("./pages/demo-system/DemoOrderSystem"));
@@ -560,10 +565,15 @@ const App = memo(() => (
                             <Route path="/ai-ceo" element={<RequireRole allowed={["boss_owner", "ceo"]}><AICEODashboard /></RequireRole>}>
                               <Route index element={<AICEODashboardMain />} />
                               <Route path="live-monitor" element={<AICEOLiveMonitor />} />
+                              <Route path="voice-commands" element={<AIRAVoiceCommands />} />
+                              <Route path="ai-providers" element={<AIRAProviders />} />
+                              <Route path="project-scanner" element={<AIRAProjectScanner />} />
+                              <Route path="task-engine" element={<AIRATaskEngine />} />
                               <Route path="decision-engine" element={<AICEODecisionEngine />} />
                               <Route path="approvals" element={<AICEOApprovals />} />
                               <Route path="risk" element={<AICEORiskCompliance />} />
                               <Route path="performance" element={<AICEOPerformance />} />
+                              <Route path="marketing" element={<AIRAMarketing />} />
                               <Route path="predictions" element={<AICEOPredictions />} />
                               <Route path="reports" element={<AICEOReports />} />
                               <Route path="learning" element={<AICEOLearning />} />
