@@ -23,20 +23,10 @@ export interface CEOSystemHealth {
   status: string;
 }
 
-export interface CEOScanResult {
-  modules_scanned: number;
-  issues_found: number;
-  critical_issues: number;
-  scan_duration_ms: number;
-  scan_results: Record<string, number>;
-  status: string;
-}
-
 export function useCEODashboard() {
   const [productPerformance, setProductPerformance] = useState<CEOProductPerf[]>([]);
   const [regionPerformance, setRegionPerformance] = useState<CEORegionPerf[]>([]);
   const [systemHealth, setSystemHealth] = useState<CEOSystemHealth[]>([]);
-  const [scanResult, setScanResult] = useState<CEOScanResult | null>(null);
   const [loading, setLoading] = useState(false);
 
   const callEndpoint = useCallback(async (endpoint: string, params?: any) => {
@@ -69,10 +59,8 @@ export function useCEODashboard() {
 
   const runScan = useCallback(async (scanType = 'full') => {
     setLoading(true);
-    const data = await callEndpoint('scan', { scan_type: scanType });
-    if (data) setScanResult(data);
+    await callEndpoint('scan', { scan_type: scanType });
     setLoading(false);
-    return data;
   }, [callEndpoint]);
 
   const fetchAll = useCallback(async () => {
@@ -89,11 +77,7 @@ export function useCEODashboard() {
     productPerformance,
     regionPerformance,
     systemHealth,
-    scanResult,
     loading,
-    fetchProducts,
-    fetchRegions,
-    fetchSystemHealth,
     runScan,
     fetchAll,
   };
