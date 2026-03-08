@@ -51,7 +51,7 @@ const getRiskLevel = (action: string, severity?: string): 'low' | 'medium' | 'hi
   if (severity === 'critical' || severity === 'emergency') return 'high';
   if (severity === 'warning') return 'medium';
   if (action.includes('delete') || action.includes('violation') || action.includes('suspicious') || action.includes('failed_payment') || action.includes('security')) return 'high';
-  if (action.includes('refund') || action.includes('margin') || action.includes('update')) return 'medium';
+  if (action.includes('refund') || action.includes('margin') || action.includes('update') || action.includes('purchase') || action.includes('franchise_request') || action.includes('reseller_request')) return 'medium';
   return 'low';
 };
 
