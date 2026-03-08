@@ -127,7 +127,7 @@ export const useCreateLead = () => {
 export const useUpdateLead = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, updates }: { id: string; updates: Partial<LeadRow> }) => {
+    mutationFn: async ({ id, updates }: { id: string; updates: Record<string, any> }) => {
       const { data, error } = await supabase.from('leads').update({ ...updates, updated_at: new Date().toISOString() }).eq('id', id).select().single();
       if (error) throw error;
       return data;
