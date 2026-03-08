@@ -564,16 +564,25 @@ export const MMMarketplaceScreen = () => {
       </div>
 
       {selectedProduct && (
-        <ProductDetailDialog
-          product={selectedProduct}
-          open={Boolean(selectedProduct)}
-          onClose={handleCloseProductDialog}
-          onDemo={handleDemo}
-          onBuy={handleBuy}
-          isFav={favorites.has(selectedProduct.product_id)}
-          onFav={toggleFavorite}
-          discountedPrice={discountedPrice}
-        />
+        <>
+          <ProductSEOHead
+            productName={selectedProduct.product_name}
+            category={selectedProduct.category || undefined}
+            price={selectedProduct.monthly_price || undefined}
+            type={selectedProduct.product_type || undefined}
+            slug={selectedProduct.product_id}
+          />
+          <ProductDetailDialog
+            product={selectedProduct}
+            open={Boolean(selectedProduct)}
+            onClose={handleCloseProductDialog}
+            onDemo={handleDemo}
+            onBuy={handleBuy}
+            isFav={favorites.has(selectedProduct.product_id)}
+            onFav={toggleFavorite}
+            discountedPrice={discountedPrice}
+          />
+        </>
       )}
     </div>
   );

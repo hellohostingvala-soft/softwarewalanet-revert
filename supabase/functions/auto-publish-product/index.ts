@@ -300,7 +300,7 @@ serve(async (req) => {
     }
 
     // ─────────────────────────────────────────────
-    // STEP 5: Log activity
+    // STEP 6: Log activity
     // ─────────────────────────────────────────────
     await supabase.from("activity_log").insert({
       action_type: "product_auto_publish",
