@@ -1,28 +1,31 @@
 /**
- * VALA AI DASHBOARD - ENTERPRISE AI PRODUCT BUILDER
+ * VALA AI DASHBOARD - SMART AI PRODUCT BUILDER
  * =====================================================
- * Real AI integration via AI Gateway
- * Voice input via ElevenLabs STT
- * Streaming chat + live preview
- * Parallel pipeline visualization
+ * Lovable-grade AI builder with:
+ * - Thinking/reasoning indicator
+ * - Live HTML preview rendering
+ * - Version history & rollback
+ * - Regenerate responses
+ * - Real code extraction & preview
+ * - Streaming chat with SSE
  * LOCKED DARK THEME
  */
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Send, Undo2, Redo2, Share2, Eye, Code2,
+  Send, Undo2, Redo2, Eye, Code2,
   Smartphone, Monitor, Tablet, ExternalLink, RefreshCw,
   Sparkles, User, Copy, ThumbsUp, ThumbsDown,
-  Loader2, ChevronDown, Rocket, Image, Paperclip, Mic, MicOff,
+  Loader2, Rocket, Paperclip, Mic, MicOff,
   PanelLeftClose, PanelLeftOpen, Globe, CheckCircle,
   Layers, Database, GitBranch, Workflow, Clock, Zap,
-  Activity, Package, X, Volume2, VolumeX
+  Activity, Package, Volume2, VolumeX, History,
+  Brain, ChevronDown, ChevronRight, RotateCcw, Image
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from "react-markdown";
 
 // ===== LOCKED COLORS =====
@@ -49,6 +52,17 @@ interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  isThinking?: boolean;
+  thinkingText?: string;
+}
+
+interface HistorySnapshot {
+  id: string;
+  timestamp: Date;
+  prompt: string;
+  messages: ChatMessage[];
+  generatedCode: string;
+  previewHtml: string;
 }
 
 interface PipelineStep {
@@ -56,6 +70,7 @@ interface PipelineStep {
   name: string;
   status: 'idle' | 'running' | 'done';
   icon: React.ElementType;
+  duration?: number;
 }
 
 interface BuildMetrics {
@@ -67,6 +82,145 @@ interface BuildMetrics {
 
 type PreviewMode = 'preview' | 'code';
 type DeviceMode = 'desktop' | 'tablet' | 'mobile';
+
+// ===== EXTRACT CODE BLOCKS =====
+function extractCodeBlocks(markdown: string): { language: string; code: string }[] {
+  const blocks: { language: string; code: string }[] = [];
+  const regex = /```(\w+)?\n([\s\S]*?)```/g;
+  let match;
+  while ((match = regex.exec(markdown)) !== null) {
+    blocks.push({ language: match[1] || 'text', code: match[2].trim() });
+  }
+  return blocks;
+}
+
+// ===== GENERATE LIVE PREVIEW HTML =====
+function generatePreviewHtml(content: string, metrics: BuildMetrics): string {
+  const codeBlocks = extractCodeBlocks(content);
+  const hasReactCode = codeBlocks.some(b => b.language === 'tsx' || b.language === 'jsx' || b.language === 'typescript');
+  const hasSql = codeBlocks.some(b => b.language === 'sql');
+  
+  // Extract screen names from tables
+  const screenMatches = content.match(/\|\s*\d+\s*\|([^|]+)\|/g) || [];
+  const screens = screenMatches.map(m => {
+    const parts = m.split('|').filter(Boolean);
+    return parts[1]?.trim() || '';
+  }).filter(s => s && !s.includes('---') && !s.includes('#'));
+
+  // Extract API endpoints
+  const apiMatches = content.match(/(?:GET|POST|PUT|DELETE|PATCH)\s*\|([^|]+)\|/g) || [];
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0b; color: #fafafa; padding: 24px; min-height: 100vh; }
+  .header { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+  .header-icon { width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, #8b5cf6, #06b6d4); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .header h1 { font-size: 22px; font-weight: 700; }
+  .header p { font-size: 13px; color: #71717a; margin-top: 2px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+  .stat { background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 16px; }
+  .stat-value { font-size: 28px; font-weight: 700; }
+  .stat-label { font-size: 11px; color: #71717a; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+  .section { margin-bottom: 24px; }
+  .section-title { font-size: 13px; font-weight: 600; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .section-title::before { content: ''; width: 3px; height: 14px; background: #8b5cf6; border-radius: 2px; }
+  .screen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+  .screen-card { background: #18181b; border: 1px solid #27272a; border-radius: 10px; padding: 14px; transition: border-color 0.2s; cursor: pointer; }
+  .screen-card:hover { border-color: #8b5cf6; }
+  .screen-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .screen-card p { font-size: 11px; color: #71717a; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 2px 8px; border-radius: 6px; font-weight: 500; }
+  .badge-purple { background: rgba(139,92,246,0.15); color: #a78bfa; }
+  .badge-green { background: rgba(34,197,94,0.15); color: #4ade80; }
+  .badge-cyan { background: rgba(6,182,212,0.15); color: #22d3ee; }
+  .api-list { display: flex; flex-direction: column; gap: 6px; }
+  .api-item { display: flex; align-items: center; gap: 10px; background: #18181b; border: 1px solid #27272a; border-radius: 8px; padding: 10px 14px; font-size: 12px; }
+  .method { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; min-width: 40px; text-align: center; }
+  .method-get { background: rgba(34,197,94,0.15); color: #4ade80; }
+  .method-post { background: rgba(59,130,246,0.15); color: #60a5fa; }
+  .method-put { background: rgba(245,158,11,0.15); color: #fbbf24; }
+  .method-delete { background: rgba(239,68,68,0.15); color: #f87171; }
+  .code-block { background: #111113; border: 1px solid #27272a; border-radius: 10px; padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.6; overflow-x: auto; color: #e6edf3; margin-top: 8px; }
+  .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #27272a; display: flex; align-items: center; justify-content: space-between; }
+  .footer-text { font-size: 11px; color: #52525b; }
+  .pulse { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-icon">🚀</div>
+    <div>
+      <h1>Generated Application</h1>
+      <p>Built by VALA AI Engine • ${new Date().toLocaleTimeString()}</p>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-value" style="color:#8b5cf6">${metrics.screens}</div>
+      <div class="stat-label">Screens</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" style="color:#06b6d4">${metrics.apis}</div>
+      <div class="stat-label">API Endpoints</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" style="color:#22c55e">${metrics.dbTables}</div>
+      <div class="stat-label">DB Tables</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" style="color:#f59e0b">${metrics.flows}</div>
+      <div class="stat-label">User Flows</div>
+    </div>
+  </div>
+
+  ${screens.length > 0 ? `
+  <div class="section">
+    <div class="section-title">Generated Screens</div>
+    <div class="screen-grid">
+      ${screens.slice(0, 12).map((s, i) => `
+        <div class="screen-card">
+          <h3>${s}</h3>
+          <p>Screen ${i + 1} of ${screens.length}</p>
+          <div style="margin-top:8px"><span class="badge badge-green">✓ Ready</span></div>
+        </div>
+      `).join('')}
+    </div>
+  </div>` : ''}
+
+  ${hasReactCode ? `
+  <div class="section">
+    <div class="section-title">Component Code</div>
+    <div class="code-block">
+      ${codeBlocks.filter(b => ['tsx', 'jsx', 'typescript', 'javascript'].includes(b.language)).slice(0, 1).map(b => 
+        b.code.replace(/</g, '&lt;').replace(/>/g, '&gt;').split('\n').slice(0, 20).join('\n') + (b.code.split('\n').length > 20 ? '\n// ... more code' : '')
+      ).join('')}
+    </div>
+  </div>` : ''}
+
+  ${hasSql ? `
+  <div class="section">
+    <div class="section-title">Database Schema</div>
+    <div class="code-block">
+      ${codeBlocks.filter(b => b.language === 'sql').slice(0, 1).map(b => 
+        b.code.replace(/</g, '&lt;').replace(/>/g, '&gt;').split('\n').slice(0, 15).join('\n') + (b.code.split('\n').length > 15 ? '\n-- ... more tables' : '')
+      ).join('')}
+    </div>
+  </div>` : ''}
+
+  <div class="footer">
+    <span class="footer-text">VALA AI Engine v2.0 • Parallel Processing</span>
+    <span class="badge badge-purple">⚡ Production Ready</span>
+  </div>
+</body>
+</html>`;
+}
 
 // ===== AI STREAMING =====
 async function streamValaAI({
@@ -94,6 +248,8 @@ async function streamValaAI({
 
   if (!resp.ok) {
     const data = await resp.json().catch(() => ({}));
+    if (resp.status === 429) { onError("Rate limit exceeded. Please wait a moment."); return; }
+    if (resp.status === 402) { onError("AI credits exhausted. Please add credits."); return; }
     onError(data.error || `AI request failed (${resp.status})`);
     return;
   }
@@ -114,6 +270,7 @@ async function streamValaAI({
       let line = buffer.slice(0, nlIndex);
       buffer = buffer.slice(nlIndex + 1);
       if (line.endsWith("\r")) line = line.slice(0, -1);
+      if (line.startsWith(":") || line.trim() === "") continue;
       if (!line.startsWith("data: ")) continue;
       const json = line.slice(6).trim();
       if (json === "[DONE]") { onDone(); return; }
@@ -127,6 +284,23 @@ async function streamValaAI({
       }
     }
   }
+
+  // Flush remaining
+  if (buffer.trim()) {
+    for (let raw of buffer.split("\n")) {
+      if (!raw) continue;
+      if (raw.endsWith("\r")) raw = raw.slice(0, -1);
+      if (raw.startsWith(":") || raw.trim() === "") continue;
+      if (!raw.startsWith("data: ")) continue;
+      const jsonStr = raw.slice(6).trim();
+      if (jsonStr === "[DONE]") continue;
+      try {
+        const parsed = JSON.parse(jsonStr);
+        const content = parsed.choices?.[0]?.delta?.content;
+        if (content) onDelta(content);
+      } catch { /* ignore */ }
+    }
+  }
   onDone();
 }
 
@@ -134,31 +308,38 @@ async function streamValaAI({
 const ValaAIDashboard = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
-      id: '1',
-      role: 'assistant',
-      content: "# 👋 Welcome to VALA AI Engine\n\nI'm your AI product builder. Tell me what you want to build and I'll generate:\n\n- **Screens** — Full UI components\n- **APIs** — REST endpoints\n- **Database** — Schema & tables\n- **Flows** — User workflows\n- **Deployable apps** — Production-ready code\n\n> Try: *\"Create a hospital management system with patient registration, doctor dashboard, billing, and lab reports\"*",
+      id: '1', role: 'assistant',
+      content: "# 👋 Welcome to VALA AI Engine v2\n\nI'm your autonomous product builder. Describe any software and I'll generate **production-ready** architecture:\n\n- 🖥️ **Screens** — Full UI components with responsive design\n- 🔌 **APIs** — REST endpoints with validation\n- 🗄️ **Database** — Schema, tables, RLS policies\n- 🔄 **Flows** — User workflows & state machines\n\n> Try: *\"Create a hospital management system with patient registration, doctor dashboard, billing, and lab reports\"*\n\n💡 **New:** Live preview, version history, rollback & regenerate!",
       timestamp: new Date(),
     }
   ]);
   const [input, setInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
+  const [thinkingPhase, setThinkingPhase] = useState('');
   const [previewMode, setPreviewMode] = useState<PreviewMode>('preview');
   const [deviceMode, setDeviceMode] = useState<DeviceMode>('desktop');
   const [showSidebar, setShowSidebar] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
   const [metrics, setMetrics] = useState<BuildMetrics>({ screens: 0, apis: 0, dbTables: 0, flows: 0 });
-  const [pipeline, setPipeline] = useState<PipelineStep[]>([
-    { id: '1', name: 'Prompt Understanding', status: 'idle', icon: Sparkles },
-    { id: '2', name: 'Requirement Analysis', status: 'idle', icon: Activity },
-    { id: '3', name: 'Feature Mapping', status: 'idle', icon: GitBranch },
-    { id: '4', name: 'Screen Generation', status: 'idle', icon: Layers },
-    { id: '5', name: 'API Planning', status: 'idle', icon: Zap },
-    { id: '6', name: 'Database Schema', status: 'idle', icon: Database },
-    { id: '7', name: 'Flow Generation', status: 'idle', icon: Workflow },
-    { id: '8', name: 'Build System', status: 'idle', icon: Package },
-  ]);
   const [generatedCode, setGeneratedCode] = useState('// VALA AI Engine — Send a prompt to generate code');
+  const [previewHtml, setPreviewHtml] = useState('');
   const [buildTime, setBuildTime] = useState<number | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [history, setHistory] = useState<HistorySnapshot[]>([]);
+  const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1);
+  const [activeCodeTab, setActiveCodeTab] = useState(0);
+  const [codeBlocks, setCodeBlocks] = useState<{ language: string; code: string }[]>([]);
+  const [pipeline, setPipeline] = useState<PipelineStep[]>([
+    { id: '1', name: 'Understanding Prompt', status: 'idle', icon: Brain },
+    { id: '2', name: 'Analyzing Requirements', status: 'idle', icon: Activity },
+    { id: '3', name: 'Mapping Features', status: 'idle', icon: GitBranch },
+    { id: '4', name: 'Generating Screens', status: 'idle', icon: Layers },
+    { id: '5', name: 'Planning APIs', status: 'idle', icon: Zap },
+    { id: '6', name: 'Designing Database', status: 'idle', icon: Database },
+    { id: '7', name: 'Building Flows', status: 'idle', icon: Workflow },
+    { id: '8', name: 'Packaging Build', status: 'idle', icon: Package },
+  ]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -167,147 +348,158 @@ const ValaAIDashboard = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playingMsgId, setPlayingMsgId] = useState<string | null>(null);
   const [ttsLoading, setTtsLoading] = useState<string | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const startTimeRef = useRef<number>(0);
 
-  // ===== TTS PLAYBACK =====
+  // ===== TTS =====
   const speakMessage = useCallback(async (msgId: string, text: string) => {
-    // Stop if already playing this message
     if (playingMsgId === msgId) {
-      audioRef.current?.pause();
-      audioRef.current = null;
-      setPlayingMsgId(null);
-      return;
+      audioRef.current?.pause(); audioRef.current = null; setPlayingMsgId(null); return;
     }
-
-    // Stop any current audio
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
-
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
     setTtsLoading(msgId);
     try {
-      // Strip markdown for cleaner speech
-      const cleanText = text.replace(/[#*`>\-\[\]()!]/g, '').replace(/\n+/g, '. ').substring(0, 3000);
-      
+      const cleanText = text.replace(/[#*`>\-\[\]()!|]/g, '').replace(/\n+/g, '. ').substring(0, 3000);
       const response = await fetch(TTS_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({
-          text: cleanText,
-          voiceId: 'JBFqnCBsd6RMkjVDRZzb', // George
-        }),
+        headers: { 'Content-Type': 'application/json', apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY, Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
+        body: JSON.stringify({ text: cleanText, voiceId: 'JBFqnCBsd6RMkjVDRZzb' }),
       });
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({ error: 'TTS failed' }));
-        throw new Error(err.error || 'TTS request failed');
-      }
-
+      if (!response.ok) throw new Error('TTS failed');
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
       audioRef.current = audio;
-
       audio.onplay = () => setPlayingMsgId(msgId);
       audio.onended = () => { setPlayingMsgId(null); URL.revokeObjectURL(audioUrl); };
       audio.onerror = () => { setPlayingMsgId(null); toast.error('Audio playback failed'); };
-
       await audio.play();
-      toast.success('🔊 Playing response...');
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Voice failed';
-      toast.error(msg);
-    } finally {
-      setTtsLoading(null);
-    }
+    } catch { toast.error('Voice output failed'); } finally { setTtsLoading(null); }
   }, [playingMsgId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // ===== PARALLEL PIPELINE SIMULATION =====
-  const runPipeline = useCallback(() => {
-    const startTime = Date.now();
-    // Run steps in parallel groups for 10x speed
-    // Group 1: Steps 1-2 (parallel)
-    setPipeline(prev => prev.map(s => 
-      ['1', '2'].includes(s.id) ? { ...s, status: 'running' as const } : s
-    ));
+  // ===== THINKING PHASES =====
+  const thinkingPhases = [
+    'Parsing your requirements...',
+    'Analyzing business domain...',
+    'Identifying key entities...',
+    'Planning system architecture...',
+    'Designing component tree...',
+    'Generating implementation...',
+  ];
 
+  useEffect(() => {
+    if (!isThinking) return;
+    let idx = 0;
+    setThinkingPhase(thinkingPhases[0]);
+    const interval = setInterval(() => {
+      idx = (idx + 1) % thinkingPhases.length;
+      setThinkingPhase(thinkingPhases[idx]);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [isThinking]);
+
+  // ===== PIPELINE =====
+  const runPipeline = useCallback(() => {
+    startTimeRef.current = Date.now();
+    setPipeline(prev => prev.map(s => ['1', '2'].includes(s.id) ? { ...s, status: 'running' as const } : { ...s, status: 'idle' as const }));
     setTimeout(() => {
-      setPipeline(prev => prev.map(s => 
-        ['1', '2'].includes(s.id) ? { ...s, status: 'done' as const } :
+      setPipeline(prev => prev.map(s =>
+        ['1', '2'].includes(s.id) ? { ...s, status: 'done' as const, duration: 1.2 } :
         ['3', '4', '5', '6'].includes(s.id) ? { ...s, status: 'running' as const } : s
       ));
     }, 1500);
-
-    // Group 2: Steps 3-6 (parallel - this is 10x speed)
     setTimeout(() => {
-      setPipeline(prev => prev.map(s => 
-        ['3', '4', '5', '6'].includes(s.id) ? { ...s, status: 'done' as const } :
+      setPipeline(prev => prev.map(s =>
+        ['3', '4', '5', '6'].includes(s.id) ? { ...s, status: 'done' as const, duration: 2.0 } :
         ['7', '8'].includes(s.id) ? { ...s, status: 'running' as const } : s
       ));
     }, 3500);
-
-    // Group 3: Steps 7-8 (parallel)
     setTimeout(() => {
-      setPipeline(prev => prev.map(s => ({ ...s, status: 'done' as const })));
-      setBuildTime(Math.round((Date.now() - startTime) / 1000));
+      setPipeline(prev => prev.map(s => ({ ...s, status: 'done' as const, duration: s.duration || 1.5 })));
+      setBuildTime(Math.round((Date.now() - startTimeRef.current) / 1000));
     }, 5000);
   }, []);
 
-  // Extract metrics from AI response
-  const extractMetrics = useCallback((text: string) => {
-    const screenMatch = text.match(/screens?:\s*(\d+)/i) || text.match(/(\d+)\s*screens?/i);
-    const apiMatch = text.match(/apis?:\s*(\d+)/i) || text.match(/(\d+)\s*api/i);
-    const dbMatch = text.match(/tables?:\s*(\d+)/i) || text.match(/(\d+)\s*table/i);
-    const flowMatch = text.match(/flows?:\s*(\d+)/i) || text.match(/(\d+)\s*flow/i);
-    
-    setMetrics({
-      screens: screenMatch ? parseInt(screenMatch[1]) : Math.floor(Math.random() * 6) + 3,
-      apis: apiMatch ? parseInt(apiMatch[1]) : Math.floor(Math.random() * 10) + 5,
-      dbTables: dbMatch ? parseInt(dbMatch[1]) : Math.floor(Math.random() * 5) + 3,
-      flows: flowMatch ? parseInt(flowMatch[1]) : Math.floor(Math.random() * 4) + 2,
-    });
+  // ===== EXTRACT METRICS =====
+  const extractMetrics = useCallback((text: string): BuildMetrics => {
+    const screenMatch = text.match(/screens?[:\s]*(\d+)/i) || text.match(/(\d+)\s*screens?/i);
+    const apiMatch = text.match(/apis?[:\s]*(\d+)/i) || text.match(/(\d+)\s*api/i) || text.match(/(\d+)\s*endpoint/i);
+    const dbMatch = text.match(/tables?[:\s]*(\d+)/i) || text.match(/(\d+)\s*table/i);
+    const flowMatch = text.match(/flows?[:\s]*(\d+)/i) || text.match(/(\d+)\s*flow/i);
+    return {
+      screens: screenMatch ? parseInt(screenMatch[1]) : 0,
+      apis: apiMatch ? parseInt(apiMatch[1]) : 0,
+      dbTables: dbMatch ? parseInt(dbMatch[1]) : 0,
+      flows: flowMatch ? parseInt(flowMatch[1]) : 0,
+    };
   }, []);
 
-  // ===== SEND MESSAGE =====
-  const handleSend = useCallback(async () => {
-    if (!input.trim() || isGenerating) return;
-
-    const userMessage: ChatMessage = {
+  // ===== SAVE HISTORY SNAPSHOT =====
+  const saveSnapshot = useCallback((prompt: string, msgs: ChatMessage[], code: string, html: string) => {
+    const snapshot: HistorySnapshot = {
       id: Date.now().toString(),
-      role: 'user',
-      content: input.trim(),
       timestamp: new Date(),
+      prompt,
+      messages: msgs,
+      generatedCode: code,
+      previewHtml: html,
     };
+    setHistory(prev => [...prev, snapshot]);
+    setCurrentHistoryIndex(prev => prev + 1);
+  }, []);
 
+  // ===== ROLLBACK =====
+  const rollbackTo = useCallback((index: number) => {
+    if (index < 0 || index >= history.length) return;
+    const snapshot = history[index];
+    setMessages(snapshot.messages);
+    setGeneratedCode(snapshot.generatedCode);
+    setPreviewHtml(snapshot.previewHtml);
+    setCurrentHistoryIndex(index);
+    toast.success(`Rolled back to version ${index + 1}`);
+    setShowHistory(false);
+  }, [history]);
+
+  // ===== UNDO / REDO =====
+  const canUndo = currentHistoryIndex > 0;
+  const canRedo = currentHistoryIndex < history.length - 1;
+  const handleUndo = useCallback(() => { if (canUndo) rollbackTo(currentHistoryIndex - 1); }, [canUndo, currentHistoryIndex, rollbackTo]);
+  const handleRedo = useCallback(() => { if (canRedo) rollbackTo(currentHistoryIndex + 1); }, [canRedo, currentHistoryIndex, rollbackTo]);
+
+  // ===== SEND MESSAGE =====
+  const sendMessage = useCallback(async (overrideInput?: string) => {
+    const text = overrideInput || input.trim();
+    if (!text || isGenerating) return;
+
+    const userMessage: ChatMessage = { id: Date.now().toString(), role: 'user', content: text, timestamp: new Date() };
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
     setInput('');
     setIsGenerating(true);
+    setIsThinking(true);
     setBuildTime(null);
 
-    // Reset & start pipeline
     setPipeline(prev => prev.map(s => ({ ...s, status: 'idle' as const })));
     runPipeline();
 
     const assistantId = (Date.now() + 1).toString();
     let assistantContent = '';
-
     const abortController = new AbortController();
     abortRef.current = abortController;
+
+    // Show thinking for 2s before streaming starts
+    setTimeout(() => setIsThinking(false), 2500);
 
     try {
       await streamValaAI({
         messages: updatedMessages.map(m => ({ role: m.role, content: m.content })),
         signal: abortController.signal,
         onDelta: (chunk) => {
+          setIsThinking(false);
           assistantContent += chunk;
           setMessages(prev => {
             const last = prev[prev.length - 1];
@@ -316,226 +508,290 @@ const ValaAIDashboard = () => {
             }
             return [...prev, { id: assistantId, role: 'assistant', content: assistantContent, timestamp: new Date() }];
           });
+
+          // Live-update preview as content streams in
+          const m = extractMetrics(assistantContent);
+          if (m.screens > 0 || m.apis > 0 || m.dbTables > 0) {
+            setMetrics(m);
+            const html = generatePreviewHtml(assistantContent, m);
+            setPreviewHtml(html);
+          }
+
+          // Extract code blocks live
+          const blocks = extractCodeBlocks(assistantContent);
+          if (blocks.length > 0) {
+            setCodeBlocks(blocks);
+            setGeneratedCode(blocks.map(b => `// === ${b.language.toUpperCase()} ===\n${b.code}`).join('\n\n'));
+          }
         },
         onDone: () => {
           setIsGenerating(false);
-          extractMetrics(assistantContent);
-          // Generate sample code from response
-          setGeneratedCode(`// Generated by VALA AI Engine
-// Build Time: ~5s (10x Parallel Processing)
-// Prompt: "${userMessage.content.slice(0, 60)}..."
-
-import React from 'react';
-import { supabase } from '@/integrations/supabase/client';
-
-// Auto-generated application structure
-export default function GeneratedApp() {
-  return (
-    <div className="min-h-screen bg-background p-8">
-      <h1 className="text-3xl font-bold mb-8">
-        ${userMessage.content.slice(0, 50)}
-      </h1>
-      {/* Components auto-generated by VALA AI */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Dashboard cards, forms, tables generated here */}
-      </div>
-    </div>
-  );
-}`);
+          setIsThinking(false);
+          const finalMetrics = extractMetrics(assistantContent);
+          if (finalMetrics.screens > 0 || finalMetrics.apis > 0 || finalMetrics.dbTables > 0) setMetrics(finalMetrics);
+          const finalBlocks = extractCodeBlocks(assistantContent);
+          const finalCode = finalBlocks.length > 0 ? finalBlocks.map(b => `// === ${b.language.toUpperCase()} ===\n${b.code}`).join('\n\n') : generatedCode;
+          setGeneratedCode(finalCode);
+          setCodeBlocks(finalBlocks);
+          const finalHtml = generatePreviewHtml(assistantContent, finalMetrics.screens > 0 ? finalMetrics : metrics);
+          setPreviewHtml(finalHtml);
+          saveSnapshot(text, [...updatedMessages, { id: assistantId, role: 'assistant', content: assistantContent, timestamp: new Date() }], finalCode, finalHtml);
+          toast.success('Build complete!');
         },
         onError: (err) => {
-          setIsGenerating(false);
+          setIsGenerating(false); setIsThinking(false);
           toast.error(err);
-          setMessages(prev => [...prev, {
-            id: assistantId,
-            role: 'assistant',
-            content: `⚠️ Error: ${err}\n\nPlease try again.`,
-            timestamp: new Date(),
-          }]);
+          setMessages(prev => [...prev, { id: assistantId, role: 'assistant', content: `⚠️ Error: ${err}\n\nPlease try again.`, timestamp: new Date() }]);
         },
       });
     } catch (e) {
-      if ((e as Error).name !== 'AbortError') {
-        setIsGenerating(false);
-        toast.error('Connection failed');
-      }
+      if ((e as Error).name !== 'AbortError') { setIsGenerating(false); setIsThinking(false); toast.error('Connection failed'); }
     }
-  }, [input, isGenerating, messages, runPipeline, extractMetrics]);
+  }, [input, isGenerating, messages, runPipeline, extractMetrics, saveSnapshot, generatedCode, metrics]);
 
-  const handleStop = useCallback(() => {
-    abortRef.current?.abort();
-    setIsGenerating(false);
-    toast.info("Generation stopped");
-  }, []);
+  // ===== REGENERATE =====
+  const regenerateLastResponse = useCallback(() => {
+    const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
+    if (!lastUserMsg) return;
+    // Remove last assistant message
+    setMessages(prev => {
+      let lastAssistantIdx = -1;
+      for (let i = prev.length - 1; i >= 0; i--) {
+        if (prev[i].role === 'assistant' && prev[i].id !== '1') { lastAssistantIdx = i; break; }
+      }
+      if (lastAssistantIdx > 0) return prev.slice(0, lastAssistantIdx);
+      return prev;
+    });
+    setTimeout(() => sendMessage(lastUserMsg.content), 100);
+  }, [messages, sendMessage]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
-  };
+  const handleStop = useCallback(() => { abortRef.current?.abort(); setIsGenerating(false); setIsThinking(false); toast.info("Generation stopped"); }, []);
+  const handleKeyDown = (e: React.KeyboardEvent) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
 
   // ===== VOICE INPUT =====
   const toggleVoiceInput = useCallback(async () => {
-    if (isRecording) {
-      mediaRecorderRef.current?.stop();
-      setIsRecording(false);
-      return;
-    }
-
+    if (isRecording) { mediaRecorderRef.current?.stop(); setIsRecording(false); return; }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
-      const chunks: Blob[] = [];
-
-      mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
-      mediaRecorder.onstop = async () => {
+      mediaRecorder.ondataavailable = () => {};
+      mediaRecorder.onstop = () => {
         stream.getTracks().forEach(t => t.stop());
-        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
-        
-        // Use browser SpeechRecognition as fallback
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-          const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
-          const recognition = new SpeechRecognition();
+          const SR = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+          const recognition = new SR();
           recognition.lang = 'en-US';
-          recognition.onresult = (event: any) => {
-            const text = event.results[0][0].transcript;
-            setInput(prev => prev + (prev ? ' ' : '') + text);
-            toast.success("Voice captured!");
-          };
+          recognition.onresult = (event: any) => { setInput(prev => prev + (prev ? ' ' : '') + event.results[0][0].transcript); toast.success("Voice captured!"); };
           recognition.onerror = () => toast.error("Voice recognition failed");
           recognition.start();
-        } else {
-          toast.error("Voice recognition not supported in this browser");
         }
       };
-
       mediaRecorderRef.current = mediaRecorder;
       mediaRecorder.start();
       setIsRecording(true);
-      toast.info("🎤 Listening... Click mic again to stop");
-    } catch {
-      toast.error("Microphone access denied");
-    }
+      toast.info("🎤 Listening...");
+    } catch { toast.error("Microphone access denied"); }
   }, [isRecording]);
 
   const getDeviceWidth = () => {
-    switch (deviceMode) {
-      case 'mobile': return '375px';
-      case 'tablet': return '768px';
-      default: return '100%';
-    }
+    switch (deviceMode) { case 'mobile': return '375px'; case 'tablet': return '768px'; default: return '100%'; }
   };
 
+  // ===== UPDATE IFRAME =====
+  useEffect(() => {
+    if (iframeRef.current && previewHtml && previewMode === 'preview') {
+      const doc = iframeRef.current.contentDocument;
+      if (doc) { doc.open(); doc.write(previewHtml); doc.close(); }
+    }
+  }, [previewHtml, previewMode]);
+
   const completedSteps = pipeline.filter(s => s.status === 'done').length;
-  const totalSteps = pipeline.length;
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden" style={{ background: C.bg, color: C.text }}>
-
-      {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* LEFT: Chat Panel */}
-        <div className={cn("flex flex-col transition-all duration-200", showSidebar ? "w-[440px]" : "w-0 overflow-hidden")} style={{ borderRight: `1px solid ${C.border}` }}>
-          {/* Chat Messages */}
-          <ScrollArea className="flex-1 px-4 py-4">
-            <div className="space-y-6">
-              {messages.map((msg) => (
-                <div key={msg.id} className="group">
-                  <div className="flex items-center gap-2 mb-2">
-                    {msg.role === 'assistant' ? (
-                      <>
-                        <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)' }}>
-                          <Sparkles className="w-3 h-3 text-white" />
-                        </div>
-                        <span className="text-xs font-medium" style={{ color: C.textMuted }}>VALA AI</span>
-                        {isGenerating && msg.id === messages[messages.length - 1]?.id && msg.role === 'assistant' && (
-                          <Loader2 className="w-3 h-3 animate-spin" style={{ color: C.accent }} />
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: '#3f3f46' }}>
-                          <User className="w-3 h-3 text-white" />
-                        </div>
-                        <span className="text-xs font-medium" style={{ color: C.textMuted }}>You</span>
-                      </>
-                    )}
+        {/* ===== LEFT: CHAT PANEL ===== */}
+        <AnimatePresence>
+          {showSidebar && (
+            <motion.div
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 440, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="flex flex-col shrink-0"
+              style={{ borderRight: `1px solid ${C.border}` }}
+            >
+              {/* Toolbar */}
+              <div className="flex items-center justify-between px-4 h-10 shrink-0" style={{ borderBottom: `1px solid ${C.border}`, background: C.bgSidebar }}>
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)' }}>
+                    <Sparkles className="w-3 h-3 text-white" />
                   </div>
-                  <div className="pl-8">
-                    {msg.role === 'assistant' ? (
-                      <div className="prose prose-sm prose-invert max-w-none text-sm leading-relaxed [&_h1]:text-lg [&_h1]:font-bold [&_h2]:text-base [&_h2]:font-semibold [&_h3]:text-sm [&_h3]:font-semibold [&_p]:my-1.5 [&_ul]:my-1 [&_li]:my-0.5 [&_code]:text-xs [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:bg-white/10 [&_blockquote]:border-l-2 [&_blockquote]:border-violet-500/50 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-zinc-400 [&_strong]:text-white [&_hr]:border-zinc-700">
-                        <ReactMarkdown>{msg.content}</ReactMarkdown>
-                      </div>
-                    ) : (
-                      <div className="text-sm leading-relaxed" style={{ color: C.text }}>{msg.content}</div>
-                    )}
-
-                    {msg.role === 'assistant' && !isGenerating && msg.id !== '1' && (
-                      <div className="flex items-center gap-1 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => { navigator.clipboard.writeText(msg.content); toast.success('Copied!'); }} className="p-1 rounded hover:bg-white/5" style={{ color: C.textDim }}><Copy className="w-3.5 h-3.5" /></button>
-                        <button
-                          onClick={() => speakMessage(msg.id, msg.content)}
-                          className="p-1 rounded hover:bg-white/5"
-                          style={{ color: playingMsgId === msg.id ? '#8b5cf6' : C.textDim }}
-                        >
-                          {ttsLoading === msg.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : playingMsgId === msg.id ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-                        </button>
-                        <button className="p-1 rounded hover:bg-white/5" style={{ color: C.textDim }}><ThumbsUp className="w-3.5 h-3.5" /></button>
-                        <button className="p-1 rounded hover:bg-white/5" style={{ color: C.textDim }}><ThumbsDown className="w-3.5 h-3.5" /></button>
-                        <button className="p-1 rounded hover:bg-white/5" style={{ color: C.textDim }}><RefreshCw className="w-3.5 h-3.5" /></button>
-                      </div>
-                    )}
-                  </div>
+                  <span className="text-xs font-semibold">VALA AI</span>
                 </div>
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
-          </ScrollArea>
-
-          {/* Chat Input */}
-          <div className="p-4 shrink-0" style={{ borderTop: `1px solid ${C.border}` }}>
-            {isGenerating && (
-              <div className="flex items-center gap-2 mb-3 px-1">
-                <Loader2 className="w-3.5 h-3.5 animate-spin" style={{ color: C.accent }} />
-                <span className="text-xs" style={{ color: C.textMuted }}>VALA AI is building...</span>
-                <button onClick={handleStop} className="ml-auto text-xs px-2 py-0.5 rounded hover:bg-white/5" style={{ color: C.textDim, border: `1px solid ${C.border}` }}>Stop</button>
-              </div>
-            )}
-            <div className="rounded-xl overflow-hidden" style={{ background: '#18181b', border: `1px solid ${C.border}` }}>
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Describe what you want to build..."
-                rows={3}
-                className="w-full px-4 py-3 text-sm resize-none outline-none"
-                style={{ background: 'transparent', color: C.text }}
-              />
-              <div className="flex items-center justify-between px-3 py-2" style={{ borderTop: `1px solid ${C.border}` }}>
                 <div className="flex items-center gap-1">
-                  <button className="p-1.5 rounded-md hover:bg-white/5" style={{ color: C.textDim }}><Paperclip className="w-4 h-4" /></button>
-                  <button className="p-1.5 rounded-md hover:bg-white/5" style={{ color: C.textDim }}><Image className="w-4 h-4" /></button>
-                  <button
-                    onClick={toggleVoiceInput}
-                    className={cn("p-1.5 rounded-md transition-colors", isRecording ? "bg-red-500/20" : "hover:bg-white/5")}
-                    style={{ color: isRecording ? '#ef4444' : C.textDim }}
-                  >
-                    {isRecording ? <MicOff className="w-4 h-4 animate-pulse" /> : <Mic className="w-4 h-4" />}
-                  </button>
+                  <button onClick={handleUndo} disabled={!canUndo} className="p-1 rounded hover:bg-white/5 disabled:opacity-20" style={{ color: C.textDim }} title="Undo"><Undo2 className="w-3.5 h-3.5" /></button>
+                  <button onClick={handleRedo} disabled={!canRedo} className="p-1 rounded hover:bg-white/5 disabled:opacity-20" style={{ color: C.textDim }} title="Redo"><Redo2 className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => setShowHistory(!showHistory)} className="p-1 rounded hover:bg-white/5" style={{ color: showHistory ? C.accent : C.textDim }} title="History"><History className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => setShowSidebar(false)} className="p-1 rounded hover:bg-white/5" style={{ color: C.textDim }}><PanelLeftClose className="w-3.5 h-3.5" /></button>
                 </div>
-                <button
-                  onClick={handleSend}
-                  disabled={!input.trim() || isGenerating}
-                  className="p-2 rounded-lg transition-colors disabled:opacity-30"
-                  style={{ background: input.trim() ? C.accent : 'transparent', color: '#fff' }}
-                >
-                  <Send className="w-4 h-4" />
-                </button>
               </div>
-            </div>
-          </div>
-        </div>
 
-        {/* RIGHT: Preview + Pipeline Panel */}
+              {/* History Panel */}
+              <AnimatePresence>
+                {showHistory && history.length > 0 && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                    style={{ borderBottom: `1px solid ${C.border}`, background: '#111113' }}
+                  >
+                    <div className="p-2 max-h-48 overflow-y-auto">
+                      <div className="text-[10px] font-semibold px-2 py-1 mb-1" style={{ color: C.textMuted }}>VERSION HISTORY</div>
+                      {history.map((snap, idx) => (
+                        <button
+                          key={snap.id}
+                          onClick={() => rollbackTo(idx)}
+                          className={cn("w-full text-left px-3 py-2 rounded-lg text-xs mb-1 flex items-center gap-2 transition-colors", idx === currentHistoryIndex ? "bg-violet-500/10 border border-violet-500/20" : "hover:bg-white/5")}
+                          style={{ color: idx === currentHistoryIndex ? C.accent : C.textMuted }}
+                        >
+                          <RotateCcw className="w-3 h-3 shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <div className="truncate font-medium" style={{ color: C.text }}>{snap.prompt.slice(0, 40)}{snap.prompt.length > 40 ? '...' : ''}</div>
+                            <div className="text-[10px]" style={{ color: C.textDim }}>{snap.timestamp.toLocaleTimeString()} • v{idx + 1}</div>
+                          </div>
+                          {idx === currentHistoryIndex && <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(139,92,246,0.2)', color: '#a78bfa' }}>Current</span>}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Chat Messages */}
+              <ScrollArea className="flex-1 px-4 py-4">
+                <div className="space-y-6">
+                  {messages.map((msg) => (
+                    <div key={msg.id} className="group">
+                      <div className="flex items-center gap-2 mb-2">
+                        {msg.role === 'assistant' ? (
+                          <>
+                            <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)' }}>
+                              <Sparkles className="w-3 h-3 text-white" />
+                            </div>
+                            <span className="text-xs font-medium" style={{ color: C.textMuted }}>VALA AI</span>
+                            {isGenerating && msg.id === messages[messages.length - 1]?.id && msg.role === 'assistant' && (
+                              <Loader2 className="w-3 h-3 animate-spin" style={{ color: C.accent }} />
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: '#3f3f46' }}>
+                              <User className="w-3 h-3 text-white" />
+                            </div>
+                            <span className="text-xs font-medium" style={{ color: C.textMuted }}>You</span>
+                          </>
+                        )}
+                      </div>
+                      <div className="pl-8">
+                        {msg.role === 'assistant' ? (
+                          <div className="prose prose-sm prose-invert max-w-none text-sm leading-relaxed [&_h1]:text-lg [&_h1]:font-bold [&_h2]:text-base [&_h2]:font-semibold [&_h3]:text-sm [&_h3]:font-semibold [&_p]:my-1.5 [&_ul]:my-1 [&_li]:my-0.5 [&_code]:text-xs [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:bg-white/10 [&_blockquote]:border-l-2 [&_blockquote]:border-violet-500/50 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-zinc-400 [&_strong]:text-white [&_hr]:border-zinc-700 [&_table]:text-xs [&_th]:px-2 [&_th]:py-1 [&_td]:px-2 [&_td]:py-1 [&_th]:border [&_th]:border-zinc-700 [&_td]:border [&_td]:border-zinc-800">
+                            <ReactMarkdown>{msg.content}</ReactMarkdown>
+                          </div>
+                        ) : (
+                          <div className="text-sm leading-relaxed" style={{ color: C.text }}>{msg.content}</div>
+                        )}
+                        {msg.role === 'assistant' && !isGenerating && msg.id !== '1' && (
+                          <div className="flex items-center gap-1 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => { navigator.clipboard.writeText(msg.content); toast.success('Copied!'); }} className="p-1 rounded hover:bg-white/5" style={{ color: C.textDim }}><Copy className="w-3.5 h-3.5" /></button>
+                            <button onClick={() => speakMessage(msg.id, msg.content)} className="p-1 rounded hover:bg-white/5" style={{ color: playingMsgId === msg.id ? C.accent : C.textDim }}>
+                              {ttsLoading === msg.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : playingMsgId === msg.id ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                            </button>
+                            <button className="p-1 rounded hover:bg-white/5" style={{ color: C.textDim }}><ThumbsUp className="w-3.5 h-3.5" /></button>
+                            <button className="p-1 rounded hover:bg-white/5" style={{ color: C.textDim }}><ThumbsDown className="w-3.5 h-3.5" /></button>
+                            <button onClick={regenerateLastResponse} className="p-1 rounded hover:bg-white/5" style={{ color: C.textDim }} title="Regenerate"><RefreshCw className="w-3.5 h-3.5" /></button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Thinking Indicator */}
+                  {isThinking && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-start gap-2">
+                      <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)' }}>
+                        <Brain className="w-3 h-3 text-white animate-pulse" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs font-medium" style={{ color: C.textMuted }}>VALA AI</span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(139,92,246,0.15)', color: '#a78bfa' }}>Thinking</span>
+                        </div>
+                        <div className="rounded-lg px-3 py-2" style={{ background: 'rgba(139,92,246,0.05)', border: '1px solid rgba(139,92,246,0.1)' }}>
+                          <div className="flex items-center gap-2">
+                            <div className="flex gap-1">
+                              <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.5, delay: 0 }} className="w-1.5 h-1.5 rounded-full" style={{ background: C.accent }} />
+                              <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.5, delay: 0.3 }} className="w-1.5 h-1.5 rounded-full" style={{ background: C.accent }} />
+                              <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.5, delay: 0.6 }} className="w-1.5 h-1.5 rounded-full" style={{ background: C.accent }} />
+                            </div>
+                            <span className="text-xs" style={{ color: C.textMuted }}>{thinkingPhase}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  <div ref={messagesEndRef} />
+                </div>
+              </ScrollArea>
+
+              {/* Chat Input */}
+              <div className="p-4 shrink-0" style={{ borderTop: `1px solid ${C.border}` }}>
+                {isGenerating && (
+                  <div className="flex items-center gap-2 mb-3 px-1">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" style={{ color: C.accent }} />
+                    <span className="text-xs" style={{ color: C.textMuted }}>Building your application...</span>
+                    <button onClick={handleStop} className="ml-auto text-xs px-2 py-0.5 rounded hover:bg-white/5" style={{ color: C.textDim, border: `1px solid ${C.border}` }}>Stop</button>
+                  </div>
+                )}
+                <div className="rounded-xl overflow-hidden" style={{ background: '#18181b', border: `1px solid ${C.border}` }}>
+                  <textarea
+                    ref={inputRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Describe what you want to build..."
+                    rows={3}
+                    className="w-full px-4 py-3 text-sm resize-none outline-none"
+                    style={{ background: 'transparent', color: C.text }}
+                  />
+                  <div className="flex items-center justify-between px-3 py-2" style={{ borderTop: `1px solid ${C.border}` }}>
+                    <div className="flex items-center gap-1">
+                      <button className="p-1.5 rounded-md hover:bg-white/5" style={{ color: C.textDim }}><Paperclip className="w-4 h-4" /></button>
+                      <button className="p-1.5 rounded-md hover:bg-white/5" style={{ color: C.textDim }}><Image className="w-4 h-4" /></button>
+                      <button onClick={toggleVoiceInput} className={cn("p-1.5 rounded-md", isRecording ? "bg-red-500/20" : "hover:bg-white/5")} style={{ color: isRecording ? '#ef4444' : C.textDim }}>
+                        {isRecording ? <MicOff className="w-4 h-4 animate-pulse" /> : <Mic className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    <button onClick={() => sendMessage()} disabled={!input.trim() || isGenerating} className="p-2 rounded-lg transition-colors disabled:opacity-30" style={{ background: input.trim() ? C.accent : 'transparent', color: '#fff' }}>
+                      <Send className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Sidebar Toggle */}
+        {!showSidebar && (
+          <button onClick={() => setShowSidebar(true)} className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg" style={{ background: C.bgSidebar, border: `1px solid ${C.border}`, color: C.textDim }}>
+            <PanelLeftOpen className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* ===== RIGHT: PREVIEW + PIPELINE ===== */}
         <div className="flex-1 flex flex-col overflow-hidden" style={{ background: '#111113' }}>
           {/* Preview Toolbar */}
           <div className="flex items-center justify-between px-4 h-10 shrink-0" style={{ borderBottom: `1px solid ${C.border}`, background: C.bgSidebar }}>
@@ -555,8 +811,10 @@ export default function GeneratedApp() {
               ))}
             </div>
             <div className="flex items-center gap-1">
-              <button className="p-1.5 rounded-md hover:bg-white/5" style={{ color: C.textDim }}><RefreshCw className="w-3.5 h-3.5" /></button>
-              <button className="p-1.5 rounded-md hover:bg-white/5" style={{ color: C.textDim }}><ExternalLink className="w-3.5 h-3.5" /></button>
+              <button onClick={() => { if (iframeRef.current && previewHtml) { const doc = iframeRef.current.contentDocument; if (doc) { doc.open(); doc.write(previewHtml); doc.close(); } } }} className="p-1.5 rounded-md hover:bg-white/5" style={{ color: C.textDim }} title="Refresh"><RefreshCw className="w-3.5 h-3.5" /></button>
+              {history.length > 0 && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full mr-1" style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80' }}>v{currentHistoryIndex + 1}</span>
+              )}
             </div>
           </div>
 
@@ -565,68 +823,68 @@ export default function GeneratedApp() {
             {/* Preview/Code */}
             <div className="flex-1 flex items-center justify-center p-4 overflow-auto">
               {previewMode === 'preview' ? (
-                <div className="h-full rounded-lg overflow-hidden shadow-2xl transition-all duration-300" style={{ width: getDeviceWidth(), maxWidth: '100%', background: '#fff', border: `1px solid ${C.border}` }}>
-                  <div className="flex items-center gap-2 px-3 py-2" style={{ background: '#f5f5f5', borderBottom: '1px solid #e5e5e5' }}>
+                <div className="h-full rounded-lg overflow-hidden shadow-2xl transition-all duration-300" style={{ width: getDeviceWidth(), maxWidth: '100%', border: `1px solid ${C.border}` }}>
+                  {/* Browser chrome */}
+                  <div className="flex items-center gap-2 px-3 py-2" style={{ background: '#1a1a1d', borderBottom: `1px solid ${C.border}` }}>
                     <div className="flex gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#ef4444' }} />
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#f59e0b' }} />
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#22c55e' }} />
                     </div>
                     <div className="flex-1 mx-8">
-                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs" style={{ background: '#fff', border: '1px solid #e5e5e5', color: '#666' }}>
+                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs" style={{ background: '#111113', border: `1px solid ${C.border}`, color: C.textDim }}>
                         <Globe className="w-3 h-3" /><span>localhost:5173</span>
                       </div>
                     </div>
                   </div>
-                  <div className="p-8" style={{ minHeight: '400px' }}>
-                    {metrics.screens === 0 ? (
-                      <div className="flex flex-col items-center justify-center h-80 text-center">
-                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)' }}>
-                          <Sparkles className="w-8 h-8 text-white" />
-                        </div>
-                        <h2 className="text-xl font-bold text-slate-900 mb-2">Your app preview</h2>
-                        <p className="text-sm text-slate-500 max-w-xs">Send a prompt to generate your application. The preview will appear here.</p>
+                  {/* iframe preview */}
+                  {previewHtml ? (
+                    <iframe
+                      ref={iframeRef}
+                      className="w-full bg-black"
+                      style={{ height: 'calc(100% - 36px)', border: 'none' }}
+                      sandbox="allow-scripts"
+                      title="VALA Preview"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-80 text-center p-8" style={{ background: C.bg }}>
+                      <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)' }}>
+                        <Sparkles className="w-8 h-8 text-white" />
                       </div>
-                    ) : (
-                      <div>
-                        <h1 className="text-2xl font-bold text-slate-900 mb-6">Generated Application</h1>
-                        <div className="grid grid-cols-3 gap-4 mb-6">
-                          {[
-                            { label: 'Screens', val: metrics.screens, color: '#8b5cf6' },
-                            { label: 'Endpoints', val: metrics.apis, color: '#06b6d4' },
-                            { label: 'Tables', val: metrics.dbTables, color: '#22c55e' },
-                          ].map(c => (
-                            <div key={c.label} className="bg-white rounded-xl p-5 shadow-sm" style={{ border: '1px solid #e5e7eb' }}>
-                              <p className="text-xs font-medium text-slate-500 mb-1">{c.label}</p>
-                              <p className="text-2xl font-bold" style={{ color: c.color }}>{c.val}</p>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="bg-white rounded-xl p-5 shadow-sm" style={{ border: '1px solid #e5e7eb' }}>
-                          <h3 className="text-sm font-semibold text-slate-900 mb-3">Build Summary</h3>
-                          <div className="flex items-center gap-2 text-sm text-slate-600">
-                            <CheckCircle className="w-4 h-4 text-green-500" />
-                            <span>All {metrics.screens + metrics.apis + metrics.dbTables + metrics.flows} components generated successfully</span>
-                          </div>
-                          {buildTime && (
-                            <div className="flex items-center gap-2 text-sm text-slate-600 mt-2">
-                              <Zap className="w-4 h-4 text-amber-500" />
-                              <span>Built in {buildTime}s using 10x parallel processing</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                      <h2 className="text-lg font-bold mb-2">Live Preview</h2>
+                      <p className="text-sm max-w-xs" style={{ color: C.textMuted }}>Send a build prompt to see your generated application render here in real-time.</p>
+                    </div>
+                  )}
                 </div>
               ) : (
-                <div className="w-full h-full rounded-lg overflow-hidden" style={{ background: '#0d1117', border: `1px solid ${C.border}` }}>
+                <div className="w-full h-full rounded-lg overflow-hidden flex flex-col" style={{ background: '#0d1117', border: `1px solid ${C.border}` }}>
+                  {/* Code tabs */}
+                  {codeBlocks.length > 0 && (
+                    <div className="flex items-center gap-0 overflow-x-auto" style={{ borderBottom: '1px solid #21262d' }}>
+                      {codeBlocks.map((block, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setActiveCodeTab(idx)}
+                          className="px-4 py-2 text-xs font-medium whitespace-nowrap transition-colors"
+                          style={{
+                            background: activeCodeTab === idx ? '#0d1117' : '#161b22',
+                            color: activeCodeTab === idx ? '#e6edf3' : '#8b949e',
+                            borderBottom: activeCodeTab === idx ? '2px solid #8b5cf6' : '2px solid transparent',
+                          }}
+                        >
+                          {block.language.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   <div className="flex items-center justify-between px-4 py-2" style={{ borderBottom: '1px solid #21262d' }}>
-                    <span className="text-xs font-medium" style={{ color: '#8b949e' }}>App.tsx</span>
-                    <button onClick={() => { navigator.clipboard.writeText(generatedCode); toast.success('Code copied!'); }} className="p-1 rounded hover:bg-white/5" style={{ color: '#8b949e' }}><Copy className="w-3.5 h-3.5" /></button>
+                    <span className="text-xs font-medium" style={{ color: '#8b949e' }}>
+                      {codeBlocks.length > 0 ? `${codeBlocks[activeCodeTab]?.language || 'code'} • ${codeBlocks[activeCodeTab]?.code.split('\n').length || 0} lines` : 'Generated Code'}
+                    </span>
+                    <button onClick={() => { navigator.clipboard.writeText(codeBlocks[activeCodeTab]?.code || generatedCode); toast.success('Code copied!'); }} className="p-1 rounded hover:bg-white/5" style={{ color: '#8b949e' }}><Copy className="w-3.5 h-3.5" /></button>
                   </div>
-                  <ScrollArea className="h-full">
-                    <pre className="p-4 text-sm leading-6 font-mono" style={{ color: '#e6edf3' }}><code>{generatedCode}</code></pre>
+                  <ScrollArea className="flex-1">
+                    <pre className="p-4 text-sm leading-6 font-mono" style={{ color: '#e6edf3' }}><code>{codeBlocks[activeCodeTab]?.code || generatedCode}</code></pre>
                   </ScrollArea>
                 </div>
               )}
@@ -634,8 +892,9 @@ export default function GeneratedApp() {
 
             {/* Pipeline Sidebar */}
             <div className="w-56 shrink-0 flex flex-col" style={{ borderLeft: `1px solid ${C.border}`, background: C.bgSidebar }}>
-              <div className="px-3 py-2 text-xs font-semibold" style={{ color: C.textMuted, borderBottom: `1px solid ${C.border}` }}>
-                AI PIPELINE — 10x PARALLEL
+              <div className="px-3 py-2 text-xs font-semibold flex items-center justify-between" style={{ color: C.textMuted, borderBottom: `1px solid ${C.border}` }}>
+                <span>AI PIPELINE</span>
+                {completedSteps > 0 && <span className="text-[10px]" style={{ color: C.green }}>{completedSteps}/{pipeline.length}</span>}
               </div>
               <ScrollArea className="flex-1">
                 <div className="p-2 space-y-1">
@@ -644,7 +903,7 @@ export default function GeneratedApp() {
                     return (
                       <div key={step.id} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs" style={{
                         background: step.status === 'running' ? 'rgba(139,92,246,0.1)' : step.status === 'done' ? 'rgba(34,197,94,0.05)' : 'transparent',
-                        border: step.status === 'running' ? '1px solid rgba(139,92,246,0.2)' : '1px solid transparent',
+                        border: step.status === 'running' ? '1px solid rgba(139,92,246,0.15)' : '1px solid transparent',
                       }}>
                         {step.status === 'done' ? (
                           <CheckCircle className="w-3.5 h-3.5 shrink-0" style={{ color: C.green }} />
@@ -653,18 +912,47 @@ export default function GeneratedApp() {
                         ) : (
                           <Clock className="w-3.5 h-3.5 shrink-0" style={{ color: 'rgba(255,255,255,0.15)' }} />
                         )}
-                        <span style={{ color: step.status === 'done' ? C.text : step.status === 'running' ? C.accent : C.textDim }}>
+                        <span className="flex-1" style={{ color: step.status === 'done' ? C.text : step.status === 'running' ? C.accent : C.textDim }}>
                           {step.name}
                         </span>
+                        {step.status === 'done' && step.duration && (
+                          <span className="text-[9px]" style={{ color: C.textDim }}>{step.duration}s</span>
+                        )}
                       </div>
                     );
                   })}
                 </div>
               </ScrollArea>
-              {buildTime && (
-                <div className="p-3 text-center" style={{ borderTop: `1px solid ${C.border}` }}>
-                  <div className="text-xs font-medium" style={{ color: C.green }}>✅ Build Complete</div>
-                  <div className="text-[10px] mt-1" style={{ color: C.textDim }}>{buildTime}s • Parallel Processing</div>
+
+              {/* Build Stats */}
+              {(metrics.screens > 0 || buildTime) && (
+                <div className="p-3 space-y-2" style={{ borderTop: `1px solid ${C.border}` }}>
+                  {buildTime && (
+                    <div className="text-center">
+                      <div className="text-xs font-medium" style={{ color: C.green }}>✅ Build Complete</div>
+                      <div className="text-[10px] mt-0.5" style={{ color: C.textDim }}>{buildTime}s • Parallel Pipeline</div>
+                    </div>
+                  )}
+                  {metrics.screens > 0 && (
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {[
+                        { label: 'Screens', val: metrics.screens, color: '#8b5cf6' },
+                        { label: 'APIs', val: metrics.apis, color: '#06b6d4' },
+                        { label: 'Tables', val: metrics.dbTables, color: '#22c55e' },
+                        { label: 'Flows', val: metrics.flows, color: '#f59e0b' },
+                      ].filter(m => m.val > 0).map(m => (
+                        <div key={m.label} className="text-center py-1.5 rounded-md" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                          <div className="text-sm font-bold" style={{ color: m.color }}>{m.val}</div>
+                          <div className="text-[9px]" style={{ color: C.textDim }}>{m.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {history.length > 0 && (
+                    <div className="text-center text-[10px] pt-1" style={{ color: C.textDim }}>
+                      {history.length} version{history.length > 1 ? 's' : ''} saved
+                    </div>
+                  )}
                 </div>
               )}
             </div>
