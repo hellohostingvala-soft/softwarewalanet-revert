@@ -21,7 +21,8 @@ import {
   ListTodo,
   Megaphone,
   Globe,
-  Handshake
+  Handshake,
+  Wrench
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
