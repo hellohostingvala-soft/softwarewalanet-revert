@@ -317,6 +317,11 @@ const AICEOPredictions = lazyLoad(() => import("./pages/ai-ceo/sections/AICEOPre
 const AICEOReports = lazyLoad(() => import("./pages/ai-ceo/sections/AICEOReports"));
 const AICEOLearning = lazyLoad(() => import("./pages/ai-ceo/sections/AICEOLearning"));
 const AICEOSettings = lazyLoad(() => import("./pages/ai-ceo/sections/AICEOSettings"));
+const AIRAVoiceCommands = lazyLoad(() => import("./pages/ai-ceo/sections/AIRAVoiceCommands"));
+const AIRAProviders = lazyLoad(() => import("./pages/ai-ceo/sections/AIRAProviders"));
+const AIRAProjectScanner = lazyLoad(() => import("./pages/ai-ceo/sections/AIRAProjectScanner"));
+const AIRATaskEngine = lazyLoad(() => import("./pages/ai-ceo/sections/AIRATaskEngine"));
+const AIRAMarketing = lazyLoad(() => import("./pages/ai-ceo/sections/AIRAMarketing"));
 
 const DemoCredentials = lazyLoad(() => import("./pages/DemoCredentials"));
 const DemoOrderSystem = lazyLoad(() => import("./pages/demo-system/DemoOrderSystem"));
