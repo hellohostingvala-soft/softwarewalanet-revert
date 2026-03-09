@@ -1047,7 +1047,7 @@ function ProductDetailDialog({ product, open, onClose, onDemo, onBuy, isFav, onF
               <h3 className="text-sm font-semibold mb-3">Pricing</h3>
               <div className="bg-slate-900 rounded-lg p-4 border border-cyan-500/30 text-center">
                 <p className="text-xs text-slate-500 mb-1">All Software — One Price</p>
-                <p className="text-3xl font-bold text-cyan-400">$249</p>
+                <p className="text-3xl font-bold text-cyan-400">{priceDisplay}</p>
                 <p className="text-xs text-slate-400 mt-1">Lifetime Access • Full Source Code • No Hidden Charges</p>
                 <div className="flex flex-wrap justify-center gap-2 mt-3">
                   <Badge className="bg-emerald-500/20 text-emerald-400 border-0 text-[10px]">✅ No Advance</Badge>
