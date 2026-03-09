@@ -236,6 +236,12 @@ const SecureSEOManagerDashboard = lazyLoad(() => import("./pages/seo-manager/Sec
 const SecureAPIAIManagerDashboard = lazyLoad(() => import("./pages/api-ai-manager/SecureAPIAIManagerDashboard"));
 const SecureResellerManagerDashboard = lazyLoad(() => import("./pages/reseller-manager/SecureResellerManagerDashboard"));
 const SecureSalesSupportManagerDashboard = lazyLoad(() => import("./pages/sales-support-manager/SecureSalesSupportManagerDashboard"));
+const SecureFranchiseManagerDashboard = lazyLoad(() => import("./pages/franchise-manager/SecureFranchiseManagerDashboard"));
+
+// Missing Page Imports
+const OverAI = lazyLoad(() => import("./pages/OverAI"));
+const InternalSupportAI = lazyLoad(() => import("./pages/InternalSupportAI"));
+const SimpleLanding = lazyLoad(() => import("./pages/SimpleLanding"));
 
 // Control System
 const SecureControlSystem = lazyLoad(() => import("./pages/control-system/SecureControlSystem"));
