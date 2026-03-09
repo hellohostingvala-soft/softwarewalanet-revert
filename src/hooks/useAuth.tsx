@@ -78,16 +78,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error || !logoutTime) return false;
 
-      const sessionStart = sessionStorage.getItem('session_start');
+      let sessionStart = sessionStorage.getItem('session_start');
       if (!sessionStart) {
-        // Strict default: if we can't validate the session timeline, terminate.
-        setWasForceLoggedOut(true);
-        await supabase.auth.signOut();
-        sessionStorage.clear();
-        return true;
+        // New tab / cleared sessionStorage: establish baseline and avoid false-positive force-logout loops.
+        setSessionStartNow();
+        sessionStart = sessionStorage.getItem('session_start');
       }
 
-      const sessionStartTime = new Date(sessionStart).getTime();
+      const sessionStartTime = sessionStart ? new Date(sessionStart).getTime() : Date.now();
       const forceLogoutTime = new Date(String(logoutTime)).getTime();
 
       if (Number.isFinite(forceLogoutTime) && forceLogoutTime > sessionStartTime) {
@@ -101,8 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch {
       return false;
     }
-  }, []);
-
+  }, [setSessionStartNow]);
   // Clear force logout flag when user signs in
   const clearForceLogout = useCallback(async (userId: string) => {
     try {
