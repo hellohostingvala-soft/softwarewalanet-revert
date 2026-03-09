@@ -622,7 +622,7 @@ const ValaAICommandCenter: React.FC = () => {
           )}
 
           {/* Main View */}
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden min-h-0">
             {activeTab === 'preview' ? (
               /* Preview iframe */
               <div className="w-full h-full flex items-center justify-center" style={{ background: '#0f172a' }}>
