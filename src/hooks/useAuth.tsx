@@ -155,6 +155,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (!isMounted) return;
       setSession(session);
       setUser(session?.user ?? null);
+
+      // If a session exists on first load (page refresh / new tab), ensure we have a baseline marker
+      // so historical force-logout timestamps don't incorrectly terminate the session.
+      if (session?.user && !sessionStorage.getItem('session_start')) {
+        setSessionStartNow();
+      }
+
       if (session?.user && roleFetchedForUser !== session.user.id) {
         roleFetchedForUser = session.user.id;
         fetchUserRoleAndStatus(session.user.id);
