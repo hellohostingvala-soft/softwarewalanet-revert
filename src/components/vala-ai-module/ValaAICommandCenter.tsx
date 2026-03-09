@@ -526,7 +526,7 @@ const ValaAICommandCenter: React.FC = () => {
       </div>
 
       {/* ===== RIGHT: WORKSPACE ===== */}
-      <div className="flex-1 flex flex-col overflow-hidden" style={{ background: '#0a0a0a' }}>
+      <div className="flex-1 flex flex-col overflow-hidden min-h-0" style={{ background: '#0a0a0a' }}>
         {/* Workspace Header / Tab Bar */}
         <div className="flex items-center justify-between px-4 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: '#111' }}>
           <div className="flex items-center gap-1">
