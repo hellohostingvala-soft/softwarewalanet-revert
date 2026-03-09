@@ -34,6 +34,8 @@ interface Product {
   last_repo_sync_at?: string | null;
   listing_status?: string | null;
   source?: string | null;
+  product_thumbnail_url?: string | null;
+  product_icon_url?: string | null;
 }
 
 type PartnerRequestType =
@@ -136,8 +138,8 @@ export const MMMarketplaceScreen = () => {
           product_name: item.name || item.product_name || 'Unnamed Product',
           description: item.description || item.short_description || `${item.category || 'Enterprise'} software solution by ${item.vendor || 'Software Vala'}`,
           category: item.category,
-          monthly_price: item.base_price ? Number(item.base_price) : null,
-          lifetime_price: item.base_price ? Math.round(Number(item.base_price) * 10) : null,
+          monthly_price: item.base_price ? Number(item.base_price) : 249,
+          lifetime_price: item.base_price ? Math.round(Number(item.base_price) * 10) : 2490,
           tech_stack: item.tech_stack || item.type || null,
           product_type: item.type || item.product_type || 'SaaS',
           features_json: item.features_json || null,
@@ -152,6 +154,8 @@ export const MMMarketplaceScreen = () => {
           last_repo_sync_at: item.last_repo_sync_at || null,
           listing_status: item.listing_status || 'draft',
           source: item.source || 'vala_ai',
+          product_thumbnail_url: item.product_thumbnail_url || null,
+          product_icon_url: item.product_icon_url || null,
         }));
       } else if (!fetchError) {
         // Fallback to products table
@@ -428,13 +432,18 @@ export const MMMarketplaceScreen = () => {
     return groups;
   }, [products]);
 
-  const latestLaunches = useMemo(() => products.filter(p => p.listing_status === 'live' || p.demo_url), [products]);
+  // Show products with live status or demo_url, OR show recent products if none available
+  const latestLaunches = useMemo(() => {
+    const live = products.filter(p => p.listing_status === 'live' || p.demo_url);
+    return live.length > 0 ? live : products.slice(0, 10);
+  }, [products]);
   const upcomingProducts = useMemo(() => products.filter(p => p.listing_status === 'upcoming' || p.listing_status === 'coming_soon').slice(0, 10), [products]);
   const featuredProducts = useMemo(() => products.slice(0, 5), [products]);
   const trendingProducts = useMemo(() => [...products].sort(() => 0.5 - Math.random()).slice(0, 8), [products]);
   const newReleases = useMemo(() => products.slice(0, 8), [products]);
 
-  const discountedPrice = (price: number | null) => (price ? (price * 0.7).toFixed(0) : '0');
+  // Format price for display
+  const formatPrice = (price: number | null) => price ? `$${price.toLocaleString()}` : '$249';
 
   if (loading) {
     return (
@@ -524,18 +533,18 @@ export const MMMarketplaceScreen = () => {
               {searchQuery && ` for "${searchQuery}"`}
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {filtered.map((product) => (
-                <ProductCard
-                  key={product.product_id}
-                  product={product}
-                  isFav={favorites.has(product.product_id)}
-                  onView={handleProductView}
-                  onDemo={handleDemo}
-                  onBuy={handleBuy}
-                  onFav={toggleFavorite}
-                  discountedPrice={discountedPrice}
-                />
-              ))}
+                {filtered.map((product) => (
+                  <ProductCard
+                    key={product.product_id}
+                    product={product}
+                    isFav={favorites.has(product.product_id)}
+                    onView={handleProductView}
+                    onDemo={handleDemo}
+                    onBuy={handleBuy}
+                    onFav={toggleFavorite}
+                    formatPrice={formatPrice}
+                  />
+                ))}
             </div>
             {filtered.length === 0 && (
               <div className="text-center py-16 text-slate-500">
@@ -547,7 +556,7 @@ export const MMMarketplaceScreen = () => {
         ) : (
           <>
             {featuredProducts.length > 0 && (
-              <HeroBanner products={latestLaunches.length > 0 ? latestLaunches : featuredProducts} onDemo={handleDemo} onBuy={handleBuy} onView={handleProductView} discountedPrice={discountedPrice} />
+              <HeroBanner products={latestLaunches.length > 0 ? latestLaunches : featuredProducts} onDemo={handleDemo} onBuy={handleBuy} onView={handleProductView} formatPrice={formatPrice} />
             )}
 
             {latestLaunches.length > 0 && (
@@ -560,7 +569,7 @@ export const MMMarketplaceScreen = () => {
                 onDemo={handleDemo}
                 onBuy={handleBuy}
                 onFav={toggleFavorite}
-                discountedPrice={discountedPrice}
+                formatPrice={formatPrice}
               />
             )}
 
@@ -573,7 +582,7 @@ export const MMMarketplaceScreen = () => {
               onDemo={handleDemo}
               onBuy={handleBuy}
               onFav={toggleFavorite}
-              discountedPrice={discountedPrice}
+              formatPrice={formatPrice}
             />
 
             <ProductRow
@@ -585,7 +594,7 @@ export const MMMarketplaceScreen = () => {
               onDemo={handleDemo}
               onBuy={handleBuy}
               onFav={toggleFavorite}
-              discountedPrice={discountedPrice}
+              formatPrice={formatPrice}
             />
 
             <ProductRow
@@ -597,7 +606,7 @@ export const MMMarketplaceScreen = () => {
               onDemo={handleDemo}
               onBuy={handleBuy}
               onFav={toggleFavorite}
-              discountedPrice={discountedPrice}
+              formatPrice={formatPrice}
             />
 
             {upcomingProducts.length > 0 && (
@@ -610,7 +619,7 @@ export const MMMarketplaceScreen = () => {
                 onDemo={handleDemo}
                 onBuy={handleBuy}
                 onFav={toggleFavorite}
-                discountedPrice={discountedPrice}
+                formatPrice={formatPrice}
               />
             )}
 
@@ -624,7 +633,7 @@ export const MMMarketplaceScreen = () => {
                 onDemo={handleDemo}
                 onBuy={handleBuy}
                 onFav={toggleFavorite}
-                discountedPrice={discountedPrice}
+                formatPrice={formatPrice}
               />
             ))}
           </>
@@ -648,7 +657,7 @@ export const MMMarketplaceScreen = () => {
             onBuy={handleBuy}
             isFav={favorites.has(selectedProduct.product_id)}
             onFav={toggleFavorite}
-            discountedPrice={discountedPrice}
+            formatPrice={formatPrice}
           />
         </>
       )}
@@ -656,12 +665,12 @@ export const MMMarketplaceScreen = () => {
   );
 };
 
-function HeroBanner({ products, onDemo, onBuy, onView, discountedPrice }: {
+function HeroBanner({ products, onDemo, onBuy, onView, formatPrice }: {
   products: Product[];
   onDemo: (product: Product) => void;
   onBuy: (product: Product) => void;
   onView: (product: Product) => void;
-  discountedPrice: (price: number | null) => string;
+  formatPrice: (price: number | null) => string;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -733,7 +742,7 @@ function HeroBanner({ products, onDemo, onBuy, onView, discountedPrice }: {
             </p>
             <div className="flex items-center gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-cyan-400">$249</span>
+                <span className="text-2xl font-bold text-cyan-400">{formatPrice(product.monthly_price)}</span>
                 <span className="text-sm text-slate-400">Lifetime • Source Code Included</span>
               </div>
             </div>
@@ -793,7 +802,7 @@ function HeroBanner({ products, onDemo, onBuy, onView, discountedPrice }: {
   );
 }
 
-function ProductRow({ title, icon, products, favorites, onView, onDemo, onBuy, onFav, discountedPrice }: {
+function ProductRow({ title, icon, products, favorites, onView, onDemo, onBuy, onFav, formatPrice }: {
   title: string;
   icon?: React.ReactNode;
   products: Product[];
@@ -802,7 +811,7 @@ function ProductRow({ title, icon, products, favorites, onView, onDemo, onBuy, o
   onDemo: (product: Product) => void;
   onBuy: (product: Product) => void;
   onFav: (id: string) => void;
-  discountedPrice: (price: number | null) => string;
+  formatPrice: (price: number | null) => string;
 }) {
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
@@ -829,37 +838,42 @@ function ProductRow({ title, icon, products, favorites, onView, onDemo, onBuy, o
         </div>
       </div>
       <div ref={scrollRef} className="flex gap-4 overflow-x-auto scrollbar-hide pb-2">
-        {products.map((product) => (
-          <div key={product.product_id} className="flex-shrink-0 w-56">
-            <ProductCard
-              product={product}
-              isFav={favorites.has(product.product_id)}
-              onView={onView}
-              onDemo={onDemo}
-              onBuy={onBuy}
-              onFav={onFav}
-              discountedPrice={discountedPrice}
-            />
-          </div>
-        ))}
+          {products.map((product) => (
+            <div key={product.product_id} className="flex-shrink-0 w-56">
+              <ProductCard
+                product={product}
+                isFav={favorites.has(product.product_id)}
+                onView={onView}
+                onDemo={onDemo}
+                onBuy={onBuy}
+                onFav={onFav}
+                formatPrice={formatPrice}
+              />
+            </div>
+          ))}
       </div>
     </div>
   );
 }
 
-function ProductCard({ product, isFav, onView, onDemo, onBuy, onFav, discountedPrice }: {
+function ProductCard({ product, isFav, onView, onDemo, onBuy, onFav, formatPrice }: {
   product: Product;
   isFav: boolean;
   onView: (product: Product) => void;
   onDemo: (product: Product) => void;
   onBuy: (product: Product) => void;
   onFav: (id: string) => void;
-  discountedPrice: (price: number | null) => string;
+  formatPrice: (price: number | null) => string;
 }) {
+  const thumbnail = product.product_thumbnail_url || product.product_icon_url;
   return (
     <div className="group relative bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-cyan-500/50 transition-all cursor-pointer" onClick={() => onView(product)}>
-      <div className="h-32 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center relative">
-        <Monitor className="w-10 h-10 text-slate-700" />
+      <div className="h-32 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center relative overflow-hidden">
+        {thumbnail ? (
+          <img src={thumbnail} alt={product.product_name} className="w-full h-full object-cover" />
+        ) : (
+          <Monitor className="w-10 h-10 text-slate-700" />
+        )}
         <div className="absolute top-2 left-2 flex gap-1 flex-wrap">
           <Badge variant="outline" className="text-[10px] border-slate-600 text-slate-400 bg-slate-900/80">
             {product.category || 'Software'}
@@ -896,7 +910,7 @@ function ProductCard({ product, isFav, onView, onDemo, onBuy, onFav, discountedP
         <h4 className="text-sm font-medium truncate">{product.product_name}</h4>
         <p className="text-xs text-slate-500 truncate mt-0.5">{product.description || 'Enterprise software'}</p>
         <div className="flex items-center justify-between mt-2">
-          <span className="text-sm font-bold text-cyan-400">$249</span>
+          <span className="text-sm font-bold text-cyan-400">{formatPrice(product.monthly_price)}</span>
           <div className="flex items-center gap-0.5">
             <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
             <span className="text-[10px] text-slate-400">4.8</span>
@@ -907,7 +921,7 @@ function ProductCard({ product, isFav, onView, onDemo, onBuy, onFav, discountedP
   );
 }
 
-function ProductDetailDialog({ product, open, onClose, onDemo, onBuy, isFav, onFav, discountedPrice }: {
+function ProductDetailDialog({ product, open, onClose, onDemo, onBuy, isFav, onFav, formatPrice }: {
   product: Product;
   open: boolean;
   onClose: () => void;
@@ -915,10 +929,12 @@ function ProductDetailDialog({ product, open, onClose, onDemo, onBuy, isFav, onF
   onBuy: (product: Product) => void;
   isFav: boolean;
   onFav: (id: string) => void;
-  discountedPrice: (price: number | null) => string;
+  formatPrice: (price: number | null) => string;
 }) {
   const features = Array.isArray(product.features_json) ? product.features_json : [];
   const { speak, stop, isPlaying, isLoading: isSpeaking } = useValaVoice();
+  const thumbnail = product.product_thumbnail_url || product.product_icon_url;
+  const priceDisplay = formatPrice(product.monthly_price);
 
   const handleSpeak = useCallback(() => {
     if (isPlaying) {
@@ -926,9 +942,9 @@ function ProductDetailDialog({ product, open, onClose, onDemo, onBuy, isFav, onF
       return;
     }
     const featureList = features.length > 0 ? ` Key features include: ${features.slice(0, 5).join(', ')}.` : '';
-    const speechText = `${product.product_name}. ${product.description || 'Enterprise-grade software solution for your business.'}${featureList} Category: ${product.category || 'Software'}. Price: just 249 dollars, lifetime access with full source code, no hidden charges, and 24/7 support.`;
+    const speechText = `${product.product_name}. ${product.description || 'Enterprise-grade software solution for your business.'}${featureList} Category: ${product.category || 'Software'}. Price: ${priceDisplay}, lifetime access with full source code, no hidden charges, and 24/7 support.`;
     speak(speechText);
-  }, [product, features, isPlaying, speak, stop]);
+  }, [product, features, isPlaying, speak, stop, priceDisplay]);
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl bg-slate-900 border-slate-700 text-white max-h-[85vh]">
@@ -937,8 +953,12 @@ function ProductDetailDialog({ product, open, onClose, onDemo, onBuy, isFav, onF
         </DialogHeader>
         <ScrollArea className="max-h-[60vh] pr-4">
           <div className="space-y-4">
-            <div className="h-40 bg-gradient-to-br from-cyan-900/40 to-slate-800 rounded-lg flex items-center justify-center">
-              <Monitor className="w-16 h-16 text-slate-600" />
+            <div className="h-40 bg-gradient-to-br from-cyan-900/40 to-slate-800 rounded-lg flex items-center justify-center overflow-hidden">
+              {thumbnail ? (
+                <img src={thumbnail} alt={product.product_name} className="w-full h-full object-cover" />
+              ) : (
+                <Monitor className="w-16 h-16 text-slate-600" />
+              )}
             </div>
 
             <div className="flex flex-wrap gap-2">
@@ -1027,7 +1047,7 @@ function ProductDetailDialog({ product, open, onClose, onDemo, onBuy, isFav, onF
               <h3 className="text-sm font-semibold mb-3">Pricing</h3>
               <div className="bg-slate-900 rounded-lg p-4 border border-cyan-500/30 text-center">
                 <p className="text-xs text-slate-500 mb-1">All Software — One Price</p>
-                <p className="text-3xl font-bold text-cyan-400">$249</p>
+                <p className="text-3xl font-bold text-cyan-400">{priceDisplay}</p>
                 <p className="text-xs text-slate-400 mt-1">Lifetime Access • Full Source Code • No Hidden Charges</p>
                 <div className="flex flex-wrap justify-center gap-2 mt-3">
                   <Badge className="bg-emerald-500/20 text-emerald-400 border-0 text-[10px]">✅ No Advance</Badge>
