@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
+import AIRAVoiceOrb from "./AIRAVoiceOrb";
 
 interface ChatMessage {
   id: string;
