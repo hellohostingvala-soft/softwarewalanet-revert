@@ -88,7 +88,7 @@ export function BossPanelContent() {
       case 'deployment-manager':
         return <Navigate to="/super-admin-system/role-switch?role=deployment_manager" replace />;
       case 'integration-manager':
-        return <ModulePlaceholder title="Integration Manager" />;
+        return <IntegrationManager />;
 
       // ─── Development ───
       case 'dev-manager':
