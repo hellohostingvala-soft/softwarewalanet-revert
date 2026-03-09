@@ -1,17 +1,26 @@
 /**
  * VALA AI - Active Project Panel
- * Shows current project status, files, and build info
  */
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  FolderOpen, FileCode, Globe, GitBranch, Clock, 
-  CheckCircle2, AlertCircle, RefreshCw, ExternalLink,
-  Layers, Database, Server, Eye
+  FolderOpen,
+  FileCode,
+  Globe,
+  GitBranch,
+  Clock,
+  CheckCircle2,
+  RefreshCw,
+  ExternalLink,
+  Layers,
+  Database,
+  Server,
+  Eye,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 
 const MOCK_PROJECT = {
@@ -33,10 +42,10 @@ const MOCK_PROJECT = {
     { name: 'database/schema.sql', status: 'new', size: '1.5 KB' },
   ],
   recentActions: [
-    { action: 'Generated 12 screens', time: '2 min ago', type: 'success' as const },
-    { action: 'Created database schema', time: '3 min ago', type: 'success' as const },
-    { action: 'API endpoints designed', time: '4 min ago', type: 'success' as const },
-    { action: 'Build deployed to demo', time: '5 min ago', type: 'success' as const },
+    { action: 'Generated 12 screens', time: '2 min ago' },
+    { action: 'Created database schema', time: '3 min ago' },
+    { action: 'API endpoints designed', time: '4 min ago' },
+    { action: 'Build deployed to demo', time: '5 min ago' },
   ],
 };
 
@@ -48,7 +57,7 @@ const ActiveProjectPanel: React.FC = () => {
     setTimeout(() => {
       setSyncing(false);
       toast.success('Project synced successfully');
-    }, 1500);
+    }, 1200);
   };
 
   const handleOpenDemo = () => {
@@ -56,18 +65,17 @@ const ActiveProjectPanel: React.FC = () => {
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden" style={{ background: '#0B0F1A' }}>
-      {/* Header */}
-      <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(37, 99, 235, 0.2)' }}>
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="px-6 py-4 flex items-center justify-between border-b border-border/50">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)' }}>
-            <FolderOpen className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary/15">
+            <FolderOpen className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-white">{MOCK_PROJECT.name}</h1>
-            <p className="text-xs flex items-center gap-2" style={{ color: 'rgba(255,255,255,0.5)' }}>
+            <h1 className="text-lg font-bold text-foreground">{MOCK_PROJECT.name}</h1>
+            <p className="text-xs text-muted-foreground flex items-center gap-2">
               <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                 Active
               </span>
               <span>•</span>
@@ -76,11 +84,16 @@ const ActiveProjectPanel: React.FC = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" className="h-8 px-3 text-xs gap-1.5 text-white/60 hover:text-white hover:bg-white/5" onClick={handleSync}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 px-3 text-xs gap-1.5"
+            onClick={handleSync}
+          >
             <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
             Sync
           </Button>
-          <Button size="sm" className="h-8 px-3 text-xs gap-1.5" style={{ background: '#2563eb' }} onClick={handleOpenDemo}>
+          <Button size="sm" className="h-8 px-3 text-xs gap-1.5" onClick={handleOpenDemo}>
             <ExternalLink className="w-3.5 h-3.5" />
             Open Demo
           </Button>
@@ -89,87 +102,105 @@ const ActiveProjectPanel: React.FC = () => {
 
       <ScrollArea className="flex-1">
         <div className="p-6 space-y-6">
-          {/* Stats Grid */}
-          <div className="grid grid-cols-4 gap-3">
-            {[
-              { label: 'Screens', value: MOCK_PROJECT.screens, icon: Layers, color: '#2563eb' },
-              { label: 'APIs', value: MOCK_PROJECT.apis, icon: Server, color: '#7c3aed' },
-              { label: 'DB Tables', value: MOCK_PROJECT.tables, icon: Database, color: '#10b981' },
-              { label: 'Progress', value: `${MOCK_PROJECT.progress}%`, icon: Eye, color: '#f59e0b' },
-            ].map((stat) => (
-              <div key={stat.label} className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <stat.icon className="w-4 h-4 mb-2" style={{ color: stat.color }} />
-                <div className="text-xl font-bold text-white">{stat.value}</div>
-                <div className="text-[10px]" style={{ color: 'rgba(255,255,255,0.4)' }}>{stat.label}</div>
-              </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {[{
+              label: 'Screens',
+              value: MOCK_PROJECT.screens,
+              icon: Layers,
+            }, {
+              label: 'APIs',
+              value: MOCK_PROJECT.apis,
+              icon: Server,
+            }, {
+              label: 'DB Tables',
+              value: MOCK_PROJECT.tables,
+              icon: Database,
+            }, {
+              label: 'Progress',
+              value: `${MOCK_PROJECT.progress}%`,
+              icon: Eye,
+            }].map((stat) => (
+              <Card key={stat.label} className="bg-card/60 border-border/50">
+                <CardContent className="p-4">
+                  <stat.icon className="w-4 h-4 mb-2 text-primary" />
+                  <div className="text-xl font-bold text-foreground">{stat.value}</div>
+                  <div className="text-[10px] text-muted-foreground">{stat.label}</div>
+                </CardContent>
+              </Card>
             ))}
           </div>
 
-          {/* Project Links */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-xl p-4 flex items-center gap-3" style={{ background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.15)' }}>
-              <Globe className="w-5 h-5" style={{ color: '#10b981' }} />
-              <div>
-                <div className="text-xs font-semibold text-white">Demo Domain</div>
-                <div className="text-[11px] font-mono" style={{ color: '#10b981' }}>{MOCK_PROJECT.domain}</div>
-              </div>
-            </div>
-            <div className="rounded-xl p-4 flex items-center gap-3" style={{ background: 'rgba(37,99,235,0.05)', border: '1px solid rgba(37,99,235,0.15)' }}>
-              <GitBranch className="w-5 h-5" style={{ color: '#60a5fa' }} />
-              <div>
-                <div className="text-xs font-semibold text-white">Repository</div>
-                <div className="text-[11px] font-mono" style={{ color: '#60a5fa' }}>{MOCK_PROJECT.repo}</div>
-              </div>
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <Card className="bg-card/60 border-border/50">
+              <CardContent className="p-4 flex items-center gap-3">
+                <Globe className="w-5 h-5 text-primary" />
+                <div>
+                  <div className="text-xs font-semibold text-foreground">Demo Domain</div>
+                  <div className="text-[11px] font-mono text-muted-foreground">{MOCK_PROJECT.domain}</div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="bg-card/60 border-border/50">
+              <CardContent className="p-4 flex items-center gap-3">
+                <GitBranch className="w-5 h-5 text-primary" />
+                <div>
+                  <div className="text-xs font-semibold text-foreground">Repository</div>
+                  <div className="text-[11px] font-mono text-muted-foreground">{MOCK_PROJECT.repo}</div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Files List */}
           <div>
-            <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-              <FileCode className="w-4 h-4" style={{ color: '#60a5fa' }} />
+            <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <FileCode className="w-4 h-4 text-primary" />
               Generated Files
             </h3>
-            <div className="space-y-1">
-              {MOCK_PROJECT.files.map((file) => (
-                <div key={file.name} className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <FileCode className="w-3.5 h-3.5" style={{ color: '#06b6d4' }} />
-                    <span className="text-xs font-mono text-white/70">{file.name}</span>
+            <Card className="bg-card/60 border-border/50">
+              <CardContent className="p-2">
+                {MOCK_PROJECT.files.map((file) => (
+                  <div
+                    key={file.name}
+                    className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-muted/30 transition-colors"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FileCode className="w-3.5 h-3.5 text-primary shrink-0" />
+                      <span className="text-xs font-mono text-foreground/80 truncate">{file.name}</span>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className="text-[10px] text-muted-foreground">{file.size}</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/15 text-primary">
+                        {file.status}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{file.size}</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded" style={{
-                      background: file.status === 'new' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)',
-                      color: file.status === 'new' ? '#10b981' : '#f59e0b',
-                    }}>{file.status}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Recent Actions */}
           <div>
-            <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-              <Clock className="w-4 h-4" style={{ color: '#f59e0b' }} />
+            <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-primary" />
               Recent Actions
             </h3>
-            <div className="space-y-2">
-              {MOCK_PROJECT.recentActions.map((action, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg"
-                  style={{ background: 'rgba(255,255,255,0.02)' }}
-                >
-                  <CheckCircle2 className="w-3.5 h-3.5" style={{ color: '#10b981' }} />
-                  <span className="text-xs text-white/70 flex-1">{action.action}</span>
-                  <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{action.time}</span>
-                </motion.div>
-              ))}
-            </div>
+            <Card className="bg-card/60 border-border/50">
+              <CardContent className="p-3 space-y-2">
+                {MOCK_PROJECT.recentActions.map((action, i) => (
+                  <motion.div
+                    key={`${action.action}-${i}`}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.06 }}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/20"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                    <span className="text-xs text-foreground/80 flex-1">{action.action}</span>
+                    <span className="text-[10px] text-muted-foreground">{action.time}</span>
+                  </motion.div>
+                ))}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </ScrollArea>

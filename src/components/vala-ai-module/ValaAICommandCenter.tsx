@@ -174,6 +174,42 @@ async function streamChat({
     onError(err instanceof Error ? err.message : 'Stream failed');
   }
 }
+const PREVIEW_HINT = [
+  'IMPORTANT: Along with your normal structured response, you MUST include a complete preview-ready single-file HTML document between these tags:',
+  '<PREVIEW_HTML>',
+  '<!doctype html>',
+  '<html>',
+  '  <head>',
+  '    <meta charset="utf-8" />',
+  '    <meta name="viewport" content="width=device-width, initial-scale=1" />',
+  '    <script src="https://cdn.tailwindcss.com"></script>',
+  '  </head>',
+  '  <body class="bg-slate-950 text-white">',
+  '    <!-- UI goes here -->',
+  '  </body>',
+  '</html>',
+  '</PREVIEW_HTML>',
+  '',
+  'Rules:',
+  '- Must be a COMPLETE HTML document',
+  '- Use Tailwind CDN only (no external images)',
+  '- Keep it responsive and modern',
+  '- Put ALL preview markup inside <PREVIEW_HTML> ... </PREVIEW_HTML>',
+].join('\n');
+
+function extractPreviewHtmlFromMarkdown(text: string): string | null {
+  const match = text.match(/<PREVIEW_HTML>\s*([\s\S]*?)\s*<\/PREVIEW_HTML>/i);
+  return match?.[1]?.trim() || null;
+}
+
+function fallbackPreviewHtml(markdown: string) {
+  const escaped = markdown
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  return `<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><script src="https://cdn.tailwindcss.com"></script></head><body class="bg-slate-950 text-white"><div class="max-w-3xl mx-auto p-6"><h1 class="text-2xl font-bold mb-3">VALA AI Output</h1><p class="text-slate-300 mb-4">No preview HTML found — showing raw build output.</p><pre class="text-xs whitespace-pre-wrap bg-white/5 border border-white/10 rounded-xl p-4">${escaped}</pre></div></body></html>`;
+}
 
 // ===== FILE TREE COMPONENT =====
 const FileTreeItem: React.FC<{
@@ -248,6 +284,8 @@ const ValaAICommandCenter: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState('');
   const [previewHtml, setPreviewHtml] = useState('<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0f172a;color:white;font-family:system-ui;"><div style="text-align:center;"><h1 style="font-size:2rem;margin-bottom:1rem;">🚀 VALA AI Preview</h1><p style="color:rgba(255,255,255,0.6);">Your generated app will appear here</p></div></div>');
+  const [previewKey, setPreviewKey] = useState(0);
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
 
   // Auto-publish state
   const { publish, isPublishing, lastResult } = useAutoPublish();
@@ -297,7 +335,10 @@ const ValaAICommandCenter: React.FC = () => {
     };
 
     await streamChat({
-      messages: [...messages, userMsg].map(m => ({ role: m.role, content: m.content })),
+      messages: [
+        { role: 'system', content: PREVIEW_HINT },
+        ...[...messages, userMsg].map(m => ({ role: m.role, content: m.content })),
+      ],
       onDelta: upsertAssistant,
       onDone: () => setIsStreaming(false),
       onError: (err) => {
@@ -305,6 +346,13 @@ const ValaAICommandCenter: React.FC = () => {
         toast.error(err);
       },
     });
+
+    // Update preview after the stream finishes
+    const extracted = extractPreviewHtmlFromMarkdown(assistantContent);
+    const nextHtml = extracted || fallbackPreviewHtml(assistantContent);
+    setPreviewHtml(nextHtml);
+    setPreviewKey(Date.now());
+    setActiveTab('preview');
   }, [input, isStreaming, messages]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -514,14 +562,29 @@ const ValaAICommandCenter: React.FC = () => {
                   <Globe className="w-3 h-3 text-white/30" />
                   <span className="text-white/40 truncate">vala-preview.local</span>
                 </div>
-                <Button variant="ghost" size="icon" className="w-7 h-7 text-white/30 hover:text-white hover:bg-white/5">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setPreviewKey(Date.now())}
+                  className="w-7 h-7 text-white/30 hover:text-white hover:bg-white/5"
+                >
                   <RefreshCw className="w-3.5 h-3.5" />
                 </Button>
                 <div className="flex items-center gap-0.5 ml-1">
-                  <Button variant="ghost" size="icon" className="w-7 h-7 text-white/30 hover:text-white hover:bg-white/5">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setPreviewDevice('desktop')}
+                    className={`w-7 h-7 hover:bg-white/5 ${previewDevice === 'desktop' ? 'text-white' : 'text-white/30 hover:text-white'}`}
+                  >
                     <Monitor className="w-3.5 h-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="w-7 h-7 text-white/30 hover:text-white hover:bg-white/5">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setPreviewDevice('mobile')}
+                    className={`w-7 h-7 hover:bg-white/5 ${previewDevice === 'mobile' ? 'text-white' : 'text-white/30 hover:text-white'}`}
+                  >
                     <Smartphone className="w-3.5 h-3.5" />
                   </Button>
                 </div>
@@ -562,13 +625,20 @@ const ValaAICommandCenter: React.FC = () => {
           <div className="flex-1 overflow-hidden">
             {activeTab === 'preview' ? (
               /* Preview iframe */
-              <iframe
-                srcDoc={previewHtml}
-                className="w-full h-full border-0"
-                title="VALA Preview"
-                sandbox="allow-scripts"
-                style={{ background: '#0f172a' }}
-              />
+              <div className="w-full h-full flex items-center justify-center" style={{ background: '#0f172a' }}>
+                <iframe
+                  key={previewKey}
+                  srcDoc={previewHtml}
+                  className="h-full border-0"
+                  title="VALA Preview"
+                  sandbox="allow-scripts"
+                  style={{
+                    background: '#0f172a',
+                    width: previewDevice === 'mobile' ? 390 : '100%',
+                    maxWidth: '100%',
+                  }}
+                />
+              </div>
             ) : (
               /* Code Editor */
               <div className="h-full flex flex-col">

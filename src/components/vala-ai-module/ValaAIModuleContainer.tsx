@@ -9,6 +9,12 @@
 import React, { useState, lazy, Suspense } from 'react';
 import { ValaAISidebar, ValaAISection } from './ValaAISidebar';
 import ValaAICommandCenter from './ValaAICommandCenter';
+import ActiveProjectPanel from './sections/ActiveProjectPanel';
+import PromptHistoryPanel from './sections/PromptHistoryPanel';
+import ExecutionLogsPanel from './sections/ExecutionLogsPanel';
+import ErrorDetectionPanel from './sections/ErrorDetectionPanel';
+import RollbackPanel from './sections/RollbackPanel';
+import LockStatusPanel from './sections/LockStatusPanel';
 import { AIModelsPanel } from './AIModelsPanel';
 import { AICreditsPanel } from './AICreditsPanel';
 import { DevSettings } from './DevSettings';
@@ -29,12 +35,6 @@ export const ValaAIModuleContainer: React.FC<ValaAIModuleContainerProps> = ({
   const renderContent = () => {
     switch (activeSection) {
       case 'command-center':
-      case 'active-project':
-      case 'prompt-history':
-      case 'execution-logs':
-      case 'error-detection':
-      case 'rollback':
-      case 'lock-status':
         return <ValaAICommandCenter />;
       case 'continuous-creation':
         return (
@@ -42,6 +42,18 @@ export const ValaAIModuleContainer: React.FC<ValaAIModuleContainerProps> = ({
             <ContinuousCreationDashboard />
           </Suspense>
         );
+      case 'active-project':
+        return <ActiveProjectPanel />;
+      case 'prompt-history':
+        return <PromptHistoryPanel />;
+      case 'execution-logs':
+        return <ExecutionLogsPanel />;
+      case 'error-detection':
+        return <ErrorDetectionPanel />;
+      case 'rollback':
+        return <RollbackPanel />;
+      case 'lock-status':
+        return <LockStatusPanel />;
       case 'models':
         return (
           <div className="p-6 overflow-y-auto h-full">
