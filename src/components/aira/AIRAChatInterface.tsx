@@ -583,6 +583,15 @@ export default function AIRAChatInterface() {
           </Button>
         </div>
       </div>
+
+      {/* Floating Voice Orb */}
+      <AIRAVoiceOrb
+        isSpeaking={isSpeaking}
+        isLoadingVoice={isLoadingVoice}
+        autoSpeak={autoSpeak}
+        onToggleAutoSpeak={() => setAutoSpeak(prev => !prev)}
+        onStopSpeaking={stopSpeaking}
+      />
     </div>
   );
 }
