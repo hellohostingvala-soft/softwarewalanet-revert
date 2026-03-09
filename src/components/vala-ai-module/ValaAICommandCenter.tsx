@@ -174,32 +174,31 @@ async function streamChat({
     onError(err instanceof Error ? err.message : 'Stream failed');
   }
 }
+const PREVIEW_HINT = [
+  'IMPORTANT: Along with your normal structured response, you MUST include a complete preview-ready single-file HTML document between these tags:',
+  '<PREVIEW_HTML>',
+  '<!doctype html>',
+  '<html>',
+  '  <head>',
+  '    <meta charset="utf-8" />',
+  '    <meta name="viewport" content="width=device-width, initial-scale=1" />',
+  '    <script src="https://cdn.tailwindcss.com"></script>',
+  '  </head>',
+  '  <body class="bg-slate-950 text-white">',
+  '    <!-- UI goes here -->',
+  '  </body>',
+  '</html>',
+  '</PREVIEW_HTML>',
+  '',
+  'Rules:',
+  '- Must be a COMPLETE HTML document',
+  '- Use Tailwind CDN only (no external images)',
+  '- Keep it responsive and modern',
+  '- Put ALL preview markup inside <PREVIEW_HTML> ... </PREVIEW_HTML>',
+].join('\n');
 
-
-const PREVIEW_HINT = `IMPORTANT: Along with your normal structured response, you MUST include a complete preview-ready single-file HTML document inside a fenced code block:
-
-```html preview
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://cdn.tailwindcss.com"></script>
-  </head>
-  <body class="bg-slate-950 text-white">
-    <!-- UI goes here -->
-  </body>
-</html>
-```
-
-Rules:
-- Must be a COMPLETE HTML document
-- Use Tailwind CDN only (no external images)
-- Keep it responsive and modern
-- Put ALL preview markup in that block`;
-
-function extractPreviewHtmlFromMarkdown(markdown: string): string | null {
-  const match = markdown.match(/```html\s*(?:preview|PREVIEW_HTML)?\s*\n([\s\S]*?)```/i);
+function extractPreviewHtmlFromMarkdown(text: string): string | null {
+  const match = text.match(/<PREVIEW_HTML>\s*([\s\S]*?)\s*<\/PREVIEW_HTML>/i);
   return match?.[1]?.trim() || null;
 }
 
@@ -209,7 +208,7 @@ function fallbackPreviewHtml(markdown: string) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 
-  return `<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><script src="https://cdn.tailwindcss.com"></script></head><body class="bg-slate-950 text-white"><div class="max-w-3xl mx-auto p-6"><h1 class="text-2xl font-bold mb-3">VALA AI Output</h1><p class="text-slate-300 mb-4">No preview HTML block found — showing raw build output.</p><pre class="text-xs whitespace-pre-wrap bg-white/5 border border-white/10 rounded-xl p-4">${escaped}</pre></div></body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><script src="https://cdn.tailwindcss.com"></script></head><body class="bg-slate-950 text-white"><div class="max-w-3xl mx-auto p-6"><h1 class="text-2xl font-bold mb-3">VALA AI Output</h1><p class="text-slate-300 mb-4">No preview HTML found — showing raw build output.</p><pre class="text-xs whitespace-pre-wrap bg-white/5 border border-white/10 rounded-xl p-4">${escaped}</pre></div></body></html>`;
 }
 
 // ===== FILE TREE COMPONENT =====
