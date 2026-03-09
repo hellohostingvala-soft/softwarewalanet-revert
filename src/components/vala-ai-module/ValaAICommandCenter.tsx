@@ -605,7 +605,7 @@ const ValaAICommandCenter: React.FC = () => {
         </div>
 
         {/* Workspace Content */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex overflow-hidden min-h-0">
           {/* File Tree (Code mode) */}
           {activeTab === 'code' && showFileTree && (
             <div className="w-[200px] overflow-y-auto py-2" style={{ borderRight: '1px solid rgba(255,255,255,0.08)', background: '#0d0d0d' }}>
