@@ -108,15 +108,15 @@ export function BossPanelContent() {
       case 'marketplace-manager':
         return <MMFullLayout />;
       case 'marketplace-user-system':
-        return <ModulePlaceholder title="Marketplace User System" />;
+        return <MarketplaceUserSystem />;
       case 'license-manager':
-        return <ModulePlaceholder title="License Manager" />;
+        return <LicenseManager />;
       case 'lead-manager':
         return <Navigate to="/lead-manager" replace />;
       case 'sales-manager':
         return <Navigate to="/super-admin-system/role-switch?role=sales_manager" replace />;
       case 'asset-manager':
-        return <ModulePlaceholder title="Asset Manager" />;
+        return <AssetManager />;
 
       // ─── Marketing & Growth ───
       case 'marketing-manager':
