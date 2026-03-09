@@ -563,7 +563,12 @@ const ValaAICommandCenter: React.FC = () => {
                   <Globe className="w-3 h-3 text-white/30" />
                   <span className="text-white/40 truncate">vala-preview.local</span>
                 </div>
-                <Button variant="ghost" size="icon" className="w-7 h-7 text-white/30 hover:text-white hover:bg-white/5">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setPreviewKey(Date.now())}
+                  className="w-7 h-7 text-white/30 hover:text-white hover:bg-white/5"
+                >
                   <RefreshCw className="w-3.5 h-3.5" />
                 </Button>
                 <div className="flex items-center gap-0.5 ml-1">
