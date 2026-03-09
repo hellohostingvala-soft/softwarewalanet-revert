@@ -25,6 +25,7 @@ import DomainProtection from "./components/security/DomainProtection";
 import { SourceCodeProtection } from "./components/security/SourceCodeProtection";
 import FloatingAIChatbotWrapper from "./components/shared/FloatingAIChatbotWrapper";
 import { Loader2 } from "lucide-react";
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 // ============================================
 // LAZY ROUTE IMPORTS - Code splitting for performance
@@ -442,6 +443,7 @@ const App = memo(() => (
                           <SystemNotificationsInitializer />
                           <GlobalOfferPopup />
                           <FloatingAIChatbotWrapper />
+                          <SpeedInsights />
                           <Routes>
                             {/* Public Routes */}
                             <Route path="/" element={<Index />} />
