@@ -324,7 +324,7 @@ export function NotificationManager() {
           ) : (
             <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1" style={{ scrollbarWidth: 'thin' }}>
               {(notifications || []).map((n: any) => {
-                const type = NOTIF_TYPES.find(t => t.key === n.notification_type) || NOTIF_TYPES[1];
+                const type = NOTIF_TYPES.find(t => t.key === n.type) || NOTIF_TYPES[1];
                 return (
                   <motion.div key={n.id} variants={rise}
                     className="flex items-start gap-3 px-3 py-3 rounded-xl transition-colors"
