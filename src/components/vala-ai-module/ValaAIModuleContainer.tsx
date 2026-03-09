@@ -9,6 +9,12 @@
 import React, { useState, lazy, Suspense } from 'react';
 import { ValaAISidebar, ValaAISection } from './ValaAISidebar';
 import ValaAICommandCenter from './ValaAICommandCenter';
+import ActiveProjectPanel from './sections/ActiveProjectPanel';
+import PromptHistoryPanel from './sections/PromptHistoryPanel';
+import ExecutionLogsPanel from './sections/ExecutionLogsPanel';
+import ErrorDetectionPanel from './sections/ErrorDetectionPanel';
+import RollbackPanel from './sections/RollbackPanel';
+import LockStatusPanel from './sections/LockStatusPanel';
 import { AIModelsPanel } from './AIModelsPanel';
 import { AICreditsPanel } from './AICreditsPanel';
 import { DevSettings } from './DevSettings';
