@@ -160,7 +160,7 @@ export function BossPanelContent() {
       case 'analytics-manager':
         return <Navigate to="/super-admin-system/role-switch?role=aira" replace />;
       case 'notification-manager':
-        return <ModulePlaceholder title="Notification Manager" />;
+        return <NotificationManager />;
 
       // ─── Configuration ───
       case 'system-settings':
