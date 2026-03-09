@@ -802,7 +802,7 @@ function HeroBanner({ products, onDemo, onBuy, onView, formatPrice }: {
   );
 }
 
-function ProductRow({ title, icon, products, favorites, onView, onDemo, onBuy, onFav, discountedPrice }: {
+function ProductRow({ title, icon, products, favorites, onView, onDemo, onBuy, onFav, formatPrice }: {
   title: string;
   icon?: React.ReactNode;
   products: Product[];
@@ -811,7 +811,7 @@ function ProductRow({ title, icon, products, favorites, onView, onDemo, onBuy, o
   onDemo: (product: Product) => void;
   onBuy: (product: Product) => void;
   onFav: (id: string) => void;
-  discountedPrice: (price: number | null) => string;
+  formatPrice: (price: number | null) => string;
 }) {
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
