@@ -15,6 +15,11 @@ import { SecurityLegal } from './sections/SecurityLegal';
 import { BossSettings } from './sections/BossSettings';
 import { CodePilot } from './sections/CodePilot';
 import { ServerHosting } from './sections/ServerHosting';
+import { NotificationManager } from './sections/NotificationManager';
+import { IntegrationManager } from './sections/IntegrationManager';
+import { LicenseManager } from './sections/LicenseManager';
+import { AssetManager } from './sections/AssetManager';
+import { MarketplaceUserSystem } from './sections/MarketplaceUserSystem';
 
 import { MMFullLayout } from '@/components/marketplace-manager/MMFullLayout';
 import { ServerManagerLayout } from '@/components/server-manager/ServerManagerLayout';
@@ -83,7 +88,7 @@ export function BossPanelContent() {
       case 'deployment-manager':
         return <Navigate to="/super-admin-system/role-switch?role=deployment_manager" replace />;
       case 'integration-manager':
-        return <ModulePlaceholder title="Integration Manager" />;
+        return <IntegrationManager />;
 
       // ─── Development ───
       case 'dev-manager':
@@ -103,15 +108,15 @@ export function BossPanelContent() {
       case 'marketplace-manager':
         return <MMFullLayout />;
       case 'marketplace-user-system':
-        return <ModulePlaceholder title="Marketplace User System" />;
+        return <MarketplaceUserSystem />;
       case 'license-manager':
-        return <ModulePlaceholder title="License Manager" />;
+        return <LicenseManager />;
       case 'lead-manager':
         return <Navigate to="/lead-manager" replace />;
       case 'sales-manager':
         return <Navigate to="/super-admin-system/role-switch?role=sales_manager" replace />;
       case 'asset-manager':
-        return <ModulePlaceholder title="Asset Manager" />;
+        return <AssetManager />;
 
       // ─── Marketing & Growth ───
       case 'marketing-manager':
@@ -155,7 +160,7 @@ export function BossPanelContent() {
       case 'analytics-manager':
         return <Navigate to="/super-admin-system/role-switch?role=aira" replace />;
       case 'notification-manager':
-        return <ModulePlaceholder title="Notification Manager" />;
+        return <NotificationManager />;
 
       // ─── Configuration ───
       case 'system-settings':
