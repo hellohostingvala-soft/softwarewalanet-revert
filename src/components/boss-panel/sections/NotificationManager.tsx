@@ -127,9 +127,8 @@ export function NotificationManager() {
       // Insert notifications in batches
       const batch = userIds.slice(0, 100).map(uid => ({
         user_id: uid,
-        title: form.title,
         message: form.message,
-        notification_type: form.type,
+        type: form.type,
         is_read: false,
       }));
       const { error } = await supabase.from('user_notifications').insert(batch);
