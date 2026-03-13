@@ -1,40 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Users, DollarSign, AlertTriangle, Activity, TrendingUp, TrendingDown,
-  FileText, Server, Shield, Globe, BarChart3, Zap, Boxes, Eye,
-  ArrowUpRight, Clock, CheckCircle, XCircle, AlertCircle, Cpu,
-  HardDrive, Wifi, Database, FileBarChart, Download
+
 } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, PieChart, Pie, Cell
 } from 'recharts';
-import {
-  useResellerApplications, useFranchiseAccounts, useJobApplications,
-  useDashboardMetrics, useDashboardRealtime,
-} from '@/hooks/boss-panel/useDashboardData';
-import { useBossDashboard } from '@/hooks/boss-panel/useBossDashboard';
 
-// ─── 7D ENTERPRISE DESIGN TOKENS ─────────────────────────────
-const T = {
-  // Card gradient presets — deeper, richer, more dimensional
-  g1: 'linear-gradient(135deg, hsla(217, 91%, 60%, 0.18) 0%, hsla(262, 83%, 58%, 0.08) 50%, hsla(217, 91%, 60%, 0.03) 100%)',
-  g2: 'linear-gradient(135deg, hsla(160, 84%, 39%, 0.18) 0%, hsla(173, 80%, 40%, 0.08) 50%, hsla(160, 84%, 39%, 0.03) 100%)',
-  g3: 'linear-gradient(135deg, hsla(38, 92%, 50%, 0.18) 0%, hsla(45, 93%, 47%, 0.08) 50%, hsla(38, 92%, 50%, 0.03) 100%)',
-  g4: 'linear-gradient(135deg, hsla(346, 77%, 49%, 0.18) 0%, hsla(330, 80%, 60%, 0.08) 50%, hsla(346, 77%, 49%, 0.03) 100%)',
-  g5: 'linear-gradient(135deg, hsla(262, 83%, 58%, 0.18) 0%, hsla(280, 87%, 65%, 0.08) 50%, hsla(262, 83%, 58%, 0.03) 100%)',
-  g6: 'linear-gradient(135deg, hsla(199, 89%, 48%, 0.18) 0%, hsla(187, 85%, 53%, 0.08) 50%, hsla(199, 89%, 48%, 0.03) 100%)',
-  // Colors — higher saturation, brighter
-  blue: 'hsl(217, 92%, 65%)', green: 'hsl(160, 84%, 44%)', amber: 'hsl(38, 95%, 55%)',
-  red: 'hsl(346, 82%, 55%)', purple: 'hsl(262, 85%, 63%)', cyan: 'hsl(199, 90%, 55%)',
-  // Surfaces — richer glass
-  glass: 'hsla(222, 47%, 11%, 0.72)',
-  glassBorder: 'hsla(215, 40%, 35%, 0.25)',
-  glassHighlight: 'hsla(215, 100%, 90%, 0.06)',
-  text: 'hsl(210, 40%, 98%)', muted: 'hsl(215, 22%, 65%)', dim: 'hsl(215, 15%, 42%)',
-  rowHover: 'hsla(217, 91%, 60%, 0.07)',
-};
 
 const PIE_COLORS = [T.blue, T.green, T.amber, T.red, T.purple, T.cyan];
 
@@ -141,56 +114,6 @@ function KPI({ title, value, trend, trendVal, icon: Icon, gradient, accent }: {
 
 // ─── MAIN DASHBOARD ──────────────────────────────────────────
 export function BossDashboard() {
-  const { data: resellerData } = useResellerApplications();
-  const { data: franchiseData } = useFranchiseAccounts();
-  const { data: jobData } = useJobApplications();
-  const { data: metrics } = useDashboardMetrics();
-  const { summary, systemHealth } = useBossDashboard();
-  useDashboardRealtime();
-
-  const fmt = (n: number | undefined) => n?.toLocaleString() ?? '—';
-  const revenueData = metrics?.revenueByMonth ?? Array.from({ length: 6 }, (_, i) => ({
-    month: ['Jan','Feb','Mar','Apr','May','Jun'][i], revenue: Math.floor(Math.random()*80000+20000), trend: Math.floor(Math.random()*60000+15000)
-  }));
-  const modules = systemHealth?.modules ?? [];
-  const activeM = modules.filter(m => m.status === 'active').length;
-  const totalM = modules.length || 1;
-
-  // Mock data for new panels
-  const moduleStatusData = [
-    { name: 'Auth', status: 'active', uptime: 99.9, requests: '12.4K' },
-    { name: 'Payments', status: 'active', uptime: 99.7, requests: '8.2K' },
-    { name: 'AI Engine', status: 'active', uptime: 98.5, requests: '45.1K' },
-    { name: 'Notifications', status: 'maintenance', uptime: 95.2, requests: '3.1K' },
-    { name: 'Analytics', status: 'active', uptime: 99.8, requests: '22.7K' },
-    { name: 'Storage', status: 'active', uptime: 99.9, requests: '6.8K' },
-  ];
-
-  const alertsData = [
-    { id: 1, type: 'critical', message: 'CPU spike on server EU-West-2', time: '2m ago', module: 'Infrastructure' },
-    { id: 2, type: 'warning', message: 'Payment gateway latency >500ms', time: '8m ago', module: 'Payments' },
-    { id: 3, type: 'warning', message: 'Failed login attempts from IP range', time: '15m ago', module: 'Security' },
-    { id: 4, type: 'healthy', message: 'Database backup completed', time: '22m ago', module: 'Storage' },
-    { id: 5, type: 'healthy', message: 'SSL certificates renewed', time: '1h ago', module: 'Security' },
-  ];
-
-  const userActivityData = Array.from({ length: 12 }, (_, i) => ({
-    hour: `${(i * 2).toString().padStart(2, '0')}:00`,
-    active: Math.floor(Math.random() * 400 + 100),
-    new: Math.floor(Math.random() * 50 + 10),
-  }));
-
-  const revenueBreakdown = [
-    { name: 'Subscriptions', value: 45, color: T.blue },
-    { name: 'Marketplace', value: 25, color: T.green },
-    { name: 'Enterprise', value: 20, color: T.purple },
-    { name: 'Other', value: 10, color: T.amber },
-  ];
-
-  const recentApplications = [
-    ...(resellerData?.recentApplications ?? []).map(a => ({ ...a, type: 'Reseller' })),
-    ...(jobData?.recentApplications ?? []).map(a => ({ ...a, type: a.application_type, status: a.status })),
-  ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 6);
 
   return (
     <motion.div className="space-y-5" variants={stagger} initial="hidden" animate="show" style={{ color: T.text }}>

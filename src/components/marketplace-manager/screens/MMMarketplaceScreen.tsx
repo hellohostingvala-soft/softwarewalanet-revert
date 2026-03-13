@@ -1,17 +1,7 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { createSystemRequest } from '@/hooks/useSystemRequestLogger';
-import { useAuth } from '@/hooks/useAuth';
-import { Search, Star, Heart, Play, ShoppingCart, ChevronLeft, ChevronRight, X, Monitor, Zap, TrendingUp, Sparkles, Package, Github, ExternalLink, GitCommit, RefreshCw, Volume2, VolumeX, Loader2 } from 'lucide-react';
-import { useValaVoice } from '@/hooks/useValaVoice';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { toast } from 'sonner';
-import { ProductSEOHead } from '@/components/seo/ProductSEOHead';
+
 
 interface Product {
   product_id: string;
@@ -57,14 +47,6 @@ const CATEGORY_ICONS: Record<string, string> = {
   'Project Management': '📋', 'Subscription': '🔄',
 };
 
-const PARTNER_REQUEST_BUTTONS: { event: PartnerRequestType; label: string }[] = [
-  { event: 'franchise_request', label: 'Franchise Request' },
-  { event: 'reseller_request', label: 'Reseller Request' },
-  { event: 'developer_request', label: 'Developer Request' },
-  { event: 'support_request', label: 'Support Request' },
-  { event: 'job_apply', label: 'Job Apply' },
-  { event: 'enquiry', label: 'Enquiry' },
-];
 
 // Constants for pagination - optimized for 10K+ products
 const PAGE_SIZE = 50;
@@ -108,222 +90,7 @@ export const MMMarketplaceScreen = () => {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  const [totalCount, setTotalCount] = useState(0);
 
-  // Paginated data
-  const [searchResults, setSearchResults] = useState<Product[]>([]);
-  const [searchPage, setSearchPage] = useState(0);
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [hasMoreSearch, setHasMoreSearch] = useState(true);
-
-  // Featured sections (cached)
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
-  const [latestLaunches, setLatestLaunches] = useState<Product[]>([]);
-  const [trendingProducts, setTrendingProducts] = useState<Product[]>([]);
-  const [upcomingProducts, setUpcomingProducts] = useState<Product[]>([]);
-
-  // Category data
-  const [dynamicCategories, setDynamicCategories] = useState<string[]>([]);
-  const [categoryProducts, setCategoryProducts] = useState<Record<string, Product[]>>({});
-  const [categoryLoading, setCategoryLoading] = useState<Record<string, boolean>>({});
-
-  // Refs for infinite scroll
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const loadMoreRef = useRef<HTMLDivElement>(null);
-
-  // Debounce search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchQuery);
-    }, SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-
-  // Initial load - get counts and featured products only
-  useEffect(() => {
-    initializeMarketplace();
-    fetchFavorites();
-  }, []);
-
-  // Handle URL params
-  useEffect(() => {
-    setSelectedCategory(categoryId ? decodeURIComponent(categoryId) : null);
-  }, [categoryId]);
-
-  // Fetch product from URL
-  useEffect(() => {
-    if (!productId) {
-      setSelectedProduct(null);
-      return;
-    }
-    fetchProductById(productId);
-  }, [productId]);
-
-  // Database search when debounced query changes
-  useEffect(() => {
-    if (debouncedSearch || selectedCategory) {
-      performSearch(0, true);
-    } else {
-      setSearchResults([]);
-      setSearchPage(0);
-      setHasMoreSearch(true);
-    }
-  }, [debouncedSearch, selectedCategory]);
-
-  // Intersection observer for infinite scroll
-  useEffect(() => {
-    if (!loadMoreRef.current) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMoreSearch && !searchLoading && (debouncedSearch || selectedCategory)) {
-          performSearch(searchPage + 1, false);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(loadMoreRef.current);
-    return () => observer.disconnect();
-  }, [hasMoreSearch, searchLoading, searchPage, debouncedSearch, selectedCategory]);
-
-  const initializeMarketplace = async () => {
-    try {
-      // Parallel fetch: count, categories, and featured sections
-      const [countResult, categoriesResult, featuredResult, latestResult, trendingResult, upcomingResult] = await Promise.all([
-        supabase.from('software_catalog' as any).select('id', { count: 'exact', head: true }),
-        supabase.from('software_catalog' as any).select('category').not('category', 'is', null),
-        supabase.from('software_catalog' as any).select('*').order('created_at', { ascending: false }).limit(5),
-        supabase.from('software_catalog' as any).select('*').or('listing_status.eq.live,demo_url.not.is.null').order('created_at', { ascending: false }).limit(10),
-        supabase.from('software_catalog' as any).select('*').order('created_at', { ascending: false }).range(100, 115),
-        supabase.from('software_catalog' as any).select('*').or('listing_status.eq.upcoming,listing_status.eq.coming_soon').limit(10),
-      ]);
-
-      // Set total count
-      setTotalCount(countResult.count || 0);
-
-      // Extract unique categories
-      if (categoriesResult.data) {
-        const cats = Array.from(new Set(categoriesResult.data.map((p: any) => p.category).filter(Boolean) as string[])).sort();
-        setDynamicCategories(cats);
-      }
-
-      // Set featured sections
-      if (featuredResult.data) setFeaturedProducts(featuredResult.data.map(transformProduct));
-      if (latestResult.data && latestResult.data.length > 0) {
-        setLatestLaunches(latestResult.data.map(transformProduct));
-      } else if (featuredResult.data) {
-        setLatestLaunches(featuredResult.data.slice(0, 10).map(transformProduct));
-      }
-      if (trendingResult.data) setTrendingProducts(trendingResult.data.map(transformProduct));
-      if (upcomingResult.data) setUpcomingProducts(upcomingResult.data.map(transformProduct));
-
-    } catch (err) {
-      console.error('Failed to initialize marketplace:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchProductById = async (id: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('software_catalog' as any)
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (!error && data) {
-        setSelectedProduct(transformProduct(data));
-      }
-    } catch (err) {
-      console.error('Failed to fetch product:', err);
-    }
-  };
-
-  const performSearch = async (page: number, reset: boolean) => {
-    if (searchLoading) return;
-    setSearchLoading(true);
-
-    try {
-      const from = page * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-
-      let query = supabase
-        .from('software_catalog' as any)
-        .select('*')
-        .order('created_at', { ascending: false })
-        .range(from, to);
-
-      // Apply category filter
-      if (selectedCategory) {
-        query = query.ilike('category', selectedCategory);
-      }
-
-      // Apply text search using database ILIKE (faster than client-side)
-      if (debouncedSearch) {
-        query = query.or(`name.ilike.%${debouncedSearch}%,category.ilike.%${debouncedSearch}%`);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      const products = (data || []).map(transformProduct);
-
-      if (reset) {
-        setSearchResults(products);
-        setSearchPage(0);
-      } else {
-        setSearchResults(prev => [...prev, ...products]);
-        setSearchPage(page);
-      }
-
-      setHasMoreSearch(products.length === PAGE_SIZE);
-    } catch (err) {
-      console.error('Search failed:', err);
-    } finally {
-      setSearchLoading(false);
-    }
-  };
-
-  const loadCategoryProducts = useCallback(async (category: string) => {
-    if (categoryProducts[category] || categoryLoading[category]) return;
-
-    setCategoryLoading(prev => ({ ...prev, [category]: true }));
-
-    try {
-      const { data, error } = await supabase
-        .from('software_catalog' as any)
-        .select('*')
-        .ilike('category', category)
-        .order('created_at', { ascending: false })
-        .limit(CATEGORY_PREVIEW_SIZE);
-
-      if (!error && data) {
-        setCategoryProducts(prev => ({ ...prev, [category]: data.map(transformProduct) }));
-      }
-    } catch (err) {
-      console.error(`Failed to load ${category}:`, err);
-    } finally {
-      setCategoryLoading(prev => ({ ...prev, [category]: false }));
-    }
-  }, [categoryProducts, categoryLoading]);
-
-  const fetchFavorites = async () => {
-    try {
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      if (!authUser) return;
-      const { data } = await supabase
-        .from('product_favorites')
-        .select('product_id')
-        .eq('user_id', authUser.id);
-      if (data) setFavorites(new Set(data.map((favorite) => favorite.product_id)));
-    } catch {
-      // ignore
-    }
-  };
 
   const logEvent = async (
     eventType: string,
@@ -492,31 +259,7 @@ export const MMMarketplaceScreen = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-white" ref={scrollContainerRef}>
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-slate-950/95 backdrop-blur border-b border-slate-800 px-6 py-4">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Package className="w-6 h-6 text-cyan-400" />
-            <h1 className="text-xl font-bold">Software Marketplace</h1>
-            <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 text-xs">
-              {totalCount.toLocaleString()} Products
-            </Badge>
-          </div>
-          <div className="flex items-center gap-3 flex-1 max-w-xl">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-              <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search software..."
-                className="pl-10 bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
-              />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2">
-                  <X className="w-4 h-4 text-slate-500 hover:text-white" />
-                </button>
-              )}
-            </div>
-          </div>
+
         </div>
 
         {/* Partner Buttons */}
@@ -1048,46 +791,7 @@ function ProductCard({
   );
 }
 
-function ProductDetailDialog({
-  product,
-  open,
-  onClose,
-  onDemo,
-  onBuy,
-  isFav,
-  onFav,
-  formatPrice,
-}: {
-  product: Product;
-  open: boolean;
-  onClose: () => void;
-  onDemo: (p: Product) => void;
-  onBuy: (p: Product) => void;
-  isFav: boolean;
-  onFav: (id: string) => void;
-  formatPrice: (p: number | null) => string;
-}) {
-  const { speak, stop, isPlaying } = useValaVoice();
 
-  const handleVoice = () => {
-    if (isPlaying) {
-      stop();
-      return;
-    }
-    speak(`${product.product_name}. ${product.description || ''} Price: ${formatPrice(product.monthly_price)}`);
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl bg-slate-900 border-slate-700 text-white">
-        <DialogHeader>
-          <div className="flex items-start justify-between">
-            <div>
-              <DialogTitle className="text-xl">{product.product_name}</DialogTitle>
-              <div className="flex items-center gap-2 mt-2">
-                {product.category && (
-                  <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30">
-                    {CATEGORY_ICONS[product.category] || '📦'} {product.category}
                   </Badge>
                 )}
                 <Badge variant="outline" className="border-slate-600">{product.product_type || 'SaaS'}</Badge>
@@ -1156,28 +860,6 @@ function ProductDetailDialog({
               </div>
             )}
 
-            {/* GitHub */}
-            {product.github_repo_url && (
-              <div className="flex items-center gap-2 text-sm">
-                <Github className="w-4 h-4 text-slate-400" />
-                <a href={product.github_repo_url} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white">
-                  View Source
-                </a>
-              </div>
-            )}
-          </div>
-        </ScrollArea>
 
-        {/* Actions */}
-        <div className="flex gap-3 pt-4 border-t border-slate-700">
-          <Button onClick={() => onDemo(product)} variant="outline" className="flex-1 border-cyan-500 text-cyan-400">
-            <Play className="w-4 h-4 mr-2" /> Watch Demo
-          </Button>
-          <Button onClick={() => onBuy(product)} className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600">
-            <ShoppingCart className="w-4 h-4 mr-2" /> Purchase Now
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
   );
 }
