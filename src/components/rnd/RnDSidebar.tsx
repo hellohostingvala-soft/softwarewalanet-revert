@@ -25,11 +25,11 @@ const menuItems = [
   { id: "lead-manager", label: "Lead Manager", icon: Users, path: "/lead-manager" },
   { id: "task-manager", label: "Task Manager", icon: ListTodo, path: "/task-manager" },
   { id: "rnd", label: "R&D Department", icon: Lightbulb, path: "/rnd-dashboard", active: true },
-  { id: "wallet", label: "Wallet", icon: Wallet, path: "#" },
-  { id: "demo", label: "Demo Manager", icon: PlayCircle, path: "#" },
-  { id: "notifications", label: "Notifications", icon: Bell, path: "#", badge: 5 },
-  { id: "performance", label: "Performance", icon: BarChart3, path: "#" },
-  { id: "profile", label: "Profile", icon: User, path: "#" },
+  { id: "wallet", label: "Wallet", icon: Wallet, path: "/wallet" },
+  { id: "demo", label: "Demo Manager", icon: PlayCircle, path: "/demo-manager" },
+  { id: "notifications", label: "Notifications", icon: Bell, path: "/notifications", badge: 5 },
+  { id: "performance", label: "Performance", icon: BarChart3, path: "/performance" },
+  { id: "profile", label: "Profile", icon: User, path: "/profile" },
 ];
 
 export const RnDSidebar = () => {
@@ -81,7 +81,14 @@ export const RnDSidebar = () => {
           return (
             <motion.button
               key={item.id}
-              onClick={() => item.path !== "#" && navigate(item.path)}
+              onClick={() => {
+                if (item.path && item.path !== "#") {
+                  navigate(item.path);
+                } else {
+                  toast.info(`${item.label} module`, { description: 'Navigating to module...' });
+                  navigate(`/${item.id}`);
+                }
+              }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all ${
                 isActive 
                   ? "bg-gradient-to-r from-violet-600/30 to-cyan-600/30 text-white border border-violet-500/50" 

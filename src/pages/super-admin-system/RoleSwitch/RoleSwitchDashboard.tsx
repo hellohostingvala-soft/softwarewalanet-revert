@@ -1,48 +1,136 @@
-import { useEffect, useMemo, useState, useCallback, useRef } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef, lazy, Suspense } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Globe2, Bell, Timer, AlertCircle, Shield, Bot, MessageSquare, Loader2 } from "lucide-react";
+import { Globe2, Timer, AlertCircle, Shield, Home, ArrowLeft, ChevronRight, Crown, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { SafeAssistTrigger } from "@/components/support/SafeAssistTrigger";
 import { useAuth } from "@/hooks/useAuth";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
-import promiseIcon from "@/assets/promise-icon.jpg";
+import { RouteNotFoundScreen, LoadingSkeleton } from "@/components/shared/RouteLoadingFallback";
+import GlobalHeaderActions from "@/components/shared/GlobalHeaderActions";
+import ModuleBreadcrumb from "@/components/shared/ModuleBreadcrumb";
+import { useSidebarStore } from "@/stores/sidebarStore";
 
-import RoleSwitchSidebar, { ActiveRole, roleConfigs } from "@/components/super-admin-wireframe/RoleSwitchSidebar";
-import ContinentSuperAdminView from "./ContinentSuperAdminView";
-// AreaManagerView removed - merged into CountryHeadDashboard
-import ServerManagerView from "./ServerManagerView";
-import FranchiseManagerView from "./FranchiseManagerView";
-import SalesSupportManagerView from "./SalesSupportManagerView";
-import ResellerManagerView from "./ResellerManagerView";
-import LeadManagerView from "./LeadManagerView";
-import ProManagerView from "./ProManagerView";
-import LegalManagerView from "./LegalManagerView";
-import TaskManagementView from "./TaskManagementView";
-import FinanceManagerDashboard from "./FinanceManagerDashboard";
-import DeveloperManagementDashboard from "./DeveloperManagementDashboard";
-import MarketingManagementDashboard from "./MarketingManagementDashboard";
-import CustomerSupportManagementDashboard from "./CustomerSupportManagementDashboard";
-import RoleManagerDashboard from "./RoleManagerDashboard";
-import CountryHeadDashboard from "./CountryHeadDashboard";
-import ProductManagerDashboard from "./ProductManagerDashboard";
-import CEODashboard from "./CEODashboard";
-import BossOwnerDashboard from "./BossOwnerDashboard";
-import AdminDashboard from "./AdminDashboard";
+import RoleSwitchSidebarNew, { ActiveRole, roleConfigs } from "@/components/super-admin-wireframe/RoleSwitchSidebarNew";
+import { ControlPanelSidebar } from "@/components/super-admin-wireframe/ControlPanelSidebar";
+import { ControlPanelDashboard } from "@/components/super-admin-wireframe/ControlPanelDashboard";
+
+// ============================================
+// LAZY LOADED ROLE VIEWS - Prevents bundle bloat
+// ============================================
+
+const ModuleLoader = () => (
+  <div className="flex-1 flex items-center justify-center min-h-[400px]">
+    <div className="text-center space-y-3">
+      <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" />
+      <p className="text-sm text-muted-foreground">Loading module...</p>
+    </div>
+  </div>
+);
+
+// Helper to create lazy components with error handling
+const lazyWithRetry = (importFn: () => Promise<any>) => {
+  return lazy(() => 
+    importFn().catch((error) => {
+      console.error("Module load failed, retrying...", error);
+      // Retry once after a short delay
+      return new Promise(resolve => setTimeout(resolve, 100))
+        .then(() => importFn())
+        .catch(() => ({
+          default: () => (
+            <div className="flex-1 flex items-center justify-center min-h-[400px]">
+              <div className="text-center space-y-4">
+                <AlertCircle className="w-12 h-12 text-destructive mx-auto" />
+                <div>
+                  <p className="text-lg font-medium">Failed to load module</p>
+                  <p className="text-sm text-muted-foreground">Please refresh the page</p>
+                </div>
+                <Button onClick={() => window.location.reload()}>Refresh</Button>
+              </div>
+            </div>
+          )
+        }));
+    })
+  );
+};
+
+// Lazy load all heavy role views
+const ContinentSuperAdminView = lazyWithRetry(() => import("./ContinentSuperAdminView"));
+const ServerManagerView = lazyWithRetry(() => import("./ServerManagerView"));
+const FranchiseManagerView = lazyWithRetry(() => import("./FranchiseManagerView"));
+const SalesSupportManagerView = lazyWithRetry(() => import("./SalesSupportManagerView"));
+const ResellerManagerFullView = lazyWithRetry(() => import("./ResellerManagerFullView"));
+const LeadManagerView = lazyWithRetry(() => import("./LeadManagerView"));
+const LMFullLayout = lazyWithRetry(() => import("@/components/lead-manager/LMFullLayout"));
+const PTFullLayout = lazyWithRetry(() => import("@/components/promise-tracker/PTFullLayout"));
+const AMFullLayout = lazyWithRetry(() => import("@/components/assist-manager/AMFullLayout"));
+const ICBFullLayout = lazyWithRetry(() => import("@/components/internal-chatbot/ICBFullLayout"));
+const DMFullLayout = lazyWithRetry(() => import("@/components/developer-management/DMFullLayout"));
+const PROFullLayout = lazyWithRetry(() => import("@/components/pro-manager/PROFullLayout"));
+const LegalManagerView = lazyWithRetry(() => import("./LegalManagerView"));
+const TMFullLayout = lazyWithRetry(() => import("@/components/task-manager/TMFullLayout"));
+const IMFullLayout = lazyWithRetry(() => import("@/components/influencer-manager/IMFullLayout"));
+const MMFullLayout = lazyWithRetry(() => import("@/components/marketplace-manager/MMFullLayout").then(m => ({ default: m.MMFullLayout })));
+const FinanceManagerDashboard = lazyWithRetry(() => import("./FinanceManagerDashboard"));
+const ValaAIDashboard = lazyWithRetry(() => import("./ValaAIDashboard"));
+const MarketingManagementDashboard = lazyWithRetry(() => import("./MarketingManagementDashboard"));
+const MarketingManager = lazyWithRetry(() => import("@/pages/MarketingManager"));
+const FinanceManager = lazyWithRetry(() => import("@/pages/FinanceManager"));
+const CustomerSupportManagementDashboard = lazyWithRetry(() => import("./CustomerSupportManagementDashboard"));
+const RoleManagerDashboard = lazyWithRetry(() => import("./RoleManagerDashboard"));
+const RMEnterpriseLayout = lazyWithRetry(() => import("@/components/role-manager/RMEnterpriseLayout"));
+const CountryHeadDashboard = lazyWithRetry(() => import("@/components/country-dashboard/CountryAdminStripeAtlas"));
+const PMEnterpriseLayout = lazyWithRetry(() => import("@/components/product-manager/PMEnterpriseLayout"));
+const LMEnterpriseLayout = lazyWithRetry(() => import("@/components/legal-manager/LMEnterpriseLayout"));
+const AAMEnterpriseLayout = lazyWithRetry(() => import("@/components/api-ai-manager/AAMEnterpriseLayout"));
+const SecurityDashboard = lazyWithRetry(() => import("@/components/control-panel/SecurityDashboard"));
+const SettingsDashboard = lazyWithRetry(() => import("@/components/control-panel/SettingsDashboard"));
+const HomeDashboard = lazyWithRetry(() => import("@/components/control-panel/HomeDashboard"));
+const DemoManagerFullLayout = lazyWithRetry(() => import("@/components/demo-manager/DemoManagerFullLayout"));
+const CEODashboard = lazyWithRetry(() => import("./CEODashboard"));
+const CEOSidebar = lazyWithRetry(() => import("@/components/ceo/CEOSidebar"));
+const BossOwnerDashboard = lazyWithRetry(() => import("./BossOwnerDashboard"));
+const DeveloperManagementDashboard = lazyWithRetry(() => import("./DeveloperManagementDashboard"));
+const FranchiseDashboardEmbed = lazyWithRetry(() => import("@/pages/franchise/Dashboard"));
+const ResellerDashboardEmbed = lazyWithRetry(() => import("@/pages/ResellerDashboard"));
 
 // Define which roles can switch to which views
 const ROLE_VIEW_ACCESS: Record<string, ActiveRole[]> = {
-  boss_owner: Object.keys(roleConfigs) as ActiveRole[], // Boss Owner can view everything
-  master: Object.keys(roleConfigs) as ActiveRole[], // Legacy master role
-  ceo: Object.keys(roleConfigs) as ActiveRole[], // CEO can view everything (read-only)
-  admin: ['admin', 'continent_super_admin', 'country_head', 'franchise_manager', 'sales_support_manager', 'reseller_manager', 'lead_manager', 'pro_manager', 'legal_manager', 'task_management', 'finance_manager', 'developer_management', 'marketing_management', 'customer_support_management', 'role_manager', 'product_manager'],
+  boss_owner: Object.keys(roleConfigs) as ActiveRole[],
+  master: Object.keys(roleConfigs) as ActiveRole[],
+  ceo: Object.keys(roleConfigs) as ActiveRole[],
   super_admin: ['continent_super_admin', 'country_head', 'franchise_manager', 'sales_support_manager', 'reseller_manager', 'lead_manager'],
   continent_super_admin: ['continent_super_admin', 'country_head'],
   country_head: ['country_head'],
+};
+
+const SessionTimerDisplay = ({ accentColor }: { accentColor: string }) => {
+  const [seconds, setSeconds] = useState(0);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setSeconds((prev) => prev + 1);
+    }, 1000);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  const formatTime = (totalSeconds: number) => {
+    const hrs = Math.floor(totalSeconds / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+    return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  return (
+    <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20">
+      <Timer className={cn("w-4 h-4", accentColor)} />
+      <span className="text-sm font-mono text-foreground">{formatTime(seconds)}</span>
+    </div>
+  );
 };
 
 const RoleSwitchDashboard = () => {
@@ -50,12 +138,23 @@ const RoleSwitchDashboard = () => {
   const location = useLocation();
   const { userRole, isBossOwner, loading } = useAuth();
 
+  // Invisible debug logging (enable by setting localStorage.__sv_debug = '1')
+  const debug = useCallback((...args: unknown[]) => {
+    try {
+      if (localStorage.getItem('__sv_debug') === '1') {
+        // eslint-disable-next-line no-console
+        console.debug('[RoleSwitchDashboard]', ...args);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
   const requestedRole = useMemo(() => {
     const role = new URLSearchParams(location.search).get("role") as ActiveRole | null;
     return role && role in roleConfigs ? role : null;
   }, [location.search]);
 
-  // Determine default role based on user's actual role
   const getDefaultRole = useCallback((): ActiveRole => {
     if (isBossOwner) return "boss_owner";
     if (userRole === 'master') return "boss_owner";
@@ -68,52 +167,183 @@ const RoleSwitchDashboard = () => {
     return "continent_super_admin";
   }, [userRole, isBossOwner]);
 
-  // Check if user can access a specific view
   const canAccessView = useCallback((viewRole: ActiveRole): boolean => {
     if (isBossOwner) return true;
-    if (userRole === 'ceo') return true; // CEO can view all (read-only)
+    if (userRole === 'ceo') return true;
     const allowedViews = ROLE_VIEW_ACCESS[userRole || ''] || [];
     return allowedViews.includes(viewRole);
   }, [userRole, isBossOwner]);
 
-  const [activeRole, setActiveRole] = useState<ActiveRole>("continent_super_admin");
+  const [activeRole, setActiveRole] = useState<ActiveRole | null>(null);
   const [activeNav, setActiveNav] = useState("dashboard");
   const [selectedSubItem, setSelectedSubItem] = useState<string | undefined>(undefined);
   const [collapsed, setCollapsed] = useState(false);
-  const [sessionTime, setSessionTime] = useState(0);
   const [riskLevel] = useState<"low" | "medium" | "high">("low");
   const [liveAlerts] = useState(3);
-  const [promiseState, setPromiseState] = useState<'idle' | 'pending' | 'active'>('idle');
   const [initialized, setInitialized] = useState(false);
+  const [navHistory, setNavHistory] = useState<string[]>(['dashboard']);
   
-  const handlePromiseClick = useCallback(() => {
-    if (promiseState === 'idle') {
-      setPromiseState('pending');
-      toast.success('Promise mode activated');
-    } else if (promiseState === 'pending') {
-      setPromiseState('active');
-      toast.success('Task is now active');
-    } else {
-      setPromiseState('idle');
-      toast.info('Promise mode deactivated');
-    }
-  }, [promiseState]);
+  const isInControlPanelView = activeRole === null;
 
-  const handleChatbotClick = useCallback(() => {
-    toast.success('AI Assistant Ready', {
-      description: 'How can I help you today?'
-    });
+  const getHeaderRole = useCallback((): 'boss' | 'employee' | 'client' | 'super_admin' | 'manager' => {
+    if (isBossOwner || activeRole === 'boss_owner') return 'boss';
+    if (activeRole === 'ceo' || activeRole === 'continent_super_admin') return 'super_admin';
+    if (activeRole === 'server_manager' || activeRole === 'vala_ai_management') return 'manager';
+    return 'employee';
+  }, [isBossOwner, activeRole]);
+
+  const moduleViewIds = useMemo(() => [
+    'server-control', 'vala-ai', 'product-demo', 'leads', 'marketing',
+    'finance', 'franchise-control', 'reseller-control', 'sales-support',
+    'legal', 'task-management', 'hr-manager'
+  ], []);
+
+  const isInModuleView = useMemo(() => {
+    if (moduleViewIds.includes(activeNav)) return true;
+    if (activeRole !== null && activeRole !== 'boss_owner') return true;
+    return false;
+  }, [activeRole, activeNav, moduleViewIds]);
+  
+  const {
+    showGlobalSidebar,
+    enterCategory,
+    exitToGlobal,
+    categoryCollapsed,
+    canTransition,
+  } = useSidebarStore();
+  
+  const categoryMap: Record<string, 'server-manager' | 'vala-ai' | 'product-demo' | 'lead-manager' | 'marketing' | 'finance-manager' | 'franchise-manager' | 'reseller-manager' | 'sales-support' | 'legal' | 'task-management' | 'hr-manager'> = useMemo(() => ({
+    'server-control': 'server-manager',
+    'vala-ai': 'vala-ai',
+    'product-demo': 'product-demo',
+    'leads': 'lead-manager',
+    'marketing': 'marketing',
+    'finance': 'finance-manager',
+    'franchise-control': 'franchise-manager',
+    'reseller-control': 'reseller-manager',
+    'sales-support': 'sales-support',
+    'legal': 'legal',
+    'task-management': 'task-management',
+    'hr-manager': 'hr-manager',
+  }), []);
+  
+  const rolesWithInternalSidebars = useMemo(() => [
+    'ceo', 'vala_ai_management', 'developer_management', 'demo_manager',
+    'continent_super_admin', 'reseller_manager', 'finance_manager'
+  ], []);
+  
+  useEffect(() => {
+    if (!canTransition()) return;
+    
+    if (activeRole && rolesWithInternalSidebars.includes(activeRole)) {
+      showGlobalSidebar();
+      return;
+    }
+
+    if (isInModuleView) {
+      const categoryId = categoryMap[activeNav];
+      if (categoryId) {
+        enterCategory(categoryId);
+      } else {
+        showGlobalSidebar();
+      }
+    } else {
+      showGlobalSidebar();
+    }
+  }, [isInModuleView, activeNav, activeRole, showGlobalSidebar, enterCategory, categoryMap, canTransition, rolesWithInternalSidebars]);
+  
+  const shouldShowGlobalSidebar = !isInModuleView;
+
+  const navLabels: Record<string, string> = useMemo(() => ({
+    'dashboard': 'Dashboard',
+    'server-control': 'Server Control',
+    'vala-ai': 'VALA AI',
+    'product-demo': 'Product Demo',
+    'leads': 'Lead Management',
+    'marketing': 'Marketing',
+    'approvals': 'Approvals',
+    'franchise-control': 'Franchise Control',
+    'reseller-control': 'Reseller Control',
+    'finance': 'Finance',
+    'support-overview': 'Support',
+    'security': 'Security',
+    'settings': 'Settings',
+  }), []);
+
+  const breadcrumbItems = useMemo(() => {
+    const items: { label: string; onClick?: () => void; isActive?: boolean }[] = [];
+    
+    if (activeRole !== 'boss_owner') {
+      items.push({
+        label: roleConfigs[activeRole]?.label || activeRole,
+        isActive: activeNav === 'dashboard',
+        onClick: activeNav !== 'dashboard' ? () => {
+          setActiveNav('dashboard');
+          setSelectedSubItem(undefined);
+        } : undefined
+      });
+    } else {
+      items.push({
+        label: 'Boss Dashboard',
+        isActive: activeNav === 'dashboard' && !isInModuleView,
+        onClick: activeNav !== 'dashboard' ? () => {
+          setActiveNav('dashboard');
+          setSelectedSubItem(undefined);
+          setNavHistory(['dashboard']);
+        } : undefined
+      });
+    }
+    
+    if (activeNav !== 'dashboard') {
+      items.push({
+        label: navLabels[activeNav] || activeNav.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+        isActive: !selectedSubItem,
+        onClick: selectedSubItem ? () => setSelectedSubItem(undefined) : undefined
+      });
+    }
+    
+    if (selectedSubItem) {
+      items.push({
+        label: selectedSubItem.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+        isActive: true
+      });
+    }
+    
+    return items;
+  }, [activeRole, activeNav, selectedSubItem, isInModuleView, navLabels]);
+
+  const handleBack = useCallback(() => {
+    if (selectedSubItem) {
+      setSelectedSubItem(undefined);
+    } else if (activeNav !== 'dashboard') {
+      setActiveNav('dashboard');
+      setSelectedSubItem(undefined);
+    }
+  }, [selectedSubItem, activeNav]);
+
+  const handleHome = useCallback(() => {
+    setActiveRole(null);
+    setActiveNav('dashboard');
+    setSelectedSubItem(undefined);
+    setNavHistory(['dashboard']);
+    toast.success('Returned to Control Panel');
+  }, []);
+  
+  const handleBackToControlPanel = useCallback(() => {
+    setActiveRole(null);
+    setActiveNav('dashboard');
+    setSelectedSubItem(undefined);
+    toast.info('Returned to Control Panel');
   }, []);
 
-  // Initialize role based on URL or user's actual role
   const didInitRef = useRef(false);
   const prevRequestedRoleRef = useRef<ActiveRole | null>(null);
 
   useEffect(() => {
     if (loading) return;
 
-    // 1) If URL requests a role, always sync to it (if access allows)
     if (requestedRole && requestedRole !== prevRequestedRoleRef.current) {
+      debug('requestedRole change', { requestedRole, userRole, isBossOwner, url: window.location.href });
       prevRequestedRoleRef.current = requestedRole;
 
       if (canAccessView(requestedRole)) {
@@ -135,30 +365,13 @@ const RoleSwitchDashboard = () => {
       return;
     }
 
-    // 2) First mount with no requested role -> set default once
     if (!didInitRef.current && !requestedRole) {
-      setActiveRole(getDefaultRole());
+      debug('no requestedRole, start in control panel', { userRole, isBossOwner });
+      setActiveRole(null);
       didInitRef.current = true;
       setInitialized(true);
     }
   }, [requestedRole, loading, canAccessView, getDefaultRole]);
-
-  // Session timer (must never trigger navigation)
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      setSessionTime((prev) => prev + 1);
-    }, 1000);
-
-    return () => window.clearInterval(interval);
-  }, []);
-
-
-  const formatTime = (seconds: number) => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
 
   const handleLogout = async () => {
     try {
@@ -170,23 +383,59 @@ const RoleSwitchDashboard = () => {
     }
   };
 
-  const handleRoleChange = (role: ActiveRole) => {
-    // Check if user can access this view
+  const handleRoleChange = useCallback((role: ActiveRole) => {
     if (!canAccessView(role)) {
       toast.error("Access denied to this view");
       return;
     }
-    // NO REDIRECT - just switch the view in place
-    setActiveRole(role);
-    setActiveNav("dashboard"); // Reset nav when role changes
-    toast.success(`Switched to ${roleConfigs[role].label} view`);
-  };
 
-  const handleNavChange = (navId: string) => {
+    const nextUrl = `/super-admin-system/role-switch?role=${encodeURIComponent(role)}`;
+    debug('role select', { role, nextUrl });
+    window.location.assign(nextUrl);
+  }, [canAccessView, debug]);
+
+  const handleNavChange = useCallback((navId: string) => {
     setActiveNav(navId);
-  };
+    setSelectedSubItem(undefined);
+  }, []);
+  
+  useEffect(() => {
+    const handlePopState = () => {
+      const url = new URL(window.location.href);
+      const navParam = url.searchParams.get('nav');
+      if (!navParam) {
+        setActiveNav('dashboard');
+        setSelectedSubItem(undefined);
+      } else {
+        setActiveNav(navParam);
+      }
+    };
+    
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
-  const currentConfig = roleConfigs[activeRole];
+  const currentConfig = activeRole ? roleConfigs[activeRole] : {
+    id: 'control_panel',
+    label: 'Control Panel',
+    shortLabel: 'CP',
+    icon: Crown,
+    description: 'System Control Center',
+  };
+  
+  // Default accent color for timer
+  const timerAccentColor = 'text-primary';
+
+  if (loading || !initialized) {
+    return (
+      <div className={cn(
+        "dark min-h-screen flex items-center justify-center",
+        "bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950"
+      )}>
+        <LoadingSkeleton message="System is preparing this section" />
+      </div>
+    );
+  }
 
   const riskColors = {
     low: "bg-emerald-500/20 text-emerald-400 border-emerald-500/50",
@@ -194,277 +443,221 @@ const RoleSwitchDashboard = () => {
     high: "bg-red-500/20 text-red-400 border-red-500/50",
   };
 
-  // Render the appropriate view based on active role
+  // Render the appropriate view based on active role - wrapped in Suspense
   const renderRoleView = () => {
-    switch (activeRole) {
-      case "boss_owner":
-        return <BossOwnerDashboard />;
-      case "ceo":
-        return <CEODashboard />;
-      case "admin":
-        return <AdminDashboard />;
-      case "continent_super_admin":
-        return <ContinentSuperAdminView activeNav={activeNav} selectedSubItem={selectedSubItem} />;
-      case "country_head":
-        return <CountryHeadDashboard />;
-      case "server_manager":
-        return <ServerManagerView />;
-      case "franchise_manager":
-        return <FranchiseManagerView />;
-      case "sales_support_manager":
-        return <SalesSupportManagerView />;
-      case "reseller_manager":
-        return <ResellerManagerView />;
-      case "lead_manager":
-        return <LeadManagerView />;
-      case "pro_manager":
-        return <ProManagerView />;
-      case "legal_manager":
-        return <LegalManagerView />;
-      case "task_management":
-        return <TaskManagementView />;
-      case "finance_manager":
-        return <FinanceManagerDashboard />;
-      case "developer_management":
-        return <DeveloperManagementDashboard />;
-      case "marketing_management":
-        return <MarketingManagementDashboard />;
-      case "customer_support_management":
-        return <CustomerSupportManagementDashboard />;
-      case "role_manager":
-        return <RoleManagerDashboard />;
-      case "product_manager":
-        return <ProductManagerDashboard />;
-      default:
-        // Fallback to prevent blank screen - use proper error UI
-        return (
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="text-center p-8 bg-card/50 rounded-xl border border-border/50">
-              <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Dashboard Unavailable</h2>
-              <p className="text-muted-foreground mb-4">This role view is not configured or not available.</p>
-              <p className="text-xs text-muted-foreground">Error Code: 404-ROLE-VIEW-NOT-FOUND</p>
-            </div>
-          </div>
-        );
-    }
+    const content = (() => {
+      switch (activeRole) {
+        case "boss_owner":
+          return <BossOwnerDashboard activeNav={activeNav} />;
+        case "ceo":
+          return <CEODashboard activeNav={activeNav} />;
+        case "continent_super_admin":
+          return <ContinentSuperAdminView activeNav={activeNav} selectedSubItem={selectedSubItem} />;
+        case "country_head":
+          return (
+            <CountryHeadDashboard 
+              countryCode="IN" 
+              onBack={() => handleRoleChange("continent_super_admin")} 
+            />
+          );
+        case "server_manager":
+          return <ServerManagerView activeNav={activeNav} />;
+        case "franchise_manager":
+          return <FranchiseManagerView />;
+        case "franchise_dashboard":
+          return <FranchiseDashboardEmbed />;
+        case "sales_support_manager":
+          return <SalesSupportManagerView />;
+        case "reseller_manager":
+          return <ResellerManagerFullView onBack={() => setActiveRole("boss_owner")} />;
+        case "reseller_dashboard":
+          return <ResellerDashboardEmbed />;
+        case "lead_manager":
+          return <LMFullLayout />;
+        case "pro_manager":
+          return <PROFullLayout />;
+        case "legal_manager":
+          return <LMEnterpriseLayout />;
+        case "task_management":
+          return <TMFullLayout />;
+        case "finance_manager":
+          return <FinanceManager />;
+        case "vala_ai_management":
+          return <ValaAIDashboard />;
+        case "marketing_management":
+          return <MarketingManager />;
+        case "customer_support_management":
+          return <CustomerSupportManagementDashboard />;
+        case "role_manager":
+          return <RMEnterpriseLayout />;
+        case "product_manager":
+          return <PMEnterpriseLayout />;
+        case "demo_manager":
+          return <DemoManagerFullLayout />;
+        case "developer_management":
+          return <DMFullLayout />;
+        case "api_ai_manager":
+          return <AAMEnterpriseLayout />;
+        case "promise_tracker_manager":
+          return <PTFullLayout />;
+        case "assist_manager":
+          return <AMFullLayout />;
+        case "internal_chatbot":
+          return <ICBFullLayout />;
+        case "influencer_manager":
+          return <IMFullLayout />;
+        case "marketplace_manager":
+          return <MMFullLayout />;
+        case "seo_manager":
+          return <MarketingManager />;
+        case "influencer_dashboard":
+          return <IMFullLayout />;
+        case "developer_dashboard":
+          return <DMFullLayout />;
+        case "pro_user_dashboard":
+          return <PROFullLayout />;
+        case "basic_user_dashboard":
+          return <ControlPanelDashboard />;
+        case "home":
+          return <HomeDashboard />;
+        case "security":
+          return <SecurityDashboard />;
+        case "settings":
+          return <SettingsDashboard />;
+        case null:
+          return <ControlPanelDashboard />;
+        default:
+          return (
+            <RouteNotFoundScreen 
+              attemptedRoute={`Role: ${activeRole}`}
+              onGoBack={() => {
+                setActiveRole(null);
+                setActiveNav('dashboard');
+              }}
+            />
+          );
+      }
+    })();
+
+    return (
+      <Suspense fallback={<ModuleLoader />}>
+        {content}
+      </Suspense>
+    );
   };
+
+  // Roles that are full-screen standalone modules with their own headers
+  const fullScreenRoles: (ActiveRole | null)[] = ['continent_super_admin', 'country_head', 'finance_manager', 'reseller_dashboard'];
+  const isFullScreenModule = fullScreenRoles.includes(activeRole);
+
+  // Roles that use their own light/custom theme (not dark parent wrapper)
+  const lightThemeRoles: (ActiveRole | null)[] = ['finance_manager', 'reseller_dashboard'];
+  const isLightThemeModule = lightThemeRoles.includes(activeRole);
+
+  // Full-screen modules render without the parent header/sidebar
+  if (isFullScreenModule) {
+    // Light-theme modules get a clean wrapper without dark class or dark background
+    if (isLightThemeModule) {
+      return (
+        <div className="min-h-screen w-full">
+          <ErrorBoundary>
+            <Suspense fallback={<ModuleLoader />}>
+              {renderRoleView()}
+            </Suspense>
+          </ErrorBoundary>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="dark min-h-screen flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+        <ErrorBoundary>
+          <Suspense fallback={<ModuleLoader />}>
+            {renderRoleView()}
+          </Suspense>
+        </ErrorBoundary>
+      </div>
+    );
+  }
 
   return (
     <div className={cn(
-      "min-h-screen flex flex-col transition-colors duration-300",
-      activeRole === "boss_owner" ? "bg-gradient-to-br from-amber-950/30 via-zinc-950 to-orange-950/20" :
-      activeRole === "ceo" ? "bg-gradient-to-br from-emerald-950/20 via-background to-teal-950/20" :
-      activeRole === "admin" ? "bg-gradient-to-br from-purple-950/20 via-background to-violet-950/20" :
-      activeRole === "country_head" ? "bg-gradient-to-br from-orange-950/20 via-background to-amber-950/20" :
-      activeRole === "server_manager" || activeRole === "developer_management" ? "bg-zinc-950" : 
-      activeRole === "marketing_management" ? "bg-gradient-to-br from-pink-950/20 via-background to-rose-950/20" :
-      activeRole === "customer_support_management" ? "bg-gradient-to-br from-blue-950/20 via-background to-indigo-950/20" :
-      activeRole === "role_manager" ? "bg-gradient-to-br from-violet-950/20 via-background to-purple-950/20" :
-      activeRole === "product_manager" ? "bg-gradient-to-br from-indigo-950/20 via-background to-violet-950/20" : "bg-background"
+      "dark min-h-screen flex flex-col transition-colors duration-300",
+      "bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950"
     )}>
-      {/* TOP BAR */}
+      {/* TOP HEADER */}
       <header className={cn(
         "h-16 backdrop-blur-xl border-b flex items-center justify-between px-6 z-50 transition-colors duration-300",
-        "bg-gradient-to-r from-[#0d0d14] via-[#12121a] to-[#0d0d14] border-amber-500/20"
+        "bg-gradient-to-r from-[#0a1628] via-[#0d1b2a] to-[#0a1628] border-[#1e3a5f]",
+        shouldShowGlobalSidebar && "ml-[320px]"
       )}>
-        {/* Left - Current Role Badge */}
         <div className="flex items-center gap-4">
-          <div className={cn(
-            "w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br",
-            currentConfig.themeColor
-          )}>
-            <currentConfig.icon className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="font-bold text-foreground">{currentConfig.label}</h1>
-            <p className="text-xs text-muted-foreground">{currentConfig.description}</p>
-          </div>
-          <Badge variant="outline" className={cn("ml-4", currentConfig.accentColor, currentConfig.borderAccent)}>
-            <Globe2 className="w-3 h-3 mr-1" />
-            GLOBAL SCOPE
-          </Badge>
-        </div>
-
-        {/* Center - Status */}
-        <div className="flex items-center gap-6">
-          {/* Live Alerts */}
-          <div className="flex items-center gap-2">
-            <Bell className="w-4 h-4 text-orange-400 animate-pulse" />
-            <span className="text-sm font-mono text-orange-400">{liveAlerts} Live Alerts</span>
-          </div>
-
-          {/* Risk Indicator */}
-          <Badge className={cn("font-mono uppercase", riskColors[riskLevel])}>
-            <AlertCircle className="w-3 h-3 mr-1" />
-            Risk: {riskLevel}
-          </Badge>
-
-          {/* Session Timer */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
-            <Timer className={cn("w-4 h-4", currentConfig.accentColor)} />
-            <span className="text-sm font-mono text-foreground">{formatTime(sessionTime)}</span>
+          {(!isInControlPanelView || isInModuleView) && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleBackToControlPanel}
+              className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center transition-all group"
+              title="← Back to Control Panel"
+            >
+              <ArrowLeft className="w-5 h-5 text-blue-400 group-hover:text-blue-300" />
+            </motion.button>
+          )}
+          
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+              <span className="text-white font-bold text-lg">SV</span>
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-white tracking-tight">Software Vala</h1>
+              <p className="text-xs text-white/60 font-medium">
+                {isInControlPanelView ? 'Super Admin' : (currentConfig.label || 'Module')}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Right - Action Buttons & Profile */}
-        <div className="flex items-center gap-3">
-          {/* Promise Button */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handlePromiseClick}
-            className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-xl font-medium text-sm transition-all shadow-md",
-              promiseState === 'active'
-                ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white border border-green-400/50'
-                : promiseState === 'pending'
-                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border border-amber-400/50 animate-pulse'
-                : 'bg-secondary/80 text-foreground border border-border/50 hover:border-primary/50'
-            )}
-          >
-            <img src={promiseIcon} alt="Promise" className="w-5 h-5 rounded-full object-cover" />
-            <span className="hidden lg:inline">
-              {promiseState === 'active' ? 'Active' : promiseState === 'pending' ? 'Promise' : 'No Task'}
-            </span>
-          </motion.button>
-
-          {/* Safe Assist Button */}
-          <SafeAssistTrigger variant="compact" />
-
-          {/* AI Chatbot Button */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleChatbotClick}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium text-sm shadow-lg border border-purple-400/30"
-          >
-            <Bot className="w-4 h-4" />
-            <span className="hidden lg:inline">AI Chat</span>
-          </motion.button>
-
-          {/* Alerts Button */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={cn(
-              "relative flex items-center gap-2 px-3 py-2 rounded-xl font-medium text-sm transition-all shadow-md",
-              liveAlerts > 0
-                ? "bg-gradient-to-r from-red-600 to-rose-600 text-white border border-red-400/50"
-                : "bg-secondary/80 text-foreground border border-border/50"
-            )}
-          >
-            <Bell className="w-4 h-4" />
-            <span className="hidden lg:inline">Alerts</span>
-            {liveAlerts > 0 && (
-              <span className="absolute -top-2 -right-2 w-5 h-5 bg-white text-red-600 text-xs rounded-full flex items-center justify-center font-bold shadow-md">
-                {liveAlerts}
-              </span>
-            )}
-          </motion.button>
-
-          {/* Internal Chat */}
-          <Button variant="ghost" size="icon" onClick={() => navigate('/internal-chat')}>
-            <MessageSquare className="w-5 h-5" />
-          </Button>
-
-          {/* Profile */}
-          <div className="text-right hidden md:block">
-            <p className="text-sm font-medium">Boss</p>
-            <p className="text-xs text-muted-foreground font-mono">BO-XXXX-001</p>
+        {(!isInControlPanelView || isInModuleView) && (
+          <div className="absolute left-1/2 transform -translate-x-1/2">
+            <span className="text-lg font-semibold text-white">{currentConfig.label}</span>
           </div>
-          <div className={cn(
-            "w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br",
-            currentConfig.themeColor
-          )}>
-            <Shield className="w-5 h-5 text-white" />
-          </div>
+        )}
+
+        <div className="flex items-center gap-4">
+          <Badge className={cn("px-3 py-1 border font-medium", riskColors[riskLevel])}>
+            <Shield className="w-3 h-3 mr-1.5" />
+            {riskLevel.toUpperCase()} RISK
+          </Badge>
+          
+          <SessionTimerDisplay accentColor={timerAccentColor} />
+          
+          <GlobalHeaderActions 
+            userRole={getHeaderRole()} 
+            alertCount={liveAlerts} 
+          />
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Role Switch Sidebar */}
-        <RoleSwitchSidebar
-          activeRole={activeRole}
-          onRoleChange={handleRoleChange}
-          collapsed={collapsed}
-          onToggleCollapse={() => setCollapsed(!collapsed)}
-          onLogout={handleLogout}
-          activeNav={activeNav}
-          onNavChange={handleNavChange}
-          onSubItemClick={(subItemId) => setSelectedSubItem(subItemId)}
-        />
+      <div className="flex flex-1 overflow-hidden">
+        {/* SIDEBAR: Only Control Panel sidebar when in Control Panel */}
+        {shouldShowGlobalSidebar && (
+          <ControlPanelSidebar
+            activeRole={activeRole as any}
+            onRoleSelect={(role) => handleRoleChange(role as ActiveRole)}
+            onLogout={handleLogout}
+          />
+        )}
 
-        {/* Dynamic Role View */}
-        <main className="flex-1 overflow-auto">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeRole}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-              className="h-full"
-            >
-              <ErrorBoundary
-                onError={(error) => {
-                  // Never allow a crash to become a blank screen
-                  console.error("Role dashboard crashed", { role: activeRole, error });
-                  toast.error("Dashboard failed to load", {
-                    description: "Something went wrong while opening this role.",
-                  });
-                }}
-                fallback={
-                  <div className="flex items-center justify-center min-h-[60vh]">
-                    <div className="text-center p-8 bg-card/50 rounded-xl border border-border/50 max-w-md">
-                      <Shield className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
-                      <p className="text-muted-foreground mb-6">This dashboard failed to render. You can retry or switch roles.</p>
-                      <div className="flex items-center justify-center gap-3">
-                        <Button variant="outline" onClick={() => window.location.reload()}>
-                          Reload dashboard
-                        </Button>
-                        <Button onClick={() => navigate("/super-admin-system/role-switch", { replace: true })}>
-                          Back to Role Switch
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                }
-              >
-                {renderRoleView()}
-              </ErrorBoundary>
-            </motion.div>
-          </AnimatePresence>
+        {/* MAIN CONTENT */}
+        <main className={cn(
+          "flex-1 overflow-auto transition-all duration-300",
+          shouldShowGlobalSidebar && "ml-[320px]"
+        )}>
+          <ErrorBoundary>
+            {renderRoleView()}
+          </ErrorBoundary>
         </main>
       </div>
-
-      {/* FOOTER */}
-      <footer className={cn(
-        "h-12 backdrop-blur-xl border-t flex items-center justify-between px-6 transition-colors duration-300",
-        activeRole === "server_manager" 
-          ? "bg-zinc-900/80 border-zinc-700" 
-          : "bg-card/80 border-border/50"
-      )}>
-        <div className="flex items-center gap-4">
-          <span className="text-xs text-muted-foreground font-mono">
-            View: <span className={currentConfig.accentColor}>{currentConfig.label}</span>
-          </span>
-          <span className="text-xs text-muted-foreground">|</span>
-          <span className="text-xs text-muted-foreground font-mono">
-            Scope: Global
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-xs text-muted-foreground">
-            Session ID: <span className="font-mono text-foreground">SES-{Date.now().toString(36).toUpperCase()}</span>
-          </span>
-          <Badge variant="outline" className="text-emerald-400 border-emerald-500/50 text-xs">
-            Secure Connection
-          </Badge>
-        </div>
-      </footer>
     </div>
   );
 };

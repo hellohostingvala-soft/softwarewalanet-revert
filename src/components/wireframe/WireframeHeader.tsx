@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Bell, 
   Search, 
@@ -10,7 +11,8 @@ import {
   User,
   Check,
   X,
-  Clock
+  Clock,
+  LogOut
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +24,7 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface WireframeHeaderProps {
   theme: 'dark' | 'light';
@@ -43,11 +46,26 @@ const mockBuzzerAlerts = [
 
 export function WireframeHeader({ theme, onThemeToggle, onChatToggle }: WireframeHeaderProps) {
   const isDark = theme === 'dark';
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState(mockNotifications);
   const [buzzerAlerts, setBuzzerAlerts] = useState(mockBuzzerAlerts);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await supabase.auth.signOut();
+      toast.success('Logged out successfully');
+      navigate('/login');
+    } catch (error) {
+      toast.error('Failed to logout');
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   const handleMarkAsRead = (id: number) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
@@ -281,14 +299,22 @@ export function WireframeHeader({ theme, onThemeToggle, onChatToggle }: Wirefram
           </PopoverTrigger>
           <PopoverContent className={`w-48 ${isDark ? 'bg-slate-900 border-slate-800' : ''}`} align="end">
             <div className="space-y-1">
-              <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => toast.info('Opening profile...')}>
+              <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => navigate('/profile')}>
+                <User className="h-4 w-4 mr-2" />
                 My Profile
               </Button>
-              <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => toast.info('Opening settings...')}>
+              <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => navigate('/settings')}>
                 Settings
               </Button>
-              <Button variant="ghost" size="sm" className="w-full justify-start text-red-500 hover:text-red-500" onClick={() => toast.info('Logging out...')}>
-                Logout
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="w-full justify-start text-red-500 hover:text-red-500" 
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                {isLoggingOut ? 'Logging out...' : 'Logout'}
               </Button>
             </div>
           </PopoverContent>

@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, Inbox, AlertCircle, MessageCircle, 
   ArrowUpRight, BookOpen, BarChart3, Heart, FileText, Settings, LogOut, Lock,
-  ArrowLeft, KeyRound
+  ArrowLeft, KeyRound, Hash, Users, Clock, Zap, MessageSquare, Shield, Activity,
+  Calendar, Brain, Target, Layers, CheckSquare, Database
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -16,23 +17,45 @@ import SolutionWiki from '@/components/support/SolutionWiki';
 import PerformancePanel from '@/components/support/PerformancePanel';
 import SupportNotifications from '@/components/support/SupportNotifications';
 import AITroubleshooter from '@/components/support/AITroubleshooter';
+import TokenSystem from '@/components/support/TokenSystem';
+import OmniChannelInbox from '@/components/support/OmniChannelInbox';
+import Customer360Panel from '@/components/support/Customer360Panel';
+import SLAManagement from '@/components/support/SLAManagement';
+import AIFeaturesPanel from '@/components/support/AIFeaturesPanel';
+import ShiftAvailability from '@/components/support/ShiftAvailability';
+import FraudDetection from '@/components/support/FraudDetection';
+import SupportAnalytics from '@/components/support/SupportAnalytics';
+import CannedResponses from '@/components/support/CannedResponses';
+import TokenCommandCenter from '@/components/support/TokenCommandCenter';
+import QualityAudit from '@/components/support/QualityAudit';
+import ApprovalWorkflow from '@/components/support/ApprovalWorkflow';
+import SystemLogs from '@/components/support/SystemLogs';
 
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'command', label: 'Token Command', icon: Layers, badge: 'LIVE' },
   { id: 'inbox', label: 'Ticket Inbox', icon: Inbox, badge: '12' },
+  { id: 'tokens', label: 'Token System', icon: Hash, badge: '5' },
   { id: 'priority', label: 'Priority Queue', icon: AlertCircle, badge: '3' },
-  { id: 'chat', label: 'Chat / Call Support', icon: MessageCircle },
-  { id: 'escalation', label: 'Developer Escalation', icon: ArrowUpRight },
-  { id: 'wiki', label: 'Solution Wiki', icon: BookOpen },
-  { id: 'performance', label: 'Performance', icon: BarChart3 },
-  { id: 'behavior', label: 'Behavior Score', icon: Heart },
-  { id: 'logs', label: 'Logs', icon: FileText },
+  { id: 'omnichannel', label: 'Omni-Channel', icon: MessageSquare, badge: '6' },
+  { id: 'sla', label: 'SLA Management', icon: Clock },
+  { id: 'approvals', label: 'Approvals', icon: CheckSquare, badge: '4' },
+  { id: 'escalation', label: 'Escalations', icon: ArrowUpRight },
+  { id: 'canned', label: 'Canned Responses', icon: MessageCircle },
+  { id: 'wiki', label: 'Knowledge Base', icon: BookOpen },
+  { id: 'ai', label: 'AI Automation', icon: Brain },
+  { id: 'shifts', label: 'Shift & Availability', icon: Calendar },
+  { id: 'fraud', label: 'Fraud Detection', icon: Shield },
+  { id: 'quality', label: 'Quality & Audit', icon: Target },
+  { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+  { id: 'logs', label: 'System Logs', icon: Database },
 ];
 
 const SupportDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [showNotifications, setShowNotifications] = useState(false);
   const [showAIPanel, setShowAIPanel] = useState(false);
+  const [showCustomer360, setShowCustomer360] = useState(false);
   const navigate = useNavigate();
   const { signOut } = useAuth();
 
@@ -46,14 +69,38 @@ const SupportDashboard = () => {
     switch (activeSection) {
       case 'dashboard':
         return <SupportMetrics />;
+      case 'command':
+        return <TokenCommandCenter />;
       case 'inbox':
         return <TicketInbox />;
+      case 'tokens':
+        return <TokenSystem />;
       case 'priority':
+      case 'escalation':
         return <PriorityQueue />;
+      case 'omnichannel':
+        return <OmniChannelInbox />;
+      case 'sla':
+        return <SLAManagement />;
+      case 'approvals':
+        return <ApprovalWorkflow />;
+      case 'canned':
+        return <CannedResponses />;
       case 'wiki':
         return <SolutionWiki />;
-      case 'performance':
-      case 'behavior':
+      case 'ai':
+        return <AIFeaturesPanel />;
+      case 'shifts':
+        return <ShiftAvailability />;
+      case 'fraud':
+        return <FraudDetection />;
+      case 'quality':
+        return <QualityAudit />;
+      case 'analytics':
+        return <SupportAnalytics />;
+      case 'logs':
+        return <SystemLogs />;
+      case 'activity':
         return <PerformancePanel />;
       default:
         return <SupportMetrics />;
@@ -240,6 +287,10 @@ const SupportDashboard = () => {
         {showAIPanel && (
           <AITroubleshooter isOpen={showAIPanel} onClose={() => setShowAIPanel(false)} />
         )}
+        <Customer360Panel 
+          isOpen={showCustomer360} 
+          onClose={() => setShowCustomer360(false)} 
+        />
       </AnimatePresence>
     </div>
   );

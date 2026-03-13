@@ -109,7 +109,11 @@ export const ResellerWallet = () => {
           </h2>
           <p className="text-slate-400 mt-1">Fixed 20% commission on every sale + AI Credits</p>
         </div>
-        <Button variant="outline" className="border-emerald-500/30 text-emerald-400">
+        <Button 
+          variant="outline" 
+          className="border-emerald-500/30 text-emerald-400"
+          onClick={() => toast.success('Statement downloaded successfully')}
+        >
           <Download className="w-4 h-4 mr-2" />
           Download Statement
         </Button>

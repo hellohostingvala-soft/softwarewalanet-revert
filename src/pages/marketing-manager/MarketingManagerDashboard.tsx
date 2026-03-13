@@ -2,18 +2,9 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { 
-  LayoutDashboard, 
-  Megaphone, 
-  Gift, 
-  MapPin, 
-  Image, 
-  Calendar, 
-  TrendingUp, 
-  CheckCircle, 
-  FileText, 
-  Shield,
-  LogOut,
-  Activity
+  LayoutDashboard, Megaphone, Gift, MapPin, Image, Calendar, 
+  TrendingUp, CheckCircle, FileText, Shield, LogOut, Activity,
+  Layers, Brain, Target
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -22,6 +13,9 @@ import { toast } from "sonner";
 // Import screens
 import MMOverview from "./screens/MMOverview";
 import MMCampaigns from "./screens/MMCampaigns";
+import MMCampaignBuilder from "./screens/MMCampaignBuilder";
+import MMCampaignHierarchy from "./screens/MMCampaignHierarchy";
+import MMAIAutomation from "./screens/MMAIAutomation";
 import MMOffersFestivals from "./screens/MMOffersFestivals";
 import MMLocationTargeting from "./screens/MMLocationTargeting";
 import MMCreativesLibrary from "./screens/MMCreativesLibrary";
@@ -30,15 +24,23 @@ import MMPerformance from "./screens/MMPerformance";
 import MMApprovals from "./screens/MMApprovals";
 import MMReports from "./screens/MMReports";
 import MMAudit from "./screens/MMAudit";
-
+import MMSEOManagement from "./screens/MMSEOManagement";
+import MMLeadSources from "./screens/MMLeadSources";
+import MMContentLibrary from "./screens/MMContentLibrary";
+import MMROIAnalytics from "./screens/MMROIAnalytics";
 const sidebarItems = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "campaigns", label: "Campaigns", icon: Megaphone },
+  { id: "campaign-builder", label: "Campaign Builder", icon: Target },
+  { id: "hierarchy", label: "Campaign Hierarchy", icon: Layers },
+  { id: "seo", label: "SEO Management", icon: TrendingUp },
+  { id: "lead-sources", label: "Lead Sources", icon: MapPin },
+  { id: "content", label: "Content Library", icon: Image },
   { id: "offers", label: "Offers & Festivals", icon: Gift },
   { id: "targeting", label: "Location Targeting", icon: MapPin },
-  { id: "creatives", label: "Creatives Library", icon: Image },
   { id: "schedules", label: "Schedules", icon: Calendar },
-  { id: "performance", label: "Performance", icon: TrendingUp },
+  { id: "analytics", label: "ROI Analytics", icon: TrendingUp },
+  { id: "ai-automation", label: "AI Automation", icon: Brain },
   { id: "approvals", label: "Approvals", icon: CheckCircle },
   { id: "reports", label: "Reports", icon: FileText },
   { id: "audit", label: "Audit", icon: Shield },
@@ -85,11 +87,16 @@ const MarketingManagerDashboard = () => {
     switch (activeScreen) {
       case "overview": return <MMOverview />;
       case "campaigns": return <MMCampaigns />;
+      case "campaign-builder": return <MMCampaignBuilder />;
+      case "hierarchy": return <MMCampaignHierarchy />;
+      case "seo": return <MMSEOManagement />;
+      case "lead-sources": return <MMLeadSources />;
+      case "content": return <MMContentLibrary />;
       case "offers": return <MMOffersFestivals />;
       case "targeting": return <MMLocationTargeting />;
-      case "creatives": return <MMCreativesLibrary />;
       case "schedules": return <MMSchedules />;
-      case "performance": return <MMPerformance />;
+      case "analytics": return <MMROIAnalytics />;
+      case "ai-automation": return <MMAIAutomation />;
       case "approvals": return <MMApprovals />;
       case "reports": return <MMReports />;
       case "audit": return <MMAudit />;

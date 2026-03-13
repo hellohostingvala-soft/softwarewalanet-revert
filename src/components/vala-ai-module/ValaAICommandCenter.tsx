@@ -1,0 +1,503 @@
+/**
+ * VALA AI ENGINE - LOVABLE-STYLE BUILDER INTERFACE
+ * ================================================
+ * Split-pane: Left Chat + Right Preview/Code
+ * ================================================
+ */
+
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { LiveActivityPipeline } from './LiveActivityPipeline';
+import ReactMarkdown from 'react-markdown';
+import { supabase } from '@/integrations/supabase/client';
+
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+
+
+// ===== TYPES =====
+type Message = {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+};
+
+type WorkspaceTab = 'preview' | 'code';
+
+type FileNode = {
+  name: string;
+  type: 'file' | 'folder';
+  children?: FileNode[];
+  content?: string;
+};
+
+
+
+const ValaAICommandCenter: React.FC = () => {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      role: 'assistant',
+      content: "Hi! I'm **VALA AI** — your enterprise software builder. Describe what you want to build and I'll generate the full architecture, code, and deployment plan.\n\nTry something like:\n- *\"Build a restaurant POS with table management\"*\n- *\"Create a CRM with lead tracking and analytics\"*\n- *\"Design an inventory management system\"*",
+      timestamp: new Date(),
+    }
+  ]);
+  const [input, setInput] = useState('');
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [activeTab, setActiveTab] = useState<WorkspaceTab>('preview');
+  const [showFileTree, setShowFileTree] = useState(true);
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [fileContent, setFileContent] = useState('');
+  const [previewHtml, setPreviewHtml] = useState('<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0f172a;color:white;font-family:system-ui;"><div style="text-align:center;"><h1 style="font-size:2rem;margin-bottom:1rem;">🚀 VALA AI Preview</h1><p style="color:rgba(255,255,255,0.6);">Your generated app will appear here</p></div></div>');
+  const [previewKey, setPreviewKey] = useState(0);
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
+
+  // Auto-publish state
+  const { publish, isPublishing, lastResult } = useAutoPublish();
+  const [showPublishDialog, setShowPublishDialog] = useState(false);
+  const [publishForm, setPublishForm] = useState({
+    productName: '',
+    description: '',
+    category: 'General',
+    type: 'SaaS',
+    price: 249,
+    githubRepoUrl: '',
+  });
+  const hasGeneratedContent = messages.length > 1 && messages.some(m => m.role === 'assistant' && m.content.length > 200);
+  const [copied, setCopied] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const handleSend = useCallback(async () => {
+    if (!input.trim() || isStreaming) return;
+
+
+    const upsertAssistant = (chunk: string) => {
+      assistantContent += chunk;
+      setMessages(prev => {
+        const last = prev[prev.length - 1];
+        if (last?.role === 'assistant' && last.id.startsWith('stream-')) {
+          return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: assistantContent } : m);
+        }
+        return [...prev, { id: `stream-${Date.now()}`, role: 'assistant', content: assistantContent, timestamp: new Date() }];
+      });
+    };
+
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  const handleFileSelect = (name: string, content: string) => {
+    setSelectedFile(name);
+    setFileContent(content);
+    setActiveTab('code');
+  };
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(fileContent);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleNewChat = () => {
+    setMessages([{
+      id: '1',
+      role: 'assistant',
+      content: "New session started! What would you like to build?",
+      timestamp: new Date(),
+    }]);
+  };
+
+  const handlePublishToMarketplace = async () => {
+    // Extract features/tech from the AI conversation
+    const allAssistantContent = messages
+      .filter(m => m.role === 'assistant')
+      .map(m => m.content)
+      .join('\n');
+
+    const features: string[] = [];
+    const techStack: string[] = [];
+    
+    // Simple extraction from build output
+    const featureMatches = allAssistantContent.match(/[-•]\s*\*\*(.+?)\*\*/g);
+    if (featureMatches) {
+      featureMatches.slice(0, 10).forEach(f => features.push(f.replace(/[-•]\s*\*\*/g, '').replace(/\*\*/g, '')));
+    }
+
+    await publish({
+      productName: publishForm.productName,
+      description: publishForm.description || `${publishForm.productName} - Auto-generated by VALA AI`,
+      category: publishForm.category,
+      type: publishForm.type,
+      price: publishForm.price,
+      features,
+      techStack,
+      githubRepoUrl: publishForm.githubRepoUrl || undefined,
+      buildOutput: allAssistantContent.slice(0, 3000),
+    });
+
+    setShowPublishDialog(false);
+  };
+
+  return (
+
+            </Button>
+          </div>
+        </div>
+
+        {/* Chat Messages */}
+        <ScrollArea className="flex-1 px-4 py-4">
+          <div className="space-y-4">
+            {messages.map((msg) => (
+              <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
+                {msg.role === 'assistant' && (
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)' }}>
+                    <Bot className="w-4 h-4 text-white" />
+                  </div>
+                )}
+                <div
+                  className="max-w-[85%] rounded-xl px-3.5 py-2.5 text-sm leading-relaxed"
+                  style={{
+                    background: msg.role === 'user' ? '#2563eb' : 'rgba(255,255,255,0.06)',
+                    color: msg.role === 'user' ? '#fff' : 'rgba(255,255,255,0.85)',
+                  }}
+                >
+                  {msg.role === 'assistant' ? (
+                    <div className="prose prose-sm prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_code]:bg-white/10 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs [&_pre]:bg-black/40 [&_pre]:rounded-lg [&_pre]:p-3 [&_pre]:my-2 [&_h2]:text-base [&_h2]:mt-3 [&_h2]:mb-1 [&_h3]:text-sm [&_h3]:mt-2 [&_h3]:mb-1 [&_strong]:text-white">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <p className="whitespace-pre-wrap">{msg.content}</p>
+                  )}
+                </div>
+                {msg.role === 'user' && (
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                    <User className="w-4 h-4 text-white/60" />
+                  </div>
+                )}
+              </div>
+            ))}
+            {isStreaming && messages[messages.length - 1]?.role !== 'assistant' && (
+              <div className="flex gap-3">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)' }}>
+                  <Bot className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                  <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
+                  <span className="text-sm text-white/50">Thinking...</span>
+                </div>
+              </div>
+            )}
+            <div ref={chatEndRef} />
+          </div>
+        </ScrollArea>
+
+        {/* Chat Input */}
+        <div className="p-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="relative rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Describe what you want to build..."
+              rows={3}
+              className="w-full bg-transparent text-white text-sm px-4 py-3 resize-none outline-none placeholder:text-white/30"
+              disabled={isStreaming}
+            />
+            <div className="flex items-center justify-between px-3 py-2">
+              <span className="text-[10px] text-white/20">Shift+Enter for new line</span>
+              <Button
+                size="sm"
+                onClick={handleSend}
+                disabled={!input.trim() || isStreaming}
+                className="h-7 px-3 text-xs gap-1.5 rounded-lg"
+                style={{ background: input.trim() ? '#2563eb' : 'rgba(255,255,255,0.06)', color: input.trim() ? '#fff' : 'rgba(255,255,255,0.3)' }}
+              >
+                {isStreaming ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+                Send
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ===== RIGHT: WORKSPACE ===== */}
+      <div className="flex-1 flex flex-col overflow-hidden min-h-0" style={{ background: '#0a0a0a' }}>
+        {/* Workspace Header / Tab Bar */}
+        <div className="flex items-center justify-between px-4 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: '#111' }}>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setActiveTab('preview')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+              style={{
+                background: activeTab === 'preview' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                color: activeTab === 'preview' ? '#fff' : 'rgba(255,255,255,0.4)',
+              }}
+            >
+              <Eye className="w-3.5 h-3.5" />
+              Preview
+            </button>
+            <button
+              onClick={() => setActiveTab('code')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+              style={{
+                background: activeTab === 'code' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                color: activeTab === 'code' ? '#fff' : 'rgba(255,255,255,0.4)',
+              }}
+            >
+              <Code2 className="w-3.5 h-3.5" />
+              Code
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {activeTab === 'preview' && (
+              <>
+                {/* URL Bar */}
+                <div className="flex items-center gap-2 px-3 py-1 rounded-md text-xs" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', minWidth: '240px' }}>
+                  <Globe className="w-3 h-3 text-white/30" />
+                  <span className="text-white/40 truncate">vala-preview.local</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setPreviewKey(Date.now())}
+                  className="w-7 h-7 text-white/30 hover:text-white hover:bg-white/5"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                </Button>
+                <div className="flex items-center gap-0.5 ml-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setPreviewDevice('desktop')}
+                    className={`w-7 h-7 hover:bg-white/5 ${previewDevice === 'desktop' ? 'text-white' : 'text-white/30 hover:text-white'}`}
+                  >
+                    <Monitor className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setPreviewDevice('mobile')}
+                    className={`w-7 h-7 hover:bg-white/5 ${previewDevice === 'mobile' ? 'text-white' : 'text-white/30 hover:text-white'}`}
+                  >
+                    <Smartphone className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              </>
+            )}
+            {activeTab === 'code' && selectedFile && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCopyCode}
+                className="h-7 px-2 text-xs gap-1.5 text-white/40 hover:text-white hover:bg-white/5"
+              >
+                {copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
+                {copied ? 'Copied' : 'Copy'}
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Workspace Content */}
+        <div className="flex-1 flex overflow-hidden min-h-0">
+          {/* File Tree (Code mode) */}
+          {activeTab === 'code' && showFileTree && (
+            <div className="w-[200px] overflow-y-auto py-2" style={{ borderRight: '1px solid rgba(255,255,255,0.08)', background: '#0d0d0d' }}>
+              <div className="px-3 py-1 mb-1 flex items-center justify-between">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-white/30">Files</span>
+                <Button variant="ghost" size="icon" className="w-5 h-5 text-white/20 hover:text-white" onClick={() => setShowFileTree(false)}>
+                  <PanelLeftClose className="w-3 h-3" />
+                </Button>
+              </div>
+              {MOCK_FILES.map((node, i) => (
+                <FileTreeItem key={i} node={node} depth={0} selectedFile={selectedFile} onSelect={handleFileSelect} />
+              ))}
+            </div>
+          )}
+
+          {/* Main View */}
+          <div className="flex-1 overflow-hidden min-h-0">
+            {activeTab === 'preview' ? (
+              /* Preview iframe */
+              <div className="w-full h-full flex items-center justify-center" style={{ background: '#0f172a' }}>
+                <iframe
+                  key={previewKey}
+                  srcDoc={previewHtml}
+                  className="h-full border-0"
+                  title="VALA Preview"
+                  sandbox="allow-scripts"
+                  style={{
+                    background: '#0f172a',
+                    width: previewDevice === 'mobile' ? 390 : '100%',
+                    maxWidth: '100%',
+                  }}
+                />
+              </div>
+            ) : (
+              /* Code Editor */
+              <div className="h-full flex flex-col">
+                {!showFileTree && (
+                  <div className="px-2 py-1" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                    <Button variant="ghost" size="icon" className="w-6 h-6 text-white/20 hover:text-white" onClick={() => setShowFileTree(true)}>
+                      <PanelLeftOpen className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                )}
+                {selectedFile ? (
+                  <div className="flex-1 flex flex-col">
+                    {/* File Tab */}
+                    <div className="flex items-center px-4 py-1.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
+                      <div className="flex items-center gap-1.5 px-2 py-1 rounded text-xs" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.8)' }}>
+                        <File className="w-3 h-3" style={{ color: '#06b6d4' }} />
+                        {selectedFile}
+                      </div>
+                    </div>
+                    {/* Code Content */}
+                    <ScrollArea className="flex-1">
+                      <pre className="p-4 text-xs leading-relaxed font-mono" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                        <code>{fileContent}</code>
+                      </pre>
+                    </ScrollArea>
+                  </div>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center">
+                    <div className="text-center">
+                      <Code2 className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgba(255,255,255,0.1)' }} />
+                      <p className="text-sm text-white/30">Select a file to view code</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ===== RIGHT: LIVE ACTIVITY PIPELINE ===== */}
+      <LiveActivityPipeline isActive={isStreaming} />
+      {/* ===== PUBLISH TO MARKETPLACE DIALOG ===== */}
+      <Dialog open={showPublishDialog} onOpenChange={setShowPublishDialog}>
+        <DialogContent className="bg-[#111] border-white/10 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-white">
+              <Store className="w-5 h-5 text-emerald-400" />
+              Publish to Marketplace
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div>
+              <label className="text-xs text-white/50 mb-1 block">Product Name *</label>
+              <Input
+                value={publishForm.productName}
+                onChange={e => setPublishForm(prev => ({ ...prev, productName: e.target.value }))}
+                placeholder="e.g. Restaurant POS Pro"
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+              />
+            </div>
+
+
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-white/50 mb-1 block">Category</label>
+                <Select
+                  value={publishForm.category}
+                  onValueChange={v => setPublishForm(prev => ({ ...prev, category: v }))}
+                >
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1a1a1a] border-white/10">
+                    {CATEGORIES.map(c => (
+                      <SelectItem key={c} value={c} className="text-white/80 focus:bg-white/10 focus:text-white">{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-xs text-white/50 mb-1 block">Type</label>
+                <Select
+                  value={publishForm.type}
+                  onValueChange={v => setPublishForm(prev => ({ ...prev, type: v }))}
+                >
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1a1a1a] border-white/10">
+                    {['SaaS', 'Desktop', 'Mobile', 'Hybrid', 'Offline'].map(t => (
+                      <SelectItem key={t} value={t} className="text-white/80 focus:bg-white/10 focus:text-white">{t}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-white/50 mb-1 block">Price (₹)</label>
+                <Input
+                  type="number"
+                  value={publishForm.price}
+                  onChange={e => setPublishForm(prev => ({ ...prev, price: Number(e.target.value) }))}
+                  className="bg-white/5 border-white/10 text-white"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-white/50 mb-1 block">GitHub Repo URL</label>
+                <Input
+                  value={publishForm.githubRepoUrl}
+                  onChange={e => setPublishForm(prev => ({ ...prev, githubRepoUrl: e.target.value }))}
+                  placeholder="https://github.com/..."
+                  className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+                />
+              </div>
+            </div>
+
+            {lastResult && (
+              <div className={`p-3 rounded-lg text-xs ${lastResult.success ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+                {lastResult.success ? (
+                  <div className="space-y-1">
+                    <p className="font-medium">✅ {lastResult.message}</p>
+                    {lastResult.demoDomain && <p>🌐 Domain: {lastResult.demoDomain}</p>}
+                    {lastResult.steps?.map((s, i) => (
+                      <p key={i} className="text-white/40">{s.status === 'success' ? '✓' : s.status === 'failed' ? '✗' : '○'} {s.step}</p>
+                    ))}
+                  </div>
+                ) : (
+                  <p>❌ {lastResult.error}</p>
+                )}
+              </div>
+            )}
+
+            <div className="p-2 rounded-lg text-[10px] text-white/30" style={{ background: 'rgba(255,255,255,0.03)' }}>
+              <Package className="w-3 h-3 inline mr-1" />
+              Pipeline: Catalog Entry → AI Image → VPS Deploy → Boss Approval
+            </div>
+            <div className="flex items-center justify-between">
+              <span style={{ color: COLORS.textMuted }}>Voice</span>
+              <span style={{ color: voiceEnabled ? COLORS.accent : COLORS.textMuted }}>
+                {voiceEnabled ? 'ON' : 'OFF'}
+              </span>
+            </div>
+          </div>
+
+    </div>
+  );
+};
+
+export default ValaAICommandCenter;

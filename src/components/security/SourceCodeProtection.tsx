@@ -95,8 +95,13 @@ export function useSourceCodeProtection() {
   }, [user?.id]);
 
   useEffect(() => {
-    // Skip in development for debugging
-    if (import.meta.env.DEV) {
+    // Skip in development or preview environment
+    const isDevMode = import.meta.env.DEV;
+    const isPreviewEnv = window.location.hostname.includes('lovable.app') || 
+                         window.location.hostname.includes('preview') ||
+                         window.location.hostname.includes('localhost');
+    
+    if (isDevMode || isPreviewEnv) {
       console.log(LICENSE_NOTICE);
       return;
     }

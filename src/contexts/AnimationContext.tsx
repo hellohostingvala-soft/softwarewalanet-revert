@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode, useEffect } from 'react';
 import useAnimations from '@/hooks/useAnimations';
 import { 
   WelcomeAnimation, 
@@ -25,6 +25,17 @@ export const AnimationProvider = ({ children }: { children: ReactNode }) => {
     showBookingSuccess,
     hideAnimation,
   } = useAnimations();
+
+  // FAIL-SAFE: Animation overlays are full-screen (z-[9999]) and can block clicks if anything goes wrong.
+  // If an animation stays visible too long, force-close it.
+  useEffect(() => {
+    if (!animation.type) return;
+    const MAX_OVERLAY_MS = 7000;
+    const t = window.setTimeout(() => {
+      hideAnimation();
+    }, MAX_OVERLAY_MS);
+    return () => window.clearTimeout(t);
+  }, [animation.type, hideAnimation]);
 
   return (
     <AnimationContext.Provider value={{ 

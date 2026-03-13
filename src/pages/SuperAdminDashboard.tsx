@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import AdminSidebarFull, { type AdminView } from "@/components/admin/AdminSidebarFull";
 import AdminTopBar from "@/components/admin/AdminTopBar";
 import AdminNotifications from "@/components/admin/AdminNotifications";
 import HeaderAlertStack from "@/components/shared/HeaderAlertStack";
 import FloatingChatButton from "@/components/admin/FloatingChatButton";
 import type { NotificationAlert } from "@/components/shared/GlobalNotificationHeader";
+import { PendingRequestsBanner } from "@/components/shared/PendingRequestsBanner";
+
+// Placeholder type for legacy AdminView
+type AdminView = string;
 
 // Sample notifications for demo
 const sampleNotifications: NotificationAlert[] = [
@@ -150,17 +153,21 @@ const SuperAdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background grid-lines flex">
-      {/* Background Effects */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-neon-purple/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
-        <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-neon-teal/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }} />
-      </div>
-
-      <AdminSidebarFull activeView={activeView} onViewChange={setActiveView} />
+    <div className="min-h-screen bg-background grid-lines flex flex-col">
+      {/* Pending Requests Banner - TOP PRIORITY */}
+      <PendingRequestsBanner />
       
-      <div className="flex-1 flex flex-col ml-64">
+      <div className="flex-1 flex relative">
+        {/* Background Effects */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-neon-purple/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+          <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-neon-teal/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }} />
+        </div>
+
+        {/* Sidebar removed - using new RoleSwitchSidebarNew */}
+      
+      <div className="flex-1 flex flex-col">
         <AdminTopBar 
           onNotificationsClick={() => setShowNotifications(true)}
           notifications={notifications}
@@ -202,6 +209,7 @@ const SuperAdminDashboard = () => {
         open={showNotifications} 
         onClose={() => setShowNotifications(false)} 
       />
+      </div>
     </div>
   );
 };

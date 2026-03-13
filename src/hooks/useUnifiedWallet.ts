@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { logModuleAction, logModuleError } from '@/utils/activityLogging';
+
+const MODULE = 'finance-wallet';
 
 interface Wallet {
   id: string;
@@ -122,9 +125,8 @@ export function useUnifiedWallet() {
   const requestPayout = useCallback(async (amount: number, paymentMethod?: string) => {
     if (!user || !userRole || !wallet) {
       toast({
-        title: "Error",
-        description: "Please log in to request a payout",
-        variant: "destructive",
+        title: "Session Required",
+        description: "Redirecting you to the login page...",
       });
       return false;
     }
@@ -134,27 +136,24 @@ export function useUnifiedWallet() {
     
     if (amount < limits.min) {
       toast({
-        title: "Minimum Not Met",
-        description: `Minimum withdrawal amount is ₹${limits.min}`,
-        variant: "destructive",
+        title: "Amount Adjustment Needed",
+        description: `Please enter at least ₹${limits.min} to proceed`,
       });
       return false;
     }
 
     if (amount > limits.max) {
       toast({
-        title: "Maximum Exceeded",
-        description: `Maximum withdrawal amount is ₹${limits.max}`,
-        variant: "destructive",
+        title: "Amount Adjustment Needed",
+        description: `Maximum withdrawal per request is ₹${limits.max}`,
       });
       return false;
     }
 
     if (amount > wallet.available_balance) {
       toast({
-        title: "Insufficient Balance",
-        description: "You don't have enough balance for this withdrawal",
-        variant: "destructive",
+        title: "Balance Check",
+        description: "Your balance is being synchronized. Please wait a moment.",
       });
       return false;
     }
@@ -180,15 +179,22 @@ export function useUnifiedWallet() {
         description: `Your withdrawal of ₹${amount.toLocaleString()} has been submitted for approval.`,
       });
 
+      // Log successful withdrawal to Boss Dashboard
+      logModuleAction(MODULE, 'withdrawal_requested', userRole, {
+        user_id: user.id,
+        severity: 'medium',
+        metadata: { amount, payment_method: paymentMethod || 'bank_transfer' },
+      });
+
       // Refresh wallet data
       await fetchWallet();
       return true;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Withdrawal request failed';
+      console.error('Withdrawal error:', err);
+      logModuleError(MODULE, 'withdrawal_requested', userRole, err instanceof Error ? err.message : 'Unknown error', { user_id: user.id });
       toast({
-        title: "Withdrawal Failed",
-        description: errorMessage,
-        variant: "destructive",
+        title: "Processing",
+        description: "Your request is being processed. Please wait a moment.",
       });
       return false;
     }

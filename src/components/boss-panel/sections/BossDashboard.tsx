@@ -1,261 +1,282 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Users, 
-  Globe, 
-  MapPin, 
-  DollarSign, 
-  AlertTriangle, 
-  Activity,
-  TrendingUp,
-  ArrowUpRight,
-  ArrowDownRight
+
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, PieChart, Pie, Cell
 } from 'recharts';
 
-const summaryCards = [
-  { label: 'Total Super Admins', value: '12', icon: Users, trend: '+2', trendUp: true, color: 'amber' },
-  { label: 'Active Continents', value: '5', icon: Globe, trend: '0', trendUp: true, color: 'blue' },
-  { label: 'Countries Live', value: '47', icon: MapPin, trend: '+3', trendUp: true, color: 'green' },
-  { label: 'Revenue Today', value: '$124.5K', icon: DollarSign, trend: '+12%', trendUp: true, color: 'emerald' },
-  { label: 'Critical Alerts', value: '2', icon: AlertTriangle, trend: '-1', trendUp: false, color: 'red' },
-  { label: 'System Health', value: '98.7%', icon: Activity, trend: '+0.2%', trendUp: true, color: 'cyan' },
-];
 
-const revenueData = [
-  { month: 'Jan', revenue: 65000 },
-  { month: 'Feb', revenue: 78000 },
-  { month: 'Mar', revenue: 92000 },
-  { month: 'Apr', revenue: 85000 },
-  { month: 'May', revenue: 110000 },
-  { month: 'Jun', revenue: 124500 },
-];
 
-const conversionData = [
-  { name: 'New', value: 340 },
-  { name: 'Contacted', value: 280 },
-  { name: 'Qualified', value: 180 },
-  { name: 'Demo', value: 120 },
-  { name: 'Converted', value: 85 },
-];
 
-const moduleUsage = [
-  { module: 'Leads', usage: 89 },
-  { module: 'Products', usage: 76 },
-  { module: 'Demos', usage: 65 },
-  { module: 'Billing', usage: 92 },
-  { module: 'AI Engine', usage: 45 },
-];
+const PIE_COLORS = [T.blue, T.green, T.amber, T.red, T.purple, T.cyan];
 
-const riskData = [
-  { name: 'Low', value: 65, color: '#22c55e' },
-  { name: 'Medium', value: 25, color: '#f59e0b' },
-  { name: 'High', value: 10, color: '#ef4444' },
-];
 
-const colorMap: Record<string, string> = {
-  amber: 'from-amber-500/20 to-amber-600/10 border-amber-500/30 text-amber-400',
-  blue: 'from-blue-500/20 to-blue-600/10 border-blue-500/30 text-blue-400',
-  green: 'from-green-500/20 to-green-600/10 border-green-500/30 text-green-400',
-  emerald: 'from-emerald-500/20 to-emerald-600/10 border-emerald-500/30 text-emerald-400',
-  red: 'from-red-500/20 to-red-600/10 border-red-500/30 text-red-400',
-  cyan: 'from-cyan-500/20 to-cyan-600/10 border-cyan-500/30 text-cyan-400',
-};
 
+// ─── REUSABLE COMPONENTS ─────────────────────────────────────
+const Glass = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
+  <motion.div variants={rise} className={`rounded-2xl overflow-hidden ${className}`}
+    style={{ 
+      background: T.glass, 
+      backdropFilter: 'blur(20px) saturate(1.4)', 
+      border: `1px solid ${T.glassBorder}`,
+      boxShadow: `0 8px 32px -8px hsla(222,47%,4%,0.5), inset 0 1px 0 hsla(215,100%,90%,0.04)`,
+    }}>
+    {children}
+  </motion.div>
+);
+
+const SH = ({ title, count, icon: Icon }: { title: string; count?: number; icon?: React.ElementType }) => (
+  <div className="flex items-center justify-between pb-2.5 mb-3" style={{ borderBottom: `1px solid ${T.glassBorder}` }}>
+    <div className="flex items-center gap-2">
+      {Icon && <Icon className="w-4 h-4" style={{ color: T.blue }} />}
+      <h3 className="text-[13px] font-bold uppercase tracking-wider" style={{ color: T.text }}>{title}</h3>
+    </div>
+    {count !== undefined && (
+      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold" 
+        style={{ background: `${T.blue}18`, color: T.blue, border: `1px solid ${T.blue}25` }}>{count}</span>
+    )}
+  </div>
+);
+
+
+// ─── MAIN DASHBOARD ──────────────────────────────────────────
 export function BossDashboard() {
+
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <motion.div className="space-y-5" variants={stagger} initial="hidden" animate="show" style={{ color: T.text }}>
+      {/* ─── HEADER ─── */}
+      <motion.div variants={rise} className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Command Dashboard</h1>
-          <p className="text-white/50 text-sm">Real-time overview of all operations</p>
+          <h1 className="text-xl font-black tracking-tight" style={{ color: T.text }}>Boss Command Center</h1>
+          <p className="text-[11px] mt-0.5 font-medium" style={{ color: T.muted }}>
+            Enterprise Dashboard • {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
+          </p>
         </div>
-        <div className="text-xs text-white/40">
-          Last updated: {new Date().toLocaleTimeString()}
-        </div>
-      </div>
+        <motion.div className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
+          style={{ background: `${T.green}10`, border: `1px solid ${T.green}20` }}
+          animate={{ boxShadow: [`0 0 12px ${T.green}10`, `0 0 20px ${T.green}18`, `0 0 12px ${T.green}10`] }}
+          transition={{ duration: 3, repeat: Infinity }}>
+          <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: T.green }} />
+          <span className="text-[11px] font-bold" style={{ color: T.green }}>All Systems Operational</span>
+        </motion.div>
+      </motion.div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {summaryCards.map((card, index) => {
-          const Icon = card.icon;
-          return (
-            <motion.div
-              key={card.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <Card className={`bg-gradient-to-br ${colorMap[card.color]} border`}>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <Icon className="w-5 h-5" />
-                    <div className={`flex items-center text-xs ${card.trendUp ? 'text-green-400' : 'text-red-400'}`}>
-                      {card.trendUp ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                      {card.trend}
-                    </div>
-                  </div>
-                  <div className="text-2xl font-bold text-white">{card.value}</div>
-                  <div className="text-[10px] text-white/50 uppercase tracking-wider mt-1">{card.label}</div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          );
-        })}
-      </div>
+      {/* ─── SYSTEM OVERVIEW KPIs ─── */}
+      <motion.div variants={stagger} className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+        <KPI title="Total Revenue" value={`$${fmt(metrics?.totalRevenue)}`} icon={DollarSign} trend="up" trendVal="+12.4%" gradient={T.g1} accent={T.blue} />
+        <KPI title="Active Users" value={fmt(metrics?.activeUsers)} icon={Users} trend="up" trendVal="+8.2%" gradient={T.g2} accent={T.green} />
+        <KPI title="New Users (30d)" value={fmt(metrics?.newUsers)} icon={TrendingUp} trend="up" trendVal="+15%" gradient={T.g3} accent={T.amber} />
+        <KPI title="Applications" value={fmt(resellerData?.total)} icon={FileText} trend={resellerData?.pending ? 'up' : 'flat'} trendVal={`${resellerData?.pending ?? 0} pending`} gradient={T.g4} accent={T.red} />
+        <KPI title="Franchises" value={fmt(franchiseData?.total)} icon={Globe} trend="flat" trendVal={`${franchiseData?.active ?? 0} active`} gradient={T.g5} accent={T.purple} />
+        <KPI title="System Health" value={`${summary?.systemHealth ?? 100}%`} icon={Activity} trend="flat" trendVal={`${activeM}/${totalM} modules`} gradient={T.g6} accent={T.cyan} />
+      </motion.div>
 
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Revenue Trend */}
-        <Card className="bg-[#12121a] border-white/10">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-white text-lg flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-amber-400" />
-              Revenue Trend
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={revenueData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                <XAxis dataKey="month" stroke="#ffffff40" fontSize={12} />
-                <YAxis stroke="#ffffff40" fontSize={12} />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#1a1a2e', 
-                    border: '1px solid #ffffff20',
-                    borderRadius: '8px'
-                  }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="revenue" 
-                  stroke="#f59e0b" 
-                  strokeWidth={2}
-                  dot={{ fill: '#f59e0b' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
 
-        {/* Lead Conversion Funnel */}
-        <Card className="bg-[#12121a] border-white/10">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-white text-lg flex items-center gap-2">
-              <Users className="w-5 h-5 text-blue-400" />
-              Lead Conversion Funnel
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={conversionData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                <XAxis type="number" stroke="#ffffff40" fontSize={12} />
-                <YAxis dataKey="name" type="category" stroke="#ffffff40" fontSize={12} width={80} />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#1a1a2e', 
-                    border: '1px solid #ffffff20',
-                    borderRadius: '8px'
-                  }}
-                />
-                <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+                </div>
+                <StatusBadge status={m.status} />
+              </motion.div>
+            ))}
+          </div>
+        </Glass>
 
-        {/* Module Usage */}
-        <Card className="bg-[#12121a] border-white/10">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-white text-lg flex items-center gap-2">
-              <Activity className="w-5 h-5 text-green-400" />
-              Module Usage
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {moduleUsage.map((item) => (
-                <div key={item.module} className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-white/70">{item.module}</span>
-                    <span className="text-white">{item.usage}%</span>
-                  </div>
-                  <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                    <motion.div 
-                      className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${item.usage}%` }}
-                      transition={{ duration: 1, delay: 0.5 }}
-                    />
+        {/* Alerts Panel */}
+        <Glass className="col-span-12 lg:col-span-5 p-5">
+          <SH title="System Alerts" icon={AlertTriangle} count={alertsData.filter(a => a.type !== 'healthy').length} />
+          <div className="space-y-2">
+            {alertsData.map((a) => (
+              <motion.div key={a.id} variants={rise}
+                className="flex items-start gap-3 px-3 py-2.5 rounded-lg transition-colors"
+                whileHover={{ backgroundColor: T.rowHover }}>
+                <div className="mt-0.5">
+                  {a.type === 'critical' && <AlertCircle className="w-4 h-4" style={{ color: T.red }} />}
+                  {a.type === 'warning' && <AlertTriangle className="w-4 h-4" style={{ color: T.amber }} />}
+                  {a.type === 'healthy' && <CheckCircle className="w-4 h-4" style={{ color: T.green }} />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold" style={{ color: T.text }}>{a.message}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-[10px]" style={{ color: T.muted }}>{a.module}</span>
+                    <span className="text-[10px]" style={{ color: T.dim }}>•</span>
+                    <span className="text-[10px] font-mono" style={{ color: T.dim }}>{a.time}</span>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                <StatusBadge status={a.type} />
+              </motion.div>
+            ))}
+          </div>
+        </Glass>
+      </motion.div>
 
-        {/* Risk Index */}
-        <Card className="bg-[#12121a] border-white/10">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-white text-lg flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-red-400" />
-              Risk Index
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-center">
-              <ResponsiveContainer width="100%" height={180}>
-                <PieChart>
-                  <Pie
-                    data={riskData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={70}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {riskData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#1a1a2e', 
-                      border: '1px solid #ffffff20',
-                      borderRadius: '8px'
-                    }}
-                  />
-                </PieChart>
+      {/* ─── ROW 3: FINANCIAL + USER ACTIVITY ─── */}
+      <motion.div variants={stagger} className="grid grid-cols-12 gap-4">
+        {/* Financial Overview */}
+        <Glass className="col-span-12 lg:col-span-8 p-5">
+          <SH title="Financial Overview" icon={DollarSign} />
+          <div className="grid grid-cols-12 gap-4">
+            {/* Revenue Chart */}
+            <div className="col-span-8">
+              <ResponsiveContainer width="100%" height={220}>
+                <AreaChart data={revenueData}>
+                  <defs>
+                    <linearGradient id="revGrad7d" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={T.blue} stopOpacity={0.3} />
+                      <stop offset="100%" stopColor={T.blue} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke={T.glassBorder} />
+                  <XAxis dataKey="month" stroke={T.dim} fontSize={10} tickLine={false} axisLine={false} />
+                  <YAxis stroke={T.dim} fontSize={10} tickLine={false} axisLine={false} />
+                  <Tooltip contentStyle={{ background: T.glass, backdropFilter: 'blur(16px)', border: `1px solid ${T.glassBorder}`, borderRadius: '10px', fontSize: '11px', color: T.text }} />
+                  <Area type="monotone" dataKey="revenue" stroke={T.blue} strokeWidth={2.5} fill="url(#revGrad7d)" />
+                  <Area type="monotone" dataKey="trend" stroke={T.dim} strokeWidth={1} fill="none" strokeDasharray="4 4" />
+                </AreaChart>
               </ResponsiveContainer>
             </div>
-            <div className="flex justify-center gap-4 mt-2">
-              {riskData.map((item) => (
-                <div key={item.name} className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span className="text-xs text-white/60">{item.name} ({item.value}%)</span>
-                </div>
-              ))}
+            {/* Pie Breakdown */}
+            <div className="col-span-4 flex flex-col items-center justify-center">
+              <ResponsiveContainer width="100%" height={140}>
+                <PieChart>
+                  <Pie data={revenueBreakdown} cx="50%" cy="50%" innerRadius={35} outerRadius={55}
+                    paddingAngle={3} dataKey="value" stroke="none">
+                    {revenueBreakdown.map((entry, i) => (
+                      <Cell key={i} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="space-y-1 w-full mt-1">
+                {revenueBreakdown.map(r => (
+                  <div key={r.name} className="flex items-center justify-between text-[10px]">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full" style={{ background: r.color }} />
+                      <span style={{ color: T.muted }}>{r.name}</span>
+                    </div>
+                    <span className="font-bold tabular-nums" style={{ color: T.text }}>{r.value}%</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+          </div>
+        </Glass>
+
+        {/* User Activity Panel */}
+        <Glass className="col-span-12 lg:col-span-4 p-5">
+          <SH title="User Activity" icon={Users} />
+          <ResponsiveContainer width="100%" height={160}>
+            <BarChart data={userActivityData}>
+              <CartesianGrid strokeDasharray="3 3" stroke={T.glassBorder} />
+              <XAxis dataKey="hour" stroke={T.dim} fontSize={9} tickLine={false} axisLine={false} />
+              <YAxis stroke={T.dim} fontSize={9} tickLine={false} axisLine={false} />
+              <Tooltip contentStyle={{ background: T.glass, border: `1px solid ${T.glassBorder}`, borderRadius: '10px', fontSize: '11px', color: T.text }} />
+              <Bar dataKey="active" fill={T.blue} radius={[3, 3, 0, 0]} opacity={0.8} />
+              <Bar dataKey="new" fill={T.green} radius={[3, 3, 0, 0]} opacity={0.8} />
+            </BarChart>
+          </ResponsiveContainer>
+          <div className="flex items-center gap-4 mt-3 px-1">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded" style={{ background: T.blue }} />
+              <span className="text-[10px] font-medium" style={{ color: T.muted }}>Active</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded" style={{ background: T.green }} />
+              <span className="text-[10px] font-medium" style={{ color: T.muted }}>New Signups</span>
+            </div>
+          </div>
+          {/* Quick stats */}
+          <div className="grid grid-cols-2 gap-2 mt-4">
+            {[
+              { label: 'Continents', value: summary?.activeContinents ?? 6, color: T.blue },
+              { label: 'Countries', value: summary?.countriesLive ?? 45, color: T.cyan },
+            ].map(s => (
+              <motion.div key={s.label} whileHover={{ scale: 1.04 }}
+                className="text-center py-2.5 rounded-lg"
+                style={{ background: `${s.color}08`, border: `1px solid ${s.color}18` }}>
+                <p className="text-xl font-black tabular-nums" style={{ color: T.text }}>{s.value}</p>
+                <p className="text-[9px] uppercase font-bold tracking-wider mt-0.5" style={{ color: T.muted }}>{s.label}</p>
+              </motion.div>
+            ))}
+          </div>
+        </Glass>
+      </motion.div>
+
+      {/* ─── ROW 4: REPORTS TABLE + QUICK CARDS ─── */}
+      <motion.div variants={stagger} className="grid grid-cols-12 gap-4">
+        {/* Reports / Applications Table */}
+        <Glass className="col-span-12 lg:col-span-8">
+          <div className="px-5 pt-4 pb-2">
+            <SH title="Recent Applications & Reports" icon={FileBarChart} count={recentApplications.length} />
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr style={{ background: 'hsla(222, 47%, 15%, 0.4)' }}>
+                  {['Name', 'Type', 'Date', 'Status'].map(h => (
+                    <th key={h} className="text-left px-5 py-2.5 font-bold uppercase tracking-wider text-[10px]"
+                      style={{ color: T.muted, borderBottom: `1px solid ${T.glassBorder}` }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {recentApplications.length === 0 ? (
+                  <tr><td colSpan={4} className="text-center py-8" style={{ color: T.dim }}>No data</td></tr>
+                ) : recentApplications.map((app, i) => (
+                  <motion.tr key={app.id} variants={rise}
+                    className="cursor-pointer transition-colors" style={{ borderBottom: `1px solid ${T.glassBorder}` }}
+                    whileHover={{ backgroundColor: T.rowHover }}>
+                    <td className="px-5 py-3 font-semibold" style={{ color: T.text }}>{app.full_name}</td>
+                    <td className="px-5 py-3" style={{ color: T.muted }}>{app.type}</td>
+                    <td className="px-5 py-3 font-mono tabular-nums" style={{ color: T.dim }}>
+                      {new Date(app.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </td>
+                    <td className="px-5 py-3"><StatusBadge status={app.status} /></td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Glass>
+
+        {/* Quick Stat Cards */}
+        <motion.div variants={stagger} className="col-span-12 lg:col-span-4 space-y-3">
+          {/* Critical Alerts */}
+          <motion.div variants={rise} whileHover={{ scale: 1.02, y: -2 }}
+            className="rounded-xl p-4 relative overflow-hidden"
+            style={{ background: (summary?.criticalAlerts ?? 0) > 0 ? T.g4 : T.g2, backdropFilter: 'blur(16px)', border: `1px solid ${(summary?.criticalAlerts ?? 0) > 0 ? `${T.red}25` : `${T.green}25`}` }}>
+            <div className="absolute -top-8 -right-8 w-20 h-20 rounded-full blur-2xl opacity-15" style={{ background: (summary?.criticalAlerts ?? 0) > 0 ? T.red : T.green }} />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: T.muted }}>Critical Alerts</span>
+                <AlertTriangle className="w-4 h-4" style={{ color: (summary?.criticalAlerts ?? 0) > 0 ? T.red : T.dim }} />
+              </div>
+              <p className="text-3xl font-black mt-2 tabular-nums" style={{ color: (summary?.criticalAlerts ?? 0) > 0 ? T.red : T.text }}>{summary?.criticalAlerts ?? 0}</p>
+              <p className="text-[10px] mt-1 font-medium" style={{ color: T.muted }}>{(summary?.criticalAlerts ?? 0) === 0 ? 'All nominal' : 'Needs attention'}</p>
+            </div>
+          </motion.div>
+
+          {/* Super Admins */}
+          <motion.div variants={rise} whileHover={{ scale: 1.02, y: -2 }}
+            className="rounded-xl p-4 relative overflow-hidden"
+            style={{ background: T.g5, backdropFilter: 'blur(16px)', border: `1px solid ${T.purple}25` }}>
+            <div className="absolute -top-8 -right-8 w-20 h-20 rounded-full blur-2xl opacity-15" style={{ background: T.purple }} />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: T.muted }}>Super Admins</span>
+                <Shield className="w-4 h-4" style={{ color: T.purple }} />
+              </div>
+              <p className="text-3xl font-black mt-2 tabular-nums" style={{ color: T.text }}>{summary?.totalSuperAdmins ?? 0}</p>
+              <p className="text-[10px] mt-1 font-medium" style={{ color: T.muted }}>Active administrators</p>
+            </div>
+          </motion.div>
+
+
+            </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }

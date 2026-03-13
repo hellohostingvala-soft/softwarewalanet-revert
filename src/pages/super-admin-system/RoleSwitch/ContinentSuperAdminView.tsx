@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
@@ -42,6 +44,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ContinentDashboard from "@/components/super-admin-wireframe/ContinentDashboard";
+import { ContinentSuperAdminDashboard, getContinentConfig, CONTINENT_CONFIGS } from "@/components/continent-dashboard";
+import GlobalContinentDashboard from "@/components/continent-dashboard/GlobalContinentDashboard";
+import MetaContinentDashboard from "@/pages/continent-super-admin/ContinentSuperAdminDashboard";
+import GlobalCommandCenter from "@/pages/continent-super-admin/views/GlobalCommandCenter";
 
 // Country data for each continent
 const continentCountries: Record<string, { name: string; admin: string; status: string }[]> = {
@@ -85,12 +91,21 @@ const continentCountries: Record<string, { name: string; admin: string; status: 
     { name: "Colombia", admin: "Carlos Mendez", status: "active" },
     { name: "Chile", admin: "Pablo Gonzalez", status: "active" },
   ],
+  "Middle East": [
+    { name: "UAE", admin: "Ahmed Al-Rashid", status: "active" },
+    { name: "Saudi Arabia", admin: "Mohammed Al-Saud", status: "active" },
+    { name: "Qatar", admin: "Khalid Al-Thani", status: "active" },
+    { name: "Kuwait", admin: "Fahad Al-Sabah", status: "active" },
+    { name: "Bahrain", admin: "Ali Al-Khalifa", status: "active" },
+    { name: "Oman", admin: "Said Al-Busaidi", status: "active" },
+    { name: "Jordan", admin: "Omar Hassan", status: "active" },
+    { name: "Israel", admin: "David Cohen", status: "active" },
+  ],
   "Australia/Oceania": [
     { name: "Australia", admin: "Jack Thompson", status: "active" },
     { name: "New Zealand", admin: "William Clarke", status: "active" },
     { name: "Fiji", admin: "Ratu Meli", status: "active" },
   ],
-  "Antarctica": []
 };
 
 // All 7 Continent Super Admins data
@@ -298,35 +313,38 @@ const continentSuperAdmins = [
     ]
   },
   {
-    id: "CSA-ANT-000",
-    continent: "Antarctica",
-    continentCode: "AN",
-    name: "System Reserved",
-    email: "system@reserved.com",
-    username: "system_reserved",
-    status: "locked" as const,
-    countriesAssigned: "None",
-    roleLevel: "Read-only / Monitoring",
-    countriesCount: 0,
-    activeCountryAdmins: 0,
-    createdDate: "2023-01-01",
-    lastActivity: "System Locked",
-    lastLogin: "N/A",
-    actionsToday: 0,
-    healthScore: 0,
-    complianceScore: 0,
-    pendingApprovals: 0,
-    issuesResolved: 0,
-    icon: "🧊",
-    color: "#06b6d4",
+    id: "CSA-ME-001",
+    continent: "Middle East",
+    continentCode: "ME",
+    name: "Middle East Super Admin",
+    email: "middleeast.csa@system.com",
+    username: "me_superadmin",
+    status: "active" as const,
+    countriesAssigned: "UAE, Saudi Arabia, Qatar, Kuwait, Bahrain, Oman, Jordan, Israel",
+    roleLevel: "Continent Super Admin",
+    countriesCount: 15,
+    activeCountryAdmins: 14,
+    createdDate: "2023-06-01",
+    lastActivity: "10 min ago",
+    lastLogin: "Today, 10:30 AM",
+    actionsToday: 14,
+    healthScore: 92,
+    complianceScore: 96,
+    pendingApprovals: 4,
+    issuesResolved: 52,
+    icon: "🕌",
+    color: "#f59e0b",
     permissions: {
-      countriesCreate: false,
-      countriesEdit: false,
-      countryAdminAssign: false,
+      countriesCreate: true,
+      countriesEdit: true,
+      countryAdminAssign: true,
       regionalReports: true,
       liveMonitoring: true,
     },
-    recentActions: []
+    recentActions: [
+      { action: "Approved franchise application for Qatar", time: "10 min ago", type: "approval" },
+      { action: "Updated UAE compliance settings", time: "1 hour ago", type: "config" },
+    ]
   },
 ];
 
@@ -336,6 +354,8 @@ interface ContinentSuperAdminViewProps {
 }
 
 const ContinentSuperAdminView = ({ activeNav = "dashboard", selectedSubItem }: ContinentSuperAdminViewProps) => {
+  const navigate = useNavigate();
+
   const [selectedCSA, setSelectedCSA] = useState<typeof continentSuperAdmins[0] | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -343,34 +363,57 @@ const ContinentSuperAdminView = ({ activeNav = "dashboard", selectedSubItem }: C
   const [detailTab, setDetailTab] = useState("profile");
   const [showContinentDashboard, setShowContinentDashboard] = useState<string | null>(null);
 
-  // Map sub-item id to continent
-  const continentMap: Record<string, string> = {
-    "csa-asia": "Asia",
-    "csa-africa": "Africa",
-    "csa-europe": "Europe",
-    "csa-north-america": "North America",
-    "csa-south-america": "South America",
-    "csa-australia": "Australia/Oceania",
-    "csa-antarctica": "Antarctica"
+  // Map sub-item id to continent config key
+  const continentIdMap: Record<string, string> = {
+    "csa-asia": "asia",
+    "csa-africa": "africa",
+    "csa-europe": "europe",
+    "csa-north-america": "north_america",
+    "csa-south-america": "south_america",
+    "csa-australia": "oceania",
+    "csa-middle-east": "middle_east"
+  };
+
+  const continentNameMap: Record<string, string> = {
+    "asia": "Asia",
+    "africa": "Africa",
+    "europe": "Europe",
+    "north_america": "North America",
+    "south_america": "South America",
+    "oceania": "Australia / Oceania",
+    "middle_east": "Middle East"
   };
 
   // Handle sub-item selection from sidebar - always update when selectedSubItem changes
   useEffect(() => {
     if (selectedSubItem) {
-      const continent = continentMap[selectedSubItem];
-      if (continent) {
-        setShowContinentDashboard(continent);
+      const continentId = continentIdMap[selectedSubItem];
+      if (continentId) {
+        setShowContinentDashboard(continentId);
       }
     }
   }, [selectedSubItem]);
 
   // Directly compute continent from selectedSubItem for immediate response
-  const currentContinent = selectedSubItem ? continentMap[selectedSubItem] : showContinentDashboard;
+  const currentContinentId = selectedSubItem ? continentIdMap[selectedSubItem] : showContinentDashboard;
+
+  // If any continent is selected, render the Meta Business Manager dashboard
+  if (currentContinentId && CONTINENT_CONFIGS[currentContinentId]) {
+    return (
+      <MetaContinentDashboard 
+        continentId={currentContinentId}
+        continentName={continentNameMap[currentContinentId] || currentContinentId}
+        onBack={() => {
+          setShowContinentDashboard(null);
+        }} 
+      />
+    );
+  }
 
   // Stats calculations
   const totalCSAs = continentSuperAdmins.length;
   const activeCSAs = continentSuperAdmins.filter(c => c.status === "active").length;
-  const lockedCSAs = continentSuperAdmins.filter(c => c.status === "locked").length;
+  const lockedCSAs = 0;
   const liveActionsToday = continentSuperAdmins.reduce((sum, c) => sum + c.actionsToday, 0);
 
   // Filtered CSAs
@@ -467,7 +510,7 @@ const ContinentSuperAdminView = ({ activeNav = "dashboard", selectedSubItem }: C
                       <div className={cn(
                         "w-4 h-4 rounded-full shadow-lg",
                         csa.status === "active" && "bg-emerald-500 shadow-emerald-500/50",
-                        csa.status === "locked" && "bg-slate-500 shadow-slate-500/50"
+                        csa.status !== "active" && "bg-slate-500 shadow-slate-500/50"
                       )} />
                       {csa.status === "active" && (
                         <div className="absolute inset-0 w-4 h-4 rounded-full bg-emerald-500 animate-ping opacity-40" />
@@ -750,19 +793,35 @@ const ContinentSuperAdminView = ({ activeNav = "dashboard", selectedSubItem }: C
               {/* Panel Actions */}
               <div className="p-4 border-t border-slate-700/50 space-y-2">
                 <div className="grid grid-cols-2 gap-2">
-                  <Button variant="outline" className="gap-2 border-slate-700">
+                  <Button
+                    variant="outline"
+                    className="gap-2 border-slate-700"
+                    onClick={() => navigate("/super-admin-system/audit")}
+                  >
                     <FileText className="w-4 h-4" /> Audit Logs
                   </Button>
-                  <Button variant="outline" className="gap-2 border-slate-700">
+                  <Button
+                    variant="outline"
+                    className="gap-2 border-slate-700"
+                    onClick={() => toast.info("Full report", { description: "Generating full report...", duration: 2000 })}
+                  >
                     <BarChart3 className="w-4 h-4" /> Full Report
                   </Button>
                 </div>
                 {selectedCSA.status === "active" ? (
-                  <Button variant="outline" className="w-full gap-2 border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/10">
+                  <Button
+                    variant="outline"
+                    className="w-full gap-2 border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/10"
+                    onClick={() => toast.warning("Suspend CSA", { description: "Suspension flow not wired to backend yet.", duration: 2500 })}
+                  >
                     <Pause className="w-4 h-4" /> Suspend CSA
                   </Button>
                 ) : (
-                  <Button variant="outline" className="w-full gap-2 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10">
+                  <Button
+                    variant="outline"
+                    className="w-full gap-2 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10"
+                    onClick={() => toast.success("Activate CSA", { description: "Activation flow not wired to backend yet.", duration: 2500 })}
+                  >
                     <Play className="w-4 h-4" /> Activate CSA
                   </Button>
                 )}
@@ -774,9 +833,15 @@ const ContinentSuperAdminView = ({ activeNav = "dashboard", selectedSubItem }: C
     </div>
   );
 
-  // If a continent dashboard is selected from sidebar - use currentContinent for immediate response
-  if (currentContinent) {
-    return <ContinentDashboard continent={currentContinent} onBack={() => setShowContinentDashboard(null)} />;
+  // If a continent dashboard is selected from sidebar - use Meta BM dashboard
+  if (currentContinentId && CONTINENT_CONFIGS[currentContinentId]) {
+    return (
+      <MetaContinentDashboard 
+        continentId={currentContinentId}
+        continentName={continentNameMap[currentContinentId] || currentContinentId}
+        onBack={() => setShowContinentDashboard(null)} 
+      />
+    );
   }
 
   // If activeNav is "admins", show the registry view with the list
@@ -784,134 +849,13 @@ const ContinentSuperAdminView = ({ activeNav = "dashboard", selectedSubItem }: C
     return renderRegistryView();
   }
 
-  // Default dashboard view - show only the detail panel when a CSA is selected
+  // Default: Show the Global Command Center with 7D World Map
   return (
-    <div className="h-full flex overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* Main Content - Show selected CSA details or welcome message */}
-      <div className="flex-1 flex items-center justify-center">
-        {selectedCSA ? (
-          <AnimatePresence>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-2xl bg-slate-900 border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden"
-            >
-              {/* Panel Header */}
-              <div 
-                className="p-5 border-b border-slate-700/50"
-                style={{ background: `linear-gradient(135deg, ${selectedCSA.color}15, transparent)` }}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div 
-                      className="w-14 h-14 rounded-xl flex items-center justify-center text-3xl"
-                      style={{ backgroundColor: `${selectedCSA.color}25` }}
-                    >
-                      {selectedCSA.icon}
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white">{selectedCSA.name}</h3>
-                      <p className="text-sm text-slate-400">{selectedCSA.continent} Super Admin</p>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="icon" onClick={() => setSelectedCSA(null)}>
-                    <X className="w-5 h-5" />
-                  </Button>
-                </div>
-                {getStatusBadge(selectedCSA.status)}
-              </div>
-
-              {/* Tabs */}
-              <Tabs value={detailTab} onValueChange={setDetailTab} className="flex-1 flex flex-col">
-                <TabsList className="mx-4 mt-4 bg-slate-800/50">
-                  <TabsTrigger value="profile">Profile</TabsTrigger>
-                  <TabsTrigger value="permissions">Permissions</TabsTrigger>
-                  <TabsTrigger value="countries">Countries</TabsTrigger>
-                  <TabsTrigger value="activity">Activity</TabsTrigger>
-                </TabsList>
-
-                <ScrollArea className="flex-1 max-h-[400px]">
-                  <div className="p-4">
-                    {/* Profile Tab */}
-                    <TabsContent value="profile" className="mt-0 space-y-4">
-                      <Card className="bg-slate-800/50 border-slate-700/50">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-sm text-slate-400">Basic Information</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                          <div className="flex justify-between">
-                            <span className="text-slate-500">CSA ID</span>
-                            <code className="text-blue-400 text-sm">{selectedCSA.id}</code>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-slate-500">Email</span>
-                            <span className="text-white">{selectedCSA.email}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-slate-500">Username</span>
-                            <span className="text-white">{selectedCSA.username}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-slate-500">Continent</span>
-                            <span className="text-white">{selectedCSA.continent}</span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-
-                    {/* Other tabs content - simplified */}
-                    <TabsContent value="permissions" className="mt-0">
-                      <Card className="bg-slate-800/50 border-slate-700/50">
-                        <CardContent className="pt-4 space-y-3">
-                          {Object.entries(selectedCSA.permissions).map(([key, value]) => (
-                            <div key={key} className="flex items-center justify-between p-2 bg-slate-700/30 rounded-lg">
-                              <span className="text-white text-sm capitalize">
-                                {key.replace(/([A-Z])/g, ' $1').trim()}
-                              </span>
-                              <Badge className={value ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}>
-                                {value ? "Enabled" : "Disabled"}
-                              </Badge>
-                            </div>
-                          ))}
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-
-                    <TabsContent value="countries" className="mt-0">
-                      <Card className="bg-slate-800/50 border-slate-700/50">
-                        <CardContent className="pt-4 text-center py-8 text-slate-400">
-                          {selectedCSA.countriesCount} countries assigned to {selectedCSA.continent}
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-
-                    <TabsContent value="activity" className="mt-0">
-                      <Card className="bg-slate-800/50 border-slate-700/50">
-                        <CardContent className="pt-4 space-y-2">
-                          {selectedCSA.recentActions.map((action, idx) => (
-                            <div key={idx} className="p-2 bg-slate-700/30 rounded-lg">
-                              <p className="text-white text-sm">{action.action}</p>
-                              <p className="text-xs text-slate-500">{action.time}</p>
-                            </div>
-                          ))}
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-                  </div>
-                </ScrollArea>
-              </Tabs>
-            </motion.div>
-          </AnimatePresence>
-        ) : (
-          <div className="text-center">
-            <Globe2 className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-white mb-2">Select a Continent Super Admin</h2>
-            <p className="text-slate-400">Click on a CSA from the sidebar to view details</p>
-          </div>
-        )}
-      </div>
-    </div>
+    <GlobalCommandCenter
+      onSelectContinent={(continentId) => {
+        setShowContinentDashboard(continentId);
+      }}
+    />
   );
 };
 

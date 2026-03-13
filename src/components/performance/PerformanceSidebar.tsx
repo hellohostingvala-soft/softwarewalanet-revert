@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import softwareValaLogo from '@/assets/software-vala-logo-transparent.png';
 import { useNavigate, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard, 
@@ -29,10 +30,10 @@ const menuItems = [
   { id: "performance", label: "Performance Manager", icon: BarChart3, path: "/performance", active: true },
   { id: "client-success", label: "Client Success", icon: Heart, path: "/client-success" },
   { id: "rnd", label: "R&D", icon: Lightbulb, path: "/rnd-dashboard" },
-  { id: "finance", label: "Finance", icon: DollarSign, path: "#" },
-  { id: "wallet", label: "Wallet", icon: Wallet, path: "#" },
-  { id: "notifications", label: "Notifications", icon: Bell, path: "#", badge: 4 },
-  { id: "profile", label: "Profile", icon: User, path: "#" },
+  { id: "finance", label: "Finance", icon: DollarSign, path: "/finance" },
+  { id: "wallet", label: "Wallet", icon: Wallet, path: "/wallet" },
+  { id: "notifications", label: "Notifications", icon: Bell, path: "/notifications", badge: 4 },
+  { id: "profile", label: "Profile", icon: User, path: "/profile" },
 ];
 
 export const PerformanceSidebar = () => {
@@ -53,26 +54,8 @@ export const PerformanceSidebar = () => {
   return (
     <aside className="w-64 min-h-screen bg-slate-900/90 backdrop-blur-xl border-r border-cyan-500/20 flex flex-col">
       {/* Logo */}
-      <div className="p-6 border-b border-cyan-500/20">
-        <div className="flex items-center gap-3">
-          <motion.div 
-            className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center"
-            animate={{ 
-              boxShadow: [
-                "0 0 20px rgba(6, 182, 212, 0.3)",
-                "0 0 40px rgba(6, 182, 212, 0.5)",
-                "0 0 20px rgba(6, 182, 212, 0.3)"
-              ]
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <Zap className="w-5 h-5 text-white" />
-          </motion.div>
-          <div>
-            <p className="font-bold text-white text-sm">SOFTWARE VALA</p>
-            <p className="text-xs text-cyan-400">Performance Hub</p>
-          </div>
-        </div>
+      <div className="p-4 border-b border-cyan-500/20 flex justify-center">
+        <img src={softwareValaLogo} alt="Software Vala Logo" className="w-14 h-14 rounded-full object-contain border-2 border-cyan-500/30" />
       </div>
 
       {/* Menu Items */}
@@ -84,7 +67,14 @@ export const PerformanceSidebar = () => {
           return (
             <motion.button
               key={item.id}
-              onClick={() => item.path !== "#" && navigate(item.path)}
+              onClick={() => {
+                if (item.path && item.path !== "#") {
+                  navigate(item.path);
+                } else {
+                  toast.info(`${item.label} module`, { description: 'Navigating to module...' });
+                  navigate(`/${item.id}`);
+                }
+              }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all ${
                 isActive 
                   ? "bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 text-white border border-cyan-500/50" 

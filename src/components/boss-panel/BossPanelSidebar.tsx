@@ -1,19 +1,14 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  LayoutDashboard, 
-  Activity, 
-  Network, 
-  Users, 
-  Shield, 
-  Boxes,
-  Package,
-  DollarSign,
-  FileSearch,
-  Lock,
-  Settings,
-  ChevronLeft,
-  ChevronRight
+  LayoutDashboard, Activity, Users, Shield, Boxes, Package,
+  DollarSign, FileSearch, Lock, Settings, ChevronDown, ChevronLeft,
+  Server, Brain, Store, Zap, BarChart3, FileText, Bell,
+  TrendingUp, Network, Briefcase, Globe, MapPin, Scale,
+  UserCircle, Megaphone, Search, HeartHandshake, ShoppingCart,
+  Key, Rocket, LineChart, Link2, ScrollText, UserCog,
+  Code2, Monitor, Target, Headphones, Cpu, ArrowLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { BossPanelSection } from './BossPanelLayout';
@@ -25,79 +20,360 @@ interface BossPanelSidebarProps {
   onCollapsedChange: (collapsed: boolean) => void;
 }
 
-const menuItems: { id: BossPanelSection; label: string; icon: React.ElementType }[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'live-activity', label: 'Live Activity Stream', icon: Activity },
-  { id: 'hierarchy', label: 'Hierarchy Control', icon: Network },
-  { id: 'super-admins', label: 'Super Admins', icon: Users },
-  { id: 'roles', label: 'Roles & Permissions', icon: Shield },
-  { id: 'modules', label: 'System Modules', icon: Boxes },
-  { id: 'products', label: 'Product & Demo', icon: Package },
-  { id: 'revenue', label: 'Revenue Snapshot', icon: DollarSign },
-  { id: 'audit', label: 'Audit & Blackbox', icon: FileSearch },
-  { id: 'security', label: 'Security & Legal', icon: Lock },
-  { id: 'settings', label: 'Settings', icon: Settings },
+const NAV = {
+  bg:         'hsl(222, 47%, 7%)',
+  border:     'hsla(215, 40%, 35%, 0.2)',
+  groupLabel: 'hsl(215, 22%, 50%)',
+  text:       'hsl(210, 22%, 72%)',
+  textActive: 'hsl(217, 92%, 65%)',
+  textHover:  'hsl(210, 40%, 98%)',
+  activeBg:   'hsla(217, 92%, 65%, 0.12)',
+  activeBar:  'hsl(217, 92%, 65%)',
+  hoverBg:    'hsla(217, 92%, 65%, 0.06)',
+  iconDim:    'hsl(215, 20%, 46%)',
+  badge:      'hsl(346, 82%, 55%)',
+  badgeBg:    'hsla(346, 82%, 55%, 0.15)',
+  green:      'hsl(160, 84%, 44%)',
+  greenBg:    'hsla(160, 84%, 44%, 0.12)',
+};
+
+/**
+ * STANDALONE ROUTE MAP
+ * Modules that navigate AWAY from Boss Panel to their own standalone route.
+ * If a module ID is here, clicking it does navigate() instead of inline render.
+ */
+const STANDALONE_ROUTES: Record<string, string> = {
+  'ceo-dashboard': '/super-admin-system/role-switch?role=aira',
+  'vala-ai': '/super-admin-system/role-switch?role=aira&nav=vala-ai',
+  'product-manager': '/super-admin/product-manager',
+  'deployment-manager': '/super-admin-system/role-switch?role=deployment_manager',
+  'dev-manager': '/super-admin-system/role-switch?role=dev_manager',
+  'demo-manager': '/super-admin/demo-manager',
+  'demo-system-manager': '/super-admin/demo-manager',
+  'task-manager': '/task-manager',
+  'promise-tracker': '/promise-tracker',
+  'lead-manager': '/lead-manager',
+  'sales-manager': '/super-admin-system/role-switch?role=sales_manager',
+  'marketing-manager': '/marketing-manager',
+  'seo-manager': '/seo-manager',
+  'influencer-manager': '/super-admin/influencer-manager',
+  'continent-admin': '/super-admin-system/role-switch?role=continent_super_admin',
+  'country-admin': '/super-admin-system/role-switch?role=country_head',
+  'customer-support': '/super-admin/support-center',
+  'finance-manager': '/super-admin/finance-center',
+  'legal-manager': '/legal-manager',
+  'security-manager': '/super-admin/security-center',
+  'analytics-manager': '/super-admin-system/role-switch?role=aira',
+  'notification-manager': '/super-admin-system/role-switch?role=boss_owner',
+  'system-settings': '/super-admin/system-settings',
+};
+
+interface MenuItem {
+  id: BossPanelSection;
+  label: string;
+  icon: React.ElementType;
+  badge?: number;
+  status?: 'live' | 'alert';
+}
+
+interface MenuGroup {
+  label: string;
+  items: MenuItem[];
+}
+
+const menuGroups: MenuGroup[] = [
+  {
+    label: 'Command Center',
+    items: [
+      { id: 'dashboard', label: 'Boss Panel', icon: LayoutDashboard, status: 'live' },
+      { id: 'ceo-dashboard', label: 'CEO Dashboard', icon: Monitor },
+      { id: 'vala-ai', label: 'Vala AI', icon: Brain, status: 'live' },
+    ],
+  },
+  {
+    label: 'Infrastructure',
+    items: [
+      { id: 'server-manager', label: 'Server Manager', icon: Server },
+      { id: 'ai-api-manager', label: 'AI API Manager', icon: Cpu },
+      { id: 'deployment-manager', label: 'Deployment Manager', icon: Rocket },
+      { id: 'integration-manager', label: 'Integration Manager', icon: Link2 },
+    ],
+  },
+  {
+    label: 'Development',
+    items: [
+      { id: 'dev-manager', label: 'Development Manager', icon: Code2 },
+      { id: 'product-manager', label: 'Product Manager', icon: Package },
+      { id: 'demo-manager', label: 'Demo Manager', icon: Activity },
+      { id: 'demo-system-manager', label: 'Demo System Manager', icon: Boxes },
+      { id: 'task-manager', label: 'Task Manager', icon: FileText },
+      { id: 'promise-tracker', label: 'Promise Tracker', icon: HeartHandshake },
+    ],
+  },
+  {
+    label: 'Business & Sales',
+    items: [
+      { id: 'marketplace-manager', label: 'Marketplace Manager', icon: Store },
+      { id: 'marketplace-user-system', label: 'Marketplace User System', icon: ShoppingCart },
+      { id: 'license-manager', label: 'License Manager', icon: Key },
+      { id: 'lead-manager', label: 'Lead Manager', icon: Target },
+      { id: 'sales-manager', label: 'Sales Manager', icon: TrendingUp },
+      { id: 'asset-manager', label: 'Asset Manager', icon: Briefcase },
+    ],
+  },
+  {
+    label: 'Marketing & Growth',
+    items: [
+      { id: 'marketing-manager', label: 'Marketing Manager', icon: Megaphone },
+      { id: 'seo-manager', label: 'SEO Manager', icon: Search },
+      { id: 'influencer-manager', label: 'Influencer Manager', icon: Zap },
+    ],
+  },
+  {
+    label: 'Distribution Network',
+    items: [
+      { id: 'franchise-manager', label: 'Franchise Manager', icon: Network },
+      { id: 'reseller-manager', label: 'Reseller Manager', icon: TrendingUp },
+      { id: 'continent-admin', label: 'Continent Admin', icon: Globe },
+      { id: 'country-admin', label: 'Country Admin', icon: MapPin },
+    ],
+  },
+  {
+    label: 'People & Support',
+    items: [
+      { id: 'customer-support', label: 'Customer Support', icon: Headphones },
+      { id: 'developer-dashboard', label: 'Developer Dashboard', icon: Code2 },
+      { id: 'pro-manager', label: 'Pro Manager', icon: UserCog },
+      { id: 'user-dashboard', label: 'User Dashboard', icon: UserCircle },
+    ],
+  },
+  {
+    label: 'Finance & Legal',
+    items: [
+      { id: 'finance-manager', label: 'Finance Manager', icon: DollarSign },
+      { id: 'legal-manager', label: 'Legal Manager', icon: Scale },
+    ],
+  },
+  {
+    label: 'Security & Audit',
+    items: [
+      { id: 'security-manager', label: 'Security Manager', icon: Shield },
+      { id: 'audit-logs-manager', label: 'Audit Logs Manager', icon: ScrollText },
+      { id: 'analytics-manager', label: 'Analytics Manager', icon: LineChart },
+      { id: 'notification-manager', label: 'Notification Manager', icon: Bell },
+    ],
+  },
+  {
+    label: 'Configuration',
+    items: [
+      { id: 'system-settings', label: 'System Settings', icon: Settings },
+    ],
+  },
 ];
 
-export function BossPanelSidebar({ 
-  activeSection, 
-  onSectionChange, 
-  collapsed, 
-  onCollapsedChange 
-}: BossPanelSidebarProps) {
+export function BossPanelSidebar({ activeSection, onSectionChange, collapsed, onCollapsedChange }: BossPanelSidebarProps) {
+  const navigate = useNavigate();
+
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
+    const activeGroup = menuGroups.find(g => g.items.some(i => i.id === activeSection));
+    const initial = new Set<string>();
+    if (activeGroup) initial.add(activeGroup.label);
+    initial.add('Command Center');
+    return initial;
+  });
+
+  const toggleGroup = (label: string) => {
+    setExpandedGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(label)) next.delete(label);
+      else next.add(label);
+      return next;
+    });
+  };
+
+  /** Click handler — standalone modules navigate away, others render inline */
+  const handleItemClick = (id: BossPanelSection) => {
+    const standaloneRoute = STANDALONE_ROUTES[id];
+    if (standaloneRoute) {
+      navigate(standaloneRoute);
+    } else {
+      onSectionChange(id);
+    }
+  };
+
+  /** Back button → Control Panel */
+  const handleBack = () => {
+    navigate('/super-admin-system/role-switch?role=boss_owner');
+  };
+
   return (
-    <motion.aside
-      initial={false}
-      animate={{ width: collapsed ? 80 : 256 }}
-      className="fixed left-0 top-16 h-[calc(100vh-4rem)] bg-gradient-to-b from-[#0d0d14] via-[#12121a] to-[#0a0a10] backdrop-blur-xl border-r border-amber-500/15 z-40 flex flex-col"
+    <aside
+      className="fixed left-0 z-40 flex flex-col transition-all duration-300"
+      style={{ 
+        top: '48px',
+        height: 'calc(100vh - 48px)',
+        width: collapsed ? '56px' : '260px',
+        background: NAV.bg,
+        borderRight: `1px solid ${NAV.border}`,
+      }}
     >
-      {/* Collapse Toggle */}
-      <button
-        onClick={() => onCollapsedChange(!collapsed)}
-        className="absolute -right-3 top-6 w-6 h-6 bg-amber-500/20 border border-amber-500/40 rounded-full flex items-center justify-center text-amber-400 hover:bg-amber-500/30 transition-colors"
-      >
-        {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
-      </button>
+      {/* TOP: Back + Collapse */}
+      <div className="flex items-center justify-between px-2 py-1.5" style={{ borderBottom: `1px solid ${NAV.border}` }}>
+        <button
+          onClick={handleBack}
+          title="Back to Control Panel"
+          className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-semibold transition-all"
+          style={{ color: NAV.text }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = NAV.hoverBg; e.currentTarget.style.color = NAV.textHover; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = NAV.text; }}
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          {!collapsed && <span>BACK</span>}
+        </button>
+
+        <button
+          onClick={() => onCollapsedChange(!collapsed)}
+          className="w-7 h-7 rounded-md flex items-center justify-center transition-all"
+          style={{ color: NAV.iconDim }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = NAV.hoverBg; e.currentTarget.style.color = NAV.textHover; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = NAV.iconDim; }}
+        >
+          <ChevronLeft className={cn("w-4 h-4 transition-transform duration-300", collapsed && "rotate-180")} />
+        </button>
+      </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeSection === item.id;
-          
+      <nav className="flex-1 overflow-y-auto py-1" style={{ scrollbarWidth: 'thin', scrollbarColor: `${NAV.border} transparent` }}>
+        {menuGroups.map((group) => {
+          const isExpanded = expandedGroups.has(group.label);
+
+          if (collapsed) {
+            return (
+              <div key={group.label} className="px-1.5 mb-0.5">
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeSection === item.id;
+                  const isStandalone = !!STANDALONE_ROUTES[item.id];
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleItemClick(item.id)}
+                      title={`${item.label}${isStandalone ? ' ↗' : ''}`}
+                      className="relative w-full flex items-center justify-center py-2 rounded-md mb-px transition-all duration-200"
+                      style={{
+                        background: isActive ? NAV.activeBg : 'transparent',
+                        borderLeft: isActive ? `3px solid ${NAV.activeBar}` : '3px solid transparent',
+                      }}
+                      onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = NAV.hoverBg; }}
+                      onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = isActive ? NAV.activeBg : 'transparent'; }}
+                    >
+                      <Icon className="w-3.5 h-3.5" style={{ color: isActive ? NAV.textActive : NAV.iconDim }} />
+                      {item.status === 'live' && (
+                        <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: NAV.green }} />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          }
+
           return (
-            <motion.button
-              key={item.id}
-              onClick={() => onSectionChange(item.id)}
-              className={cn(
-                "w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all text-left",
-                isActive 
-                  ? "bg-amber-500/20 text-amber-300 border border-amber-400/40 shadow-[0_0_15px_rgba(245,158,11,0.15)]" 
-                  : "text-white/60 hover:text-white hover:bg-white/5"
-              )}
-              whileHover={{ x: 4 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <Icon className={cn("w-5 h-5 flex-shrink-0", isActive ? "text-amber-400" : "text-amber-500/50")} />
-              {!collapsed && (
-                <span className="text-sm font-medium truncate">{item.label}</span>
-              )}
-            </motion.button>
+            <div key={group.label} className="mb-0.5">
+              <button
+                onClick={() => toggleGroup(group.label)}
+                className="w-full flex items-center justify-between px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.14em] transition-colors"
+                style={{ color: NAV.groupLabel }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = NAV.textHover)}
+                onMouseLeave={(e) => (e.currentTarget.style.color = NAV.groupLabel)}
+              >
+                <span>{group.label}</span>
+                <motion.div animate={{ rotate: isExpanded ? 0 : -90 }} transition={{ duration: 0.15 }}>
+                  <ChevronDown className="w-3 h-3" />
+                </motion.div>
+              </button>
+
+              <AnimatePresence initial={false}>
+                {isExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.15, ease: 'easeInOut' }}
+                    className="overflow-hidden"
+                  >
+                    {group.items.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = activeSection === item.id;
+                      const isStandalone = !!STANDALONE_ROUTES[item.id];
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => handleItemClick(item.id)}
+                          className="w-full flex items-center gap-2.5 pl-5 pr-3 py-[6px] text-[12px] transition-all duration-150 relative"
+                          style={{
+                            background: isActive ? NAV.activeBg : 'transparent',
+                            color: isActive ? NAV.textActive : NAV.text,
+                            fontWeight: isActive ? 600 : 400,
+                            borderLeft: isActive ? `3px solid ${NAV.activeBar}` : '3px solid transparent',
+                          }}
+                          onMouseEnter={(e) => { 
+                            if (!isActive) {
+                              e.currentTarget.style.background = NAV.hoverBg; 
+                              e.currentTarget.style.color = NAV.textHover;
+                            }
+                          }}
+                          onMouseLeave={(e) => { 
+                            if (!isActive) {
+                              e.currentTarget.style.background = 'transparent';
+                              e.currentTarget.style.color = NAV.text;
+                            }
+                          }}
+                        >
+                          <Icon className="w-3.5 h-3.5 flex-shrink-0" style={{ color: isActive ? NAV.textActive : NAV.iconDim }} />
+                          <span className="truncate">{item.label}</span>
+
+                          {/* Standalone indicator */}
+                          {isStandalone && (
+                            <span className="ml-auto text-[8px] font-bold px-1 py-px rounded"
+                              style={{ background: 'hsla(217, 92%, 65%, 0.1)', color: NAV.textActive }}>
+                              ↗
+                            </span>
+                          )}
+
+                          {item.status === 'live' && !isStandalone && (
+                            <span className="ml-auto flex items-center gap-1 px-1.5 py-px rounded text-[8px] font-bold"
+                              style={{ background: NAV.greenBg, color: NAV.green }}>
+                              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: NAV.green }} />
+                              LIVE
+                            </span>
+                          )}
+                          {item.badge !== undefined && item.badge > 0 && (
+                            <span className="ml-auto text-[9px] font-bold px-1.5 py-px rounded-full"
+                              style={{ background: NAV.badgeBg, color: NAV.badge }}>{item.badge}</span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           );
         })}
       </nav>
 
       {/* Footer */}
       {!collapsed && (
-        <div className="p-4 border-t border-amber-500/15">
-          <div className="text-[10px] text-white/40 uppercase tracking-widest text-center">
-            Boss Role Principle
-          </div>
-          <div className="text-[9px] text-amber-400/60 text-center mt-1">
-            See Everything • Change Nothing Casually
+        <div className="px-4 py-2" style={{ borderTop: `1px solid ${NAV.border}` }}>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: NAV.green }} />
+            <p className="text-[9px] font-bold uppercase tracking-[0.1em]" style={{ color: NAV.groupLabel }}>
+              Software Vala • Enterprise
+            </p>
           </div>
         </div>
       )}
-    </motion.aside>
+    </aside>
   );
 }

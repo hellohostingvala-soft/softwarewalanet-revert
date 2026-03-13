@@ -1,34 +1,26 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
-  Search, 
-  Bell, 
-  ShieldAlert, 
-  LogOut, 
-  User,
-  Radio,
-  Crown
+
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
+import {
+
+} from './BossActionModals';
+import { BossPanelNotificationCenter } from './BossPanelNotificationCenter';
+
 
 interface BossPanelHeaderProps {
   streamingOn: boolean;
@@ -36,116 +28,180 @@ interface BossPanelHeaderProps {
 }
 
 export function BossPanelHeader({ streamingOn, onStreamingToggle }: BossPanelHeaderProps) {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [isLocking, setIsLocking] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [showAssist, setShowAssist] = useState(false);
+  const [showPromise, setShowPromise] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  const [showLanguage, setShowLanguage] = useState(false);
+  const [showCurrency, setShowCurrency] = useState(false);
+
+  const handleEmergencyLock = async () => {
+    setIsLocking(true);
+    try {
+      await supabase.from('audit_logs').insert({
+        user_id: user?.id, role: 'boss_owner' as any, module: 'boss-panel',
+        action: 'emergency_system_lock', meta_json: { timestamp: new Date().toISOString() }
+      });
+      toast.success('🔒 EMERGENCY LOCK ACTIVATED', { description: 'All system operations frozen.', duration: 5000 });
+    } catch { toast.error('Failed to activate emergency lock'); }
+    finally { setIsLocking(false); }
+  };
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await supabase.from('audit_logs').insert({
+        user_id: user?.id, role: 'boss_owner' as any, module: 'boss-panel',
+        action: 'secure_logout', meta_json: { timestamp: new Date().toISOString() }
+      });
+      await signOut();
+      toast.success('Securely logged out');
+      navigate('/auth');
+    } catch { toast.error('Logout failed'); }
+    finally { setIsLoggingOut(false); }
+  };
+
+  const IconBtn = ({ children, onClick, badge }: { children: React.ReactNode; onClick?: () => void; badge?: number }) => (
+    <button
+      onClick={onClick}
+      className="relative flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200"
+      style={{ color: S.muted }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = S.bgHover; e.currentTarget.style.color = S.text; }}
+      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = S.muted; }}
+    >
+      {children}
+      {badge !== undefined && badge > 0 && (
+        <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-4 h-4 text-[9px] font-bold rounded-full"
+          style={{ background: S.red, color: S.text }}>{badge > 9 ? '9+' : badge}</span>
+      )}
+    </button>
+  );
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 bg-gradient-to-r from-[#0d0d14] via-[#12121a] to-[#0d0d14] backdrop-blur-xl border-b border-amber-500/20 z-50 flex items-center justify-between px-6">
-      {/* Left - Logo & System Name */}
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
-            <Crown className="w-6 h-6 text-black" />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold text-amber-400">BOSS PANEL</h1>
-            <p className="text-[10px] text-amber-500/60 uppercase tracking-widest">Command Center</p>
-          </div>
+    <header 
+      className="fixed top-0 left-0 right-0 z-50 flex items-center h-12 px-4"
+      style={{ 
+        background: S.bg, 
+        borderBottom: `1px solid ${S.border}`,
+        boxShadow: '0 4px 20px -4px hsla(222,47%,4%,0.6)',
+      }}
+    >
+      {/* LEFT: Brand + Breadcrumb */}
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center" 
+          style={{ background: `linear-gradient(135deg, ${S.brand}, hsl(262, 83%, 58%))` }}>
+          <Crown className="w-4 h-4" style={{ color: S.text }} />
+        </div>
+        <div className="h-5 w-px" style={{ background: S.border }} />
+        <div className="flex items-center gap-1.5 text-xs">
+          <span className="font-bold" style={{ color: S.text }}>Software Vala</span>
+          <ChevronRight className="w-3 h-3" style={{ color: S.muted }} />
+          <span className="font-semibold" style={{ color: S.brand }}>Boss Command Center</span>
         </div>
       </div>
 
-      {/* Center - Live Status */}
-      <div className="flex items-center gap-4">
-        <motion.button
-          onClick={onStreamingToggle}
-          className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
-            streamingOn 
-              ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' 
-              : 'bg-red-500/20 border-red-500/50 text-red-400'
-          }`}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <Radio className={`w-4 h-4 ${streamingOn ? 'animate-pulse' : ''}`} />
-          <span className="text-sm font-medium">
-            {streamingOn ? 'LIVE STREAMING' : 'STREAM PAUSED'}
-          </span>
-        </motion.button>
+      {/* CENTER: Search */}
+      <div className="flex-1 flex justify-center max-w-lg mx-auto">
+        <div className="flex items-center gap-2 px-3.5 h-8 rounded-lg w-full transition-all"
+          style={{ background: 'hsla(215, 28%, 20%, 0.5)', border: `1px solid ${S.border}` }}>
+          <Search className="w-3.5 h-3.5" style={{ color: S.muted }} />
+          <input type="text" placeholder="Search modules, reports, users..."
+            className="bg-transparent text-xs outline-none flex-1 placeholder:text-inherit"
+            style={{ color: S.text }} />
+          <kbd className="text-[9px] px-1.5 py-0.5 rounded font-mono" 
+            style={{ background: 'hsla(215, 28%, 25%, 0.6)', color: S.muted, border: `1px solid ${S.border}` }}>⌘K</kbd>
+        </div>
       </div>
 
-      {/* Right - Search, Notifications, Emergency, Profile */}
-      <div className="flex items-center gap-4">
-        {/* Global Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-400/50" />
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search leads, tasks, demos..."
-            className="w-64 pl-10 bg-black/30 border-amber-500/20 text-white placeholder:text-amber-400/40 focus:border-amber-400/50"
-          />
+      {/* RIGHT: Actions */}
+      <div className="flex items-center gap-1">
+        {/* Live indicator */}
+        <button onClick={onStreamingToggle}
+          className="flex items-center gap-1.5 px-3 h-7 rounded-lg text-[11px] font-bold mr-1 transition-all"
+          style={{
+            background: streamingOn ? 'hsla(160, 84%, 39%, 0.12)' : 'hsla(346, 77%, 49%, 0.12)',
+            color: streamingOn ? S.green : S.red,
+            border: `1px solid ${streamingOn ? 'hsla(160, 84%, 39%, 0.25)' : 'hsla(346, 77%, 49%, 0.25)'}`,
+          }}>
+          <Radio className={`w-3 h-3 ${streamingOn ? 'animate-pulse' : ''}`} />
+          {streamingOn ? 'LIVE' : 'PAUSED'}
+        </button>
+
+        {/* Clock */}
+        <div className="flex items-center gap-1.5 px-2.5 h-7 rounded-lg mr-1 text-[11px] font-mono tabular-nums"
+          style={{ color: S.muted, background: 'hsla(215, 28%, 20%, 0.3)' }}>
+          <Clock className="w-3 h-3" />
+          {time.toLocaleTimeString('en-US', { hour12: false })}
         </div>
 
-        {/* Notifications */}
-        <Button variant="ghost" size="icon" className="relative text-amber-400/70 hover:text-amber-300 hover:bg-amber-500/10">
-          <Bell className="w-5 h-5" />
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-[10px] flex items-center justify-center text-white">
-            3
-          </span>
-        </Button>
 
-        {/* Emergency Lock Button */}
+
+
+
+        <IconBtn onClick={() => setShowAssist(true)}><Headphones className="w-4 h-4" /></IconBtn>
+        <IconBtn onClick={() => setShowPromise(true)}><ListChecks className="w-4 h-4" /></IconBtn>
+        <IconBtn onClick={() => setShowChat(true)}><MessageSquare className="w-4 h-4" /></IconBtn>
+        <IconBtn onClick={() => setShowNotifications(true)} badge={unreadCount}><Bell className="w-4 h-4" /></IconBtn>
+        <IconBtn onClick={() => setShowLanguage(true)}><Globe className="w-4 h-4" /></IconBtn>
+        <IconBtn onClick={() => setShowCurrency(true)}><Banknote className="w-4 h-4" /></IconBtn>
+
+        <div className="h-5 w-px mx-1" style={{ background: S.border }} />
+
+        {/* Emergency Lock */}
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="text-red-400 hover:text-red-300 hover:bg-red-500/20"
-            >
-              <ShieldAlert className="w-5 h-5" />
-            </Button>
+            <button className="flex items-center justify-center w-9 h-9 rounded-lg transition-all hover:bg-red-500/10"
+              style={{ color: S.red }}>
+              <ShieldAlert className="w-4 h-4" />
+            </button>
           </AlertDialogTrigger>
-          <AlertDialogContent className="bg-[#0d0d14] border-red-500/30">
+          <AlertDialogContent className="bg-sidebar border-destructive/30">
             <AlertDialogHeader>
-              <AlertDialogTitle className="text-red-400">⚠️ Emergency System Lock</AlertDialogTitle>
-              <AlertDialogDescription className="text-white/70">
+              <AlertDialogTitle className="text-destructive">⚠️ Emergency System Lock</AlertDialogTitle>
+              <AlertDialogDescription className="text-muted-foreground">
                 This will immediately lock down all system operations. Only you can unlock it.
-                All active sessions will be terminated and pending transactions frozen.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="bg-white/10 border-white/20 text-white hover:bg-white/20">
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction className="bg-red-600 hover:bg-red-700 text-white">
-                Confirm Emergency Lock
+              <AlertDialogCancel className="bg-sidebar-accent border-sidebar-border text-foreground">Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleEmergencyLock} disabled={isLocking}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                {isLocking ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Locking...</> : 'ACTIVATE LOCKDOWN'}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
 
-        {/* Profile Dropdown */}
+        {/* Profile */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex items-center gap-2 text-amber-400/70 hover:text-amber-300 hover:bg-amber-500/10">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
-                <User className="w-4 h-4 text-black" />
-              </div>
-              <span className="text-sm font-medium text-white">Boss</span>
-            </Button>
+            <button className="flex items-center justify-center w-8 h-8 rounded-full ml-1"
+              style={{ background: `linear-gradient(135deg, ${S.brand}, hsl(262, 83%, 58%))`, color: S.text }}>
+              <User className="w-4 h-4" />
+            </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-[#0d0d14] border-amber-500/20" align="end">
-            <DropdownMenuItem className="text-white/70 hover:text-white focus:text-white focus:bg-amber-500/10">
-              <User className="w-4 h-4 mr-2" />
-              Profile
+          <DropdownMenuContent align="end" className="bg-sidebar border-sidebar-border">
+            <DropdownMenuItem onClick={() => navigate('/settings')} className="text-muted-foreground hover:bg-white/5 cursor-pointer">
+              <User className="w-4 h-4 mr-2" />Profile
             </DropdownMenuItem>
-            <DropdownMenuSeparator className="bg-amber-500/20" />
-            <DropdownMenuItem className="text-red-400 hover:text-red-300 focus:text-red-300 focus:bg-red-500/10">
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
+            <DropdownMenuSeparator className="bg-sidebar-border" />
+            <DropdownMenuItem onClick={handleLogout} disabled={isLoggingOut}
+              className="text-destructive hover:bg-destructive/10 cursor-pointer">
+              {isLoggingOut ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <LogOut className="w-4 h-4 mr-2" />}
+              {isLoggingOut ? 'Logging out...' : 'Logout'}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Modals */}
+ main
+      <AssistModal open={showAssist} onClose={() => setShowAssist(false)} />
+      <PromiseTrackerModal open={showPromise} onClose={() => setShowPromise(false)} />
+      <InternalChatModal open={showChat} onClose={() => setShowChat(false)} />
+      <LanguageModal open={showLanguage} onClose={() => setShowLanguage(false)} />
+      <CurrencyModal open={showCurrency} onClose={() => setShowCurrency(false)} />
     </header>
   );
 }

@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -90,7 +91,7 @@ const WalletSystem = () => {
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Wallet System</h1>
           <p className="text-slate-500 text-sm">Role-based wallet management with escrow tracking</p>
         </div>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" onClick={() => toast.success('Syncing all wallets...')}>
           <RefreshCcw className="w-4 h-4 mr-2" />
           Sync All Wallets
         </Button>
@@ -131,7 +132,7 @@ const WalletSystem = () => {
                     <p className="text-xs text-slate-500">{wallet.transactions} transactions • {wallet.commissionRate}</p>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" onClick={() => toast.info(`Opening ${wallet.role} details`)}>
                   <ExternalLink className="w-4 h-4" />
                 </Button>
               </div>

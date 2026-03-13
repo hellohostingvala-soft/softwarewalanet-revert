@@ -43,12 +43,32 @@ const NotFound = () => {
   const [message] = useState(() => funMessages[Math.floor(Math.random() * funMessages.length)]);
   const [countdown, setCountdown] = useState(15);
 
+  const isSuperAdminLikePath = location.pathname.startsWith('/super-admin-system');
+  const hasEncodedQueryInPath = location.pathname.includes('%3F');
+
+  // Admin routes must never get stuck on a 404 screen.
+  // If a broken link encodes the query string into the pathname ("%3F"), decode and retry.
+  // Otherwise, always send the user to the role switch entry (which will handle auth).
+  useEffect(() => {
+    if (!isSuperAdminLikePath) return;
+
+    if (hasEncodedQueryInPath) {
+      const decodedPath = decodeURIComponent(location.pathname);
+      navigate(decodedPath, { replace: true });
+      return;
+    }
+
+    navigate('/super-admin-system/role-switch?role=boss_owner', { replace: true });
+  }, [isSuperAdminLikePath, hasEncodedQueryInPath, location.pathname, navigate]);
+
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
     document.title = "Oops! Page Not Found | Software Vala";
   }, [location.pathname]);
 
   useEffect(() => {
+    if (isSuperAdminLikePath) return; // handled by the admin redirect effect above
+
     const timer = setInterval(() => {
       setCountdown(prev => {
         if (prev <= 1) {
@@ -58,15 +78,24 @@ const NotFound = () => {
         return prev - 1;
       });
     }, 1000);
+
     return () => clearInterval(timer);
-  }, [navigate]);
+  }, [navigate, isSuperAdminLikePath]);
+
+  if (isSuperAdminLikePath) {
+    return (
+      <main className="min-h-screen bg-background flex items-center justify-center p-6">
+        <div className="text-sm text-muted-foreground">Redirecting…</div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4 overflow-hidden">
       {/* Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <motion.div
-          animate={{ 
+          animate={{
             rotate: 360,
             scale: [1, 1.1, 1],
           }}
@@ -88,7 +117,7 @@ const NotFound = () => {
         <motion.div
           key={i}
           initial={{ opacity: 0 }}
-          animate={{ 
+          animate={{
             opacity: [0.3, 0.6, 0.3],
             y: [-20, 20, -20],
             x: [0, Math.sin(i) * 30, 0]
@@ -100,9 +129,9 @@ const NotFound = () => {
             ease: "easeInOut"
           }}
           className="absolute"
-          style={{ 
-            top: `${20 + Math.random() * 60}%`, 
-            left: `${10 + Math.random() * 80}%` 
+          style={{
+            top: `${20 + Math.random() * 60}%`,
+            left: `${10 + Math.random() * 80}%`
           }}
         >
           <Sparkles className="w-6 h-6 text-primary/30" />
@@ -122,7 +151,7 @@ const NotFound = () => {
           transition={{ duration: 0.5, type: "spring" }}
           className="relative mb-8"
         >
-          <h1 
+          <h1
             className="text-[150px] md:text-[200px] font-black leading-none"
             style={{
               background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(280, 100%, 60%) 50%, hsl(var(--primary)) 100%)',

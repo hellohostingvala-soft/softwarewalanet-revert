@@ -134,7 +134,11 @@ const ResellerPayouts = () => {
               <span className="text-slate-400">UPI</span>
               <span className="text-white">{bankDetails.upi}</span>
             </div>
-            <Button variant="outline" className="w-full border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 mt-2">
+            <Button 
+              variant="outline" 
+              className="w-full border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 mt-2"
+              onClick={() => toast.info('Bank details update requires verification. Please contact support.')}
+            >
               Update Bank Details
             </Button>
           </CardContent>

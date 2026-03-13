@@ -13,8 +13,13 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { toast } from 'sonner';
 
-const ResellerDash = () => {
+interface ResellerDashProps {
+  onSectionChange?: (section: string) => void;
+}
+
+const ResellerDash = ({ onSectionChange }: ResellerDashProps) => {
   const stats = [
     { label: 'Active Leads', value: '24', change: '+5', trend: 'up', icon: Users, color: 'emerald' },
     { label: 'Wallet Balance', value: '₹45,200', change: '+₹8,500', trend: 'up', icon: Wallet, color: 'teal' },
@@ -114,7 +119,12 @@ const ResellerDash = () => {
               <Users className="w-5 h-5 text-emerald-400" />
               Recent Leads
             </CardTitle>
-            <button className="text-emerald-400 text-sm hover:underline">View All</button>
+            <button 
+              className="text-emerald-400 text-sm hover:underline"
+              onClick={() => onSectionChange?.('leads')}
+            >
+              View All
+            </button>
           </CardHeader>
           <CardContent className="space-y-3">
             {recentLeads.map((lead, index) => (
@@ -155,7 +165,12 @@ const ResellerDash = () => {
               <Bell className="w-5 h-5 text-emerald-400" />
               Notifications
             </CardTitle>
-            <button className="text-emerald-400 text-sm hover:underline">Mark All Read</button>
+            <button 
+              className="text-emerald-400 text-sm hover:underline"
+              onClick={() => onSectionChange?.('notifications')}
+            >
+              Mark All Read
+            </button>
           </CardHeader>
           <CardContent className="space-y-3">
             {notifications.map((notif, index) => (
@@ -197,15 +212,22 @@ const ResellerDash = () => {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              { icon: Link, label: 'Get Demo Link', color: 'emerald' },
-              { icon: Users, label: 'Follow Up Lead', color: 'teal' },
-              { icon: Wallet, label: 'Request Payout', color: 'cyan' },
-              { icon: AlertCircle, label: 'Raise Escalation', color: 'amber' },
+              { icon: Link, label: 'Get Demo Link', color: 'emerald', action: () => {
+                navigator.clipboard.writeText('https://softwarevala.com/demo?ref=reseller');
+                toast.success('Demo link copied to clipboard!');
+              }},
+              { icon: Users, label: 'Follow Up Lead', color: 'teal', action: () => onSectionChange?.('leads') },
+              { icon: Wallet, label: 'Request Payout', color: 'cyan', action: () => onSectionChange?.('payouts') },
+              { icon: AlertCircle, label: 'Raise Escalation', color: 'amber', action: () => {
+                toast.info('Escalation form will open');
+                onSectionChange?.('notifications');
+              }},
             ].map((action, index) => (
               <motion.button
                 key={index}
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={action.action}
                 className={`p-4 rounded-xl bg-gradient-to-br from-${action.color}-500/20 to-${action.color}-600/10 border border-${action.color}-500/30 hover:border-${action.color}-500/50 transition-all group`}
               >
                 <action.icon className={`w-6 h-6 text-${action.color}-400 mb-2 group-hover:scale-110 transition-transform`} />

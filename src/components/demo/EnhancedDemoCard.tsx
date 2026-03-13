@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useEnterpriseAudit } from '@/hooks/useEnterpriseAudit';
 
 interface EnhancedDemoCardProps {
   id: string;
@@ -50,6 +51,7 @@ const EnhancedDemoCard: React.FC<EnhancedDemoCardProps> = ({
   className
 }) => {
   const navigate = useNavigate();
+  const { logAction } = useEnterpriseAudit();
   const [isFavorite, setIsFavorite] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
   const [loadingCart, setLoadingCart] = useState(false);
@@ -67,11 +69,33 @@ const EnhancedDemoCard: React.FC<EnhancedDemoCardProps> = ({
   };
 
   const handleBuyNow = () => {
+    // Navigate instantly, log async in background
     navigate(`/checkout/${id}`);
+    logAction({
+      action: 'public_buy_now_clicked',
+      module: 'finance',
+      severity: 'low',
+      metadata: {
+        demo_id: id,
+        demo_title: title,
+        category,
+      },
+    }).catch(() => {});
   };
 
   const handleStartDemo = () => {
+    // Navigate instantly, log async in background
     navigate(`/demo/${id}`);
+    logAction({
+      action: 'public_try_demo_clicked',
+      module: 'vala_builder',
+      severity: 'low',
+      metadata: {
+        demo_id: id,
+        demo_title: title,
+        category,
+      },
+    }).catch(() => {});
   };
 
   const handleAddToCart = async () => {

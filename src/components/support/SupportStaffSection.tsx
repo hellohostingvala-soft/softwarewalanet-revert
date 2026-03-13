@@ -14,41 +14,40 @@ interface StaffMember {
   specialization: string;
 }
 
-// Diverse staff data based on regions
+// PII MASKED: Names replaced with role-based identifiers, no personal avatars
 const staffByRegion: Record<string, StaffMember[]> = {
   IN: [
-    // Hindi Belt - 40% female
-    { id: '1', name: 'Priya Sharma', role: 'Senior Developer', avatar: '👩‍💻', languages: ['Hindi', 'English'], isOnline: true, specialization: 'E-commerce Solutions' },
-    { id: '2', name: 'Rahul Kumar', role: 'Technical Lead', avatar: '👨‍💻', languages: ['Hindi', 'English'], isOnline: true, specialization: 'ERP Systems' },
-    { id: '3', name: 'Anjali Verma', role: 'Support Manager', avatar: '👩‍💼', languages: ['Hindi', 'English'], isOnline: true, specialization: 'Customer Success' },
-    { id: '4', name: 'Mohammed Irfan', role: 'Full Stack Developer', avatar: '👨‍💻', languages: ['Hindi', 'Urdu', 'English'], isOnline: true, specialization: 'Healthcare IT' },
-    { id: '5', name: 'Gurpreet Singh', role: 'DevOps Engineer', avatar: '👨‍💻', languages: ['Punjabi', 'Hindi', 'English'], isOnline: true, specialization: 'Cloud Infrastructure' },
-    { id: '6', name: 'Fatima Khan', role: 'UI/UX Designer', avatar: '👩‍🎨', languages: ['Hindi', 'Urdu', 'English'], isOnline: true, specialization: 'Mobile Apps' },
-    { id: '7', name: 'Suresh Reddy', role: 'Senior Architect', avatar: '👴', languages: ['Telugu', 'Hindi', 'English'], isOnline: true, specialization: 'Enterprise Solutions' },
-    { id: '8', name: 'Kavitha Nair', role: 'Project Manager', avatar: '👩‍💼', languages: ['Malayalam', 'Hindi', 'English'], isOnline: true, specialization: 'Hospitality Tech' },
+    { id: '1', name: 'Dev-IN-01', role: 'Senior Developer', avatar: '💼', languages: ['Hindi', 'English'], isOnline: true, specialization: 'E-commerce Solutions' },
+    { id: '2', name: 'Dev-IN-02', role: 'Technical Lead', avatar: '💼', languages: ['Hindi', 'English'], isOnline: true, specialization: 'ERP Systems' },
+    { id: '3', name: 'Support-IN-01', role: 'Support Manager', avatar: '💼', languages: ['Hindi', 'English'], isOnline: true, specialization: 'Customer Success' },
+    { id: '4', name: 'Dev-IN-03', role: 'Full Stack Developer', avatar: '💼', languages: ['Hindi', 'Urdu', 'English'], isOnline: true, specialization: 'Healthcare IT' },
+    { id: '5', name: 'Dev-IN-04', role: 'DevOps Engineer', avatar: '💼', languages: ['Punjabi', 'Hindi', 'English'], isOnline: true, specialization: 'Cloud Infrastructure' },
+    { id: '6', name: 'Dev-IN-05', role: 'UI/UX Designer', avatar: '💼', languages: ['Hindi', 'Urdu', 'English'], isOnline: true, specialization: 'Mobile Apps' },
+    { id: '7', name: 'Dev-IN-06', role: 'Senior Architect', avatar: '💼', languages: ['Telugu', 'Hindi', 'English'], isOnline: true, specialization: 'Enterprise Solutions' },
+    { id: '8', name: 'Support-IN-02', role: 'Project Manager', avatar: '💼', languages: ['Malayalam', 'Hindi', 'English'], isOnline: true, specialization: 'Hospitality Tech' },
   ],
   US: [
-    { id: '9', name: 'Michael Johnson', role: 'Solutions Architect', avatar: '👨‍💻', languages: ['English', 'Spanish'], isOnline: true, specialization: 'SaaS Platforms' },
-    { id: '10', name: 'Sarah Williams', role: 'Technical Lead', avatar: '👩‍💻', languages: ['English'], isOnline: true, specialization: 'FinTech Solutions' },
-    { id: '11', name: 'James Rodriguez', role: 'Full Stack Developer', avatar: '👨‍💻', languages: ['English', 'Spanish'], isOnline: true, specialization: 'E-commerce' },
-    { id: '12', name: 'Emily Chen', role: 'Data Engineer', avatar: '👩‍💻', languages: ['English', 'Mandarin'], isOnline: true, specialization: 'Analytics' },
-    { id: '13', name: 'Robert Miller', role: 'Senior Consultant', avatar: '👴', languages: ['English'], isOnline: true, specialization: 'ERP Implementation' },
+    { id: '9', name: 'Dev-US-01', role: 'Solutions Architect', avatar: '💼', languages: ['English', 'Spanish'], isOnline: true, specialization: 'SaaS Platforms' },
+    { id: '10', name: 'Dev-US-02', role: 'Technical Lead', avatar: '💼', languages: ['English'], isOnline: true, specialization: 'FinTech Solutions' },
+    { id: '11', name: 'Dev-US-03', role: 'Full Stack Developer', avatar: '💼', languages: ['English', 'Spanish'], isOnline: true, specialization: 'E-commerce' },
+    { id: '12', name: 'Dev-US-04', role: 'Data Engineer', avatar: '💼', languages: ['English', 'Mandarin'], isOnline: true, specialization: 'Analytics' },
+    { id: '13', name: 'Dev-US-05', role: 'Senior Consultant', avatar: '💼', languages: ['English'], isOnline: true, specialization: 'ERP Implementation' },
   ],
   AE: [
-    { id: '14', name: 'Ahmed Al-Rashid', role: 'Regional Director', avatar: '👨‍💼', languages: ['Arabic', 'English'], isOnline: true, specialization: 'Enterprise Solutions' },
-    { id: '15', name: 'Fatima Al-Hashimi', role: 'Senior Developer', avatar: '👩‍💻', languages: ['Arabic', 'English'], isOnline: true, specialization: 'Banking Systems' },
-    { id: '16', name: 'Omar Hassan', role: 'Technical Lead', avatar: '👨‍💻', languages: ['Arabic', 'English', 'Hindi'], isOnline: true, specialization: 'Hospitality Tech' },
+    { id: '14', name: 'Dev-AE-01', role: 'Regional Director', avatar: '💼', languages: ['Arabic', 'English'], isOnline: true, specialization: 'Enterprise Solutions' },
+    { id: '15', name: 'Dev-AE-02', role: 'Senior Developer', avatar: '💼', languages: ['Arabic', 'English'], isOnline: true, specialization: 'Banking Systems' },
+    { id: '16', name: 'Dev-AE-03', role: 'Technical Lead', avatar: '💼', languages: ['Arabic', 'English', 'Hindi'], isOnline: true, specialization: 'Hospitality Tech' },
   ],
   GB: [
-    { id: '17', name: 'David Thompson', role: 'Solutions Architect', avatar: '👨‍💻', languages: ['English'], isOnline: true, specialization: 'Healthcare IT' },
-    { id: '18', name: 'Emma Wilson', role: 'Project Manager', avatar: '👩‍💼', languages: ['English', 'French'], isOnline: true, specialization: 'Retail Solutions' },
-    { id: '19', name: 'Tariq Ahmed', role: 'Full Stack Developer', avatar: '👨‍💻', languages: ['English', 'Urdu'], isOnline: true, specialization: 'Logistics' },
+    { id: '17', name: 'Dev-GB-01', role: 'Solutions Architect', avatar: '💼', languages: ['English'], isOnline: true, specialization: 'Healthcare IT' },
+    { id: '18', name: 'Support-GB-01', role: 'Project Manager', avatar: '💼', languages: ['English', 'French'], isOnline: true, specialization: 'Retail Solutions' },
+    { id: '19', name: 'Dev-GB-02', role: 'Full Stack Developer', avatar: '💼', languages: ['English', 'Urdu'], isOnline: true, specialization: 'Logistics' },
   ],
   DEFAULT: [
-    { id: '20', name: 'Alex Kumar', role: 'Global Support Lead', avatar: '👨‍💻', languages: ['English', 'Hindi'], isOnline: true, specialization: 'All Solutions' },
-    { id: '21', name: 'Maria Santos', role: 'Customer Success', avatar: '👩‍💼', languages: ['English', 'Spanish', 'Portuguese'], isOnline: true, specialization: 'Implementation' },
-    { id: '22', name: 'John Smith', role: 'Senior Architect', avatar: '👴', languages: ['English'], isOnline: true, specialization: 'Enterprise Solutions' },
-    { id: '23', name: 'Aisha Patel', role: 'Technical Lead', avatar: '👩‍💻', languages: ['English', 'Hindi', 'Gujarati'], isOnline: true, specialization: 'Custom Development' },
+    { id: '20', name: 'Support-GL-01', role: 'Global Support Lead', avatar: '💼', languages: ['English', 'Hindi'], isOnline: true, specialization: 'All Solutions' },
+    { id: '21', name: 'Support-GL-02', role: 'Customer Success', avatar: '💼', languages: ['English', 'Spanish', 'Portuguese'], isOnline: true, specialization: 'Implementation' },
+    { id: '22', name: 'Dev-GL-01', role: 'Senior Architect', avatar: '💼', languages: ['English'], isOnline: true, specialization: 'Enterprise Solutions' },
+    { id: '23', name: 'Dev-GL-02', role: 'Technical Lead', avatar: '💼', languages: ['English', 'Hindi', 'Gujarati'], isOnline: true, specialization: 'Custom Development' },
   ],
 };
 
@@ -84,8 +83,8 @@ const SupportStaffSection: React.FC = () => {
   };
 
   const handleContactClick = (staffMember: StaffMember) => {
-    // Open WhatsApp or contact form
-    const message = encodeURIComponent(`Hi ${staffMember.name}, I need help with Software Vala products.`);
+    // PII MASKED: Contact uses role-based identifier, not personal name
+    const message = encodeURIComponent(`Hi ${staffMember.role} Team, I need help with Software Vala products.`);
     window.open(`https://wa.me/918348838383?text=${message}`, '_blank');
   };
 

@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   ArrowUpRight, 
   Clock,
@@ -10,8 +14,11 @@ import {
   DollarSign,
   CheckCircle,
   AlertTriangle,
-  User
+  User,
+  Plus,
+  X
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface Escalation {
   id: string;
@@ -73,8 +80,45 @@ const mockEscalations: Escalation[] = [
 ];
 
 export const RMEscalations: React.FC = () => {
-  const [escalations] = useState<Escalation[]>(mockEscalations);
+  const [escalations, setEscalations] = useState<Escalation[]>(mockEscalations);
   const [filter, setFilter] = useState<'all' | 'pending' | 'in_progress' | 'resolved'>('all');
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newEscalation, setNewEscalation] = useState({
+    resellerId: '',
+    resellerName: '',
+    escalatedTo: '' as 'legal' | 'admin' | 'pro',
+    reason: '',
+    priority: 'medium' as 'critical' | 'high' | 'medium'
+  });
+
+  const handleCreateEscalation = () => {
+    if (!newEscalation.resellerId || !newEscalation.reason || !newEscalation.escalatedTo) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+    
+    const escalation: Escalation = {
+      id: `esc-${Date.now()}`,
+      resellerId: newEscalation.resellerId,
+      resellerName: newEscalation.resellerName || 'Unknown Reseller',
+      escalatedTo: newEscalation.escalatedTo,
+      reason: newEscalation.reason,
+      priority: newEscalation.priority,
+      escalatedAt: new Date().toISOString(),
+      status: 'pending'
+    };
+    
+    setEscalations(prev => [escalation, ...prev]);
+    setShowCreateForm(false);
+    setNewEscalation({
+      resellerId: '',
+      resellerName: '',
+      escalatedTo: '' as 'legal' | 'admin' | 'pro',
+      reason: '',
+      priority: 'medium'
+    });
+    toast.success(`Escalation created and sent to ${escalation.escalatedTo.toUpperCase()} team`);
+  };
 
   const getTeamIcon = (team: string) => {
     switch (team) {
@@ -145,12 +189,100 @@ export const RMEscalations: React.FC = () => {
             <ArrowUpRight className="h-5 w-5 text-primary" />
             Escalations
           </CardTitle>
-          <Badge variant="outline" className={pendingCount > 0 ? 'bg-yellow-500/10 text-yellow-500' : ''}>
-            {pendingCount} Pending
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className={pendingCount > 0 ? 'bg-yellow-500/10 text-yellow-500' : ''}>
+              {pendingCount} Pending
+            </Badge>
+            <Button size="sm" onClick={() => setShowCreateForm(true)} className="gap-1">
+              <Plus className="h-4 w-4" />
+              New Escalation
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="p-4">
+        {/* Create Escalation Form */}
+        {showCreateForm && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="border border-primary/30 rounded-lg p-4 mb-4 bg-primary/5"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-semibold text-foreground">Create New Escalation</h4>
+              <Button size="sm" variant="ghost" onClick={() => setShowCreateForm(false)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1 block">Reseller ID *</label>
+                <Input
+                  placeholder="VL-RS-XXXX"
+                  value={newEscalation.resellerId}
+                  onChange={(e) => setNewEscalation(prev => ({ ...prev, resellerId: e.target.value }))}
+                  className="bg-background"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1 block">Reseller Name</label>
+                <Input
+                  placeholder="Business name"
+                  value={newEscalation.resellerName}
+                  onChange={(e) => setNewEscalation(prev => ({ ...prev, resellerName: e.target.value }))}
+                  className="bg-background"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1 block">Escalate To *</label>
+                <Select
+                  value={newEscalation.escalatedTo}
+                  onValueChange={(value: 'legal' | 'admin' | 'pro') => setNewEscalation(prev => ({ ...prev, escalatedTo: value }))}
+                >
+                  <SelectTrigger className="bg-background">
+                    <SelectValue placeholder="Select team" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="legal">Legal Team</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="pro">Professional Services</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1 block">Priority</label>
+                <Select
+                  value={newEscalation.priority}
+                  onValueChange={(value: 'critical' | 'high' | 'medium') => setNewEscalation(prev => ({ ...prev, priority: value }))}
+                >
+                  <SelectTrigger className="bg-background">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="critical">Critical</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="mb-4">
+              <label className="text-sm font-medium text-foreground mb-1 block">Reason *</label>
+              <Textarea
+                placeholder="Describe the issue requiring escalation..."
+                value={newEscalation.reason}
+                onChange={(e) => setNewEscalation(prev => ({ ...prev, reason: e.target.value }))}
+                className="bg-background"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={handleCreateEscalation}>Create Escalation</Button>
+              <Button variant="ghost" onClick={() => setShowCreateForm(false)}>Cancel</Button>
+            </div>
+          </motion.div>
+        )}
+
         <div className="flex gap-2 mb-4 flex-wrap">
           {(['all', 'pending', 'in_progress', 'resolved'] as const).map((status) => (
             <Badge

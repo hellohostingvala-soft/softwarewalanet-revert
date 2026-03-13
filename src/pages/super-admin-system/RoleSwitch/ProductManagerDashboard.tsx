@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   Box, Package, Play, Eye, Plus, Edit2, Trash2, Search, Filter,
@@ -8,6 +8,7 @@ import {
   Link2, Copy, Calendar, Zap, ArrowUpRight, MoreHorizontal, Check,
   Power, ChevronRight, Timer, Repeat, Share2, Lock, Unlock
 } from "lucide-react";
+import { useSystemActions } from "@/hooks/useSystemActions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,8 +21,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
-// Mock products data
+// Mock products data - Including School Management System (LIVE)
 const mockProducts = [
   { 
     id: "PRD-001", 
@@ -35,6 +37,8 @@ const mockProducts = [
     lastUpdated: "2 days ago",
     price: "₹2,50,000",
     rating: 4.8,
+    hasDemoMode: true,
+    hasLiveMode: true,
   },
   { 
     id: "PRD-002", 
@@ -48,6 +52,8 @@ const mockProducts = [
     lastUpdated: "5 days ago",
     price: "₹1,50,000",
     rating: 4.6,
+    hasDemoMode: true,
+    hasLiveMode: true,
   },
   { 
     id: "PRD-003", 
@@ -61,6 +67,8 @@ const mockProducts = [
     lastUpdated: "1 hour ago",
     price: "₹75,000",
     rating: 0,
+    hasDemoMode: false,
+    hasLiveMode: false,
   },
   { 
     id: "PRD-004", 
@@ -74,6 +82,8 @@ const mockProducts = [
     lastUpdated: "1 week ago",
     price: "₹1,25,000",
     rating: 4.5,
+    hasDemoMode: true,
+    hasLiveMode: true,
   },
   { 
     id: "PRD-005", 
@@ -87,6 +97,8 @@ const mockProducts = [
     lastUpdated: "3 days ago",
     price: "₹3,00,000",
     rating: 4.9,
+    hasDemoMode: true,
+    hasLiveMode: true,
   },
   { 
     id: "PRD-006", 
@@ -100,10 +112,33 @@ const mockProducts = [
     lastUpdated: "2 weeks ago",
     price: "₹95,000",
     rating: 4.2,
+    hasDemoMode: true,
+    hasLiveMode: false,
+  },
+  // ===== SCHOOL MANAGEMENT SYSTEM - LIVE =====
+  { 
+    id: "PRD-007", 
+    name: "School Management System", 
+    category: "Software",
+    subCategory: "ERP",
+    status: "active",
+    demos: 89,
+    activeUsers: 2450,
+    version: "v2.0.0",
+    lastUpdated: "1 day ago",
+    price: "₹1,85,000",
+    rating: 4.9,
+    hasDemoMode: true,
+    hasLiveMode: true,
+    isEducation: true,
+    modules: 16,
+    roles: 12,
+    demoUrl: "/school-software",
+    liveUrl: "/school-software/dashboard",
   },
 ];
 
-// Mock demos data
+// Mock demos data - Including School Management System Demo
 const mockDemos = [
   { 
     id: "DEM-001", 
@@ -119,7 +154,8 @@ const mockDemos = [
     url: "demo.erp.example.com",
     username: "demo_user",
     password: "demo123",
-    conversionRate: 18.5
+    conversionRate: 18.5,
+    mode: "demo"
   },
   { 
     id: "DEM-002", 
@@ -135,7 +171,8 @@ const mockDemos = [
     url: "demo.crm.example.com",
     username: "demo_crm",
     password: "crm456",
-    conversionRate: 22.3
+    conversionRate: 22.3,
+    mode: "demo"
   },
   { 
     id: "DEM-003", 
@@ -151,7 +188,8 @@ const mockDemos = [
     url: "demo.hr.example.com",
     username: "demo_hr",
     password: "hr789",
-    conversionRate: 15.2
+    conversionRate: 15.2,
+    mode: "demo"
   },
   { 
     id: "DEM-004", 
@@ -167,11 +205,76 @@ const mockDemos = [
     url: "demo.ecom.example.com",
     username: "demo_ecom",
     password: "ecom321",
-    conversionRate: 25.8
+    conversionRate: 25.8,
+    mode: "demo"
+  },
+  // ===== SCHOOL MANAGEMENT SYSTEM - USER TRIALS (FULL) =====
+  { 
+    id: "DEM-005", 
+    name: "School ERP - User Trial (Full)", 
+    product: "School Management System",
+    productId: "PRD-007",
+    type: "full_trial",
+    status: "active",
+    users: 89,
+    validity: "30 Days",
+    expiresIn: "30 days",
+    lastUsed: "5 min ago",
+    url: "/school-software",
+    username: "auto_generated",
+    password: "auto",
+    conversionRate: 32.5,
+    mode: "trial",
+    demoRoles: ["principal", "teacher", "student", "parent", "accountant", "librarian", "transport", "admin"],
+    isEducation: true,
+    modules: 16,
+    fullAccess: true,
+    directBuy: true
+  },
+  { 
+    id: "DEM-006", 
+    name: "School ERP - Principal Trial", 
+    product: "School Management System",
+    productId: "PRD-007",
+    type: "full_trial",
+    status: "active",
+    users: 45,
+    validity: "30 Days",
+    expiresIn: "30 days",
+    lastUsed: "10 min ago",
+    url: "/school-software/dashboard?role=principal",
+    username: "trial_principal",
+    password: "auto",
+    conversionRate: 28.3,
+    mode: "trial",
+    isEducation: true,
+    fullAccess: true,
+    directBuy: true
+  },
+  { 
+    id: "DEM-007", 
+    name: "School ERP - Teacher Trial", 
+    product: "School Management System",
+    productId: "PRD-007",
+    type: "full_trial",
+    status: "active",
+    users: 32,
+    validity: "30 Days",
+    expiresIn: "30 days",
+    lastUsed: "15 min ago",
+    url: "/school-software/dashboard?role=teacher",
+    username: "trial_teacher",
+    password: "auto",
+    conversionRate: 22.1,
+    mode: "trial",
+    isEducation: true,
+    fullAccess: true,
+    directBuy: true
   },
 ];
 
 const ProductManagerDashboard = () => {
+  const { actions, executeAction } = useSystemActions();
   const [activeTab, setActiveTab] = useState("products");
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [selectedDemos, setSelectedDemos] = useState<string[]>([]);
@@ -183,6 +286,92 @@ const ProductManagerDashboard = () => {
   const [showCreateDemo, setShowCreateDemo] = useState(false);
   const [createDemoStep, setCreateDemoStep] = useState(1);
   const [demoConfig, setDemoConfig] = useState({ product: "", type: "time_based", duration: "15" });
+  const [demoStats, setDemoStats] = useState({ totalDemos: 0, activeDemos: 0, expiredDemos: 0 });
+  const [productStats, setProductStats] = useState({ totalProducts: 0, activeProducts: 0 });
+
+  useEffect(() => {
+    const fetchDemoStats = async () => {
+      const { data, error } = await supabase
+        .from('demos')
+        .select('id, status, expires_at');
+      if (error) {
+        console.error('Failed to fetch demos:', error);
+        setDemoStats({ totalDemos: 0, activeDemos: 0, expiredDemos: 0 });
+        return;
+      }
+      const now = new Date();
+      const totalDemos = data?.length || 0;
+      const activeDemos = data?.filter((d: { status: string }) => d.status === 'active').length || 0;
+      const expiredDemos = data?.filter((d: { expires_at: string }) => d.expires_at && new Date(d.expires_at) < now).length || 0;
+      setDemoStats({ totalDemos, activeDemos, expiredDemos });
+    };
+
+    const fetchProductStats = async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, status');
+      if (error) {
+        console.error('Failed to fetch products:', error);
+        setProductStats({ totalProducts: 0, activeProducts: 0 });
+        return;
+      }
+      const totalProducts = data?.length || 0;
+      const activeProducts = data?.filter((p: { status: string }) => p.status === 'active').length || 0;
+      setProductStats({ totalProducts, activeProducts });
+    };
+
+    fetchDemoStats();
+    fetchProductStats();
+  }, []);
+
+  // ===== ACTION HANDLERS =====
+  const handleEditProduct = useCallback(() => {
+    if (!selectedProduct) return;
+    actions.update('product', 'product', selectedProduct.id, {}, selectedProduct.name);
+  }, [selectedProduct, actions]);
+
+  const handleAddDemo = useCallback(() => {
+    if (!selectedProduct) return;
+    executeAction({
+      module: 'product',
+      action: 'create',
+      entityType: 'demo',
+      entityName: `Demo for ${selectedProduct.name}`,
+      data: { productId: selectedProduct.id },
+      successMessage: 'Demo created successfully'
+    });
+    setShowCreateDemo(true);
+  }, [selectedProduct, executeAction]);
+
+  const handleUpgradeProduct = useCallback(() => {
+    if (!selectedProduct) return;
+    executeAction({
+      module: 'product',
+      action: 'update',
+      entityType: 'product_version',
+      entityId: selectedProduct.id,
+      entityName: selectedProduct.name,
+      data: { action: 'upgrade' },
+      successMessage: 'Product upgrade initiated'
+    });
+  }, [selectedProduct, executeAction]);
+
+  const handleDeleteProduct = useCallback(() => {
+    if (!selectedProduct) return;
+    actions.delete('product', 'product', selectedProduct.id, selectedProduct.name);
+  }, [selectedProduct, actions]);
+
+  const handleRefreshProducts = useCallback(() => {
+    actions.refresh('product', 'products');
+  }, [actions]);
+
+  const handleExportProducts = useCallback(() => {
+    actions.export('product', 'products', 'csv');
+  }, [actions]);
+
+  const handleImportProducts = useCallback(() => {
+    actions.import('product', 'products');
+  }, [actions]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -208,7 +397,14 @@ const ProductManagerDashboard = () => {
       toast.error(`Select ${type}s first`);
       return;
     }
-    toast.success(`${action} applied to ${count} ${type}(s)`);
+    // Execute bulk action with audit logging
+    executeAction({
+      module: 'product',
+      action: 'update',
+      entityType: type,
+      data: { bulkAction: action, count, ids: type === 'product' ? selectedProducts : selectedDemos },
+      successMessage: `${action} applied to ${count} ${type}(s)`
+    });
     type === "product" ? setSelectedProducts([]) : setSelectedDemos([]);
   };
 
@@ -270,12 +466,12 @@ const ProductManagerDashboard = () => {
       {/* Stats Bar */}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
         {[
-          { label: "Products", value: "156", icon: Box, color: "indigo" },
-          { label: "Active", value: "142", icon: CheckCircle2, color: "emerald" },
-          { label: "Total Demos", value: "324", icon: Play, color: "violet" },
-          { label: "Active Demos", value: "289", icon: Zap, color: "blue" },
-          { label: "Conversion", value: "18.5%", icon: TrendingUp, color: "emerald" },
-          { label: "Users", value: "45.2K", icon: Users, color: "amber" },
+          { label: "Products", value: productStats.totalProducts.toString(), icon: Box, color: "indigo" },
+          { label: "Active", value: productStats.activeProducts.toString(), icon: CheckCircle2, color: "emerald" },
+          { label: "Total Demos", value: demoStats.totalDemos.toString(), icon: Play, color: "violet" },
+          { label: "Active Demos", value: demoStats.activeDemos.toString(), icon: Zap, color: "blue" },
+          { label: "Conversion", value: "—", icon: TrendingUp, color: "emerald" },
+          { label: "Users", value: "—", icon: Users, color: "amber" },
         ].map((stat) => (
           <Card key={stat.label} className="bg-card/50 border-indigo-500/10">
             <CardContent className="p-3">
@@ -514,18 +710,17 @@ const ProductManagerDashboard = () => {
                       </div>
                     </div>
 
-                    {/* Actions */}
                     <div className="grid grid-cols-2 gap-2 pt-2">
-                      <Button size="sm" variant="outline" className="border-indigo-500/30 text-indigo-400 gap-1">
+                      <Button size="sm" variant="outline" className="border-indigo-500/30 text-indigo-400 gap-1" onClick={handleEditProduct}>
                         <Edit2 className="w-3 h-3" /> Edit
                       </Button>
-                      <Button size="sm" variant="outline" className="border-emerald-500/30 text-emerald-400 gap-1">
+                      <Button size="sm" variant="outline" className="border-emerald-500/30 text-emerald-400 gap-1" onClick={handleAddDemo}>
                         <Play className="w-3 h-3" /> Add Demo
                       </Button>
-                      <Button size="sm" variant="outline" className="border-amber-500/30 text-amber-400 gap-1">
+                      <Button size="sm" variant="outline" className="border-amber-500/30 text-amber-400 gap-1" onClick={handleUpgradeProduct}>
                         <ArrowUpRight className="w-3 h-3" /> Upgrade
                       </Button>
-                      <Button size="sm" variant="outline" className="border-red-500/30 text-red-400 gap-1">
+                      <Button size="sm" variant="outline" className="border-red-500/30 text-red-400 gap-1" onClick={handleDeleteProduct}>
                         <Trash2 className="w-3 h-3" /> Delete
                       </Button>
                     </div>
@@ -937,11 +1132,11 @@ const ProductManagerDashboard = () => {
               <CardContent>
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   <div className="p-3 rounded-lg bg-indigo-500/10 text-center">
-                    <p className="text-2xl font-bold text-indigo-400">156</p>
+                    <p className="text-2xl font-bold text-indigo-400">{productStats.totalProducts}</p>
                     <p className="text-xs text-muted-foreground">Total Products</p>
                   </div>
                   <div className="p-3 rounded-lg bg-emerald-500/10 text-center">
-                    <p className="text-2xl font-bold text-emerald-400">142</p>
+                    <p className="text-2xl font-bold text-emerald-400">{productStats.activeProducts}</p>
                     <p className="text-xs text-muted-foreground">Active Products</p>
                   </div>
                 </div>
@@ -971,21 +1166,21 @@ const ProductManagerDashboard = () => {
               <CardContent>
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   <div className="p-3 rounded-lg bg-violet-500/10 text-center">
-                    <p className="text-2xl font-bold text-violet-400">324</p>
+                    <p className="text-2xl font-bold text-violet-400">{demoStats.totalDemos}</p>
                     <p className="text-xs text-muted-foreground">Total Demos</p>
                   </div>
                   <div className="p-3 rounded-lg bg-emerald-500/10 text-center">
-                    <p className="text-2xl font-bold text-emerald-400">289</p>
+                    <p className="text-2xl font-bold text-emerald-400">{demoStats.activeDemos}</p>
                     <p className="text-xs text-muted-foreground">Active Demos</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-3 rounded-lg bg-amber-500/10 text-center">
-                    <p className="text-2xl font-bold text-amber-400">35</p>
+                    <p className="text-2xl font-bold text-amber-400">{demoStats.expiredDemos}</p>
                     <p className="text-xs text-muted-foreground">Expired</p>
                   </div>
                   <div className="p-3 rounded-lg bg-blue-500/10 text-center">
-                    <p className="text-2xl font-bold text-blue-400">18.5%</p>
+                    <p className="text-2xl font-bold text-blue-400">—</p>
                     <p className="text-xs text-muted-foreground">Conversion Rate</p>
                   </div>
                 </div>
@@ -994,7 +1189,7 @@ const ProductManagerDashboard = () => {
                     <TrendingUp className="w-5 h-5 text-emerald-400" />
                     <div>
                       <p className="text-sm font-medium text-foreground">Demo → Paid Conversion</p>
-                      <p className="text-xs text-muted-foreground">58 conversions this month (+12%)</p>
+                      <p className="text-xs text-muted-foreground">Demo → Paid conversion data</p>
                     </div>
                   </div>
                 </div>
