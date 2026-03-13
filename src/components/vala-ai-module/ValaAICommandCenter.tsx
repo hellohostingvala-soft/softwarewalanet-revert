@@ -1,547 +1,492 @@
 /**
- * VALA AI COMMAND CENTER - CORE AI ENGINE
+ * VALA AI ENGINE - LOVABLE-STYLE BUILDER INTERFACE
  * ================================================
- * TEXT-ONLY COMMAND SYSTEM
- * NO MEDIA INPUTS ALLOWED
+ * Split-pane: Left Chat + Right Preview/Code
  * ================================================
- * LOCKED: DO NOT CHANGE COLORS/FONTS/THEME
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { LiveActivityPipeline } from './LiveActivityPipeline';
+import ReactMarkdown from 'react-markdown';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  Send, Terminal, Loader2, Lock, Unlock, AlertTriangle, 
-  RotateCcw, History, CheckCircle2, XCircle, Clock, Zap,
-  Shield, FileText, Bug, Activity, Volume2, VolumeX
+
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useAIRA, AIRAError } from '@/hooks/useAIRA';
 
-type Message = { 
-  role: 'user' | 'assistant' | 'system'; 
-  content: string; 
-  timestamp: Date;
-  status?: 'pending' | 'executing' | 'success' | 'error';
-};
 
-type ExecutionLog = {
+// ===== TYPES =====
+type Message = {
   id: string;
-  command: string;
-  status: 'success' | 'error' | 'warning';
+  role: 'user' | 'assistant';
+  content: string;
   timestamp: Date;
-  duration: number;
 };
 
-// ===== LOCKED COLORS (DO NOT CHANGE) =====
-const COLORS = {
-  bg: '#0B0F1A',
-  bgSecondary: '#0d1b2a',
-  border: '#1e3a5f',
-  accent: '#2563eb',
-  success: '#10b981',
-  error: '#ef4444',
-  warning: '#f59e0b',
-  text: '#ffffff',
-  textMuted: 'rgba(255, 255, 255, 0.7)',
+type WorkspaceTab = 'preview' | 'code';
+
+type FileNode = {
+  name: string;
+  type: 'file' | 'folder';
+  children?: FileNode[];
+  content?: string;
 };
+
+
 
 const ValaAICommandCenter: React.FC = () => {
-  const { executeCommand, logCommandSuccess, logCommandError, validateCommand, systemHealthy, isBossOwner, user } = useAIRA();
-
-  // System state
-  const [isLocked, setIsLocked] = useState(true);
-  const [activeProject, setActiveProject] = useState<string | null>(null);
-  const [projects, setProjects] = useState<Array<{id: string; title: string}>>([]);
-  const [voiceEnabled, setVoiceEnabled] = useState(false);
-
-  // Command state
   const [messages, setMessages] = useState<Message[]>([
-    { 
-      role: 'system', 
-      content: '🔒 VALA AI COMMAND CENTER INITIALIZED\n\nTEXT-ONLY COMMAND SYSTEM ACTIVE\n• Type structured prompts for execution\n• No media inputs allowed\n• All changes require confirmation\n\nReady for commands.',
+    {
+      id: '1',
+      role: 'assistant',
+      content: "Hi! I'm **VALA AI** — your enterprise software builder. Describe what you want to build and I'll generate the full architecture, code, and deployment plan.\n\nTry something like:\n- *\"Build a restaurant POS with table management\"*\n- *\"Create a CRM with lead tracking and analytics\"*\n- *\"Design an inventory management system\"*",
       timestamp: new Date(),
-      status: 'success'
     }
   ]);
-  const [inputCommand, setInputCommand] = useState('');
+  const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = useState<WorkspaceTab>('preview');
+  const [showFileTree, setShowFileTree] = useState(true);
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [fileContent, setFileContent] = useState('');
+  const [previewHtml, setPreviewHtml] = useState('<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0f172a;color:white;font-family:system-ui;"><div style="text-align:center;"><h1 style="font-size:2rem;margin-bottom:1rem;">🚀 VALA AI Preview</h1><p style="color:rgba(255,255,255,0.6);">Your generated app will appear here</p></div></div>');
+  const [previewKey, setPreviewKey] = useState(0);
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
+
+  // Auto-publish state
+  const { publish, isPublishing, lastResult } = useAutoPublish();
+  const [showPublishDialog, setShowPublishDialog] = useState(false);
+  const [publishForm, setPublishForm] = useState({
+    productName: '',
+    description: '',
+    category: 'General',
+    type: 'SaaS',
+    price: 249,
+    githubRepoUrl: '',
+  });
+  const hasGeneratedContent = messages.length > 1 && messages.some(m => m.role === 'assistant' && m.content.length > 200);
+  const [copied, setCopied] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Execution logs
-  const [executionLogs, setExecutionLogs] = useState<ExecutionLog[]>([]);
-
-  // Micro functions detection
-  const [detectedIssues, setDetectedIssues] = useState<string[]>([]);
-
-  // Scroll to bottom
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Fetch projects
-  useEffect(() => {
-    const fetchProjects = async () => {
-      const { data } = await supabase
-        .from('demos')
-        .select('id, title')
-        .not('url', 'is', null)
-        .order('title');
-      if (data) setProjects(data);
-    };
-    fetchProjects();
-  }, []);
+  const handleSend = useCallback(async () => {
+    if (!input.trim() || isStreaming) return;
 
-  // Detect language from input
-  const detectLanguage = (text: string): string => {
-    const hindiRegex = /[\u0900-\u097F]/;
-    const arabicRegex = /[\u0600-\u06FF]/;
-    const chineseRegex = /[\u4e00-\u9fff]/;
-    
-    if (hindiRegex.test(text)) return 'Hindi';
-    if (arabicRegex.test(text)) return 'Arabic';
-    if (chineseRegex.test(text)) return 'Chinese';
-    return 'English';
-  };
 
-  // Stream AI response via useAIRA hook
-  const streamCommand = async (command: string) => {
-    const startTime = Date.now();
-    const context = `VALA AI CORE ENGINE | Project: ${activeProject || 'None'} | Mode: TEXT-ONLY COMMAND | Lock: ${isLocked ? 'ACTIVE' : 'UNLOCKED'}`;
-    const { riskLevel } = validateCommand(command);
-
-    try {
-      const responseBody = await executeCommand(
-        command,
-        messages.filter(m => m.role !== 'system').map(m => ({ role: m.role, content: m.content })),
-        context,
-        { voiceEnabled },
-      );
-
-      const reader = responseBody.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-      let assistantContent = '';
-
-      // Add empty assistant message
-      setMessages(prev => [...prev, { role: 'assistant', content: '', timestamp: new Date(), status: 'executing' }]);
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        
-        buffer += decoder.decode(value, { stream: true });
-        
-        let idx: number;
-        while ((idx = buffer.indexOf('\n')) !== -1) {
-          let line = buffer.slice(0, idx);
-          buffer = buffer.slice(idx + 1);
-          
-          if (line.endsWith('\r')) line = line.slice(0, -1);
-          if (line.startsWith(':') || !line.trim()) continue;
-          if (!line.startsWith('data: ')) continue;
-          
-          const jsonStr = line.slice(6).trim();
-          if (jsonStr === '[DONE]') break;
-          
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content;
-            if (content) {
-              assistantContent += content;
-              setMessages(prev => {
-                const updated = [...prev];
-                updated[updated.length - 1] = { role: 'assistant', content: assistantContent, timestamp: new Date(), status: 'executing' };
-                return updated;
-              });
-            }
-          } catch { /* ignore malformed SSE JSON chunks */ }
-        }
-      }
-
-      // Mark as success
+    const upsertAssistant = (chunk: string) => {
+      assistantContent += chunk;
       setMessages(prev => {
-        const updated = [...prev];
-        updated[updated.length - 1] = { ...updated[updated.length - 1], status: 'success' };
-        return updated;
+        const last = prev[prev.length - 1];
+        if (last?.role === 'assistant' && last.id.startsWith('stream-')) {
+          return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: assistantContent } : m);
+        }
+        return [...prev, { id: `stream-${Date.now()}`, role: 'assistant', content: assistantContent, timestamp: new Date() }];
       });
+    };
 
-      // Log success to aira_logs
-      await logCommandSuccess(command, riskLevel as 'low' | 'medium');
 
-      // Log execution
-      const duration = Date.now() - startTime;
-      setExecutionLogs(prev => [{
-        id: Date.now().toString(),
-        command: command.slice(0, 50) + (command.length > 50 ? '...' : ''),
-        status: 'success',
-        timestamp: new Date(),
-        duration
-      }, ...prev.slice(0, 49)]);
-
-    } catch (error) {
-      const isAIRAErr = error instanceof AIRAError;
-      const errMsg = error instanceof Error ? error.message : 'Command execution failed';
-      console.error('[AIRA] Command error:', error);
-
-      // Show specific error messages based on AIRAError code (type-safe)
-      if (isAIRAErr && error.code === 'UNAUTHORIZED') {
-        toast.error('Access denied: Only boss_owner can execute AIRA commands');
-      } else if (isAIRAErr && error.code === 'FAILSAFE') {
-        toast.error('System health check failed — execution halted');
-      } else if (isAIRAErr && error.code === 'VALIDATION_FAILED') {
-        toast.error(`Validation failed: ${errMsg}`);
-      } else if (isAIRAErr && error.code === 'RATE_LIMIT') {
-        toast.error('Rate limit exceeded');
-      } else if (isAIRAErr && error.code === 'CREDITS_EXHAUSTED') {
-        toast.error('AI credits exhausted');
-      } else {
-        toast.error('Command execution failed');
-      }
-
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: `❌ ERROR: ${errMsg}`,
-        timestamp: new Date(),
-        status: 'error'
-      }]);
-
-      // Log error to aira_logs (skip pre-execution rejections — already logged in hook)
-      const preExecution = isAIRAErr && ['UNAUTHORIZED', 'FAILSAFE', 'VALIDATION_FAILED'].includes(error.code);
-      if (!preExecution) {
-        await logCommandError(command, errMsg, riskLevel as 'low' | 'medium' | 'high');
-      }
-
-      setExecutionLogs(prev => [{
-        id: Date.now().toString(),
-        command: command.slice(0, 50),
-        status: 'error',
-        timestamp: new Date(),
-        duration: Date.now() - startTime
-      }, ...prev.slice(0, 49)]);
-    }
-  };
-
-  // Execute command
-  const handleExecute = async () => {
-    if (!inputCommand.trim() || isStreaming) return;
-    
-    const cmd = inputCommand.trim();
-    const lang = detectLanguage(cmd);
-    
-    setInputCommand('');
-    setMessages(prev => [...prev, { role: 'user', content: cmd, timestamp: new Date(), status: 'pending' }]);
-    setIsStreaming(true);
-    
-    await streamCommand(cmd);
-    setIsStreaming(false);
-  };
-
-  // Handle keyboard
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleExecute();
+      handleSend();
     }
   };
 
-  // Rollback trigger
-  const handleRollback = () => {
-    toast.info('Rollback initiated - restoring previous state...');
-    setMessages(prev => [...prev, {
-      role: 'system',
-      content: '🔄 ROLLBACK TRIGGERED\nRestoring to last stable snapshot...',
+  const handleFileSelect = (name: string, content: string) => {
+    setSelectedFile(name);
+    setFileContent(content);
+    setActiveTab('code');
+  };
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(fileContent);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleNewChat = () => {
+    setMessages([{
+      id: '1',
+      role: 'assistant',
+      content: "New session started! What would you like to build?",
       timestamp: new Date(),
-      status: 'pending'
     }]);
   };
 
-  return (
-    <div className="h-full flex" style={{ background: COLORS.bg }}>
-      {/* Access Gate: only boss_owner can use AIRA */}
-      {!isBossOwner && (
-        <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8">
-          <Shield className="w-16 h-16" style={{ color: COLORS.error }} />
-          <div className="text-center">
-            <h2 className="text-xl font-bold mb-2" style={{ color: COLORS.text }}>Access Restricted</h2>
-            <p className="text-sm" style={{ color: COLORS.textMuted }}>
-              VALA AI Command Center is restricted to <strong style={{ color: COLORS.warning }}>boss_owner</strong> only.
-            </p>
-            <p className="text-xs mt-2" style={{ color: COLORS.textMuted }}>
-              All unauthorized access attempts are logged to the audit trail.
-            </p>
-          </div>
-        </div>
-      )}
+  const handlePublishToMarketplace = async () => {
+    // Extract features/tech from the AI conversation
+    const allAssistantContent = messages
+      .filter(m => m.role === 'assistant')
+      .map(m => m.content)
+      .join('\n');
 
-      {/* Main Command Panel — visible to boss_owner only */}
-      {isBossOwner && <>
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <div 
-          className="h-14 flex items-center justify-between px-6"
-          style={{ borderBottom: `1px solid ${COLORS.border}`, background: COLORS.bgSecondary }}
-        >
-          <div className="flex items-center gap-3">
-            <Terminal className="w-5 h-5" style={{ color: COLORS.accent }} />
-            <span className="font-bold text-lg" style={{ color: COLORS.text }}>VALA AI COMMAND CENTER</span>
-            <span className="text-xs px-2 py-0.5 rounded" style={{ background: COLORS.accent, color: COLORS.text }}>
-              TEXT-ONLY
-            </span>
-            {!systemHealthy && (
-              <span className="text-xs px-2 py-0.5 rounded flex items-center gap-1" style={{ background: 'rgba(239, 68, 68, 0.2)', color: COLORS.error }}>
-                <AlertTriangle className="w-3 h-3" /> FAILSAFE ACTIVE
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            {/* Voice Toggle (server-side synthesis, boss_owner only) */}
-            <button
-              onClick={() => setVoiceEnabled(!voiceEnabled)}
-              title={voiceEnabled ? 'Voice output ON (server-side)' : 'Voice output OFF'}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all"
-              style={{ 
-                background: voiceEnabled ? 'rgba(37, 99, 235, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-                color: voiceEnabled ? COLORS.accent : COLORS.textMuted
-              }}
-            >
-              {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-              Voice
-            </button>
-            {/* Lock Status */}
-            <button
-              onClick={() => setIsLocked(!isLocked)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all"
-              style={{ 
-                background: isLocked ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                color: isLocked ? COLORS.success : COLORS.error
-              }}
-            >
-              {isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
-              {isLocked ? 'LOCKED' : 'UNLOCKED'}
-            </button>
-            {/* Rollback */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRollback}
-              className="text-sm"
-              style={{ color: COLORS.warning }}
-            >
-              <RotateCcw className="w-4 h-4 mr-1" />
-              Rollback
+    const features: string[] = [];
+    const techStack: string[] = [];
+    
+    // Simple extraction from build output
+    const featureMatches = allAssistantContent.match(/[-•]\s*\*\*(.+?)\*\*/g);
+    if (featureMatches) {
+      featureMatches.slice(0, 10).forEach(f => features.push(f.replace(/[-•]\s*\*\*/g, '').replace(/\*\*/g, '')));
+    }
+
+    await publish({
+      productName: publishForm.productName,
+      description: publishForm.description || `${publishForm.productName} - Auto-generated by VALA AI`,
+      category: publishForm.category,
+      type: publishForm.type,
+      price: publishForm.price,
+      features,
+      techStack,
+      githubRepoUrl: publishForm.githubRepoUrl || undefined,
+      buildOutput: allAssistantContent.slice(0, 3000),
+    });
+
+    setShowPublishDialog(false);
+  };
+
+  return (
+
             </Button>
           </div>
         </div>
 
-        {/* Active Project Bar */}
-        <div 
-          className="h-10 flex items-center px-6 gap-4"
-          style={{ borderBottom: `1px solid ${COLORS.border}`, background: 'rgba(37, 99, 235, 0.1)' }}
-        >
-          <span className="text-xs font-medium" style={{ color: COLORS.textMuted }}>ACTIVE PROJECT:</span>
-          <select
-            value={activeProject || ''}
-            onChange={(e) => setActiveProject(e.target.value || null)}
-            className="bg-transparent text-sm px-2 py-1 rounded"
-            style={{ color: COLORS.text, border: `1px solid ${COLORS.border}` }}
-          >
-            <option value="">None Selected</option>
-            {projects.map(p => (
-              <option key={p.id} value={p.title}>{p.title}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Command Output */}
-        <ScrollArea className="flex-1 p-4">
-          <div className="space-y-3 font-mono text-sm">
-            {messages.map((msg, i) => (
-              <div 
-                key={i} 
-                className={cn(
-                  "p-3 rounded-lg",
-                  msg.role === 'system' && "border-l-4",
-                  msg.role === 'user' && "ml-8",
-                  msg.role === 'assistant' && "mr-8"
+        {/* Chat Messages */}
+        <ScrollArea className="flex-1 px-4 py-4">
+          <div className="space-y-4">
+            {messages.map((msg) => (
+              <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
+                {msg.role === 'assistant' && (
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)' }}>
+                    <Bot className="w-4 h-4 text-white" />
+                  </div>
                 )}
-                style={{
-                  background: msg.role === 'system' 
-                    ? 'rgba(37, 99, 235, 0.1)' 
-                    : msg.role === 'user' 
-                      ? 'rgba(255, 255, 255, 0.05)' 
-                      : 'rgba(16, 185, 129, 0.1)',
-                  borderColor: msg.role === 'system' ? COLORS.accent : undefined,
-                  color: COLORS.text
-                }}
-              >
-                <div className="flex items-start gap-2">
-                  {msg.role === 'system' && <Terminal className="w-4 h-4 mt-0.5 shrink-0" style={{ color: COLORS.accent }} />}
-                  {msg.role === 'user' && <span className="text-xs px-1.5 py-0.5 rounded shrink-0" style={{ background: COLORS.accent }}>CMD</span>}
-                  {msg.role === 'assistant' && (
-                    <span className="shrink-0">
-                      {msg.status === 'executing' && <Loader2 className="w-4 h-4 animate-spin" style={{ color: COLORS.warning }} />}
-                      {msg.status === 'success' && <CheckCircle2 className="w-4 h-4" style={{ color: COLORS.success }} />}
-                      {msg.status === 'error' && <XCircle className="w-4 h-4" style={{ color: COLORS.error }} />}
-                    </span>
+                <div
+                  className="max-w-[85%] rounded-xl px-3.5 py-2.5 text-sm leading-relaxed"
+                  style={{
+                    background: msg.role === 'user' ? '#2563eb' : 'rgba(255,255,255,0.06)',
+                    color: msg.role === 'user' ? '#fff' : 'rgba(255,255,255,0.85)',
+                  }}
+                >
+                  {msg.role === 'assistant' ? (
+                    <div className="prose prose-sm prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_code]:bg-white/10 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs [&_pre]:bg-black/40 [&_pre]:rounded-lg [&_pre]:p-3 [&_pre]:my-2 [&_h2]:text-base [&_h2]:mt-3 [&_h2]:mb-1 [&_h3]:text-sm [&_h3]:mt-2 [&_h3]:mb-1 [&_strong]:text-white">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <p className="whitespace-pre-wrap">{msg.content}</p>
                   )}
-                  <div className="flex-1 whitespace-pre-wrap">{msg.content}</div>
                 </div>
-                <div className="text-xs mt-1 opacity-50">
-                  {msg.timestamp.toLocaleTimeString()}
-                </div>
+                {msg.role === 'user' && (
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                    <User className="w-4 h-4 text-white/60" />
+                  </div>
+                )}
               </div>
             ))}
-            <div ref={messagesEndRef} />
+            {isStreaming && messages[messages.length - 1]?.role !== 'assistant' && (
+              <div className="flex gap-3">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)' }}>
+                  <Bot className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                  <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
+                  <span className="text-sm text-white/50">Thinking...</span>
+                </div>
+              </div>
+            )}
+            <div ref={chatEndRef} />
           </div>
         </ScrollArea>
 
-        {/* Command Input - TEXT ONLY */}
-        <div 
-          className="p-4"
-          style={{ borderTop: `1px solid ${COLORS.border}`, background: COLORS.bgSecondary }}
-        >
-          <div className="flex gap-3">
-            <div className="flex-1 relative">
-              <textarea
-                ref={inputRef}
-                value={inputCommand}
-                onChange={(e) => setInputCommand(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Enter command... (TEXT ONLY - No media inputs)"
-                rows={2}
-                className="w-full resize-none rounded-lg px-4 py-3 text-sm font-mono"
-                style={{ 
-                  background: 'rgba(255, 255, 255, 0.05)', 
-                  border: `1px solid ${COLORS.border}`,
-                  color: COLORS.text
-                }}
-              />
+        {/* Chat Input */}
+        <div className="p-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="relative rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Describe what you want to build..."
+              rows={3}
+              className="w-full bg-transparent text-white text-sm px-4 py-3 resize-none outline-none placeholder:text-white/30"
+              disabled={isStreaming}
+            />
+            <div className="flex items-center justify-between px-3 py-2">
+              <span className="text-[10px] text-white/20">Shift+Enter for new line</span>
+              <Button
+                size="sm"
+                onClick={handleSend}
+                disabled={!input.trim() || isStreaming}
+                className="h-7 px-3 text-xs gap-1.5 rounded-lg"
+                style={{ background: input.trim() ? '#2563eb' : 'rgba(255,255,255,0.06)', color: input.trim() ? '#fff' : 'rgba(255,255,255,0.3)' }}
+              >
+                {isStreaming ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+                Send
+              </Button>
             </div>
-            <Button 
-              onClick={handleExecute} 
-              disabled={isStreaming || !inputCommand.trim()}
-              className="h-full px-6"
-              style={{ background: COLORS.accent }}
-            >
-              {isStreaming ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <>
-                  <Zap className="w-5 h-5 mr-2" />
-                  EXECUTE
-                </>
-              )}
-            </Button>
-          </div>
-          <div className="flex items-center gap-4 mt-2 text-xs" style={{ color: COLORS.textMuted }}>
-            <span>⌨️ Enter to execute</span>
-            <span>|</span>
-            <span>⇧+Enter for newline</span>
-            <span>|</span>
-            <span className="flex items-center gap-1">
-              <Shield className="w-3 h-3" /> 
-              {isLocked ? 'Lock Active - Changes Require Approval' : 'CAUTION: Lock Disabled'}
-            </span>
           </div>
         </div>
       </div>
 
-      {/* Right Sidebar - Logs & Status */}
-      <div 
-        className="w-72 flex flex-col"
-        style={{ borderLeft: `1px solid ${COLORS.border}`, background: COLORS.bgSecondary }}
-      >
-        {/* Execution Logs */}
-        <div className="p-4" style={{ borderBottom: `1px solid ${COLORS.border}` }}>
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-3" style={{ color: COLORS.text }}>
-            <History className="w-4 h-4" style={{ color: COLORS.accent }} />
-            Execution Logs
-          </h3>
-          <ScrollArea className="h-48">
-            {executionLogs.length === 0 ? (
-              <p className="text-xs" style={{ color: COLORS.textMuted }}>No executions yet</p>
-            ) : (
-              <div className="space-y-2">
-                {executionLogs.map(log => (
-                  <div 
-                    key={log.id} 
-                    className="p-2 rounded text-xs"
-                    style={{ background: 'rgba(255, 255, 255, 0.03)' }}
-                  >
-                    <div className="flex items-center gap-2">
-                      {log.status === 'success' && <CheckCircle2 className="w-3 h-3" style={{ color: COLORS.success }} />}
-                      {log.status === 'error' && <XCircle className="w-3 h-3" style={{ color: COLORS.error }} />}
-                      {log.status === 'warning' && <AlertTriangle className="w-3 h-3" style={{ color: COLORS.warning }} />}
-                      <span className="truncate" style={{ color: COLORS.text }}>{log.command}</span>
-                    </div>
-                    <div className="flex justify-between mt-1" style={{ color: COLORS.textMuted }}>
-                      <span>{log.timestamp.toLocaleTimeString()}</span>
-                      <span>{log.duration}ms</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </ScrollArea>
-        </div>
+      {/* ===== RIGHT: WORKSPACE ===== */}
+      <div className="flex-1 flex flex-col overflow-hidden min-h-0" style={{ background: '#0a0a0a' }}>
+        {/* Workspace Header / Tab Bar */}
+        <div className="flex items-center justify-between px-4 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: '#111' }}>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setActiveTab('preview')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+              style={{
+                background: activeTab === 'preview' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                color: activeTab === 'preview' ? '#fff' : 'rgba(255,255,255,0.4)',
+              }}
+            >
+              <Eye className="w-3.5 h-3.5" />
+              Preview
+            </button>
+            <button
+              onClick={() => setActiveTab('code')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+              style={{
+                background: activeTab === 'code' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                color: activeTab === 'code' ? '#fff' : 'rgba(255,255,255,0.4)',
+              }}
+            >
+              <Code2 className="w-3.5 h-3.5" />
+              Code
+            </button>
+          </div>
 
-        {/* Error Detection */}
-        <div className="p-4" style={{ borderBottom: `1px solid ${COLORS.border}` }}>
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-3" style={{ color: COLORS.text }}>
-            <Bug className="w-4 h-4" style={{ color: COLORS.error }} />
-            Error Detection
-          </h3>
-          <div className="space-y-2 text-xs">
-            <div className="flex items-center justify-between p-2 rounded" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
-              <span style={{ color: COLORS.textMuted }}>Broken Buttons</span>
-              <span style={{ color: COLORS.success }}>0</span>
-            </div>
-            <div className="flex items-center justify-between p-2 rounded" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
-              <span style={{ color: COLORS.textMuted }}>Dead Routes</span>
-              <span style={{ color: COLORS.success }}>0</span>
-            </div>
-            <div className="flex items-center justify-between p-2 rounded" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
-              <span style={{ color: COLORS.textMuted }}>Missing APIs</span>
-              <span style={{ color: COLORS.success }}>0</span>
-            </div>
-            <div className="flex items-center justify-between p-2 rounded" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
-              <span style={{ color: COLORS.textMuted }}>Permission Issues</span>
-              <span style={{ color: COLORS.success }}>0</span>
-            </div>
+          <div className="flex items-center gap-2">
+            {activeTab === 'preview' && (
+              <>
+                {/* URL Bar */}
+                <div className="flex items-center gap-2 px-3 py-1 rounded-md text-xs" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', minWidth: '240px' }}>
+                  <Globe className="w-3 h-3 text-white/30" />
+                  <span className="text-white/40 truncate">vala-preview.local</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setPreviewKey(Date.now())}
+                  className="w-7 h-7 text-white/30 hover:text-white hover:bg-white/5"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                </Button>
+                <div className="flex items-center gap-0.5 ml-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setPreviewDevice('desktop')}
+                    className={`w-7 h-7 hover:bg-white/5 ${previewDevice === 'desktop' ? 'text-white' : 'text-white/30 hover:text-white'}`}
+                  >
+                    <Monitor className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setPreviewDevice('mobile')}
+                    className={`w-7 h-7 hover:bg-white/5 ${previewDevice === 'mobile' ? 'text-white' : 'text-white/30 hover:text-white'}`}
+                  >
+                    <Smartphone className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              </>
+            )}
+            {activeTab === 'code' && selectedFile && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCopyCode}
+                className="h-7 px-2 text-xs gap-1.5 text-white/40 hover:text-white hover:bg-white/5"
+              >
+                {copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
+                {copied ? 'Copied' : 'Copy'}
+              </Button>
+            )}
           </div>
         </div>
 
-        {/* System Status */}
-        <div className="p-4 flex-1">
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-3" style={{ color: COLORS.text }}>
-            <Activity className="w-4 h-4" style={{ color: COLORS.success }} />
-            System Status
-          </h3>
-          <div className="space-y-2 text-xs">
-            <div className="flex items-center justify-between">
-              <span style={{ color: COLORS.textMuted }}>AI Engine</span>
-              <span className="flex items-center gap-1" style={{ color: systemHealthy ? COLORS.success : COLORS.error }}>
-                <span className={`w-2 h-2 rounded-full ${systemHealthy ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
-                {systemHealthy ? 'ONLINE' : 'FAILSAFE'}
-              </span>
+        {/* Workspace Content */}
+        <div className="flex-1 flex overflow-hidden min-h-0">
+          {/* File Tree (Code mode) */}
+          {activeTab === 'code' && showFileTree && (
+            <div className="w-[200px] overflow-y-auto py-2" style={{ borderRight: '1px solid rgba(255,255,255,0.08)', background: '#0d0d0d' }}>
+              <div className="px-3 py-1 mb-1 flex items-center justify-between">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-white/30">Files</span>
+                <Button variant="ghost" size="icon" className="w-5 h-5 text-white/20 hover:text-white" onClick={() => setShowFileTree(false)}>
+                  <PanelLeftClose className="w-3 h-3" />
+                </Button>
+              </div>
+              {MOCK_FILES.map((node, i) => (
+                <FileTreeItem key={i} node={node} depth={0} selectedFile={selectedFile} onSelect={handleFileSelect} />
+              ))}
             </div>
-            <div className="flex items-center justify-between">
-              <span style={{ color: COLORS.textMuted }}>Response Time</span>
-              <span style={{ color: COLORS.text }}>&lt;300ms</span>
+          )}
+
+          {/* Main View */}
+          <div className="flex-1 overflow-hidden min-h-0">
+            {activeTab === 'preview' ? (
+              /* Preview iframe */
+              <div className="w-full h-full flex items-center justify-center" style={{ background: '#0f172a' }}>
+                <iframe
+                  key={previewKey}
+                  srcDoc={previewHtml}
+                  className="h-full border-0"
+                  title="VALA Preview"
+                  sandbox="allow-scripts"
+                  style={{
+                    background: '#0f172a',
+                    width: previewDevice === 'mobile' ? 390 : '100%',
+                    maxWidth: '100%',
+                  }}
+                />
+              </div>
+            ) : (
+              /* Code Editor */
+              <div className="h-full flex flex-col">
+                {!showFileTree && (
+                  <div className="px-2 py-1" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                    <Button variant="ghost" size="icon" className="w-6 h-6 text-white/20 hover:text-white" onClick={() => setShowFileTree(true)}>
+                      <PanelLeftOpen className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                )}
+                {selectedFile ? (
+                  <div className="flex-1 flex flex-col">
+                    {/* File Tab */}
+                    <div className="flex items-center px-4 py-1.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
+                      <div className="flex items-center gap-1.5 px-2 py-1 rounded text-xs" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.8)' }}>
+                        <File className="w-3 h-3" style={{ color: '#06b6d4' }} />
+                        {selectedFile}
+                      </div>
+                    </div>
+                    {/* Code Content */}
+                    <ScrollArea className="flex-1">
+                      <pre className="p-4 text-xs leading-relaxed font-mono" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                        <code>{fileContent}</code>
+                      </pre>
+                    </ScrollArea>
+                  </div>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center">
+                    <div className="text-center">
+                      <Code2 className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgba(255,255,255,0.1)' }} />
+                      <p className="text-sm text-white/30">Select a file to view code</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ===== RIGHT: LIVE ACTIVITY PIPELINE ===== */}
+      <LiveActivityPipeline isActive={isStreaming} />
+      {/* ===== PUBLISH TO MARKETPLACE DIALOG ===== */}
+      <Dialog open={showPublishDialog} onOpenChange={setShowPublishDialog}>
+        <DialogContent className="bg-[#111] border-white/10 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-white">
+              <Store className="w-5 h-5 text-emerald-400" />
+              Publish to Marketplace
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div>
+              <label className="text-xs text-white/50 mb-1 block">Product Name *</label>
+              <Input
+                value={publishForm.productName}
+                onChange={e => setPublishForm(prev => ({ ...prev, productName: e.target.value }))}
+                placeholder="e.g. Restaurant POS Pro"
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+              />
             </div>
-            <div className="flex items-center justify-between">
-              <span style={{ color: COLORS.textMuted }}>Lock Status</span>
-              <span style={{ color: isLocked ? COLORS.success : COLORS.warning }}>
-                {isLocked ? 'ACTIVE' : 'DISABLED'}
-              </span>
+
+
             </div>
-            <div className="flex items-center justify-between">
-              <span style={{ color: COLORS.textMuted }}>Mode</span>
-              <span style={{ color: COLORS.accent }}>TEXT-ONLY</span>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-white/50 mb-1 block">Category</label>
+                <Select
+                  value={publishForm.category}
+                  onValueChange={v => setPublishForm(prev => ({ ...prev, category: v }))}
+                >
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1a1a1a] border-white/10">
+                    {CATEGORIES.map(c => (
+                      <SelectItem key={c} value={c} className="text-white/80 focus:bg-white/10 focus:text-white">{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-xs text-white/50 mb-1 block">Type</label>
+                <Select
+                  value={publishForm.type}
+                  onValueChange={v => setPublishForm(prev => ({ ...prev, type: v }))}
+                >
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1a1a1a] border-white/10">
+                    {['SaaS', 'Desktop', 'Mobile', 'Hybrid', 'Offline'].map(t => (
+                      <SelectItem key={t} value={t} className="text-white/80 focus:bg-white/10 focus:text-white">{t}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-white/50 mb-1 block">Price (₹)</label>
+                <Input
+                  type="number"
+                  value={publishForm.price}
+                  onChange={e => setPublishForm(prev => ({ ...prev, price: Number(e.target.value) }))}
+                  className="bg-white/5 border-white/10 text-white"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-white/50 mb-1 block">GitHub Repo URL</label>
+                <Input
+                  value={publishForm.githubRepoUrl}
+                  onChange={e => setPublishForm(prev => ({ ...prev, githubRepoUrl: e.target.value }))}
+                  placeholder="https://github.com/..."
+                  className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+                />
+              </div>
+            </div>
+
+            {lastResult && (
+              <div className={`p-3 rounded-lg text-xs ${lastResult.success ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+                {lastResult.success ? (
+                  <div className="space-y-1">
+                    <p className="font-medium">✅ {lastResult.message}</p>
+                    {lastResult.demoDomain && <p>🌐 Domain: {lastResult.demoDomain}</p>}
+                    {lastResult.steps?.map((s, i) => (
+                      <p key={i} className="text-white/40">{s.status === 'success' ? '✓' : s.status === 'failed' ? '✗' : '○'} {s.step}</p>
+                    ))}
+                  </div>
+                ) : (
+                  <p>❌ {lastResult.error}</p>
+                )}
+              </div>
+            )}
+
+            <div className="p-2 rounded-lg text-[10px] text-white/30" style={{ background: 'rgba(255,255,255,0.03)' }}>
+              <Package className="w-3 h-3 inline mr-1" />
+              Pipeline: Catalog Entry → AI Image → VPS Deploy → Boss Approval
             </div>
             <div className="flex items-center justify-between">
               <span style={{ color: COLORS.textMuted }}>Voice</span>
@@ -550,9 +495,7 @@ const ValaAICommandCenter: React.FC = () => {
               </span>
             </div>
           </div>
-        </div>
-      </div>
-      </>}
+
     </div>
   );
 };
