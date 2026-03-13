@@ -9,13 +9,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "node --experimental-vm-modules node_modules/.bin/jest",
-    "test:unit": "node --experimental-vm-modules node_modules/.bin/jest --testPathPatterns=tests/unit",
-    "test:integration": "node --experimental-vm-modules node_modules/.bin/jest --testPathPatterns=tests/integration",
-    "test:security": "node --experimental-vm-modules node_modules/.bin/jest --testPathPatterns=tests/security",
-    "test:load": "node --experimental-vm-modules node_modules/.bin/jest --testPathPatterns=tests/load",
-    "test:penetration": "node --experimental-vm-modules node_modules/.bin/jest --testPathPatterns=tests/penetration",
-    "test:coverage": "node --experimental-vm-modules node_modules/.bin/jest --coverage"
+
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",
