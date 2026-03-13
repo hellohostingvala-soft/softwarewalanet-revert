@@ -1,12 +1,13 @@
-import React from "react";
-
-const ProductManagerPage: React.FC = () => {
-  return (
-    <main>
-      <h1>Product Manager</h1>
-      <p>Product management panel loaded successfully.</p>
-    </main>
-  );
-};
-
-export default ProductManagerPage;
+{
+  "name": "vite_react_shadcn_ts",
+  "version": "0.0.0",
+  "lockfileVersion": 2,
+  "requires": true,
+  "packages": {
+    "": {
+      "name": "vite_react_shadcn_ts",
+      "version": "0.0.0"
+    }
+  },
+  "dependencies": {}
+}
