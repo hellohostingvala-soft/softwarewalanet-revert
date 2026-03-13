@@ -1,10 +1,10 @@
 // src/lib/security/rate-limiter.ts
-// Minimal, syntactically-correct TypeScript rate limiter compatible with Vite builds.
+// Minimal, Vite-friendly TypeScript rate limiter.
 // Exports a factory: createRateLimiter(options) -> { consume, getUsage, expressMiddleware, nextApiHandler, edgeCheck }
 
 type RedisLikeClient = {
   incr: (key: string) => Promise<number>;
-  pttl?: (key: string) => Promise<number>; // returns milliseconds or -1
+  pttl?: (key: string) => Promise<number>; // milliseconds or -1
   expire?: (key: string, seconds: number) => Promise<number>;
 };
 
@@ -27,7 +27,7 @@ export function createRateLimiter(options?: RateLimiterOptions) {
     max = 60,
     prefix = 'rl:',
     redisClient = null,
-    cleanupIntervalMs = 60_000
+    cleanupIntervalMs = 60_000,
   } = options || {};
 
   const store = new Map<string, InMemoryEntry>();
@@ -49,7 +49,6 @@ export function createRateLimiter(options?: RateLimiterOptions) {
       try {
         const current = await redisClient.incr(k);
         let pttlMs = -1;
-
         if (typeof redisClient.pttl === 'function') {
           const maybe = await redisClient.pttl(k);
           if (typeof maybe === 'number') pttlMs = maybe;
@@ -63,10 +62,9 @@ export function createRateLimiter(options?: RateLimiterOptions) {
         const reset = Date.now() + (pttlMs >= 0 ? pttlMs : windowMs);
         const allowed = current <= max;
         const remaining = Math.max(0, max - current);
-
         return { allowed, remaining, reset };
       } catch (err) {
-        // Fallback to in-memory on Redis error
+        // fallback to in-memory
       }
     }
 
@@ -136,9 +134,11 @@ export function createRateLimiter(options?: RateLimiterOptions) {
         const ip = Array.isArray(ipHeader) ? String(ipHeader[0]) : String(ipHeader);
         const result = await consume(ip);
 
-        res.setHeader('X-RateLimit-Limit', String(max));
-        res.setHeader('X-RateLimit-Remaining', String(result.remaining));
-        res.setHeader('X-RateLimit-Reset', String(Math.ceil(result.reset / 1000)));
+        if (res && typeof res.setHeader === 'function') {
+          res.setHeader('X-RateLimit-Limit', String(max));
+          res.setHeader('X-RateLimit-Remaining', String(result.remaining));
+          res.setHeader('X-RateLimit-Reset', String(Math.ceil(result.reset / 1000)));
+        }
 
         if (!result.allowed) {
           if (typeof res.status === 'function' && typeof res.json === 'function') {
@@ -178,7 +178,7 @@ export function createRateLimiter(options?: RateLimiterOptions) {
     getUsage,
     expressMiddleware,
     nextApiHandler,
-    edgeCheck
+    edgeCheck,
   };
 }
 
