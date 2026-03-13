@@ -8,7 +8,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
 import { AuthProvider } from "./hooks/useAuth";
 import { AnimationProvider } from "./contexts/AnimationContext";
 import { DemoTestModeProvider } from "./contexts/DemoTestModeContext";
@@ -423,6 +423,7 @@ const BlockingClassCleanup = memo(() => {
 // ============================================
 const App = memo(() => (
   <QueryClientProvider client={queryClient}>
+    <Analytics />
     <AuthProvider>
       <TenantProvider>
         <DemoTestModeProvider>
