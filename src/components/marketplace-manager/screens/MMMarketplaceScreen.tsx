@@ -3,7 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { createSystemRequest } from '@/hooks/useSystemRequestLogger';
 import { useAuth } from '@/hooks/useAuth';
-import { Search, Star, Heart, Play, ShoppingCart, ChevronLeft, ChevronRight, X, Monitor, Zap, TrendingUp, Sparkles, Package, Github, ExternalLink, GitCommit, RefreshCw, Volume2, VolumeX, Loader2 } from 'lucide-react';
+import {
+  Search, Heart, Play, ShoppingCart, ChevronLeft, ChevronRight, X, Monitor, Zap, TrendingUp,
+  Sparkles, Package, Github, ExternalLink, Volume2, VolumeX, Loader2
+} from 'lucide-react';
 import { useValaVoice } from '@/hooks/useValaVoice';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +15,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { ProductSEOHead } from '@/components/seo/ProductSEOHead';
+
+// Virtualization imports
+import AutoSizer from 'react-virtualized-auto-sizer';
+import { FixedSizeList as List } from 'react-window';
 
 interface Product {
   product_id: string;
@@ -71,11 +78,27 @@ const PAGE_SIZE = 50;
 const CATEGORY_PREVIEW_SIZE = 15;
 const SEARCH_DEBOUNCE_MS = 300;
 
+// Minimal projection for listing queries to reduce payloads
+const PRODUCT_PROJECTION = [
+  'id',
+  'name',
+  'description',
+  'category',
+  'base_price',
+  'created_at',
+  'demo_url',
+  'product_thumbnail_url',
+  'product_type',
+  'tech_stack',
+  'github_repo_url',
+  'listing_status'
+].join(',');
+
 // Transform raw DB data to Product format
 const transformProduct = (item: any): Product => ({
   product_id: item.id || item.product_id,
   product_name: item.name || item.product_name || 'Unnamed Product',
-  description: item.description || item.short_description || `${item.category || 'Enterprise'} software solution by ${item.vendor || 'Software Vala'}`,
+  description: item.description || item.short_description || `${item.category || 'Enterprise'} software solution`,
   category: item.category,
   monthly_price: item.base_price ? Number(item.base_price) : 249,
   lifetime_price: item.base_price ? Math.round(Number(item.base_price) * 10) : 2490,
@@ -109,13 +132,15 @@ export const MMMarketplaceScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  const [totalCount, setTotalCount] = useState(0);
+  const [totalCount, setTotalCount] = useState<number | null>(null);
 
   // Paginated data
   const [searchResults, setSearchResults] = useState<Product[]>([]);
-  const [searchPage, setSearchPage] = useState(0);
   const [searchLoading, setSearchLoading] = useState(false);
   const [hasMoreSearch, setHasMoreSearch] = useState(true);
+
+  // Cursor for cursor-based pagination (created_at)
+  const lastCursorRef = useRef<string | null>(null);
 
   // Featured sections (cached)
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
@@ -132,15 +157,20 @@ export const MMMarketplaceScreen = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
+  // Request-id and mounted flags to avoid stale responses
+  const searchRequestIdRef = useRef(0);
+  const isMountedRef = useRef(true);
+  useEffect(() => { return () => { isMountedRef.current = false; }; }, []);
+
   // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearch(searchQuery);
+      setDebouncedSearch(searchQuery.trim());
     }, SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Initial load - get counts and featured products only
+  // Initial load - get categories and small featured sets only (projection applied)
   useEffect(() => {
     initializeMarketplace();
     fetchFavorites();
@@ -160,25 +190,25 @@ export const MMMarketplaceScreen = () => {
     fetchProductById(productId);
   }, [productId]);
 
-  // Database search when debounced query changes
+  // When search or category changes, reset cursor and load first page
   useEffect(() => {
+    lastCursorRef.current = null; // reset cursor for new query
     if (debouncedSearch || selectedCategory) {
-      performSearch(0, true);
+      performSearchCursor(true);
     } else {
       setSearchResults([]);
-      setSearchPage(0);
       setHasMoreSearch(true);
     }
   }, [debouncedSearch, selectedCategory]);
 
-  // Intersection observer for infinite scroll
+  // Intersection observer for infinite scroll (loads next cursor page when visible)
   useEffect(() => {
     if (!loadMoreRef.current) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMoreSearch && !searchLoading && (debouncedSearch || selectedCategory)) {
-          performSearch(searchPage + 1, false);
+          performSearchCursor(false);
         }
       },
       { threshold: 0.1 }
@@ -186,22 +216,23 @@ export const MMMarketplaceScreen = () => {
 
     observer.observe(loadMoreRef.current);
     return () => observer.disconnect();
-  }, [hasMoreSearch, searchLoading, searchPage, debouncedSearch, selectedCategory]);
+  }, [hasMoreSearch, searchLoading, debouncedSearch, selectedCategory]);
 
   const initializeMarketplace = async () => {
     try {
-      // Parallel fetch: count, categories, and featured sections
+      // Note: avoid heavy counts for 10k+ rows in production. This is kept but optional.
       const [countResult, categoriesResult, featuredResult, latestResult, trendingResult, upcomingResult] = await Promise.all([
+        // countResult: head=true returns only count, but can be slow on large tables
         supabase.from('software_catalog' as any).select('id', { count: 'exact', head: true }),
         supabase.from('software_catalog' as any).select('category').not('category', 'is', null),
-        supabase.from('software_catalog' as any).select('*').order('created_at', { ascending: false }).limit(5),
-        supabase.from('software_catalog' as any).select('*').or('listing_status.eq.live,demo_url.not.is.null').order('created_at', { ascending: false }).limit(10),
-        supabase.from('software_catalog' as any).select('*').order('created_at', { ascending: false }).range(100, 115),
-        supabase.from('software_catalog' as any).select('*').or('listing_status.eq.upcoming,listing_status.eq.coming_soon').limit(10),
+        supabase.from('software_catalog' as any).select(PRODUCT_PROJECTION).order('created_at', { ascending: false }).limit(5),
+        supabase.from('software_catalog' as any).select(PRODUCT_PROJECTION).or('listing_status.eq.live,demo_url.not.is.null').order('created_at', { ascending: false }).limit(10),
+        supabase.from('software_catalog' as any).select(PRODUCT_PROJECTION).order('created_at', { ascending: false }).range(100, 115),
+        supabase.from('software_catalog' as any).select(PRODUCT_PROJECTION).or('listing_status.eq.upcoming,listing_status.eq.coming_soon').limit(10),
       ]);
 
-      // Set total count
-      setTotalCount(countResult.count || 0);
+      // Set total count (may be null if supabase returns undefined)
+      setTotalCount(countResult.count ?? null);
 
       // Extract unique categories
       if (categoriesResult.data) {
@@ -218,7 +249,6 @@ export const MMMarketplaceScreen = () => {
       }
       if (trendingResult.data) setTrendingProducts(trendingResult.data.map(transformProduct));
       if (upcomingResult.data) setUpcomingProducts(upcomingResult.data.map(transformProduct));
-
     } catch (err) {
       console.error('Failed to initialize marketplace:', err);
     } finally {
@@ -242,31 +272,40 @@ export const MMMarketplaceScreen = () => {
     }
   };
 
-  const performSearch = async (page: number, reset: boolean) => {
+  // Cursor-based pagination: uses created_at as cursor (newest-first)
+  const performSearchCursor = useCallback(async (reset: boolean) => {
     if (searchLoading) return;
     setSearchLoading(true);
+    const requestId = ++searchRequestIdRef.current;
 
     try {
-      const from = page * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-
+      // Build base query with projection
       let query = supabase
         .from('software_catalog' as any)
-        .select('*')
+        .select(PRODUCT_PROJECTION)
         .order('created_at', { ascending: false })
-        .range(from, to);
+        .limit(PAGE_SIZE);
 
-      // Apply category filter
+      // Apply category filter (exact match preferred)
       if (selectedCategory) {
-        query = query.ilike('category', selectedCategory);
+        query = query.eq('category', selectedCategory);
       }
 
-      // Apply text search using database ILIKE (faster than client-side)
+      // Apply text search
       if (debouncedSearch) {
-        query = query.or(`name.ilike.%${debouncedSearch}%,category.ilike.%${debouncedSearch}%`);
+        const q = debouncedSearch.replace(/%/g, '\\%').replace(/_/g, '\\_');
+        query = query.or(`name.ilike.%${q}%,category.ilike.%${q}%`);
+      }
+
+      // If not reset and we have a cursor, fetch next page older than cursor
+      if (!reset && lastCursorRef.current) {
+        query = query.lt('created_at', lastCursorRef.current);
       }
 
       const { data, error } = await query;
+
+      // ignore stale responses
+      if (requestId !== searchRequestIdRef.current) return;
 
       if (error) throw error;
 
@@ -274,19 +313,23 @@ export const MMMarketplaceScreen = () => {
 
       if (reset) {
         setSearchResults(products);
-        setSearchPage(0);
       } else {
         setSearchResults(prev => [...prev, ...products]);
-        setSearchPage(page);
       }
 
+      // update cursor to last item's created_at for next page
+      if (products.length > 0) {
+        lastCursorRef.current = products[products.length - 1].created_at;
+      }
+
+      // If fewer than page size, no more results
       setHasMoreSearch(products.length === PAGE_SIZE);
     } catch (err) {
       console.error('Search failed:', err);
     } finally {
-      setSearchLoading(false);
+      if (isMountedRef.current) setSearchLoading(false);
     }
-  };
+  }, [debouncedSearch, selectedCategory, searchLoading]);
 
   const loadCategoryProducts = useCallback(async (category: string) => {
     if (categoryProducts[category] || categoryLoading[category]) return;
@@ -296,8 +339,8 @@ export const MMMarketplaceScreen = () => {
     try {
       const { data, error } = await supabase
         .from('software_catalog' as any)
-        .select('*')
-        .ilike('category', category)
+        .select(PRODUCT_PROJECTION)
+        .eq('category', category)
         .order('created_at', { ascending: false })
         .limit(CATEGORY_PREVIEW_SIZE);
 
@@ -498,7 +541,7 @@ export const MMMarketplaceScreen = () => {
             <Package className="w-6 h-6 text-cyan-400" />
             <h1 className="text-xl font-bold">Software Marketplace</h1>
             <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 text-xs">
-              {totalCount.toLocaleString()} Products
+              {totalCount !== null ? totalCount.toLocaleString() : '10k+'} Products
             </Badge>
           </div>
           <div className="flex items-center gap-3 flex-1 max-w-xl">
@@ -567,22 +610,20 @@ export const MMMarketplaceScreen = () => {
               {selectedCategory && ` in ${selectedCategory}`}
               {debouncedSearch && ` for "${debouncedSearch}"`}
             </h2>
-            
+
             {/* Virtualized Grid for Search Results */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {searchResults.map((product) => (
-                <ProductCard
-                  key={product.product_id}
-                  product={product}
-                  isFav={favorites.has(product.product_id)}
-                  onView={handleProductView}
-                  onDemo={handleDemo}
-                  onBuy={handleBuy}
-                  onFav={toggleFavorite}
-                  formatPrice={formatPrice}
-                />
-              ))}
-            </div>
+            <VirtualizedProductGrid
+              products={searchResults}
+              columnWidth={192}
+              rowHeight={360}
+              gap={16}
+              favorites={favorites}
+              onView={handleProductView}
+              onDemo={handleDemo}
+              onBuy={handleBuy}
+              onFav={toggleFavorite}
+              formatPrice={formatPrice}
+            />
 
             {/* Infinite scroll trigger */}
             <div ref={loadMoreRef} className="py-8 flex justify-center">
@@ -711,7 +752,92 @@ export const MMMarketplaceScreen = () => {
   );
 };
 
-// Lazy-loaded category row with intersection observer
+/* ---------------------------
+   VirtualizedProductGrid
+   - Uses react-window + AutoSizer
+   - Renders rows of cards (N columns per row)
+   --------------------------- */
+function VirtualizedProductGrid({
+  products,
+  columnWidth = 192,
+  rowHeight = 360,
+  gap = 16,
+  onView, onDemo, onBuy, onFav, favorites, formatPrice,
+}: {
+  products: Product[];
+  columnWidth?: number;
+  rowHeight?: number;
+  gap?: number;
+  onView: (p: Product) => void;
+  onDemo: (p: Product) => void;
+  onBuy: (p: Product) => void;
+  onFav: (id: string) => void;
+  favorites: Set<string>;
+  formatPrice: (p: number | null) => string;
+}) {
+  if (!products || products.length === 0) return <div className="text-slate-500 text-sm py-4">No products found</div>;
+
+  return (
+    <div style={{ width: '100%', height: '60vh' }}>
+      <AutoSizer>
+        {({ height, width }) => {
+          const colWithGap = columnWidth + gap;
+          const columnCount = Math.max(1, Math.floor((width + gap) / colWithGap));
+          const rowCount = Math.ceil(products.length / columnCount);
+
+          const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
+            const start = index * columnCount;
+            const items: Product[] = [];
+            for (let i = 0; i < columnCount; i++) {
+              const item = products[start + i];
+              if (item) items.push(item);
+            }
+
+            return (
+              <div style={{ ...style, display: 'flex', gap: `${gap}px`, padding: '8px 0' }}>
+                {items.map((product) => (
+                  <div key={product.product_id} style={{ width: columnWidth }}>
+                    <ProductCard
+                      product={product}
+                      isFav={favorites.has(product.product_id)}
+                      onView={onView}
+                      onDemo={onDemo}
+                      onBuy={onBuy}
+                      onFav={onFav}
+                      formatPrice={formatPrice}
+                    />
+                  </div>
+                ))}
+                {items.length < columnCount && Array.from({ length: columnCount - items.length }).map((_, i) => (
+                  <div key={`empty-${i}`} style={{ width: columnWidth }} />
+                ))}
+              </div>
+            );
+          };
+
+          return (
+            <List
+              height={height}
+              itemCount={rowCount}
+              itemSize={rowHeight}
+              width={width}
+              overscanCount={3}
+            >
+              {Row}
+            </List>
+          );
+        }}
+      </AutoSizer>
+    </div>
+  );
+}
+
+/* ---------------------------
+   LazyProductRow, HeroBanner, ProductRow,
+   ProductCard, ProductDetailDialog (unchanged logic)
+   - Kept as in original but using projection data where possible
+   --------------------------- */
+
 function LazyProductRow({
   title,
   category,
@@ -929,7 +1055,7 @@ function ProductRow({
     });
   };
 
-  if (products.length === 0) return null;
+  if (!products || products.length === 0) return null;
 
   return (
     <div className="space-y-3">
@@ -997,7 +1123,7 @@ function ProductCard({
         ) : (
           <div className="text-4xl">{CATEGORY_ICONS[product.category || ''] || '📦'}</div>
         )}
-        
+
         {/* Favorite Button */}
         <button
           onClick={(e) => { e.stopPropagation(); onFav(product.product_id); }}
@@ -1017,7 +1143,7 @@ function ProductCard({
       {/* Info */}
       <div className="p-3 space-y-2">
         <h4 className="font-medium text-sm line-clamp-2 text-white">{product.product_name}</h4>
-        
+
         <div className="flex items-center justify-between">
           <span className="text-cyan-400 font-bold text-sm">{formatPrice(product.monthly_price)}</span>
           <Badge variant="outline" className="text-xs border-slate-700 text-slate-400">
@@ -1181,3 +1307,5 @@ function ProductDetailDialog({
     </Dialog>
   );
 }
+
+export default MMMarketplaceScreen;
