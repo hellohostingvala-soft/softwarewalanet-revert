@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Play, ShoppingCart, Heart, Lightbulb, ExternalLink, 
@@ -57,66 +57,84 @@ const EnhancedDemoCard: React.FC<EnhancedDemoCardProps> = ({
   const [loadingCart, setLoadingCart] = useState(false);
   const [loadingFavorite, setLoadingFavorite] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [viewCount, setViewCount] = useState(Math.floor(Math.random() * 500) + 100);
+  const [viewCount] = useState(Math.floor(Math.random() * 500) + 100);
 
   const getSessionId = () => {
-    let sessionId = localStorage.getItem('demo_session_id');
-    if (!sessionId) {
-      sessionId = 'session_' + Math.random().toString(36).substring(2, 15);
-      localStorage.setItem('demo_session_id', sessionId);
+    try {
+      if (typeof window === 'undefined' || !window.localStorage) return null;
+      let sessionId = localStorage.getItem('demo_session_id');
+      if (!sessionId) {
+        sessionId = 'session_' + Math.random().toString(36).substring(2, 15);
+        try {
+          localStorage.setItem('demo_session_id', sessionId);
+        } catch {
+          // ignore storage errors
+        }
+      }
+      return sessionId;
+    } catch {
+      return null;
     }
-    return sessionId;
   };
 
   const handleBuyNow = () => {
-    // Navigate instantly, log async in background
     navigate(`/checkout/${id}`);
-    logAction({
-      action: 'public_buy_now_clicked',
-      module: 'finance',
-      severity: 'low',
-      metadata: {
-        demo_id: id,
-        demo_title: title,
-        category,
-      },
-    }).catch(() => {});
+    try {
+      logAction({
+        action: 'public_buy_now_clicked',
+        module: 'finance',
+        severity: 'low',
+        metadata: {
+          demo_id: id,
+          demo_title: title,
+          category,
+        },
+      }).catch(() => {});
+    } catch {
+      // swallow
+    }
   };
 
   const handleStartDemo = () => {
-    // Navigate instantly, log async in background
     navigate(`/demo/${id}`);
-    logAction({
-      action: 'public_try_demo_clicked',
-      module: 'vala_builder',
-      severity: 'low',
-      metadata: {
-        demo_id: id,
-        demo_title: title,
-        category,
-      },
-    }).catch(() => {});
+    try {
+      logAction({
+        action: 'public_try_demo_clicked',
+        module: 'vala_builder',
+        severity: 'low',
+        metadata: {
+          demo_id: id,
+          demo_title: title,
+          category,
+        },
+      }).catch(() => {});
+    } catch {
+      // swallow
+    }
   };
 
   const handleAddToCart = async () => {
     setLoadingCart(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data } = await supabase.auth.getUser();
+      const user = data?.user ?? null;
       const sessionId = getSessionId();
 
-      const { error } = await supabase
-        .from('demo_cart')
-        .upsert({
-          user_id: user?.id || null,
-          session_id: user ? null : sessionId,
-          demo_id: id,
-          is_active: true
-        }, {
-          onConflict: user ? 'user_id,demo_id' : 'session_id,demo_id'
-        });
+      const payload: Record<string, any> = {
+        user_id: user?.id || null,
+        session_id: user ? null : sessionId,
+        demo_id: id,
+        is_active: true
+      };
 
-      if (error) throw error;
-      
+      const options: Record<string, any> = {
+        onConflict: user ? 'user_id,demo_id' : 'session_id,demo_id'
+      };
+
+      const res = await supabase.from('demo_cart').upsert(payload, options);
+
+      if (res?.error) throw res.error;
+
       setIsInCart(true);
       toast.success('Added to cart!', {
         description: title
@@ -132,31 +150,36 @@ const EnhancedDemoCard: React.FC<EnhancedDemoCardProps> = ({
   const handleToggleFavorite = async () => {
     setLoadingFavorite(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data } = await supabase.auth.getUser();
+      const user = data?.user ?? null;
       const sessionId = getSessionId();
 
       if (isFavorite) {
-        const query = supabase.from('demo_favorites').delete();
-        if (user) {
-          await query.eq('user_id', user.id).eq('demo_id', id);
-        } else {
-          await query.eq('session_id', sessionId).eq('demo_id', id);
-        }
+        const base = supabase.from('demo_favorites').delete();
+        const res = user
+          ? await base.eq('user_id', user.id).eq('demo_id', id)
+          : sessionId
+          ? await base.eq('session_id', sessionId).eq('demo_id', id)
+          : null;
+
+        if (res?.error) throw res.error;
+
         setIsFavorite(false);
         toast.success('Removed from favorites');
       } else {
-        const { error } = await supabase
-          .from('demo_favorites')
-          .upsert({
-            user_id: user?.id || null,
-            session_id: user ? null : sessionId,
-            demo_id: id
-          }, {
-            onConflict: user ? 'user_id,demo_id' : 'session_id,demo_id'
-          });
+        const payload: Record<string, any> = {
+          user_id: user?.id || null,
+          session_id: user ? null : sessionId,
+          demo_id: id
+        };
+        const options: Record<string, any> = {
+          onConflict: user ? 'user_id,demo_id' : 'session_id,demo_id'
+        };
 
-        if (error) throw error;
-        
+        const res = await supabase.from('demo_favorites').upsert(payload, options);
+
+        if (res?.error) throw res.error;
+
         setIsFavorite(true);
         toast.success('Added to favorites!', {
           description: title
@@ -184,7 +207,7 @@ const EnhancedDemoCard: React.FC<EnhancedDemoCardProps> = ({
     new: { bg: 'bg-purple-500/20', text: 'text-purple-400', icon: Star, label: 'NEW' }
   };
 
-  const currentStatus = statusConfig[status] || statusConfig.live;
+  const currentStatus = status && statusConfig[status] ? statusConfig[status] : statusConfig.live;
   const StatusIcon = currentStatus.icon;
 
   const getHealthColor = (score: number) => {
