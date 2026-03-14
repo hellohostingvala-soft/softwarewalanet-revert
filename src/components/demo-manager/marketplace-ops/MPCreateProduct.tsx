@@ -14,7 +14,9 @@ const MPCreateProduct = () => {
   const [form, setForm] = useState({ product_name: "", category: "", product_type: "SaaS", tech_stack: "", description: "" });
 
   const handleSubmit = async () => {
-    if (!form.product_name) {
+    if (loading) return; // prevent double submit
+    const name = form.product_name?.trim();
+    if (!name) {
       toast.error("Product name is required");
       return;
     }
@@ -22,12 +24,12 @@ const MPCreateProduct = () => {
     setLoading(true);
     try {
       const payload = {
-        product_name: form.product_name,
-        name: form.product_name,
-        short_description: form.description || null,
-        category: form.category || null,
+        product_name: name,
+        name: name,
+        short_description: form.description?.trim() || null,
+        category: form.category?.trim() || null,
         type: form.product_type,
-        tech_stack: form.tech_stack || null,
+        tech_stack: form.tech_stack?.trim() || null,
         is_active: true,
         listing_status: "draft",
         vendor: "Self",
@@ -37,15 +39,15 @@ const MPCreateProduct = () => {
 
       if (error) {
         console.error("Create product error:", error);
-        toast.error("Failed to create product");
+        toast.error(error.message || "Failed to create product");
         return;
       }
 
       toast.success("Product created successfully");
       setForm({ product_name: "", category: "", product_type: "SaaS", tech_stack: "", description: "" });
-    } catch (e) {
+    } catch (e: any) {
       console.error("Unexpected error creating product:", e);
-      toast.error("Failed to create product");
+      toast.error(e?.message || "Failed to create product");
     } finally {
       setLoading(false);
     }
