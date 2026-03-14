@@ -151,8 +151,8 @@ export const marketplaceService = {
   async getProducts(params?: { page?: number; pageSize?: number; q?: string; category?: string }) {
     try {
       const qs = new URLSearchParams();
-      if (params?.page) qs.set('page', String(params.page));
-      if (params?.pageSize) qs.set('page_size', String(params.pageSize));
+      if (typeof params?.page !== 'undefined') qs.set('page', String(params.page));
+      if (typeof params?.pageSize !== 'undefined') qs.set('page_size', String(params.pageSize));
       if (params?.q) qs.set('q', params.q);
       if (params?.category) qs.set('category', params.category);
 
@@ -200,7 +200,9 @@ export const marketplaceService = {
       if ((process.env as any)?.NODE_ENV !== 'production') {
         console.warn('[marketplaceService] searchProducts fallback', err);
         return SAMPLE_PRODUCTS.filter(
-          (p) => p.name.toLowerCase().includes(query.toLowerCase()) || (p.short_description || '').toLowerCase().includes(query.toLowerCase())
+          (p) =>
+            p.name.toLowerCase().includes(query.toLowerCase()) ||
+            (p.short_description || '').toLowerCase().includes(query.toLowerCase())
         );
       }
       throw err;
@@ -308,4 +310,74 @@ export const marketplaceService = {
   async getFavorites(userId: string) {
     if (!userId) return [];
     try {
-      const res = await apiFetch<Product[]>(`*
+      const res = await apiFetch<Product[]>(`/api/marketplace/favorites?user_id=${encodeURIComponent(userId)}`, {
+        method: 'GET',
+        retries: 2,
+      });
+      return res;
+    } catch (err) {
+      if ((process.env as any)?.NODE_ENV !== 'production') {
+        console.warn('[marketplaceService] getFavorites fallback', err);
+        return [];
+      }
+      throw err;
+    }
+  },
+
+  /* Cart */
+
+  async addToCart(payload: { user_id?: string; session_id?: string; product_id: string; quantity?: number }) {
+    try {
+      const res = await apiFetch(`/api/marketplace/cart/add`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        retries: 1,
+      });
+      return res;
+    } catch (err) {
+      if ((process.env as any)?.NODE_ENV !== 'production') {
+        console.warn('[marketplaceService] addToCart simulated', err);
+        return { success: true };
+      }
+      throw err;
+    }
+  },
+
+  async getCart(userId?: string, sessionId?: string) {
+    try {
+      const qs = new URLSearchParams();
+      if (userId) qs.set('user_id', userId);
+      if (sessionId) qs.set('session_id', sessionId);
+      const res = await apiFetch<any>(`/api/marketplace/cart${qs.toString() ? `?${qs.toString()}` : ''}`, {
+        method: 'GET',
+        retries: 2,
+      });
+      return res;
+    } catch (err) {
+      if ((process.env as any)?.NODE_ENV !== 'production') {
+        console.warn('[marketplaceService] getCart fallback', err);
+        return { items: [] };
+      }
+      throw err;
+    }
+  },
+
+  async removeFromCart(payload: { user_id?: string; session_id?: string; product_id?: string; cart_item_id?: string }) {
+    try {
+      const res = await apiFetch(`/api/marketplace/cart/remove`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        retries: 1,
+      });
+      return res;
+    } catch (err) {
+      if ((process.env as any)?.NODE_ENV !== 'production') {
+        console.warn('[marketplaceService] removeFromCart simulated', err);
+        return { success: true };
+      }
+      throw err;
+    }
+  },
+};
+
+export default marketplaceService;
