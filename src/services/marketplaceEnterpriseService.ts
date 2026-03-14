@@ -1,274 +1,339 @@
-import { supabase } from '@/integrations/supabase/client';
-import { createSystemRequest } from '@/hooks/useSystemRequestLogger';
+/**
+ * marketplaceEnterpriseService
+ *
+ * Centralized client-side service wrapper for marketplace-related server endpoints.
+ * - Uses fetch under the hood with sensible defaults, timeout and retry behavior.
+ * - Provides typed method signatures used across the marketplace UI.
+ * - Falls back to sample/mock data when server endpoints are not available (useful during local dev).
+ *
+ * NOTE:
+ * - Adjust NEXT_PUBLIC_API_BASE in your env to point to API root if needed.
+ * - All endpoints used here are conventions — update paths to match your backend.
+ */
 
-// ─── Types ───────────────────────────────────────────────────────────
-export interface MarketplaceProduct {
-  product_id: string;
+const API_BASE = (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_API_BASE) || '';
+
+type FetchOpts = RequestInit & { timeoutMs?: number; retries?: number };
+
+async function apiFetch<T = any>(path: string, opts: FetchOpts = {}): Promise<T> {
+  const { timeoutMs = 12_000, retries = 1, ...init } = opts;
+
+  const url = path.startsWith('http') ? path : `${API_BASE}${path}`;
+
+  for (let attempt = 0; attempt < Math.max(1, retries); attempt++) {
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : undefined;
+    const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : undefined;
+
+    try {
+      const res = await fetch(url, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(init.headers || {}),
+        },
+        signal: controller?.signal,
+        ...init,
+      });
+
+      if (timer) clearTimeout(timer);
+
+      // non-JSON responses can be returned as text
+      const contentType = res.headers.get('content-type') || '';
+      if (!res.ok) {
+        const body = contentType.includes('application/json') ? await res.json().catch(() => null) : await res.text().catch(() => null);
+        const err = new Error(`Request failed: ${res.status} ${res.statusText}`);
+        (err as any).status = res.status;
+        (err as any).body = body;
+        throw err;
+      }
+
+      if (contentType.includes('application/json')) {
+        return (await res.json()) as T;
+      } else {
+        // @ts-ignore
+        return (await res.text()) as T;
+      }
+    } catch (err) {
+      // If last attempt, rethrow
+      const isAbort = (err as any)?.name === 'AbortError';
+      if (attempt === Math.max(0, retries - 1)) {
+        throw err;
+      }
+      // otherwise small backoff
+      await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
+    } finally {
+      // nothing
+    }
+  }
+
+  // should not reach here
+  throw new Error('apiFetch: exhausted retries');
+}
+
+/* ---- Types ---- */
+
+export type DevOrder = {
+  id: string;
   product_name: string;
-  description: string | null;
-  category: string | null;
-  monthly_price: number | null;
-  lifetime_price: number | null;
-  tech_stack: string | null;
-  product_type: string | null;
-  features_json: any;
-  is_active: boolean | null;
-  status: string | null;
+  order_ref?: string;
+  progress_percent: number;
+  started_at?: string;
+  eta?: string;
+  status?: string;
+  lead?: string;
+  notes?: string;
+};
+
+export type Wallet = {
+  balance_cents: number;
+  currency?: string;
+  reserved_cents?: number;
+  upi_id?: string;
+  account_number?: string;
+  ifsc?: string;
+};
+
+export type Transaction = {
+  id: string;
+  type: 'credit' | 'debit';
+  amount_cents: number;
+  description?: string;
   created_at: string;
-}
+  status?: string;
+};
 
-export interface MarketplaceOrderInput {
-  userId: string;
-  userRole: string;
-  franchiseId?: string;
-  products: {
-    productId: string;
-    productName: string;
-    unitPrice: number;
-    quantity: number;
-    discountPercent: number;
-  }[];
-  requirements?: string;
-}
+/* ---- Sample fallback data (used when API not reachable) ---- */
 
-export interface OrderResult {
-  success: boolean;
-  orderNumber?: string;
-  orderId?: string;
-  error?: string;
-}
+const SAMPLE_DEVORDERS: DevOrder[] = [
+  {
+    id: 'ORD-2024-001',
+    product_name: 'CRM Pro Suite - Custom',
+    order_ref: 'ORD-2024-001',
+    progress_percent: 65,
+    started_at: '2024-12-01T09:00:00.000Z',
+    eta: '2025-01-30T18:00:00.000Z',
+    status: 'in_progress',
+    lead: 'Dev Team A',
+    notes: 'Working on custom fields and integrations',
+  },
+];
 
-// ─── Service ─────────────────────────────────────────────────────────
-class MarketplaceEnterpriseService {
+const SAMPLE_WALLET: Wallet = {
+  balance_cents: 4523000,
+  currency: 'INR',
+  reserved_cents: 500000,
+  upi_id: 'test@upi',
+  account_number: 'XXXXXXXXXXXX1234',
+  ifsc: 'SBIN0000000',
+};
 
-  // ── Fetch products with optional filters ──
-  async getProducts(filters?: { category?: string; search?: string; limit?: number }) {
-    let query = supabase
-      .from('products')
-      .select('*')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false });
+const SAMPLE_TRANSACTIONS: Transaction[] = [
+  {
+    id: 'TXN-1',
+    type: 'credit',
+    amount_cents: 500000,
+    description: 'Top-up via UPI',
+    created_at: new Date().toISOString(),
+    status: 'completed',
+  },
+];
 
-    if (filters?.category) {
-      query = query.eq('category', filters.category);
-    }
-    if (filters?.search) {
-      query = query.or(`product_name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
-    }
-    if (filters?.limit) {
-      query = query.limit(filters.limit);
-    }
+/* ---- Service methods ---- */
 
-    const { data, error } = await query;
-    return { data: data || [], error };
-  }
-
-  // ── Fetch sections for homepage rows ──
-  async getSections() {
-    const { data, error } = await supabase
-      .from('marketplace_sections')
-      .select('*')
-      .eq('is_active', true)
-      .order('display_order');
-    return { data: data || [], error };
-  }
-
-  // ── Fetch active banners ──
-  async getBanners() {
-    const { data, error } = await supabase
-      .from('marketplace_banners')
-      .select('*')
-      .eq('is_active', true)
-      .order('display_order');
-    return { data: data || [], error };
-  }
-
-  // ── Fetch featured products ──
-  async getFeaturedProducts(sectionId?: string) {
-    let query = supabase
-      .from('marketplace_featured')
-      .select('*, products(*)')
-      .eq('is_active', true)
-      .order('display_order');
-
-    if (sectionId) {
-      query = query.eq('section_id', sectionId);
+export const marketplaceEnterpriseService = {
+  /**
+   * Fetch development orders for a user
+   */
+  async getDevelopmentOrders(userId?: string): Promise<DevOrder[] | { data: DevOrder[] }> {
+    if (!userId) {
+      // return empty to allow UI to handle unauthenticated case
+      return [];
     }
 
-    const { data, error } = await query;
-    return { data: data || [], error };
-  }
-
-  // ── Place a marketplace order (10-step flow) ──
-  async placeOrder(input: MarketplaceOrderInput): Promise<OrderResult> {
-    const orderNumber = `MKT-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
-
-    const totalAmount = input.products.reduce((sum, p) => sum + p.unitPrice * p.quantity, 0);
-    const discountAmount = input.products.reduce(
-      (sum, p) => sum + (p.unitPrice * p.quantity * p.discountPercent) / 100,
-      0
-    );
-    const finalAmount = totalAmount - discountAmount;
-
-    // Step 1: Create order
-    const { data: order, error: orderError } = await supabase
-      .from('marketplace_orders')
-      .insert({
-        user_id: input.userId,
-        franchise_id: input.franchiseId || null,
-        order_number: orderNumber,
-        total_amount: totalAmount,
-        discount_amount: discountAmount,
-        final_amount: finalAmount,
-        payment_status: 'pending',
-        status: 'pending',
-        requirements: input.requirements || null,
-      })
-      .select('id')
-      .single();
-
-    if (orderError || !order) {
-      return { success: false, error: orderError?.message || 'Failed to create order' };
+    try {
+      const res = await apiFetch<DevOrder[]>(`/api/marketplace/development/orders?user_id=${encodeURIComponent(userId)}`, {
+        method: 'GET',
+        retries: 2,
+      });
+      return res;
+    } catch (err) {
+      // fallback to sample data in dev
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('[marketplaceEnterpriseService] getDevelopmentOrders fallback to sample', err);
+        return SAMPLE_DEVORDERS;
+      }
+      throw err;
     }
+  },
 
-    // Step 2: Create order items
-    const items = input.products.map((p) => ({
-      order_id: order.id,
-      product_id: p.productId,
-      product_name: p.productName,
-      unit_price: p.unitPrice,
-      quantity: p.quantity,
-      discount_percent: p.discountPercent,
-      total_price: p.unitPrice * p.quantity * (1 - p.discountPercent / 100),
-    }));
-
-    const { error: itemsError } = await supabase
-      .from('marketplace_order_items')
-      .insert(items);
-
-    if (itemsError) {
-      // Compensate
-      await supabase.from('marketplace_orders').delete().eq('id', order.id);
-      return { success: false, error: itemsError.message };
+  /**
+   * Request an update for an order
+   */
+  async requestOrderUpdate(userId: string, orderId: string): Promise<{ success: boolean }> {
+    if (!userId) throw new Error('userId required');
+    try {
+      const res = await apiFetch<{ success: boolean }>(`/api/marketplace/development/request-update`, {
+        method: 'POST',
+        body: JSON.stringify({ user_id: userId, order_id: orderId }),
+        retries: 1,
+      });
+      return res;
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('[marketplaceEnterpriseService] requestOrderUpdate fallback simulated', err);
+        return { success: true };
+      }
+      throw err;
     }
+  },
 
-    // Step 3: Record status history
-    await supabase.from('marketplace_order_status_history').insert({
-      order_id: order.id,
-      new_status: 'pending',
-      changed_by: input.userId,
-      reason: 'Order placed',
-    });
-
-    // Step 4: Log to activity_log (immutable)
-    await supabase.from('activity_log').insert({
-      action_type: 'order_created',
-      entity_type: 'marketplace_order',
-      entity_id: order.id,
-      user_id: input.userId,
-      role: input.userRole,
-      severity_level: 'info',
-      metadata: {
-        order_number: orderNumber,
-        total_amount: totalAmount,
-        final_amount: finalAmount,
-        products: input.products.map((p) => p.productName),
-      },
-    });
-
-    // Step 5: Queue for Boss Panel
-    await createSystemRequest({
-      action_type: 'marketplace_order_placed',
-      role_type: input.userRole,
-      user_id: input.userId,
-      payload_json: {
-        order_number: orderNumber,
-        order_id: order.id,
-        total_amount: finalAmount,
-        products_count: input.products.length,
-      },
-    });
-
-    // Step 6: Notify user
-    supabase.from('user_notifications').insert({
-      user_id: input.userId,
-      type: 'order',
-      message: `Order ${orderNumber} placed successfully for ₹${finalAmount.toLocaleString()}`,
-      event_type: 'order_placed',
-    }).then(({ error }) => {
-      if (error) console.error('[MarketplaceEnterprise] Notification failed:', error.message);
-    });
-
-    return { success: true, orderNumber, orderId: order.id };
-  }
-
-  // ── Get user orders ──
-  async getUserOrders(userId: string) {
-    const { data, error } = await supabase
-      .from('marketplace_orders')
-      .select('*, marketplace_order_items(*)')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    return { data: data || [], error };
-  }
-
-  // ── Get user licenses ──
-  async getUserLicenses(userId: string) {
-    const { data, error } = await supabase
-      .from('user_licenses')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    return { data: data || [], error };
-  }
-
-  // ── Toggle favorite ──
-  async toggleFavorite(userId: string, productId: string): Promise<boolean> {
-    const { data: existing } = await supabase
-      .from('product_favorites')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('product_id', productId)
-      .maybeSingle();
-
-    if (existing) {
-      await supabase.from('product_favorites').delete().eq('id', existing.id);
-      return false; // removed
-    } else {
-      await supabase.from('product_favorites').insert({ user_id: userId, product_id: productId });
-      return true; // added
+  /**
+   * Get wallet summary
+   */
+  async getWallet(userId?: string): Promise<Wallet | { data: Wallet } | null> {
+    if (!userId) return null;
+    try {
+      const res = await apiFetch<Wallet>(`/api/marketplace/wallet?user_id=${encodeURIComponent(userId)}`, {
+        method: 'GET',
+        retries: 2,
+      });
+      return res;
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('[marketplaceEnterpriseService] getWallet fallback sample', err);
+        return SAMPLE_WALLET;
+      }
+      throw err;
     }
-  }
+  },
 
-  // ── Get user favorites ──
-  async getUserFavorites(userId: string) {
-    const { data } = await supabase
-      .from('product_favorites')
-      .select('product_id')
-      .eq('user_id', userId);
-    return new Set((data || []).map((f) => f.product_id));
-  }
+  /**
+   * Get wallet transactions
+   */
+  async getWalletTransactions(userId?: string): Promise<Transaction[] | { data: Transaction[] }> {
+    if (!userId) return [];
+    try {
+      const res = await apiFetch<Transaction[]>(`/api/marketplace/wallet/transactions?user_id=${encodeURIComponent(userId)}`, {
+        method: 'GET',
+        retries: 2,
+      });
+      return res;
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('[marketplaceEnterpriseService] getWalletTransactions fallback', err);
+        return SAMPLE_TRANSACTIONS;
+      }
+      throw err;
+    }
+  },
 
-  // ── Log analytics event ──
-  async logAnalyticsEvent(
-    userId: string | null,
-    userRole: string | null,
-    eventType: string,
-    entityId?: string,
-    metadata?: Record<string, unknown>
-  ) {
-    await supabase.from('activity_log').insert({
-      action_type: eventType,
-      entity_type: 'product',
-      entity_id: entityId || null,
-      user_id: userId,
-      role: userRole,
-      severity_level: 'info',
-      metadata: { module: 'marketplace', ...metadata },
-    });
-  }
-}
+  /**
+   * Initiate top-up. Accepts amount in cents (paise)
+   */
+  async topUpWallet(userId: string, { amount_cents }: { amount_cents: number }) {
+    if (!userId) throw new Error('userId required');
+    try {
+      const res = await apiFetch<{ checkout_url?: string; payment_id?: string }>(`/api/marketplace/wallet/topup`, {
+        method: 'POST',
+        body: JSON.stringify({ user_id: userId, amount_cents }),
+        retries: 1,
+      });
+      return res;
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('[marketplaceEnterpriseService] topUpWallet simulated', err);
+        return { checkout_url: undefined, payment_id: 'SIMULATED-' + Date.now() };
+      }
+      throw err;
+    }
+  },
 
-export const marketplaceEnterpriseService = new MarketplaceEnterpriseService();
+  /**
+   * Withdraw funds
+   */
+  async withdrawFromWallet(userId: string) {
+    if (!userId) throw new Error('userId required');
+    try {
+      const res = await apiFetch<{ success: boolean; request_id?: string }>(`/api/marketplace/wallet/withdraw`, {
+        method: 'POST',
+        body: JSON.stringify({ user_id: userId }),
+        retries: 1,
+      });
+      return res;
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('[marketplaceEnterpriseService] withdrawFromWallet simulated', err);
+        return { success: true, request_id: 'SIM-' + Date.now() };
+      }
+      throw err;
+    }
+  },
+
+  /**
+   * Create support ticket
+   */
+  async createSupportTicket(payload: { user_id: string; subject: string; message: string }) {
+    try {
+      const res = await apiFetch<{ ticket_id?: string }>(`/api/marketplace/support`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        retries: 1,
+      });
+      return res;
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('[marketplaceEnterpriseService] createSupportTicket simulated', err);
+        return { ticket_id: 'SIM-' + Date.now() };
+      }
+      throw err;
+    }
+  },
+
+  /**
+   * Open order details - client side helper
+   */
+  openOrderDetails(orderId: string) {
+    try {
+      // try to open internal SPA route
+      const path = `/marketplace/development/orders/${encodeURIComponent(orderId)}`;
+      if (typeof window !== 'undefined' && window.location) {
+        // If SPA supports routing library, it will handle - navigation fallback to new tab
+        window.open(path, '_blank');
+      }
+    } catch (err) {
+      // swallow
+      console.error('[marketplaceEnterpriseService] openOrderDetails', err);
+    }
+  },
+
+  /**
+   * Contact lead - triggers server action or opens mailto when server not available
+   */
+  async contactLead(orderId: string) {
+    try {
+      const res = await apiFetch<{ success?: boolean; contact?: { email?: string } }>(`/api/marketplace/development/contact-lead`, {
+        method: 'POST',
+        body: JSON.stringify({ order_id: orderId }),
+        retries: 1,
+      });
+      // if server returns contact email, open mailto
+      const contact = (res as any)?.contact;
+      if (contact?.email && typeof window !== 'undefined') {
+        window.location.href = `mailto:${contact.email}?subject=${encodeURIComponent('Query about order ' + orderId)}`;
+      }
+      return res;
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('[marketplaceEnterpriseService] contactLead simulated', err);
+        // fallback mailto
+        if (typeof window !== 'undefined') {
+          window.location.href = `mailto:support@softwarevala.com?subject=${encodeURIComponent('Query about order ' + orderId)}`;
+        }
+        return { success: true };
+      }
+      throw err;
+    }
+  },
+};
+
+export default marketplaceEnterpriseService;
