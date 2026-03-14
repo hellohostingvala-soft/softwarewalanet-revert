@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
   ShoppingCart, Clock, CheckCircle, XCircle, Package, Eye,
-  MessageSquare, Calendar, IndianRupee, Loader2, AlertCircle
+  Calendar, IndianRupee, Loader2, AlertCircle
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/useAuth';
@@ -29,15 +29,31 @@ export function MMOrdersScreen() {
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      setOrders([]);
+      setLoading(false);
+      return;
+    }
     loadOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   const loadOrders = async () => {
     setLoading(true);
-    const { data } = await marketplaceEnterpriseService.getUserOrders(user!.id);
-    setOrders(data);
-    setLoading(false);
+    try {
+      const res = await marketplaceEnterpriseService.getUserOrders(user!.id);
+      if (res?.error) {
+        console.error('[MMOrdersScreen] Failed to load orders:', res.error);
+        setOrders([]);
+      } else {
+        setOrders(res?.data || []);
+      }
+    } catch (err) {
+      console.error('[MMOrdersScreen] Unexpected error loading orders:', err);
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredOrders = filter === 'all' ? orders : orders.filter(o => o.status === filter);
@@ -144,7 +160,7 @@ export function MMOrdersScreen() {
                         </div>
                         <div className="flex items-center gap-1 text-xs text-slate-400">
                           <Calendar className="h-3 w-3" />
-                          {new Date(order.created_at).toLocaleDateString()}
+                          {order.created_at ? new Date(order.created_at).toLocaleDateString() : '-'}
                         </div>
                       </div>
 
