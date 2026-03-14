@@ -19,8 +19,8 @@ const statusConfig: Record<string, { label: string; color: string; icon: any }> 
   paid: { label: 'Paid', color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', icon: CheckCircle },
 };
 
-const getStatusConfig = (status: string) =>
-  statusConfig[status] || { label: status || 'Unknown', color: 'bg-slate-500/20 text-slate-400 border-slate-500/30', icon: Clock };
+const getStatusConfig = (status?: string) =>
+  statusConfig[status ?? ''] || { label: status || 'Unknown', color: 'bg-slate-500/20 text-slate-400 border-slate-500/30', icon: Clock };
 
 export function MMOrdersScreen() {
   const { user } = useAuth();
@@ -48,11 +48,15 @@ export function MMOrdersScreen() {
         const res = await marketplaceEnterpriseService.getUserOrders(user!.id);
         if (!mounted) return;
 
-        if (res?.error) {
-          console.error('[MMOrdersScreen] Failed to load orders:', res.error);
+        // Service may return { data, error } or an array directly
+        const data = Array.isArray(res) ? res : res?.data ?? [];
+        const error = res?.error ?? null;
+
+        if (error) {
+          console.error('[MMOrdersScreen] Failed to load orders:', error);
           setOrders([]);
         } else {
-          setOrders(res?.data || []);
+          setOrders(Array.isArray(data) ? data : []);
         }
       } catch (err) {
         if (!mounted) return;
@@ -71,13 +75,13 @@ export function MMOrdersScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
-  const filteredOrders = filter === 'all' ? orders : orders.filter(o => o.status === filter);
+  const filteredOrders = filter === 'all' ? orders : orders.filter(o => (o?.status ?? '') === filter);
 
   const stats = {
     total: orders.length,
-    pending: orders.filter(o => o.status === 'pending').length,
-    inProgress: orders.filter(o => ['processing', 'in_development'].includes(o.status)).length,
-    completed: orders.filter(o => o.status === 'completed').length,
+    pending: orders.filter(o => (o?.status ?? '') === 'pending').length,
+    inProgress: orders.filter(o => ['processing', 'in_development'].includes(o?.status ?? '')).length,
+    completed: orders.filter(o => (o?.status ?? '') === 'completed').length,
   };
 
   if (loading) {
@@ -147,12 +151,12 @@ export function MMOrdersScreen() {
           </div>
         ) : (
           filteredOrders.map(order => {
-            const sc = getStatusConfig(order.status);
+            const sc = getStatusConfig(order?.status);
             const StatusIcon = sc.icon;
-            const items = order.marketplace_order_items || [];
+            const items = Array.isArray(order?.marketplace_order_items) ? order.marketplace_order_items : [];
 
             return (
-              <Card key={order.id ?? order.order_number} className="bg-slate-800/50 border-slate-700">
+              <Card key={order?.id ?? order?.order_number} className="bg-slate-800/50 border-slate-700">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -161,9 +165,9 @@ export function MMOrdersScreen() {
                       </div>
                       <div>
                         <h3 className="font-semibold">
-                          {items.length > 0 ? items.map((i: any) => i.product_name).join(', ') : 'Order'}
+                          {items.length > 0 ? items.map((i: any) => i?.product_name ?? 'Unnamed').join(', ') : 'Order'}
                         </h3>
-                        <p className="text-sm text-slate-400">{order.order_number}</p>
+                        <p className="text-sm text-slate-400">{order?.order_number ?? '-'}</p>
                       </div>
                     </div>
 
@@ -171,11 +175,11 @@ export function MMOrdersScreen() {
                       <div className="text-right">
                         <div className="flex items-center gap-1 text-lg font-bold">
                           <IndianRupee className="h-4 w-4" />
-                          {Number(order.final_amount || 0).toLocaleString()}
+                          {Number(order?.final_amount ?? 0).toLocaleString()}
                         </div>
                         <div className="flex items-center gap-1 text-xs text-slate-400">
                           <Calendar className="h-3 w-3" />
-                          {order.created_at ? new Date(order.created_at).toLocaleDateString() : '-'}
+                          {order?.created_at ? new Date(order.created_at).toLocaleDateString() : '-'}
                         </div>
                       </div>
 
@@ -186,32 +190,33 @@ export function MMOrdersScreen() {
 
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="border-slate-600">
+                          {/* Use native button as child to ensure asChild works reliably with Dialog */}
+                          <button type="button" className="inline-flex items-center justify-center px-2 py-1 border rounded text-sm border-slate-600 bg-transparent hover:bg-slate-800">
                             <Eye className="h-4 w-4" />
-                          </Button>
+                          </button>
                         </DialogTrigger>
                         <DialogContent className="bg-slate-900 border-slate-700">
                           <DialogHeader>
-                            <DialogTitle>Order Details — {order.order_number}</DialogTitle>
+                            <DialogTitle>Order Details — {order?.order_number ?? '-'}</DialogTitle>
                           </DialogHeader>
                           <div className="space-y-4 mt-4">
                             <div className="grid grid-cols-2 gap-4">
                               <div>
                                 <p className="text-xs text-slate-400">Total Amount</p>
-                                <p className="font-medium">₹{Number(order.total_amount || 0).toLocaleString()}</p>
+                                <p className="font-medium">₹{Number(order?.total_amount ?? 0).toLocaleString()}</p>
                               </div>
                               <div>
                                 <p className="text-xs text-slate-400">Discount</p>
-                                <p className="font-medium text-emerald-400">-₹{Number(order.discount_amount || 0).toLocaleString()}</p>
+                                <p className="font-medium text-emerald-400">-₹{Number(order?.discount_amount ?? 0).toLocaleString()}</p>
                               </div>
                               <div>
                                 <p className="text-xs text-slate-400">Final Amount</p>
-                                <p className="font-medium text-cyan-400">₹{Number(order.final_amount || 0).toLocaleString()}</p>
+                                <p className="font-medium text-cyan-400">₹{Number(order?.final_amount ?? 0).toLocaleString()}</p>
                               </div>
                               <div>
                                 <p className="text-xs text-slate-400">Payment Status</p>
-                                <Badge className={getStatusConfig(order.payment_status || '').color}>
-                                  {order.payment_status || 'unknown'}
+                                <Badge className={getStatusConfig(order?.payment_status ?? '').color}>
+                                  {order?.payment_status ?? 'unknown'}
                                 </Badge>
                               </div>
                             </div>
@@ -219,16 +224,16 @@ export function MMOrdersScreen() {
                               <div>
                                 <p className="text-xs text-slate-400 mb-2">Items</p>
                                 <div className="space-y-2">
-                                  {items.map((item: any) => (
-                                    <div key={item.id ?? `${item.product_name}-${item.total_price}`} className="flex justify-between p-2 rounded bg-slate-800 border border-slate-700">
-                                      <span className="text-sm">{item.product_name}</span>
-                                      <span className="text-sm font-medium">₹{Number(item.total_price || 0).toLocaleString()}</span>
+                                  {items.map((item: any, idx: number) => (
+                                    <div key={item?.id ?? `${item?.product_name ?? 'item'}-${idx}`} className="flex justify-between p-2 rounded bg-slate-800 border border-slate-700">
+                                      <span className="text-sm">{item?.product_name ?? 'Unnamed'}</span>
+                                      <span className="text-sm font-medium">₹{Number(item?.total_price ?? 0).toLocaleString()}</span>
                                     </div>
                                   ))}
                                 </div>
                               </div>
                             )}
-                            {order.requirements && (
+                            {order?.requirements && (
                               <div>
                                 <p className="text-xs text-slate-400 mb-1">Requirements</p>
                                 <p className="text-sm p-3 rounded-lg bg-slate-800 border border-slate-700">{order.requirements}</p>
