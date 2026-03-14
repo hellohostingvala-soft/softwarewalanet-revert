@@ -1,54 +1,74 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Library, Monitor, Key, ExternalLink, Loader2, Package } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { marketplaceEnterpriseService } from '@/services/marketplaceEnterpriseService';
+import { toast } from 'sonner';
 
 export function MMLibraryScreen() {
   const { user } = useAuth();
   const [licenses, setLicenses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const loadLicenses = async (userId?: string) => {
-    if (!userId) {
-      setLicenses([]);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const res = await marketplaceEnterpriseService.getUserLicenses(userId);
-      // service expected to return { data, error } or data directly
-      const data = res?.data ?? res;
-      setLicenses(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error('[MMLibraryScreen] Failed to load licenses:', err);
-      setLicenses([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     let mounted = true;
-    if (!mounted) return;
 
-    if (!user?.id) {
-      // No user - ensure loader stops and empty state shown
-      setLicenses([]);
-      setLoading(false);
-      return;
-    }
+    const loadLicenses = async (userId?: string) => {
+      if (!userId) {
+        if (mounted) {
+          setLicenses([]);
+          setLoading(false);
+        }
+        return;
+      }
 
-    loadLicenses(user.id);
+      if (mounted) setLoading(true);
+
+      try {
+        const res = await marketplaceEnterpriseService.getUserLicenses(userId);
+
+        // Debug the raw response so you can see shape in console
+        console.debug('[MMLibraryScreen] getUserLicenses response:', res);
+
+        // Support multiple service shapes: array or { data, error }
+        const error = res?.error ?? null;
+        const data = Array.isArray(res) ? res : res?.data ?? [];
+
+        if (error) {
+          console.error('[MMLibraryScreen] Failed to load licenses:', error);
+          toast.error('Failed to load licenses: ' + (error?.message ?? 'server error'));
+          if (mounted) setLicenses([]);
+        } else {
+          if (mounted) setLicenses(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
+        console.error('[MMLibraryScreen] Unexpected error loading licenses:', err);
+        toast.error('Failed to load licenses (unexpected). Check console for details.');
+        if (mounted) setLicenses([]);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    loadLicenses(user?.id);
 
     return () => {
       mounted = false;
     };
   }, [user?.id]);
+
+  const activeCount = useMemo(() => licenses.filter(l => (l?.status ?? '') === 'active').length, [licenses]);
+  const expiredCount = useMemo(() => licenses.filter(l => (l?.status ?? '') === 'expired').length, [licenses]);
+
+  const formatDate = (d?: string | null) => {
+    try {
+      return d ? new Date(d).toLocaleDateString() : '';
+    } catch {
+      return '';
+    }
+  };
 
   if (loading) {
     return (
@@ -71,13 +91,13 @@ export function MMLibraryScreen() {
       <div className="grid grid-cols-3 gap-4">
         <Card className="bg-emerald-500/10 border-emerald-500/30">
           <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-emerald-400">{licenses.filter(l => l?.status === 'active').length}</p>
+            <p className="text-3xl font-bold text-emerald-400">{activeCount}</p>
             <p className="text-xs text-emerald-400">Active Licenses</p>
           </CardContent>
         </Card>
         <Card className="bg-amber-500/10 border-amber-500/30">
           <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-amber-400">{licenses.filter(l => l?.status === 'expired').length}</p>
+            <p className="text-3xl font-bold text-amber-400">{expiredCount}</p>
             <p className="text-xs text-amber-400">Expired</p>
           </CardContent>
         </Card>
@@ -98,7 +118,7 @@ export function MMLibraryScreen() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {licenses.map(license => (
-            <Card key={license.id} className="bg-slate-800/50 border-slate-700">
+            <Card key={license?.id ?? `${license?.product_id}-${Math.random()}`} className="bg-slate-800/50 border-slate-700">
               <CardContent className="p-4">
                 <div className="flex items-start gap-4">
                   <div className="p-3 rounded-lg bg-gradient-to-br from-cyan-900/40 to-slate-800">
@@ -106,35 +126,43 @@ export function MMLibraryScreen() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-semibold">{license.product_id}</h3>
+                      <h3 className="font-semibold">{license?.product_id ?? 'Unknown Product'}</h3>
                       <Badge className={
-                        license.status === 'active'
+                        (license?.status ?? '') === 'active'
                           ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
                           : 'bg-red-500/20 text-red-400 border-red-500/30'
                       }>
-                        {license.status}
+                        {license?.status ?? 'unknown'}
                       </Badge>
                     </div>
                     <div className="mt-2 space-y-1">
                       <div className="flex items-center gap-2 text-xs text-slate-400">
                         <Key className="h-3 w-3" />
-                        <span className="font-mono">{license.license_key}</span>
+                        <span className="font-mono">{license?.license_key ?? '—'}</span>
                       </div>
                       <div className="flex items-center gap-4 text-xs text-slate-500">
-                        <span>Type: {license.license_type}</span>
-                        {license.expires_at && (
-                          <span>Expires: {new Date(license.expires_at).toLocaleDateString()}</span>
+                        <span>Type: {license?.license_type ?? '—'}</span>
+                        {license?.expires_at && (
+                          <span>Expires: {formatDate(license.expires_at)}</span>
                         )}
-                        {license.max_installations && (
-                          <span>Installs: {license.current_installations || 0}/{license.max_installations}</span>
+                        {license?.max_installations && (
+                          <span>Installs: {license?.current_installations ?? 0}/{license.max_installations}</span>
                         )}
                       </div>
                     </div>
                     <div className="flex gap-2 mt-3">
-                      <Button size="sm" variant="outline" className="border-slate-600 text-xs">
+                      <Button size="sm" variant="outline" className="border-slate-600 text-xs" onClick={() => {
+                        // safe, client-side access: open in new tab
+                        const url = license?.access_url ?? license?.product_url;
+                        if (url) window.open(/^https?:\/\//i.test(url) ? url : `https://${String(url).replace(/^\/+/, '')}`, '_blank', 'noopener,noreferrer');
+                        else toast('No access URL available', { type: 'error' } as any);
+                      }}>
                         <ExternalLink className="h-3 w-3 mr-1" /> Access
                       </Button>
-                      <Button size="sm" variant="outline" className="border-slate-600 text-xs">
+                      <Button size="sm" variant="outline" className="border-slate-600 text-xs" onClick={() => {
+                        // placeholder manage action — keeping safe (non-breaking)
+                        toast('Manage action not implemented in demo', { type: 'info' } as any);
+                      }}>
                         <Key className="h-3 w-3 mr-1" /> Manage
                       </Button>
                     </div>
