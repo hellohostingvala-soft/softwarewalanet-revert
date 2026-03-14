@@ -24,29 +24,56 @@ const SimpleCheckout = () => {
   };
 
   const countries = [
-    'India', 'UAE', 'Saudi Arabia', 'Kenya', 'Nigeria', 'South Africa', 
+    'India', 'UAE', 'Saudi Arabia', 'Kenya', 'Nigeria', 'South Africa',
     'Egypt', 'Singapore', 'Malaysia', 'Indonesia', 'United States', 'United Kingdom'
   ];
 
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
   const handleStep1Submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email) {
+    const name = formData.name?.trim();
+    const email = formData.email?.trim();
+
+    if (!name || !email) {
       toast.error('Please fill all fields');
       return;
     }
+
+    if (!isValidEmail(email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    setFormData({ ...formData, name, email });
     setStep(2);
   };
 
   const handlePayment = async () => {
+    if (isProcessing) return;
     setIsProcessing(true);
-    
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    toast.success('Payment successful! Account created.');
-    
-    // Auto-redirect to user dashboard
-    navigate('/user-dashboard');
+
+    try {
+      // Simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      toast.success('Payment successful! Account created.');
+
+      // Ensure UI state updated before navigation
+      setIsProcessing(false);
+
+      // Auto-redirect to user dashboard
+      navigate('/user-dashboard');
+    } catch (err) {
+      console.error('Payment error:', err);
+      toast.error('Payment failed. Please try again.');
+      setIsProcessing(false);
+    } finally {
+      // Defensive reset if navigate didn't run or an unexpected state occurred
+      if (isProcessing) setIsProcessing(false);
+    }
   };
 
   return (
@@ -55,7 +82,7 @@ const SimpleCheckout = () => {
       <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link to={`/demo/${demoId}`} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+            <Link to={demoId ? `/demo/${demoId}` : '/demos'} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
               <ArrowLeft className="w-5 h-5" />
               <span className="text-sm font-medium">Back to Demo</span>
             </Link>
@@ -136,7 +163,8 @@ const SimpleCheckout = () => {
               </div>
               <button
                 type="submit"
-                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-bold hover:from-cyan-400 hover:to-blue-500 transition-all mt-6"
+                disabled={isProcessing}
+                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-bold hover:from-cyan-400 hover:to-blue-500 transition-all mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Continue to Payment
                 <ArrowRight className="w-5 h-5" />
