@@ -32,53 +32,77 @@ const SimpleDemoView = () => {
   const { isTestMode, shouldShowAnimation } = useDemoTestMode();
 
   useEffect(() => {
+    let mounted = true;
+
     const fetchDemo = async () => {
-      if (!demoId) return;
-      
-      setLoading(true);
-      
-      // In test mode, fetch ALL demos (not just active)
-      // Otherwise only fetch active demos
-      let query = supabase
-        .from('demos')
-        .select('id, title, url, description, category, login_url, status')
-        .eq('id', demoId);
-      
-      // Only filter by status if NOT in test mode
-      if (!isTestMode) {
-        query = query.eq('status', 'active');
+      if (!demoId) {
+        if (mounted) setLoading(false);
+        return;
       }
       
-      const { data: demoData } = await query.single();
+      if (mounted) setLoading(true);
 
-      if (demoData) {
-        setDemo(demoData);
+      try {
+        // In test mode, fetch ALL demos (not just active)
+        // Otherwise only fetch active demos
+        let query = supabase
+          .from('demos')
+          .select('id, title, url, description, category, login_url, status')
+          .eq('id', demoId);
+
+        // Only filter by status if NOT in test mode
+        if (!isTestMode) {
+          query = query.eq('status', 'active');
+        }
+
+        const { data: demoData, error: demoError } = await query.single();
+        if (demoError) {
+          console.error('Failed to fetch demo:', demoError);
+        } else if (demoData && mounted) {
+          setDemo(demoData);
+        }
+
+        // Fetch login roles for this demo
+        const { data: rolesData, error: rolesError } = await supabase
+          .from('demo_login_roles')
+          .select('id, role_name, username, password_encrypted')
+          .eq('demo_id', demoId)
+          .eq('is_active', true)
+          .order('display_order');
+
+        if (rolesError) {
+          console.error('Failed to fetch demo roles:', rolesError);
+        } else if (rolesData && rolesData.length > 0 && mounted) {
+          setLoginRoles(rolesData);
+          setSelectedRole(rolesData[0].id);
+        }
+      } catch (err) {
+        console.error('Unexpected error fetching demo:', err);
+      } finally {
+        if (mounted) setLoading(false);
       }
-
-      // Fetch login roles for this demo
-      const { data: rolesData } = await supabase
-        .from('demo_login_roles')
-        .select('id, role_name, username, password_encrypted')
-        .eq('demo_id', demoId)
-        .eq('is_active', true)
-        .order('display_order');
-
-      if (rolesData && rolesData.length > 0) {
-        setLoginRoles(rolesData);
-        setSelectedRole(rolesData[0].id);
-      }
-
-      setLoading(false);
     };
 
     fetchDemo();
+
+    return () => {
+      mounted = false;
+    };
   }, [demoId, isTestMode]);
 
   const handleOpenDemo = () => {
     if (!demo) return;
-    const demoUrl = demo.login_url || demo.url;
-    // Open demo directly - no approval, no confirmation in test mode
-    window.open(demoUrl, '_blank');
+    const rawUrl = demo.login_url || demo.url;
+    if (!rawUrl) return;
+
+    // normalize url - open in new tab safely
+    const normalized = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl.replace(/^\/+/, '')}`;
+    try {
+      window.open(normalized, '_blank', 'noopener,noreferrer');
+    } catch (err) {
+      // fallback
+      window.open(normalized, '_blank');
+    }
   };
 
   if (loading) {
@@ -123,7 +147,7 @@ const SimpleDemoView = () => {
       <main className="pt-24 pb-16 px-4 max-w-4xl mx-auto">
         {/* Demo Header - Minimal animation in test mode */}
         <div
-          className={`text-center mb-10 ${shouldShowAnimation() ? 'animate-fade-in' : ''}`}
+          className={`text-center mb-10 ${shouldShowAnimation ? (shouldShowAnimation() ? 'animate-fade-in' : '') : ''}`}
         >
           <h1 className="text-3xl sm:text-4xl font-bold mb-3">{demo.title}</h1>
           <p className="text-slate-400 text-lg">{demo.description || demo.category}</p>
@@ -131,7 +155,7 @@ const SimpleDemoView = () => {
 
         {/* Demo Preview Card */}
         <div
-          className={`bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden mb-8 ${shouldShowAnimation() ? 'animate-fade-in' : ''}`}
+          className={`bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden mb-8 ${shouldShowAnimation ? (shouldShowAnimation() ? 'animate-fade-in' : '') : ''}`}
         >
           {/* Demo Preview Image */}
           <div className="aspect-video bg-slate-800 relative">
@@ -199,7 +223,7 @@ const SimpleDemoView = () => {
         <div className="grid sm:grid-cols-2 gap-6">
           {/* Demo Info */}
           <div
-            className={`bg-slate-900 border border-slate-800 rounded-xl p-6 ${shouldShowAnimation() ? 'animate-fade-in' : ''}`}
+            className={`bg-slate-900 border border-slate-800 rounded-xl p-6 ${shouldShowAnimation ? (shouldShowAnimation() ? 'animate-fade-in' : '') : ''}`}
           >
             <h3 className="text-lg font-semibold mb-4">Demo Details</h3>
             <ul className="space-y-3">
@@ -220,7 +244,7 @@ const SimpleDemoView = () => {
 
           {/* Actions - Only show purchase option if not in test mode for real purchases */}
           <div
-            className={`bg-slate-900 border border-slate-800 rounded-xl p-6 ${shouldShowAnimation() ? 'animate-fade-in' : ''}`}
+            className={`bg-slate-900 border border-slate-800 rounded-xl p-6 ${shouldShowAnimation ? (shouldShowAnimation() ? 'animate-fade-in' : '') : ''}`}
           >
             <h3 className="text-lg font-semibold mb-4">Interested?</h3>
             <p className="text-slate-400 text-sm mb-4">Try the demo first, then purchase if you like it.</p>
