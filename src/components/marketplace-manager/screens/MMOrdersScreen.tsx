@@ -20,7 +20,7 @@ const statusConfig: Record<string, { label: string; color: string; icon: any }> 
 };
 
 const getStatusConfig = (status: string) =>
-  statusConfig[status] || { label: status, color: 'bg-slate-500/20 text-slate-400 border-slate-500/30', icon: Clock };
+  statusConfig[status] || { label: status || 'Unknown', color: 'bg-slate-500/20 text-slate-400 border-slate-500/30', icon: Clock };
 
 export function MMOrdersScreen() {
   const { user } = useAuth();
@@ -29,32 +29,47 @@ export function MMOrdersScreen() {
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
+    let mounted = true;
+
     if (!user?.id) {
-      setOrders([]);
-      setLoading(false);
-      return;
+      if (mounted) {
+        setOrders([]);
+        setLoading(false);
+      }
+      return () => {
+        mounted = false;
+      };
     }
+
+    const loadOrders = async () => {
+      if (!mounted) return;
+      setLoading(true);
+      try {
+        const res = await marketplaceEnterpriseService.getUserOrders(user!.id);
+        if (!mounted) return;
+
+        if (res?.error) {
+          console.error('[MMOrdersScreen] Failed to load orders:', res.error);
+          setOrders([]);
+        } else {
+          setOrders(res?.data || []);
+        }
+      } catch (err) {
+        if (!mounted) return;
+        console.error('[MMOrdersScreen] Unexpected error loading orders:', err);
+        setOrders([]);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
     loadOrders();
+
+    return () => {
+      mounted = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
-
-  const loadOrders = async () => {
-    setLoading(true);
-    try {
-      const res = await marketplaceEnterpriseService.getUserOrders(user!.id);
-      if (res?.error) {
-        console.error('[MMOrdersScreen] Failed to load orders:', res.error);
-        setOrders([]);
-      } else {
-        setOrders(res?.data || []);
-      }
-    } catch (err) {
-      console.error('[MMOrdersScreen] Unexpected error loading orders:', err);
-      setOrders([]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const filteredOrders = filter === 'all' ? orders : orders.filter(o => o.status === filter);
 
@@ -137,7 +152,7 @@ export function MMOrdersScreen() {
             const items = order.marketplace_order_items || [];
 
             return (
-              <Card key={order.id} className="bg-slate-800/50 border-slate-700">
+              <Card key={order.id ?? order.order_number} className="bg-slate-800/50 border-slate-700">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -195,8 +210,8 @@ export function MMOrdersScreen() {
                               </div>
                               <div>
                                 <p className="text-xs text-slate-400">Payment Status</p>
-                                <Badge className={getStatusConfig(order.payment_status).color}>
-                                  {order.payment_status}
+                                <Badge className={getStatusConfig(order.payment_status || '').color}>
+                                  {order.payment_status || 'unknown'}
                                 </Badge>
                               </div>
                             </div>
@@ -205,9 +220,9 @@ export function MMOrdersScreen() {
                                 <p className="text-xs text-slate-400 mb-2">Items</p>
                                 <div className="space-y-2">
                                   {items.map((item: any) => (
-                                    <div key={item.id} className="flex justify-between p-2 rounded bg-slate-800 border border-slate-700">
+                                    <div key={item.id ?? `${item.product_name}-${item.total_price}`} className="flex justify-between p-2 rounded bg-slate-800 border border-slate-700">
                                       <span className="text-sm">{item.product_name}</span>
-                                      <span className="text-sm font-medium">₹{Number(item.total_price).toLocaleString()}</span>
+                                      <span className="text-sm font-medium">₹{Number(item.total_price || 0).toLocaleString()}</span>
                                     </div>
                                   ))}
                                 </div>
