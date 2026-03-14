@@ -12,19 +12,43 @@ const MPOrders = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     const load = async () => {
-      const { data } = await supabase.from('marketplace_orders').select('*').order('created_at', { ascending: false }).limit(50);
-      setOrders(data || []);
-      setLoading(false);
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from("marketplace_orders")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(50);
+
+        if (error) {
+          console.error("[MPOrders] failed to load orders:", error);
+          if (mounted) setOrders([]);
+        } else {
+          if (mounted) setOrders(data || []);
+        }
+      } catch (err) {
+        console.error("[MPOrders] unexpected error loading orders:", err);
+        if (mounted) setOrders([]);
+      } finally {
+        if (mounted) setLoading(false);
+      }
     };
+
     load();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const getStatusColor = (s: string) => {
-    if (s === 'completed') return 'bg-emerald-500/20 text-emerald-400';
-    if (s === 'pending') return 'bg-amber-500/20 text-amber-400';
-    if (s === 'cancelled') return 'bg-destructive/20 text-destructive';
-    return 'bg-muted text-muted-foreground';
+    if (s === "completed") return "bg-emerald-500/20 text-emerald-400";
+    if (s === "pending") return "bg-amber-500/20 text-amber-400";
+    if (s === "cancelled") return "bg-destructive/20 text-destructive";
+    return "bg-muted text-muted-foreground";
   };
 
   return (
@@ -41,9 +65,15 @@ const MPOrders = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+          <div className="flex justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
         ) : orders.length === 0 ? (
-          <EmptyState icon={<ShoppingBag className="w-12 h-12" />} title="No orders yet" description="Orders will appear here when customers make purchases" />
+          <EmptyState
+            icon={<ShoppingBag className="w-12 h-12" />}
+            title="No orders yet"
+            description="Orders will appear here when customers make purchases"
+          />
         ) : (
           <Card className="border-border/50">
             <Table>
@@ -57,13 +87,17 @@ const MPOrders = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {orders.map(o => (
+                {orders.map((o) => (
                   <TableRow key={o.id}>
-                    <TableCell className="font-mono text-xs">{o.id?.slice(0, 8)}</TableCell>
-                    <TableCell>{o.product_id?.slice(0, 8) || '—'}</TableCell>
-                    <TableCell className="font-mono">₹{o.total_amount || 0}</TableCell>
-                    <TableCell><Badge className={getStatusColor(o.status)}>{o.status}</Badge></TableCell>
-                    <TableCell className="text-muted-foreground text-xs">{new Date(o.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell className="font-mono text-xs">{o.id?.toString().slice(0, 8)}</TableCell>
+                    <TableCell>{o.product_id ? String(o.product_id).slice(0, 8) : "—"}</TableCell>
+                    <TableCell className="font-mono">₹{o.total_amount ?? 0}</TableCell>
+                    <TableCell>
+                      <Badge className={getStatusColor(o.status)}>{o.status}</Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-xs">
+                      {o.created_at ? new Date(o.created_at).toLocaleDateString() : "-"}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
