@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingBag, Loader2, Package } from "lucide-react";
+import { ShoppingBag, Loader2 } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 
 const MPOrders = () => {
@@ -13,15 +13,18 @@ const MPOrders = () => {
 
   useEffect(() => {
     let mounted = true;
+    const controller = new AbortController();
 
     const load = async () => {
+      if (!mounted) return;
       setLoading(true);
       try {
         const { data, error } = await supabase
           .from("marketplace_orders")
           .select("*")
           .order("created_at", { ascending: false })
-          .limit(50);
+          .limit(50)
+          .abortSignal(controller.signal);
 
         if (error) {
           console.error("[MPOrders] failed to load orders:", error);
@@ -30,8 +33,12 @@ const MPOrders = () => {
           if (mounted) setOrders(data || []);
         }
       } catch (err) {
-        console.error("[MPOrders] unexpected error loading orders:", err);
-        if (mounted) setOrders([]);
+        if ((err as any)?.name === "AbortError") {
+          // request aborted intentionally
+        } else {
+          console.error("[MPOrders] unexpected error loading orders:", err);
+          if (mounted) setOrders([]);
+        }
       } finally {
         if (mounted) setLoading(false);
       }
@@ -41,6 +48,7 @@ const MPOrders = () => {
 
     return () => {
       mounted = false;
+      controller.abort();
     };
   }, []);
 
@@ -49,6 +57,21 @@ const MPOrders = () => {
     if (s === "pending") return "bg-amber-500/20 text-amber-400";
     if (s === "cancelled") return "bg-destructive/20 text-destructive";
     return "bg-muted text-muted-foreground";
+  };
+
+  const safeSlice = (v: any, len = 8) => (v !== null && v !== undefined ? String(v).slice(0, len) : "—");
+
+  const formatAmount = (v: any) => {
+    const n = Number(v ?? 0);
+    if (Number.isNaN(n)) return "0";
+    return n.toLocaleString();
+  };
+
+  const formatDate = (d: any) => {
+    if (!d) return "-";
+    const dt = new Date(d);
+    if (Number.isNaN(dt.getTime())) return "-";
+    return dt.toLocaleDateString();
   };
 
   return (
@@ -88,16 +111,14 @@ const MPOrders = () => {
               </TableHeader>
               <TableBody>
                 {orders.map((o) => (
-                  <TableRow key={o.id}>
-                    <TableCell className="font-mono text-xs">{o.id?.toString().slice(0, 8)}</TableCell>
-                    <TableCell>{o.product_id ? String(o.product_id).slice(0, 8) : "—"}</TableCell>
-                    <TableCell className="font-mono">₹{o.total_amount ?? 0}</TableCell>
+                  <TableRow key={o.id ?? o.order_number ?? `${o.product_id ?? "row"}`}>
+                    <TableCell className="font-mono text-xs">{safeSlice(o.id)}</TableCell>
+                    <TableCell>{o.product_id ? safeSlice(o.product_id) : "—"}</TableCell>
+                    <TableCell className="font-mono">₹{formatAmount(o.total_amount)}</TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(o.status)}>{o.status}</Badge>
+                      <Badge className={getStatusColor(o.status)}>{o.status ?? "unknown"}</Badge>
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-xs">
-                      {o.created_at ? new Date(o.created_at).toLocaleDateString() : "-"}
-                    </TableCell>
+                    <TableCell className="text-muted-foreground text-xs">{formatDate(o.created_at)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
