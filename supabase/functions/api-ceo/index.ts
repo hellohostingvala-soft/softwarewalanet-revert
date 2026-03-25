@@ -144,7 +144,159 @@ function parseCommand(text: string): ParsedIntent {
     };
   }
 
-  throw new Error('Unsupported command. Supported commands: approve reseller, approve payout, restart server, close deal, create task, credit wallet');
+  // EXTENDED MODULE INTEGRATIONS - ADD ONLY
+
+  if (normalized.startsWith('fix bug') || normalized.startsWith('assign bug')) {
+    if (!entityId) throw new Error('Bug/Task ID is required');
+    return {
+      action: 'dev.fix_bug',
+      params: { task_id: entityId },
+      risk: 'medium',
+      approvalRequired: false,
+    };
+  }
+
+  if (normalized.startsWith('update product')) {
+    if (!entityId) throw new Error('Product ID is required');
+    return {
+      action: 'product.update',
+      params: { product_id: entityId },
+      risk: 'low',
+      approvalRequired: false,
+    };
+  }
+
+  if (normalized.startsWith('create demo')) {
+    const title = text.replace(/create demo/i, '').trim();
+    if (!title) throw new Error('Demo title is required');
+    return {
+      action: 'demo.create',
+      params: { title },
+      risk: 'low',
+      approvalRequired: false,
+    };
+  }
+
+  if (normalized.startsWith('track promise')) {
+    if (!entityId) throw new Error('Promise ID is required');
+    return {
+      action: 'promise.track',
+      params: { promise_id: entityId },
+      risk: 'low',
+      approvalRequired: false,
+    };
+  }
+
+  if (normalized.startsWith('manage asset')) {
+    if (!entityId) throw new Error('Asset ID is required');
+    return {
+      action: 'asset.manage',
+      params: { asset_id: entityId },
+      risk: 'medium',
+      approvalRequired: false,
+    };
+  }
+
+  if (normalized.startsWith('launch campaign')) {
+    const campaign = text.replace(/launch campaign/i, '').trim();
+    if (!campaign) throw new Error('Campaign name is required');
+    return {
+      action: 'marketing.campaign',
+      params: { campaign_name: campaign },
+      risk: 'medium',
+      approvalRequired: false,
+    };
+  }
+
+  if (normalized.startsWith('support ticket')) {
+    if (!entityId) throw new Error('Ticket ID is required');
+    return {
+      action: 'support.resolve',
+      params: { ticket_id: entityId },
+      risk: 'low',
+      approvalRequired: false,
+    };
+  }
+
+  if (normalized.startsWith('franchise approve')) {
+    if (!entityId) throw new Error('Franchise ID is required');
+    return {
+      action: 'franchise.approve',
+      params: { franchise_id: entityId },
+      risk: 'high',
+      approvalRequired: true,
+    };
+  }
+
+  if (normalized.startsWith('user ban') || normalized.startsWith('ban user')) {
+    if (!entityId) throw new Error('User ID is required');
+    return {
+      action: 'user.ban',
+      params: { user_id: entityId },
+      risk: 'high',
+      approvalRequired: true,
+    };
+  }
+
+  if (normalized.startsWith('send notification')) {
+    const message = text.replace(/send notification/i, '').trim();
+    if (!message) throw new Error('Notification message is required');
+    return {
+      action: 'notification.send',
+      params: { message },
+      risk: 'low',
+      approvalRequired: false,
+    };
+  }
+
+  if (normalized.startsWith('audit log')) {
+    const query = text.replace(/audit log/i, '').trim();
+    return {
+      action: 'audit.query',
+      params: { query: query || 'recent' },
+      risk: 'low',
+      approvalRequired: false,
+    };
+  }
+
+  if (normalized.startsWith('security scan')) {
+    return {
+      action: 'security.scan',
+      params: {},
+      risk: 'medium',
+      approvalRequired: false,
+    };
+  }
+
+  if (normalized.startsWith('db optimize')) {
+    return {
+      action: 'db.optimize',
+      params: {},
+      risk: 'high',
+      approvalRequired: true,
+    };
+  }
+
+  if (normalized.startsWith('api monitor')) {
+    return {
+      action: 'api.monitor',
+      params: {},
+      risk: 'low',
+      approvalRequired: false,
+    };
+  }
+
+  if (normalized.startsWith('vala ai')) {
+    const command = text.replace(/vala ai/i, '').trim();
+    return {
+      action: 'vala.command',
+      params: { command },
+      risk: 'medium',
+      approvalRequired: false,
+    };
+  }
+
+  throw new Error('Unsupported command. Supported commands: approve reseller, approve payout, restart server, close deal, create task, credit wallet, fix bug, update product, create demo, track promise, manage asset, launch campaign, support ticket, franchise approve, user ban, send notification, audit log, security scan, db optimize, api monitor, vala ai');
 }
 
 async function insertEvent(
@@ -190,6 +342,25 @@ async function insertAlert(
     payload: payload.payload || {},
   });
 }
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function withRetry<T>(fn: () => Promise<T>, retries = 3, delayMs = 250) {
+  let lastError;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      if (attempt === retries) break;
+      await sleep(delayMs * attempt);
+    }
+  }
+  throw lastError;
+}
+
 
 async function upsertActionLog(
   supabaseAdmin: any,
@@ -498,6 +669,289 @@ async function restartServerAction(supabaseAdmin: any, user: { userId: string },
   };
 }
 
+// EXTENDED MODULE ACTION FUNCTIONS - ADD ONLY
+
+async function fixBugAction(supabaseAdmin: any, user: { userId: string }, params: Record<string, unknown>) {
+  const { task_id } = params as { task_id: string };
+
+  // Assign to development team
+  const { data: task, error } = await supabaseAdmin
+    .from('tasks')
+    .update({
+      status: 'in_progress',
+      assigned_to_dev: true,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('task_id', task_id)
+    .select('*')
+    .single();
+
+  if (error) throw error;
+
+  await insertEvent(supabaseAdmin, 'bug_assigned', { task_id, assigned_to: 'development' }, 'task', task_id, user.userId);
+  return { task, event: 'bug_assigned' };
+}
+
+async function updateProductAction(supabaseAdmin: any, user: { userId: string }, params: Record<string, unknown>) {
+  const { product_id } = params as { product_id: string };
+
+  const { data: product, error } = await supabaseAdmin
+    .from('products')
+    .update({
+      updated_at: new Date().toISOString(),
+      last_reviewed_by: user.userId,
+    })
+    .eq('id', product_id)
+    .select('*')
+    .single();
+
+  if (error) throw error;
+
+  await insertEvent(supabaseAdmin, 'product_updated', { product_id }, 'product', product_id, user.userId);
+  return { product, event: 'product_updated' };
+}
+
+async function createDemoAction(supabaseAdmin: any, user: { userId: string }, params: Record<string, unknown>) {
+  const { title } = params as { title: string };
+
+  const { data: demo, error } = await supabaseAdmin
+    .from('product_demos')
+    .insert({
+      title,
+      status: 'draft',
+      created_by: user.userId,
+    })
+    .select('*')
+    .single();
+
+  if (error) throw error;
+
+  await insertEvent(supabaseAdmin, 'demo_created', { demo_id: demo.id, title }, 'demo', demo.id, user.userId);
+  return { demo, event: 'demo_created' };
+}
+
+async function trackPromiseAction(supabaseAdmin: any, user: { userId: string }, params: Record<string, unknown>) {
+  const { promise_id } = params as { promise_id: string };
+
+  const { data: promise, error } = await supabaseAdmin
+    .from('promises')
+    .update({
+      last_checked: new Date().toISOString(),
+      checked_by: user.userId,
+    })
+    .eq('id', promise_id)
+    .select('*')
+    .single();
+
+  if (error) throw error;
+
+  await insertEvent(supabaseAdmin, 'promise_tracked', { promise_id }, 'promise', promise_id, user.userId);
+  return { promise, event: 'promise_tracked' };
+}
+
+async function manageAssetAction(supabaseAdmin: any, user: { userId: string }, params: Record<string, unknown>) {
+  const { asset_id } = params as { asset_id: string };
+
+  const { data: asset, error } = await supabaseAdmin
+    .from('assets')
+    .update({
+      last_maintained: new Date().toISOString(),
+      maintained_by: user.userId,
+    })
+    .eq('id', asset_id)
+    .select('*')
+    .single();
+
+  if (error) throw error;
+
+  await insertEvent(supabaseAdmin, 'asset_managed', { asset_id }, 'asset', asset_id, user.userId);
+  return { asset, event: 'asset_managed' };
+}
+
+async function launchCampaignAction(supabaseAdmin: any, user: { userId: string }, params: Record<string, unknown>) {
+  const { campaign_name } = params as { campaign_name: string };
+
+  const { data: campaign, error } = await supabaseAdmin
+    .from('marketing_campaigns')
+    .insert({
+      name: campaign_name,
+      status: 'active',
+      created_by: user.userId,
+    })
+    .select('*')
+    .single();
+
+  if (error) throw error;
+
+  await insertEvent(supabaseAdmin, 'campaign_launched', { campaign_id: campaign.id, name: campaign_name }, 'campaign', campaign.id, user.userId);
+  return { campaign, event: 'campaign_launched' };
+}
+
+async function resolveSupportTicketAction(supabaseAdmin: any, user: { userId: string }, params: Record<string, unknown>) {
+  const { ticket_id } = params as { ticket_id: string };
+
+  const { data: ticket, error } = await supabaseAdmin
+    .from('support_tickets')
+    .update({
+      status: 'resolved',
+      resolved_by: user.userId,
+      resolved_at: new Date().toISOString(),
+    })
+    .eq('id', ticket_id)
+    .select('*')
+    .single();
+
+  if (error) throw error;
+
+  await insertEvent(supabaseAdmin, 'ticket_resolved', { ticket_id }, 'ticket', ticket_id, user.userId);
+  return { ticket, event: 'ticket_resolved' };
+}
+
+async function approveFranchiseAction(supabaseAdmin: any, user: { userId: string }, params: Record<string, unknown>) {
+  const { franchise_id } = params as { franchise_id: string };
+
+  const { data: franchise, error } = await supabaseAdmin
+    .from('franchises')
+    .update({
+      status: 'approved',
+      approved_by: user.userId,
+      approved_at: new Date().toISOString(),
+    })
+    .eq('id', franchise_id)
+    .select('*')
+    .single();
+
+  if (error) throw error;
+
+  await insertEvent(supabaseAdmin, 'franchise_approved', { franchise_id }, 'franchise', franchise_id, user.userId);
+  return { franchise, event: 'franchise_approved' };
+}
+
+async function banUserAction(supabaseAdmin: any, user: { userId: string }, params: Record<string, unknown>) {
+  const { user_id } = params as { user_id: string };
+
+  const { data: bannedUser, error } = await supabaseAdmin
+    .from('profiles')
+    .update({
+      status: 'banned',
+      banned_by: user.userId,
+      banned_at: new Date().toISOString(),
+    })
+    .eq('id', user_id)
+    .select('*')
+    .single();
+
+  if (error) throw error;
+
+  await insertEvent(supabaseAdmin, 'user_banned', { user_id }, 'user', user_id, user.userId);
+  return { user: bannedUser, event: 'user_banned' };
+}
+
+async function sendNotificationAction(supabaseAdmin: any, user: { userId: string }, params: Record<string, unknown>) {
+  const { message } = params as { message: string };
+
+  const { data: notification, error } = await supabaseAdmin
+    .from('notifications')
+    .insert({
+      message,
+      type: 'system',
+      priority: 'normal',
+      created_by: user.userId,
+    })
+    .select('*')
+    .single();
+
+  if (error) throw error;
+
+  await insertEvent(supabaseAdmin, 'notification_sent', { notification_id: notification.id }, 'notification', notification.id, user.userId);
+  return { notification, event: 'notification_sent' };
+}
+
+async function queryAuditAction(supabaseAdmin: any, user: { userId: string }, params: Record<string, unknown>) {
+  const { query } = params as { query: string };
+
+  const { data: logs, error } = await supabaseAdmin
+    .from('audit_logs')
+    .select('*')
+    .ilike('action', `%${query}%`)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (error) throw error;
+
+  return { logs, count: logs.length, event: 'audit_queried' };
+}
+
+async function securityScanAction(supabaseAdmin: any, user: { userId: string }, params: Record<string, unknown>) {
+  // Trigger security scan job
+  const { data: job, error } = await supabaseAdmin
+    .from('job_queue')
+    .insert({
+      job_type: 'security_scan',
+      status: 'queued',
+      payload: { requested_by: user.userId },
+      run_at: new Date().toISOString(),
+    })
+    .select('*')
+    .single();
+
+  if (error) throw error;
+
+  await insertEvent(supabaseAdmin, 'security_scan_started', { job_id: job.id }, 'job', job.id, user.userId);
+  return { job, event: 'security_scan_started' };
+}
+
+async function optimizeDatabaseAction(supabaseAdmin: any, user: { userId: string }, params: Record<string, unknown>) {
+  // Trigger DB optimization job
+  const { data: job, error } = await supabaseAdmin
+    .from('job_queue')
+    .insert({
+      job_type: 'db_optimize',
+      status: 'queued',
+      payload: { requested_by: user.userId },
+      run_at: new Date().toISOString(),
+    })
+    .select('*')
+    .single();
+
+  if (error) throw error;
+
+  await insertEvent(supabaseAdmin, 'db_optimization_started', { job_id: job.id }, 'job', job.id, user.userId);
+  return { job, event: 'db_optimization_started' };
+}
+
+async function monitorAPIsAction(supabaseAdmin: any, user: { userId: string }, params: Record<string, unknown>) {
+  const { data: health, error } = await supabaseAdmin
+    .from('api_health')
+    .select('*')
+    .order('checked_at', { ascending: false })
+    .limit(20);
+
+  if (error) throw error;
+
+  return { health, event: 'api_monitoring_checked' };
+}
+
+async function valaAICommandAction(supabaseAdmin: any, user: { userId: string }, params: Record<string, unknown>) {
+  const { command } = params as { command: string };
+
+  // Forward command to Vala AI system
+  const { data: response, error } = await supabaseAdmin
+    .from('vala_ai_commands')
+    .insert({
+      command,
+      requested_by: user.userId,
+      status: 'processing',
+    })
+    .select('*')
+    .single();
+
+  if (error) throw error;
+
+  await insertEvent(supabaseAdmin, 'vala_command_executed', { command_id: response.id, command }, 'vala_command', response.id, user.userId);
+  return { response, event: 'vala_command_executed' };
+}
+
 async function executeAction(
   supabaseAdmin: any,
   user: { userId: string; role: string },
@@ -583,28 +1037,54 @@ async function executeAction(
 
   let result: Record<string, unknown>;
 
-  switch (parsedIntent.action) {
-    case 'task.create':
-      result = await createTaskAction(supabaseAdmin, user, parsedIntent.params);
-      break;
-    case 'deal.close':
-      result = await closeDealAction(supabaseAdmin, user, parsedIntent.params);
-      break;
-    case 'reseller.approve':
-      result = await approveResellerAction(supabaseAdmin, user, parsedIntent.params);
-      break;
-    case 'wallet.credit':
-      result = await creditWalletAction(supabaseAdmin, user, parsedIntent.params);
-      break;
-    case 'payout.approve':
-      result = await approvePayoutAction(supabaseAdmin, user, parsedIntent.params);
-      break;
-    case 'server.restart':
-      result = await restartServerAction(supabaseAdmin, user, parsedIntent.params);
-      break;
-    default:
-      throw new Error(`Unsupported action: ${parsedIntent.action}`);
-  }
+  result = await withRetry(async () => {
+    switch (parsedIntent.action) {
+      case 'task.create':
+        return await createTaskAction(supabaseAdmin, user, parsedIntent.params);
+      case 'deal.close':
+        return await closeDealAction(supabaseAdmin, user, parsedIntent.params);
+      case 'reseller.approve':
+        return await approveResellerAction(supabaseAdmin, user, parsedIntent.params);
+      case 'wallet.credit':
+        return await creditWalletAction(supabaseAdmin, user, parsedIntent.params);
+      case 'payout.approve':
+        return await approvePayoutAction(supabaseAdmin, user, parsedIntent.params);
+      case 'server.restart':
+        return await restartServerAction(supabaseAdmin, user, parsedIntent.params);
+      case 'dev.fix_bug':
+        return await fixBugAction(supabaseAdmin, user, parsedIntent.params);
+      case 'product.update':
+        return await updateProductAction(supabaseAdmin, user, parsedIntent.params);
+      case 'demo.create':
+        return await createDemoAction(supabaseAdmin, user, parsedIntent.params);
+      case 'promise.track':
+        return await trackPromiseAction(supabaseAdmin, user, parsedIntent.params);
+      case 'asset.manage':
+        return await manageAssetAction(supabaseAdmin, user, parsedIntent.params);
+      case 'marketing.campaign':
+        return await launchCampaignAction(supabaseAdmin, user, parsedIntent.params);
+      case 'support.resolve':
+        return await resolveSupportTicketAction(supabaseAdmin, user, parsedIntent.params);
+      case 'franchise.approve':
+        return await approveFranchiseAction(supabaseAdmin, user, parsedIntent.params);
+      case 'user.ban':
+        return await banUserAction(supabaseAdmin, user, parsedIntent.params);
+      case 'notification.send':
+        return await sendNotificationAction(supabaseAdmin, user, parsedIntent.params);
+      case 'audit.query':
+        return await queryAuditAction(supabaseAdmin, user, parsedIntent.params);
+      case 'security.scan':
+        return await securityScanAction(supabaseAdmin, user, parsedIntent.params);
+      case 'db.optimize':
+        return await optimizeDatabaseAction(supabaseAdmin, user, parsedIntent.params);
+      case 'api.monitor':
+        return await monitorAPIsAction(supabaseAdmin, user, parsedIntent.params);
+      case 'vala.command':
+        return await valaAICommandAction(supabaseAdmin, user, parsedIntent.params);
+      default:
+        throw new Error(`Unsupported action: ${parsedIntent.action}`);
+    }
+  });
 
   await updateActionLog(supabaseAdmin, actionLog.id, 'completed', result);
 
@@ -651,6 +1131,13 @@ async function collectDashboardData(supabaseAdmin: any) {
     ordersResult,
     resellerOrdersResult,
     paymentsResult,
+    promisesResult,
+    assetsResult,
+    campaignsResult,
+    ticketsResult,
+    franchisesResult,
+    usersResult,
+    leadsResult,
   ] = await Promise.all([
     supabaseAdmin.from('alerts').select('*').is('deleted_at', null).order('created_at', { ascending: false }).limit(10),
     supabaseAdmin.from('ai_actions').select('*').order('created_at', { ascending: false }).limit(20),
@@ -661,6 +1148,13 @@ async function collectDashboardData(supabaseAdmin: any) {
     supabaseAdmin.from('orders').select('total, status, created_at').gte('created_at', todayIso),
     supabaseAdmin.from('reseller_orders').select('net_amount, payment_status, created_at').gte('created_at', todayIso),
     supabaseAdmin.from('payments').select('status').gte('created_at', todayIso),
+    supabaseAdmin.from('promises').select('status').order('updated_at', { ascending: false }).limit(20),
+    supabaseAdmin.from('assets').select('status').order('updated_at', { ascending: false }).limit(20),
+    supabaseAdmin.from('marketing_campaigns').select('status').order('created_at', { ascending: false }).limit(20),
+    supabaseAdmin.from('support_tickets').select('status').order('created_at', { ascending: false }).limit(20),
+    supabaseAdmin.from('franchises').select('status').order('created_at', { ascending: false }).limit(20),
+    supabaseAdmin.from('profiles').select('status').order('created_at', { ascending: false }).limit(20),
+    supabaseAdmin.from('leads').select('status').order('created_at', { ascending: false }).limit(20),
   ]);
 
   const alerts = alertsResult.data || [];
@@ -672,6 +1166,13 @@ async function collectDashboardData(supabaseAdmin: any) {
   const orders = ordersResult.data || [];
   const resellerOrders = resellerOrdersResult.data || [];
   const payments = paymentsResult.data || [];
+  const promises = promisesResult.data || [];
+  const assets = assetsResult.data || [];
+  const campaigns = campaignsResult.data || [];
+  const tickets = ticketsResult.data || [];
+  const franchises = franchisesResult.data || [];
+  const users = usersResult.data || [];
+  const leads = leadsResult.data || [];
 
   const orderRevenue = orders
     .filter((order: any) => ['paid', 'fulfilled'].includes(order.status))
@@ -704,6 +1205,13 @@ async function collectDashboardData(supabaseAdmin: any) {
       ai_actions_today: completedAiActionsToday,
       open_tasks: openTasks.length,
       open_deals: openDeals.length,
+      open_promises: promises.filter((p: any) => p.status !== 'completed').length,
+      active_assets: assets.filter((a: any) => !['archived', 'decommissioned'].includes(a.status || '')).length,
+      active_campaigns: campaigns.filter((c: any) => c.status === 'active').length,
+      open_tickets: tickets.filter((t: any) => t.status !== 'resolved').length,
+      pending_franchises: franchises.filter((f: any) => f.status === 'pending').length,
+      active_users: users.filter((u: any) => u.status === 'active').length,
+      open_leads: leads.filter((l: any) => (l.status || '').toLowerCase() !== 'converted').length,
       pending_approvals: pendingApprovals.length,
       revenue_today: orderRevenue + resellerRevenue,
     },
@@ -718,6 +1226,11 @@ async function collectDashboardData(supabaseAdmin: any) {
     recent_actions: recentActions,
     active_tasks: openTasks.slice(0, 10),
     active_deals: openDeals.slice(0, 10),
+    active_promises: promises.slice(0, 10),
+    active_assets: assets.slice(0, 10),
+    active_campaigns: campaigns.slice(0, 10),
+    active_tickets: tickets.slice(0, 10),
+    active_franchises: franchises.slice(0, 10),
     health,
   };
 }
@@ -798,8 +1311,33 @@ Deno.serve(async (req) => {
     }, { module: 'ceo_mission_control', action: 'list_health', skipKYC: true, skipSubscription: true, skipIPLock: true });
   }
 
+  const allMissionRoles = [
+    'boss_owner',
+    'ceo',
+    'admin',
+    'finance_manager',
+    'legal_compliance',
+    'hr_manager',
+    'performance_manager',
+    'rnd_manager',
+    'demo_manager',
+    'task_manager',
+    'lead_manager',
+    'marketing_manager',
+    'seo_manager',
+    'support',
+    'sales_support_manager',
+    'franchise',
+    'influencer_manager',
+    'api_security',
+    'security_manager',
+    'settings_manager',
+    'country_admin',
+    'continent_admin',
+  ];
+
   if (method === 'POST' && path === '/command') {
-    return withAuth(req, ['boss_owner', 'ceo', 'admin'], async ({ supabaseAdmin, user, body }) => {
+    return withAuth(req, allMissionRoles, async ({ supabaseAdmin, user, body }) => {
       const payload = commandSchema.parse(body);
       const parsedIntent = parseCommand(payload.text);
       const response = await executeAction(supabaseAdmin, user, parsedIntent, {
@@ -851,6 +1389,243 @@ Deno.serve(async (req) => {
 
       return jsonResponse(response.data);
     }, { module: 'ceo_mission_control', action: 'approve_action', skipKYC: true, skipSubscription: true, skipIPLock: true, rateLimitType: 'admin_action' });
+  }
+
+  const allMissionRolesPost = [
+    'boss_owner',
+    'ceo',
+    'admin',
+    'demo_manager',
+    'task_manager',
+    'lead_manager',
+    'marketing_manager',
+    'seo_manager',
+    'support',
+    'sales_support_manager',
+    'franchise',
+    'influencer_manager',
+    'api_security',
+    'security_manager',
+    'settings_manager',
+    'country_admin',
+    'continent_admin',
+  ];
+
+  const routeSetup = [
+    {
+      path: '/dev/fix-bug',
+      action: 'dev.fix_bug',
+      schema: z.object({ task_id: z.string().uuid() }),
+      roles: ['boss_owner', 'ceo', 'admin', 'task_manager', 'developer'],
+      apply: async ({ supabaseAdmin, user, body }: any) => {
+        const payload = z.object({ task_id: z.string().uuid() }).parse(body);
+        const intent: ParsedIntent = { action: 'dev.fix_bug', params: payload, risk: 'medium', approvalRequired: false };
+        return executeAction(supabaseAdmin, user, intent, { idempotencyKey: payload.task_id });
+      },
+    },
+    {
+      path: '/product/update',
+      action: 'product.update',
+      schema: z.object({ product_id: z.string().uuid() }),
+      roles: ['boss_owner', 'ceo', 'admin', 'product_manager'],
+      apply: async ({ supabaseAdmin, user, body }: any) => {
+        const payload = z.object({ product_id: z.string().uuid() }).parse(body);
+        const intent: ParsedIntent = { action: 'product.update', params: payload, risk: 'low', approvalRequired: false };
+        return executeAction(supabaseAdmin, user, intent, { idempotencyKey: payload.product_id });
+      },
+    },
+    {
+      path: '/demo/create',
+      action: 'demo.create',
+      schema: z.object({ title: z.string().min(3) }),
+      roles: ['boss_owner', 'ceo', 'admin', 'demo_manager'],
+      apply: async ({ supabaseAdmin, user, body }: any) => {
+        const payload = z.object({ title: z.string().min(3) }).parse(body);
+        const intent: ParsedIntent = { action: 'demo.create', params: payload, risk: 'low', approvalRequired: false };
+        return executeAction(supabaseAdmin, user, intent, { idempotencyKey: payload.title });
+      },
+    },
+    {
+      path: '/promise/track',
+      action: 'promise.track',
+      schema: z.object({ promise_id: z.string().uuid() }),
+      roles: ['boss_owner', 'ceo', 'admin', 'task_manager', 'promise_tracker'],
+      apply: async ({ supabaseAdmin, user, body }: any) => {
+        const payload = z.object({ promise_id: z.string().uuid() }).parse(body);
+        const intent: ParsedIntent = { action: 'promise.track', params: payload, risk: 'low', approvalRequired: false };
+        return executeAction(supabaseAdmin, user, intent, { idempotencyKey: payload.promise_id });
+      },
+    },
+    {
+      path: '/asset/manage',
+      action: 'asset.manage',
+      schema: z.object({ asset_id: z.string().uuid() }),
+      roles: ['boss_owner', 'ceo', 'admin', 'asset_manager'],
+      apply: async ({ supabaseAdmin, user, body }: any) => {
+        const payload = z.object({ asset_id: z.string().uuid() }).parse(body);
+        const intent: ParsedIntent = { action: 'asset.manage', params: payload, risk: 'medium', approvalRequired: false };
+        return executeAction(supabaseAdmin, user, intent, { idempotencyKey: payload.asset_id });
+      },
+    },
+    {
+      path: '/marketing/campaign',
+      action: 'marketing.campaign',
+      schema: z.object({ campaign_name: z.string().min(3) }),
+      roles: ['boss_owner', 'ceo', 'admin', 'marketing_manager', 'influencer_manager'],
+      apply: async ({ supabaseAdmin, user, body }: any) => {
+        const payload = z.object({ campaign_name: z.string().min(3) }).parse(body);
+        const intent: ParsedIntent = { action: 'marketing.campaign', params: payload, risk: 'medium', approvalRequired: false };
+        return executeAction(supabaseAdmin, user, intent, { idempotencyKey: payload.campaign_name });
+      },
+    },
+    {
+      path: '/support/resolve',
+      action: 'support.resolve',
+      schema: z.object({ ticket_id: z.string().uuid() }),
+      roles: ['boss_owner', 'ceo', 'admin', 'support', 'sales_support_manager'],
+      apply: async ({ supabaseAdmin, user, body }: any) => {
+        const payload = z.object({ ticket_id: z.string().uuid() }).parse(body);
+        const intent: ParsedIntent = { action: 'support.resolve', params: payload, risk: 'low', approvalRequired: false };
+        return executeAction(supabaseAdmin, user, intent, { idempotencyKey: payload.ticket_id });
+      },
+    },
+    {
+      path: '/franchise/approve',
+      action: 'franchise.approve',
+      schema: z.object({ franchise_id: z.string().uuid() }),
+      roles: ['boss_owner', 'ceo', 'admin', 'franchise'],
+      apply: async ({ supabaseAdmin, user, body }: any) => {
+        const payload = z.object({ franchise_id: z.string().uuid() }).parse(body);
+        const intent: ParsedIntent = { action: 'franchise.approve', params: payload, risk: 'high', approvalRequired: true };
+        return executeAction(supabaseAdmin, user, intent, { idempotencyKey: payload.franchise_id });
+      },
+    },
+    {
+      path: '/user/ban',
+      action: 'user.ban',
+      schema: z.object({ user_id: z.string().uuid() }),
+      roles: ['boss_owner', 'ceo', 'admin', 'security_manager'],
+      apply: async ({ supabaseAdmin, user, body }: any) => {
+        const payload = z.object({ user_id: z.string().uuid() }).parse(body);
+        const intent: ParsedIntent = { action: 'user.ban', params: payload, risk: 'high', approvalRequired: true };
+        return executeAction(supabaseAdmin, user, intent, { idempotencyKey: payload.user_id });
+      },
+    },
+    {
+      path: '/notification/send',
+      action: 'notification.send',
+      schema: z.object({ message: z.string().min(1) }),
+      roles: ['boss_owner', 'ceo', 'admin'],
+      apply: async ({ supabaseAdmin, user, body }: any) => {
+        const payload = z.object({ message: z.string().min(1) }).parse(body);
+        const intent: ParsedIntent = { action: 'notification.send', params: payload, risk: 'low', approvalRequired: false };
+        return executeAction(supabaseAdmin, user, intent, { idempotencyKey: payload.message });
+      },
+    },
+    {
+      path: '/security/scan',
+      action: 'security.scan',
+      schema: z.object({}),
+      roles: ['boss_owner', 'ceo', 'admin', 'api_security', 'security_manager'],
+      apply: async ({ supabaseAdmin, user }: any) => {
+        const intent: ParsedIntent = { action: 'security.scan', params: {}, risk: 'medium', approvalRequired: false };
+        return executeAction(supabaseAdmin, user, intent, { idempotencyKey: `security_scan:${new Date().toISOString()}` });
+      },
+    },
+    {
+      path: '/db/optimize',
+      action: 'db.optimize',
+      schema: z.object({}),
+      roles: ['boss_owner', 'ceo', 'admin', 'database_manager'],
+      apply: async ({ supabaseAdmin, user }: any) => {
+        const intent: ParsedIntent = { action: 'db.optimize', params: {}, risk: 'high', approvalRequired: true };
+        return executeAction(supabaseAdmin, user, intent, { idempotencyKey: `db_optimize:${new Date().toISOString()}` });
+      },
+    },
+    {
+      path: '/api/monitor',
+      action: 'api.monitor',
+      schema: z.object({}),
+      roles: allMissionRolesPost,
+      apply: async ({ supabaseAdmin, user }: any) => {
+        const intent: ParsedIntent = { action: 'api.monitor', params: {}, risk: 'low', approvalRequired: false };
+        return executeAction(supabaseAdmin, user, intent, { idempotencyKey: `api_monitor:${new Date().toISOString()}` });
+      },
+    },
+    {
+      path: '/vala/command',
+      action: 'vala.command',
+      schema: z.object({ command: z.string().min(3) }),
+      roles: ['boss_owner', 'ceo', 'admin', 'ai_manager'],
+      apply: async ({ supabaseAdmin, user, body }: any) => {
+        const payload = z.object({ command: z.string().min(3) }).parse(body);
+        const intent: ParsedIntent = { action: 'vala.command', params: payload, risk: 'medium', approvalRequired: false };
+        return executeAction(supabaseAdmin, user, intent, { idempotencyKey: payload.command });
+      },
+    },
+  ];
+
+  for (const route of routeSetup) {
+    if (method === 'POST' && path === route.path) {
+      return withAuth(req, route.roles, async ({ supabaseAdmin, user, body }) => {
+        const response = await route.apply({ supabaseAdmin, user, body });
+        await createAuditLog(supabaseAdmin, user.userId, user.role, 'ceo_mission_control', `execute_${route.action.replace('.', '_')}`, {
+          action: route.action,
+          params: body,
+          result: response.data,
+        });
+        return jsonResponse(response.data, 200);
+      }, { module: 'ceo_mission_control', action: route.action, skipKYC: true, skipSubscription: true, skipIPLock: true, rateLimitType: 'admin_action' });
+    }
+  }
+
+  if (method === 'POST' && path === '/events/queue/process') {
+    return withAuth(req, ['boss_owner', 'ceo', 'admin', 'api_security', 'security_manager'], async ({ supabaseAdmin }) => {
+      const { data: pendingJobs, error: jobError } = await supabaseAdmin
+        .from('job_queue')
+        .select('*')
+        .eq('status', 'queued')
+        .order('run_at', { ascending: true })
+        .limit(20);
+
+      if (jobError) throw jobError;
+
+      const results: any[] = [];
+      for (const job of pendingJobs || []) {
+        try {
+          // process known job types
+          if (job.job_type === 'security_scan') {
+            await securityScanAction(supabaseAdmin, { userId: 'system', role: 'system' }, {});
+          } else if (job.job_type === 'db_optimize') {
+            await optimizeDatabaseAction(supabaseAdmin, { userId: 'system', role: 'system' }, {});
+          } else if (job.job_type === 'server_restart' && job.payload?.server_id) {
+            await restartServerAction(supabaseAdmin, { userId: 'system', role: 'system' }, { server_id: job.payload.server_id });
+          }
+          await supabaseAdmin.from('job_queue').update({ status: 'completed', updated_at: new Date().toISOString() }).eq('id', job.id);
+          results.push({ job_id: job.id, status: 'processed' });
+        } catch (processError) {
+          const attempts = (job.attempts || 0) + 1;
+          const nextStatus = attempts >= 3 ? 'failed' : 'queued';
+          await supabaseAdmin
+            .from('job_queue')
+            .update({ status: nextStatus, attempts, last_error: String(processError), updated_at: new Date().toISOString() })
+            .eq('id', job.id);
+          if (nextStatus === 'failed') {
+            await insertAlert(supabaseAdmin, {
+              severity: 'critical',
+              type: 'job_processing_failure',
+              title: `Job processing failed: ${job.job_type}`,
+              message: String(processError),
+              sourceTable: 'job_queue',
+              sourceId: job.id,
+            });
+          }
+          results.push({ job_id: job.id, status: nextStatus, error: String(processError) });
+        }
+      }
+
+      return jsonResponse({ processed: results });
+    }, { module: 'ceo_mission_control', action: 'process_job_queue', skipKYC: true, skipSubscription: true, skipIPLock: true, rateLimitType: 'admin_action' });
   }
 
   if (method === 'POST' && path === '/task/create') {

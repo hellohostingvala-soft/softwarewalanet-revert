@@ -241,10 +241,15 @@ export function useBossDashboard() {
     return api.execute('/api/boss/dashboard/realtime');
   }, [api]);
 
+  const getRecentActivity = useCallback(async () => {
+    return api.execute('/api/boss/dashboard/activity');
+  }, [api]);
+
   return {
     ...api,
     getDashboardData,
     getRealtimeStats,
+    getRecentActivity,
   };
 }
 
@@ -313,34 +318,5 @@ export function useBossNotifications() {
     getNotifications,
     markAsRead,
     markAllAsRead,
-  };
-}
-
-export function useBossDashboard() {
-  const api = useBossAPI();
-
-  const getDashboardData = useCallback(async () => {
-    return api.execute('/api/boss/dashboard', {
-      method: 'GET'
-    });
-  }, [api]);
-
-  const getRealtimeStats = useCallback(async () => {
-    return api.execute('/api/boss/dashboard/realtime', {
-      method: 'GET'
-    });
-  }, [api]);
-
-  const getRecentActivity = useCallback(async () => {
-    return api.execute('/api/boss/dashboard/activity', {
-      method: 'GET'
-    });
-  }, [api]);
-
-  return {
-    ...api,
-    getDashboardData,
-    getRealtimeStats,
-    getRecentActivity,
   };
 }

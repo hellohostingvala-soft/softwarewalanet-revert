@@ -124,6 +124,16 @@ class OrderQueueService {
         });
       }
 
+      // Dispatch webhook for completed step
+      try {
+        await this.dispatchWebhook(`${completedStep}`, orderId, { 
+          step_name: completedStep,
+          completed_at: new Date().toISOString() 
+        });
+      } catch (webhookErr) {
+        console.error('[OrderQueue] Webhook dispatch failed for step completion:', webhookErr);
+      }
+
       // Find next pending step
       const { data: nextSteps, error: selErr } = await (supabase as any)
         .from('order_processing_queue')
@@ -147,6 +157,16 @@ class OrderQueueService {
 
         if (ordErr) {
           console.error('[OrderQueue] advanceStep: failed to mark marketplace_orders completed:', ordErr);
+        }
+
+        // Dispatch final order completion webhook
+        try {
+          await this.dispatchWebhook('order_completed', orderId, { 
+            completed_at: new Date().toISOString(),
+            final_status: 'completed'
+          });
+        } catch (webhookErr) {
+          console.error('[OrderQueue] Webhook dispatch failed for order completion:', webhookErr);
         }
 
         await createSystemRequest({

@@ -56,6 +56,10 @@ import CEODashboard from "./CEODashboard";
 import CEOSidebar from "@/components/ceo/CEOSidebar";
 import BossOwnerDashboard from "./BossOwnerDashboard";
 import DeveloperManagementDashboard from "./DeveloperManagementDashboard";
+import BusinessAssetsView from "@/pages/continent-super-admin/views/BusinessAssetsView";
+import DashboardNotificationsPage from "@/pages/DashboardNotificationsPage";
+import APIIntegrationDashboard from "@/pages/APIIntegrationDashboard";
+import SuperAdminAudit from "@/pages/super-admin-system/Audit";
 // Admin role deprecated - functionality merged into Boss/Owner and Super Admin
 
 // Define which roles can switch to which views
@@ -63,9 +67,64 @@ const ROLE_VIEW_ACCESS: Record<string, ActiveRole[]> = {
   boss_owner: Object.keys(roleConfigs) as ActiveRole[], // Boss Owner can view everything
   master: Object.keys(roleConfigs) as ActiveRole[], // Legacy master role
   ceo: Object.keys(roleConfigs) as ActiveRole[], // CEO can view everything (read-only)
-  super_admin: ['continent_super_admin', 'country_head', 'franchise_manager', 'sales_support_manager', 'reseller_manager', 'lead_manager'],
-  continent_super_admin: ['continent_super_admin', 'country_head'],
-  country_head: ['country_head'],
+  super_admin: Object.keys(roleConfigs) as ActiveRole[],
+  continent_super_admin: ['continent_super_admin', 'country_head', 'franchise_manager', 'reseller_manager', 'lead_manager', 'finance_manager', 'api_ai_manager', 'integration_manager', 'marketing_management', 'seo_manager', 'legal_manager', 'task_management', 'analytics_manager', 'audit_logs_manager', 'notification_manager'],
+  country_head: ['country_head', 'franchise_manager', 'reseller_manager', 'sales_support_manager', 'lead_manager'],
+  server_manager: ['server_manager', 'deployment_manager'],
+  franchise_manager: ['franchise_manager', 'sales_support_manager', 'reseller_manager', 'marketing_management', 'lead_manager'],
+  sales_support_manager: ['sales_support_manager', 'customer_support_management', 'lead_manager'],
+  reseller_manager: ['reseller_manager', 'franchise_manager'],
+  finance_manager: ['finance_manager', 'license_manager', 'audit_logs_manager'],
+  marketing_management: ['marketing_management', 'seo_manager', 'analytics_manager'],
+};
+
+const ROLE_DEEP_LINK_MAP: Record<ActiveRole, string> = {
+  boss_owner: '/boss/dashboard',
+  ceo: '/ceo/dashboard',
+  continent_super_admin: '/continent/dashboard',
+  country_head: '/country/dashboard',
+  server_manager: '/server-manager',
+  franchise_manager: '/franchise-dashboard',
+  sales_support_manager: '/sales-support-manager',
+  reseller_manager: '/reseller-dashboard',
+  lead_manager: '/lead-manager',
+  product_manager: '/product-manager',
+  demo_manager: '/demo-manager',
+  pro_manager: '/prime-dashboard',
+  legal_manager: '/legal-manager',
+  task_management: '/task-manager',
+  finance_manager: '/finance',
+  vala_ai_management: '/vala/ai-head',
+  developer_management: '/developer/dashboard',
+  marketing_management: '/marketing-manager',
+  customer_support_management: '/support',
+  role_manager: '/super-admin-system/roles',
+  api_ai_manager: '/ai-api-management',
+  promise_tracker_manager: '/promise-tracker',
+  assist_manager: '/assist-manager',
+  internal_chatbot: '/internal-chat',
+  influencer_manager: '/influencer-manager',
+  marketplace_manager: '/marketplace',
+  marketplace_core: '/marketplace',
+  asset_manager: '/franchise/assets',
+  sales_manager: '/sales-support-manager',
+  license_manager: '/super-admin-system/audit',
+  deployment_manager: '/server-manager',
+  analytics_manager: '/dashboard',
+  notification_manager: '/dashboard/notifications',
+  integration_manager: '/api-marketplace',
+  audit_logs_manager: '/super-admin-system/audit',
+  seo_manager: '/seo-manager',
+  influencer_dashboard: '/influencer/dashboard',
+  developer_dashboard: '/developer/dashboard',
+  pro_user_dashboard: '/prime/dashboard',
+  basic_user_dashboard: '/user/dashboard',
+  reseller_dashboard: '/reseller/dashboard',
+  franchise_dashboard: '/franchise/dashboard',
+  home: '/dashboard',
+  security: '/super-admin-system/security',
+  settings: '/settings',
+  usage_manager: '/dashboard',
 };
 
 const SessionTimerDisplay = ({ accentColor }: { accentColor: string }) => {
@@ -324,6 +383,34 @@ const RoleSwitchDashboard = () => {
     toast.info('Returned to Control Panel');
   }, []);
 
+  // Deep link flow: user → marketplace → lead → sales → payment → license → usage → support → analytics → boss
+  const DEEP_LINK_FLOW: ActiveRole[] = [
+    'basic_user_dashboard',
+    'marketplace_manager',
+    'lead_manager',
+    'sales_support_manager',
+    'finance_manager',
+    'license_manager',
+    'usage_manager',
+    'customer_support_management',
+    'analytics_manager',
+    'boss_owner',
+  ];
+
+  const getRoleIndex = (role: ActiveRole | null) => {
+    if (!role) return -1;
+    return DEEP_LINK_FLOW.findIndex((item) => item === role);
+  };
+
+  const getNextDeepLinkRole = (currentRole: ActiveRole | null): ActiveRole | null => {
+    const index = getRoleIndex(currentRole);
+    if (index === -1 || index === DEEP_LINK_FLOW.length - 1) return null;
+    return DEEP_LINK_FLOW[index + 1];
+  };
+
+  const nextDeepLinkRole = getNextDeepLinkRole(activeRole);
+  const nextDeepLinkPath = nextDeepLinkRole ? ROLE_DEEP_LINK_MAP[nextDeepLinkRole] : null;
+
   // Initialize role based on URL or user's actual role
   const didInitRef = useRef(false);
   const prevRequestedRoleRef = useRef<ActiveRole | null>(null);
@@ -523,6 +610,26 @@ const RoleSwitchDashboard = () => {
         return <IMFullLayout />;
       case "marketplace_manager":
         return <MMFullLayout />;
+      case "marketplace_core":
+        return <MMFullLayout />;
+      case "asset_manager":
+        return <BusinessAssetsView />;
+      case "sales_manager":
+        return <SalesSupportManagerView />;
+      case "license_manager":
+        return <SuperAdminAudit />;
+      case "deployment_manager":
+        return <ServerManagerView />;
+      case "analytics_manager":
+        return <CEODashboard activeNav={activeNav} />;
+      case "notification_manager":
+        return <DashboardNotificationsPage />;
+      case "integration_manager":
+        return <APIIntegrationDashboard />;
+      case "audit_logs_manager":
+        return <SuperAdminAudit />;
+      case "usage_manager":
+        return <SuperAdminAudit />;
       case "seo_manager":
         // SEO Manager - placeholder (shares Marketing features)
         return <MarketingManager />;
@@ -663,7 +770,26 @@ const RoleSwitchDashboard = () => {
           </motion.button>
         </div>
       </header>
-      
+
+      {/* Deep Link Flow Navigation - keep role graph connected */}
+      <div className="bg-slate-900/70 border border-slate-700 rounded-xl p-3 mx-6 mt-4 text-sm text-white flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="font-semibold text-cyan-300">Deep Link Flow:</span>
+          <span>User → Marketplace → Lead → Sales → Payment → License → Usage → Support → Analytics → Boss</span>
+        </div>
+        {nextDeepLinkPath ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(nextDeepLinkPath)}
+          >
+            Go to next step: {roleConfigs[nextDeepLinkRole ?? 'boss_owner']?.shortLabel || nextDeepLinkRole}
+          </Button>
+        ) : (
+          <span className="text-emerald-300">Flow complete</span>
+        )}
+      </div>
+
       {/* STEP 9: SINGLE-CONTEXT LAYOUT - Exactly ONE sidebar visible at all times */}
       <div className="flex-1 flex overflow-hidden relative">
         {/* CONTEXT A: Control Panel Sidebar - visible only when in Control Panel AND not inside a module */}

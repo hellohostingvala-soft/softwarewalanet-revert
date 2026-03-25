@@ -134,6 +134,11 @@ export function useCEOMissionControl() {
 
   useEffect(() => {
     void load();
+    const interval = setInterval(() => {
+      void load();
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, [load]);
 
   const executeCommand = useCallback(async (text: string, approval = false) => {
