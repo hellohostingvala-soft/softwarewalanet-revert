@@ -242,6 +242,9 @@ import AdminResellers from "./pages/admin/AdminResellers";
 import AdminTransactions from "./pages/admin/AdminTransactions";
 import AdminPayouts from "./pages/admin/AdminPayouts";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminModules from "./pages/admin/AdminModules";
+import AdminCategories from "./pages/admin/AdminCategories";
+import AdminSubcategories from "./pages/admin/AdminSubcategories";
 import DeveloperDashboard from "./pages/DeveloperDashboard";
 import DeveloperRegistration from "./pages/developer/DeveloperRegistration";
 import SecureDeveloperDashboard from "./pages/developer/SecureDeveloperDashboard";
@@ -661,6 +664,9 @@ const App = () => (
               <Route path="/admin/transactions" element={<RequireRole allowed={["admin", "super_admin"]}><AdminTransactions /></RequireRole>} />
               <Route path="/admin/payouts" element={<RequireRole allowed={["admin", "super_admin"]}><AdminPayouts /></RequireRole>} />
               <Route path="/admin/settings" element={<RequireRole allowed={["admin", "super_admin"]}><AdminSettings /></RequireRole>} />
+              <Route path="/admin/modules" element={<RequireRole allowed={["admin", "super_admin"]}><AdminModules /></RequireRole>} />
+              <Route path="/admin/categories" element={<RequireRole allowed={["admin", "super_admin"]}><AdminCategories /></RequireRole>} />
+              <Route path="/admin/subcategories" element={<RequireRole allowed={["admin", "super_admin"]}><AdminSubcategories /></RequireRole>} />
 
               {/* Developer Routes */}
               <Route path="/developer/register" element={<RequireAuth><DeveloperRegistration /></RequireAuth>} />
