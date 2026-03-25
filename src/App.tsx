@@ -1,4 +1,5 @@
 import React from "react";
+import { AppRoutes } from "./routes/appRoutes";
 import { Toaster } from "@/components/ui/toaster";
 import InfluencerCommandCenter from "@/pages/InfluencerCommandCenter";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -458,9 +459,12 @@ const App = () => (
               <Route path="/user-dashboard" element={<SimpleUserDashboard />} />
               <Route path="/boss-panel" element={<RequireRole allowed={["boss_owner", "master", "super_admin", "ceo", "admin"]}><BossPanel /></RequireRole>} />
               <Route path="/user/dashboard" element={<RequireAuth><UserDashboard /></RequireAuth>} />
-              <Route path="/dashboard/user" element={<RequireAuth><UserDashboard /></RequireAuth>} />
-              <Route path="/dashboard/developer" element={<RequireAuth><DeveloperDashboardEntry /></RequireAuth>} />
-              <Route path="/dashboard/influencer" element={<RequireAuth><InfluencerDashboardEntry /></RequireAuth>} />
+              {/* /app/* – RBAC dynamic routing (new primary app entry point) */}
+              <Route path="/app/*" element={<AppRoutes />} />
+              {/* Legacy /dashboard/* routes redirect to /app/* equivalents */}
+              <Route path="/dashboard/user" element={<Navigate to="/app/user" replace />} />
+              <Route path="/dashboard/developer" element={<Navigate to="/app/developer" replace />} />
+              <Route path="/dashboard/influencer" element={<Navigate to="/app/influencer" replace />} />
               <Route path="/dashboard/jobs" element={<RequireAuth><JobsDashboardEntry /></RequireAuth>} />
               <Route path="/dashboard/admin" element={<RequireRole allowed={["admin", "super_admin", "boss_owner", "master", "ceo"]}><AdminDashboardEntry /></RequireRole>} />
               <Route path="/dashboard/boss" element={<RequireRole allowed={["boss_owner", "master", "super_admin", "ceo", "admin"]}><BossDashboardEntry /></RequireRole>} />
