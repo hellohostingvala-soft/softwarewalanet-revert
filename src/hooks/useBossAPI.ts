@@ -230,6 +230,32 @@ export function useBossAPI<T = any>(config: APIConfig = {}) {
 }
 
 // Specialized hooks for common Boss Panel operations
+<<<<<<< HEAD
+=======
+export function useBossDashboard() {
+  const api = useBossAPI();
+
+  const getDashboardData = useCallback(async () => {
+    return api.execute('/api/boss/dashboard/summary');
+  }, [api]);
+
+  const getRealtimeStats = useCallback(async () => {
+    return api.execute('/api/boss/dashboard/realtime');
+  }, [api]);
+
+  const getRecentActivity = useCallback(async () => {
+    return api.execute('/api/boss/dashboard/activity');
+  }, [api]);
+
+  return {
+    ...api,
+    getDashboardData,
+    getRealtimeStats,
+    getRecentActivity,
+  };
+}
+
+>>>>>>> 78d3bc4 (final fix build + remove bun + clean install)
 export function useBossModules() {
   const api = useBossAPI();
 
@@ -295,34 +321,5 @@ export function useBossNotifications() {
     getNotifications,
     markAsRead,
     markAllAsRead,
-  };
-}
-
-export function useBossDashboard() {
-  const api = useBossAPI();
-
-  const getDashboardData = useCallback(async () => {
-    return api.execute('/api/boss/dashboard', {
-      method: 'GET'
-    });
-  }, [api]);
-
-  const getRealtimeStats = useCallback(async () => {
-    return api.execute('/api/boss/dashboard/realtime', {
-      method: 'GET'
-    });
-  }, [api]);
-
-  const getRecentActivity = useCallback(async () => {
-    return api.execute('/api/boss/dashboard/activity', {
-      method: 'GET'
-    });
-  }, [api]);
-
-  return {
-    ...api,
-    getDashboardData,
-    getRealtimeStats,
-    getRecentActivity,
   };
 }

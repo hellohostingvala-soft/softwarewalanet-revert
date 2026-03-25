@@ -231,6 +231,18 @@ import FranchiseLanding from "./pages/FranchiseLanding";
 import ResellerLanding from "./pages/ResellerLanding";
 import ResellerDashboard from "./pages/ResellerDashboard";
 import ResellerPortal from "./pages/ResellerPortal";
+import ResellerApply from "./pages/reseller/ResellerApply";
+import ResellerStatus from "./pages/reseller/ResellerStatus";
+import NewResellerDashboard from "./pages/reseller/ResellerDashboard";
+import ResellerOrders from "./pages/reseller/ResellerOrders";
+import ResellerCustomers from "./pages/reseller/ResellerCustomers";
+import ResellerEarnings from "./pages/reseller/ResellerEarnings";
+import ResellerProfile from "./pages/reseller/ResellerProfile";
+import AdminResellerApplications from "./pages/admin/AdminResellerApplications";
+import AdminResellers from "./pages/admin/AdminResellers";
+import AdminTransactions from "./pages/admin/AdminTransactions";
+import AdminPayouts from "./pages/admin/AdminPayouts";
+import AdminSettings from "./pages/admin/AdminSettings";
 import DeveloperDashboard from "./pages/DeveloperDashboard";
 import DeveloperRegistration from "./pages/developer/DeveloperRegistration";
 import SecureDeveloperDashboard from "./pages/developer/SecureDeveloperDashboard";
@@ -630,13 +642,26 @@ const App = () => (
               <Route path="/franchise-dashboard" element={<RequireRole allowed={["franchise", "super_admin"]}><FranchiseLayout><FranchiseDashboardPage /></FranchiseLayout></RequireRole>} />
 
               {/* Reseller Routes */}
-              <Route path="/reseller" element={<RequireRole allowed={["reseller", "reseller_manager", "super_admin"]}><ResellerDashboard /></RequireRole>} />
-              <Route path="/reseller/dashboard" element={<RequireRole allowed={["reseller", "reseller_manager", "super_admin"]}><ResellerDashboard /></RequireRole>} />
+              <Route path="/reseller/apply" element={<RequireAuth><ResellerApply /></RequireAuth>} />
+              <Route path="/reseller/status" element={<RequireAuth><ResellerStatus /></RequireAuth>} />
+              <Route path="/reseller" element={<RequireRole allowed={["reseller", "reseller_manager", "super_admin"]}><NewResellerDashboard /></RequireRole>} />
+              <Route path="/reseller/dashboard" element={<RequireRole allowed={["reseller", "reseller_manager", "super_admin"]}><NewResellerDashboard /></RequireRole>} />
+              <Route path="/reseller/orders" element={<RequireRole allowed={["reseller", "reseller_manager", "super_admin"]}><ResellerOrders /></RequireRole>} />
+              <Route path="/reseller/customers" element={<RequireRole allowed={["reseller", "reseller_manager", "super_admin"]}><ResellerCustomers /></RequireRole>} />
+              <Route path="/reseller/earnings" element={<RequireRole allowed={["reseller", "reseller_manager", "super_admin"]}><ResellerEarnings /></RequireRole>} />
+              <Route path="/reseller/profile" element={<RequireRole allowed={["reseller", "reseller_manager", "super_admin"]}><ResellerProfile /></RequireRole>} />
               <Route path="/reseller/portal" element={<RequireRole allowed={["reseller", "reseller_manager", "super_admin"]}><ResellerPortal /></RequireRole>} />
               <Route path="/reseller-portal" element={<RequireRole allowed={["reseller", "reseller_manager", "super_admin"]}><ResellerPortal /></RequireRole>} />
               <Route path="/reseller-program" element={<ResellerLanding />} />
               <Route path="/reseller-landing" element={<ResellerLanding />} />
-              <Route path="/reseller-dashboard" element={<RequireRole allowed={["reseller", "reseller_manager", "super_admin"]}><ResellerDashboard /></RequireRole>} />
+              <Route path="/reseller-dashboard" element={<RequireRole allowed={["reseller", "reseller_manager", "super_admin"]}><NewResellerDashboard /></RequireRole>} />
+
+              {/* Admin Reseller Routes */}
+              <Route path="/admin/reseller-applications" element={<RequireRole allowed={["admin", "super_admin"]}><AdminResellerApplications /></RequireRole>} />
+              <Route path="/admin/resellers" element={<RequireRole allowed={["admin", "super_admin"]}><AdminResellers /></RequireRole>} />
+              <Route path="/admin/transactions" element={<RequireRole allowed={["admin", "super_admin"]}><AdminTransactions /></RequireRole>} />
+              <Route path="/admin/payouts" element={<RequireRole allowed={["admin", "super_admin"]}><AdminPayouts /></RequireRole>} />
+              <Route path="/admin/settings" element={<RequireRole allowed={["admin", "super_admin"]}><AdminSettings /></RequireRole>} />
 
               {/* Developer Routes */}
               <Route path="/developer/register" element={<RequireAuth><DeveloperRegistration /></RequireAuth>} />

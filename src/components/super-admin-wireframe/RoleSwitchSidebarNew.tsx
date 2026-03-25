@@ -42,6 +42,10 @@ import {
   Timer,
   MessageSquare,
   Store,
+  Key,
+  Rocket,
+  Cloud,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -95,6 +99,16 @@ export type ActiveRole =
   | "basic_user_dashboard"
   | "reseller_dashboard"
   | "franchise_dashboard"
+  | "asset_manager"
+  | "sales_manager"
+  | "license_manager"
+  | "deployment_manager"
+  | "analytics_manager"
+  | "notification_manager"
+  | "integration_manager"
+  | "audit_logs_manager"
+  | "marketplace_core"
+  | "usage_manager"
   | "home"
   | "security"
   | "settings";
@@ -323,6 +337,69 @@ export const roleConfigs: Record<ActiveRole, RoleConfig> = {
     shortLabel: "MM",
     icon: Store,
     description: "Franchise Marketplace & Billing",
+  },
+  marketplace_core: {
+    id: "marketplace_core",
+    label: "Marketplace Core",
+    shortLabel: "MC",
+    icon: Store,
+    description: "Global marketplace engine (lead→conversion→revenue)",
+  },
+  asset_manager: {
+    id: "asset_manager",
+    label: "Asset Manager",
+    shortLabel: "AM",
+    icon: Building2,
+    description: "File + storage + inventory oversight",
+  },
+  sales_manager: {
+    id: "sales_manager",
+    label: "Sales Manager",
+    shortLabel: "SM",
+    icon: Target,
+    description: "Conversion pipeline and sales operations",
+  },
+  license_manager: {
+    id: "license_manager",
+    label: "License Manager",
+    shortLabel: "LM",
+    icon: Key,
+    description: "License keys & access control",
+  },
+  deployment_manager: {
+    id: "deployment_manager",
+    label: "Deployment Manager",
+    shortLabel: "DM",
+    icon: Rocket,
+    description: "Releases, deploy automation and staging",
+  },
+  analytics_manager: {
+    id: "analytics_manager",
+    label: "Analytics Manager",
+    shortLabel: "AM",
+    icon: BarChart,
+    description: "Cross-module KPI + reporting",
+  },
+  notification_manager: {
+    id: "notification_manager",
+    label: "Notification Manager",
+    shortLabel: "NM",
+    icon: MessageSquare,
+    description: "Service alerts, campaigns, inbox",
+  },
+  integration_manager: {
+    id: "integration_manager",
+    label: "Integration Manager",
+    shortLabel: "IM",
+    icon: Cloud,
+    description: "API connections and integrations",
+  },
+  audit_logs_manager: {
+    id: "audit_logs_manager",
+    label: "Audit Logs Manager",
+    shortLabel: "ALM",
+    icon: FileText,
+    description: "Audit tracking and compliance logs",
   },
   seo_manager: {
     id: "seo_manager",
