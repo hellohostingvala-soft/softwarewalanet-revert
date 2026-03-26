@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { 
   Percent, 
   MapPin, 
-  Infinity, 
+  Infinity as InfinityIcon, 
   Zap, 
   Bot, 
   GraduationCap 
@@ -22,7 +22,7 @@ const cards = [
     color: 'from-neon-teal to-neon-blue'
   },
   {
-    icon: Infinity,
+    icon: InfinityIcon,
     title: 'Lifetime Pricing',
     description: 'One-time franchise fee. No recurring royalties or hidden charges.',
     color: 'from-neon-blue to-neon-purple'
