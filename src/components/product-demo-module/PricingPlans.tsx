@@ -7,7 +7,7 @@ import {
   DollarSign, 
   Edit, 
   Check,
-  Infinity,
+  Infinity as InfinityIcon,
   Calendar,
   Settings2
 } from "lucide-react";
@@ -67,7 +67,7 @@ export const PricingPlans = () => {
       {/* Plan Types */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
-          { type: "Lifetime", icon: Infinity, desc: "One-time payment, forever access", color: "from-violet-500 to-purple-500" },
+          { type: "Lifetime", icon: InfinityIcon, desc: "One-time payment, forever access", color: "from-violet-500 to-purple-500" },
           { type: "Yearly", icon: Calendar, desc: "Annual subscription renewal", color: "from-blue-500 to-cyan-500" },
           { type: "Custom", icon: Settings2, desc: "Negotiated enterprise deals", color: "from-amber-500 to-orange-500" },
         ].map((plan, index) => {

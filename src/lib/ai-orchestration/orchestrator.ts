@@ -44,7 +44,7 @@ const DEFAULT_CONFIG: OrchestrationConfig = {
 export class AIOrchestrator {
   private config: OrchestrationConfig;
   private tenantMetrics: Map<string, TenantMetrics> = new Map();
-  private listeners: Map<OrchestrationEvent, Set<Function>> = new Map();
+  private listeners: Map<OrchestrationEvent, Set<(...args: unknown[]) => void>> = new Map();
 
   constructor(config: Partial<OrchestrationConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -134,7 +134,7 @@ export class AIOrchestrator {
   }
 
   // Event subscription
-  on(event: OrchestrationEvent, callback: Function): () => void {
+  on(event: OrchestrationEvent, callback: (...args: unknown[]) => void): () => void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
     }

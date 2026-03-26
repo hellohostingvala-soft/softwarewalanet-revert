@@ -3,7 +3,7 @@ import {
   Bot, 
   BarChart3, 
   Globe2, 
-  Infinity, 
+  Infinity as InfinityIcon, 
   Shield, 
   Zap,
   Brain,
@@ -30,7 +30,7 @@ const features = [
     gradient: 'from-neon-blue to-neon-purple'
   },
   {
-    icon: Infinity,
+    icon: InfinityIcon,
     title: 'Lifetime Pricing',
     description: 'One-time investment for unlimited access to all premium features.',
     gradient: 'from-neon-purple to-primary'

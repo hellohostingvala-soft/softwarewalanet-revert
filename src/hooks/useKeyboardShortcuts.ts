@@ -87,69 +87,17 @@ export function useEnterpriseShortcuts(handlers: {
   onNotifications?: () => void;
   onEscape?: () => void;
 }) {
-  const shortcuts: KeyboardShortcut[] = [
-    {
-      key: 'k',
-      ctrl: true,
-      description: 'Open search',
-      action: handlers.onSearch || (() => {}),
-      global: true,
-    },
-    {
-      key: 'n',
-      ctrl: true,
-      description: 'Create new',
-      action: handlers.onNew || (() => {}),
-    },
-    {
-      key: 's',
-      ctrl: true,
-      description: 'Save',
-      action: handlers.onSave || (() => {}),
-      global: true,
-    },
-    {
-      key: 'r',
-      ctrl: true,
-      shift: true,
-      description: 'Refresh data',
-      action: handlers.onRefresh || (() => {}),
-      global: true,
-    },
-    {
-      key: 'e',
-      ctrl: true,
-      description: 'Export data',
-      action: handlers.onExport || (() => {}),
-    },
-    {
-      key: '/',
-      ctrl: true,
-      description: 'Show help',
-      action: handlers.onHelp || (() => {}),
-      global: true,
-    },
-    {
-      key: ',',
-      ctrl: true,
-      description: 'Open settings',
-      action: handlers.onSettings || (() => {}),
-      global: true,
-    },
-    {
-      key: '.',
-      ctrl: true,
-      description: 'Toggle notifications',
-      action: handlers.onNotifications || (() => {}),
-      global: true,
-    },
-    {
-      key: 'Escape',
-      description: 'Close / Cancel',
-      action: handlers.onEscape || (() => {}),
-      global: true,
-    },
-  ].filter(s => s.action !== (() => {}));
+  const shortcuts: KeyboardShortcut[] = [];
+
+  if (handlers.onSearch) shortcuts.push({ key: 'k', ctrl: true, description: 'Open search', action: handlers.onSearch, global: true });
+  if (handlers.onNew) shortcuts.push({ key: 'n', ctrl: true, description: 'Create new', action: handlers.onNew });
+  if (handlers.onSave) shortcuts.push({ key: 's', ctrl: true, description: 'Save', action: handlers.onSave, global: true });
+  if (handlers.onRefresh) shortcuts.push({ key: 'r', ctrl: true, shift: true, description: 'Refresh data', action: handlers.onRefresh, global: true });
+  if (handlers.onExport) shortcuts.push({ key: 'e', ctrl: true, description: 'Export data', action: handlers.onExport });
+  if (handlers.onHelp) shortcuts.push({ key: '/', ctrl: true, description: 'Show help', action: handlers.onHelp, global: true });
+  if (handlers.onSettings) shortcuts.push({ key: ',', ctrl: true, description: 'Open settings', action: handlers.onSettings, global: true });
+  if (handlers.onNotifications) shortcuts.push({ key: '.', ctrl: true, description: 'Toggle notifications', action: handlers.onNotifications, global: true });
+  if (handlers.onEscape) shortcuts.push({ key: 'Escape', description: 'Close / Cancel', action: handlers.onEscape, global: true });
 
   return useKeyboardShortcuts({ shortcuts });
 }
