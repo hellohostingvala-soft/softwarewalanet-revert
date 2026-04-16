@@ -22,19 +22,19 @@ import SecureMarketingManagerDashboard from '@/pages/marketing-manager/SecureMar
 import SecureSEOManagerDashboard from '@/pages/seo-manager/SecureSEOManagerDashboard';
 import SecureLegalManagerDashboard from '@/pages/legal-manager/SecureLegalManagerDashboard';
 import SecureTaskManagerDashboard from '@/pages/task-manager/SecureTaskManagerDashboard';
-import FranchiseDashboardPage from '@/pages/franchise/Dashboard';
+import FranchiseDashboardUnified from '@/pages/FranchiseDashboardUnified';
 import FranchiseLayout from '@/components/layouts/FranchiseLayout';
 import ResellerDashboard from '@/pages/ResellerDashboard';
 import InfluencerDashboard from '@/pages/InfluencerDashboard';
 import SecureDeveloperDashboard from '@/pages/developer/SecureDeveloperDashboard';
 import UserDashboard from '@/pages/user/UserDashboard';
-
-// ─── Franchise wrapper ────────────────────────────────────────────────────────
-const FranchiseModule: React.FC = () => (
-  <FranchiseLayout>
-    <FranchiseDashboardPage />
-  </FranchiseLayout>
-);
+import MarketplacePage from '@/pages/marketplace/MarketplacePage';
+import ProductDetail from '@/pages/marketplace/ProductDetail';
+import CheckoutPage from '@/pages/marketplace/CheckoutPage';
+import SearchPage from '@/pages/search/SearchPage';
+import WalletTopUpPage from '@/pages/wallet/WalletTopUpPage';
+import DownloadCenterPage from '@/pages/downloads/DownloadCenterPage';
+import { FranchiseRoutes } from './franchiseRoutes';
 
 // ─── Route tree ───────────────────────────────────────────────────────────────
 /**
@@ -60,7 +60,11 @@ const FranchiseModule: React.FC = () => (
  *   /app/seo/*              → SecureSEOManagerDashboard (seo_manager+)
  *   /app/legal/*            → SecureLegalManagerDashboard (legal_manager+)
  *   /app/tasks/*            → SecureTaskManagerDashboard (task_manager+)
- *   /app/franchise/*        → FranchiseDashboardPage    (franchise+)
+ *   /app/products           → MarketplacePage            (public)
+ *   /app/product/:slug      → ProductDetail              (public)
+ *   /app/checkout/:productId → CheckoutPage             (public)
+ *   /app/franchise-dashboard → FranchiseDashboardUnified (franchise+)
+ *   /app/franchise/*        → FranchiseRoutes            (franchise+)
  *   /app/reseller/*         → ResellerDashboard         (reseller+)
  *   /app/influencer/*       → InfluencerDashboard       (influencer+)
  *   /app/developer/*        → SecureDeveloperDashboard  (developer+)
@@ -249,14 +253,32 @@ export function AppRoutes() {
           }
         />
 
+        {/* Marketplace */}
+        <Route path="products" element={<MarketplacePage />} />
+        <Route path="product/:slug" element={<ProductDetail />} />
+        <Route path="checkout/:productId" element={<CheckoutPage />} />
+
+        {/* Search */}
+        <Route path="search" element={<SearchPage />} />
+
+        {/* Wallet */}
+        <Route path="wallet/topup" element={<WalletTopUpPage />} />
+
+        {/* Downloads */}
+        <Route path="downloads" element={<DownloadCenterPage />} />
+
         {/* Franchise */}
         <Route
-          path="franchise/*"
+          path="franchise-dashboard"
           element={
             <ModuleGuard moduleId="franchise">
-              <FranchiseModule />
+              <FranchiseDashboardUnified />
             </ModuleGuard>
           }
+        />
+        <Route
+          path="franchise/*"
+          element={<Navigate to="/app/franchise-dashboard" replace />}
         />
 
         {/* Reseller */}

@@ -6,9 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:prod": "copy .env.production .env && npm run build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy:digitalocean": "deploy-fast.bat",
+    "deploy:production": "deploy-fast.bat",
+    "deploy:server": "npm run build:prod && npm run deploy:digitalocean"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",
